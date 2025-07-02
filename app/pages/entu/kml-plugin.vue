@@ -8,7 +8,9 @@
 
 <i18n lang="yaml">
 en:
-  # Add English translations here
+    title: KML Plugin
+    description: This plugin allows you to import KML files into the Entu platform.
 et:
-  # Add Estonian translations here
+    title: KML Plugin
+    description: See plugin võimaldab teil importida KML-faile Entu platvormile.
 </i18n>
