@@ -1,0 +1,32 @@
+{
+  "name": "esmuseum-map-app",
+  "private": true,
+  "description": "ESM Map App",
+  "author": "Argo Roots <argo@roots.ee>",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint . --fix --config .config/eslint.config.js",
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "start": "node .output/server/index.mjs",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "cleanup": "nuxt cleanup"
+  },
+  "engines": {
+    "node": "22.x"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "1.3.0",
+    "@nuxt/scripts": "0.11.6",
+    "@nuxtjs/i18n": "9.5.4",
+    "@nuxtjs/tailwindcss": "6.14.0",
+    "@vueuse/nuxt": "13.1.0",
+    "eslint": "9.25.1",
+    "eslint-plugin-tailwindcss": "3.18.0",
+    "naive-ui": "2.41.0",
+    "nuxt": "3.17.1",
+    "nuxt-icons": "3.2.1"
+  }
+}
