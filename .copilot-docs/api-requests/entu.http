@@ -79,8 +79,8 @@ GET {{hostname}}/{{account}}/entity?_type.string=vrkavaler&props=_id&limit=10000
 Accept-Encoding: deflate
 Authorization: Bearer {{esm_token}}
 
-### List properties
-GET https://entu.app/api/esmuuseum/entity?_type.string=vr_kavaler&photo._id.exists=true&props=photo._id&limit=10
+### List all entity types
+GET {{hostname}}/{{account}}/entity?_type.string=entity HTTP/1.1
 Accept-Encoding: deflate
 Authorization: Bearer {{esm_token}}
 
