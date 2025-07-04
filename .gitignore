@@ -4,3 +4,14 @@
 .output
 dist
 node_modules
+
+# Copilot private workspace - working documents and planning
+.copilot-workspace/*
+!.copilot-workspace/.keep
+!.copilot-workspace/README.md
+!.copilot-workspace/progress.md
+!.copilot-workspace/project-context.md
+!.copilot-workspace/features/
+!.copilot-workspace/fixes/
+!.copilot-workspace/planning/
+!.copilot-workspace/decisions-draft/
