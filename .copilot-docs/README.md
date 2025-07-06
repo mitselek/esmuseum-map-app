@@ -2,7 +2,7 @@
 
 1. **Initialize Structure**: Create `.copilot-workspace/` with these exact folders:
    - `features/` (for F001-, F002- specifications)
-   - `fixes/` (for BF001-, BF002- bug records) 
+   - `fixes/` (for BF001-, BF002- bug records)
    - `planning/` (for current planning documents)
    - `decisions-draft/` (for ADR-001- drafts)
 
