@@ -1,8 +1,9 @@
 /**
  * Plugin to expose Entu API functionality to the browser console for debugging
  */
+import { useEntuApi } from '~/composables/useEntuApi'
 
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(() => {
   // Only run in client and development mode
   if (import.meta.client && import.meta.dev) {
     // Create a global object for Entu API functions
