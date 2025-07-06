@@ -16,8 +16,8 @@ GET {{hostname}}/{{account}} HTTP/1.1
 Accept-Encoding: deflate
 Authorization: Bearer {{esm_token}}
 
-### Entities GET
-GET {{hostname}}/{{account}}/entity?props=_type HTTP/1.1
+### Entity entities GET
+GET {{hostname}}/{{account}}/entity?_type.string=entity&props=name,system,_parent,_viewer HTTP/1.1
 Accept-Encoding: deflate
 Authorization: Bearer {{esm_token}}
 
@@ -69,7 +69,7 @@ Content-Type: application/json; charset=utf-8
 ]
 
 ### DELETE entity
-DELETE {{hostname}}/{{account}}/entity/66d771c4f2daf46b3143f057
+DELETE {{hostname}}/{{account}}/entity/6868f53c1749f351b9c82e98
 Accept-Encoding: deflate
 Authorization: Bearer {{esm_token}}
 Content-Type: application/json; charset=utf-8
