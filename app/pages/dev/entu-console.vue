@@ -52,6 +52,9 @@ definePageMeta({
             {{ $t('authentication.apiKey') }}
           </h3>
           <p>{{ $t('authentication.apiKeyDescription') }}</p>
+          <p class="font-bold text-red-600">
+            {{ $t('authentication.apiKeyBackendOnly') }}
+          </p>
 
           <h3 class="mb-2 mt-4 text-xl font-semibold">
             {{ $t('authentication.oauth') }}
@@ -154,8 +157,9 @@ en:
   authentication:
     title: Authentication Methods
     description: "ESMuseum Map App supports two authentication methods for accessing the Entu API:"
-    apiKey: "API Key Authentication"
+    apiKey: "API Key Authentication (Backend Only)"
     apiKeyDescription: "Using a fixed API key from the application's configuration for direct authentication."
+    apiKeyBackendOnly: "This authentication method is reserved for backend/maintenance tasks only and not available in the public user interface."
     oauth: "OAuth Authentication"
     oauthDescription: "Authentication through OAuth.ee service with specific providers, allowing for a more secure authentication flow."
     oauthRedirectDescription: "The OAuth flow redirects the user to the OAuth.ee service and then back to the application with a temporary API key. After successful authentication, the temporary key is used to get the JWT token from the /api/auth endpoint."
@@ -186,8 +190,9 @@ et:
   authentication:
     title: Autentimise meetodid
     description: "ESMuseum Map App toetab kahte autentimise meetodit Entu API juurdepääsuks:"
-    apiKey: "API võtme autentimine"
+    apiKey: "API võtme autentimine (Ainult taustasüsteemidele)"
     apiKeyDescription: "Rakenduse konfiguratsioonist fikseeritud API võtme kasutamine otseseks autentimiseks."
+    apiKeyBackendOnly: "See autentimismeetod on reserveeritud ainult taustasüsteemi/hooldusülesannete jaoks ja ei ole avalikus kasutajaliideses saadaval."
     oauth: "OAuth autentimine"
     oauthDescription: "Autentimine läbi OAuth.ee teenuse konkreetsete pakkujatega, võimaldades turvalisemat autentimisvoogu."
     oauthRedirectDescription: "OAuth voog suunab kasutaja OAuth.ee teenusesse ja seejärel tagasi rakendusse ajutise API võtmega. Pärast edukat autentimist kasutatakse ajutist võtit, et saada JWT token /api/auth otspunktist."
