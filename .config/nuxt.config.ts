@@ -14,7 +14,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     entuKey: '',
     public: {
-      entuUrl: '',
+      entuUrl: ''
     }
   },
   future: {
