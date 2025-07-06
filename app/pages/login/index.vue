@@ -1,22 +1,20 @@
 <script setup>
-const { getToken, isAuthenticated, error, user } = useEntuAuth()
+const { isAuthenticated, error, user } = useEntuAuth()
 const { startOAuthFlow } = useEntuOAuth()
 const router = useRouter()
-const loginType = ref('oauth') // Default to OAuth login
 const selectedProvider = ref('google') // Default provider
 
 // Check if we have a redirect URL stored
 const redirectPath = ref(null)
-const apiKeyLoginLoading = ref(false)
 const oauthLoginLoading = ref(false)
 
-// OAuth provider options
+// OAuth provider options - ensure they match the values in useEntuOAuth.js
 const oauthProviders = [
   { id: 'google', label: 'Google' },
   { id: 'apple', label: 'Apple' },
-  { id: 'smartid', label: 'Smart-ID' },
-  { id: 'mobileid', label: 'Mobile-ID' },
-  { id: 'esteid', label: 'ID-Card' }
+  { id: 'smart-id', label: 'Smart-ID' },
+  { id: 'mobile-id', label: 'Mobile-ID' },
+  { id: 'id-card', label: 'ID-Card' }
 ]
 
 onMounted(() => {
@@ -42,24 +40,7 @@ const handleSuccessfulLogin = () => {
   }
 }
 
-// Perform login with API key
-const loginWithApiKey = async () => {
-  apiKeyLoginLoading.value = true
-  try {
-    await getToken()
-
-    if (isAuthenticated.value) {
-      handleSuccessfulLogin()
-    }
-  }
-  catch (err) {
-    // Error is already captured in the useEntuAuth composable
-    console.error('Login error:', err)
-  }
-  finally {
-    apiKeyLoginLoading.value = false
-  }
-}
+// No API key login for public users
 
 // Perform login with OAuth.ee
 const loginWithOAuth = async () => {
@@ -119,35 +100,8 @@ const loginWithOAuth = async () => {
           {{ $t('description') }}
         </p>
 
-        <div class="mb-4">
-          <label class="mb-2 block text-sm font-medium text-gray-700">{{ $t('loginMethod') }}</label>
-          <div class="flex gap-4">
-            <label class="flex cursor-pointer items-center">
-              <input
-                v-model="loginType"
-                type="radio"
-                value="oauth"
-                class="size-4 text-blue-600"
-              >
-              <span class="ml-2">{{ $t('oauthMethod') }}</span>
-            </label>
-            <label class="flex cursor-pointer items-center">
-              <input
-                v-model="loginType"
-                type="radio"
-                value="apikey"
-                class="size-4 text-blue-600"
-              >
-              <span class="ml-2">{{ $t('apikeyMethod') }}</span>
-            </label>
-          </div>
-        </div>
-
         <!-- OAuth Provider Selection -->
-        <div
-          v-if="loginType === 'oauth'"
-          class="mb-4"
-        >
+        <div class="mb-4">
           <label class="mb-2 block text-sm font-medium text-gray-700">{{ $t('selectProvider') }}</label>
           <select
             v-model="selectedProvider"
@@ -164,23 +118,12 @@ const loginWithOAuth = async () => {
         </div>
 
         <button
-          v-if="loginType === 'oauth'"
           class="w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           :disabled="oauthLoginLoading"
           @click="loginWithOAuth"
         >
           <span v-if="oauthLoginLoading">{{ $t('loggingIn') }}</span>
           <span v-else>{{ $t('loginWithOAuth') }}</span>
-        </button>
-
-        <button
-          v-else
-          class="w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-          :disabled="apiKeyLoginLoading"
-          @click="loginWithApiKey"
-        >
-          <span v-if="apiKeyLoginLoading">{{ $t('loggingIn') }}</span>
-          <span v-else>{{ $t('loginWithEntu') }}</span>
         </button>
       </div>
     </div>
@@ -191,7 +134,6 @@ const loginWithOAuth = async () => {
 en:
   title: Login to ESMuseum
   description: Select your authentication method and click the button below to log in.
-  loginWithEntu: Login with API Key
   loginWithOAuth: Login with OAuth
   loggingIn: Logging in...
   alreadyLoggedIn: You are already logged in
@@ -199,12 +141,10 @@ en:
   user: User
   loginMethod: Login Method
   oauthMethod: OAuth Authentication
-  apikeyMethod: API Key
   selectProvider: Select Authentication Provider
 et:
   title: Logi sisse ESMuseum
   description: Vali autentimise meetod ja vajuta allolevat nuppu, et sisse logida.
-  loginWithEntu: Logi sisse API võtmega
   loginWithOAuth: Logi sisse OAuth-ga
   loggingIn: Sisselogimine...
   alreadyLoggedIn: Sa oled juba sisse logitud
@@ -212,6 +152,5 @@ et:
   user: Kasutaja
   loginMethod: Sisselogimise meetod
   oauthMethod: OAuth autentimine
-  apikeyMethod: API võti
   selectProvider: Vali autentimisteenuse pakkuja
 </i18n>
