@@ -17,7 +17,12 @@ Accept-Encoding: deflate
 Authorization: Bearer {{esm_token}}
 
 ### Entity entities GET
-GET {{hostname}}/{{account}}/entity?_type.string=entity&props=name,system,_parent,_viewer HTTP/1.1
+GET {{hostname}}/{{account}}/entity?_type.string=entity&props=name.string HTTP/1.1
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_token}}
+
+### List all entity types
+GET {{hostname}}/{{account}}/entity?_type.string=entity HTTP/1.1
 Accept-Encoding: deflate
 Authorization: Bearer {{esm_token}}
 
@@ -30,28 +35,6 @@ Authorization: Bearer {{esm_token}}
 GET {{hostname}}/{{account}}/entity?_type.string=folder HTTP/1.1
 Accept-Encoding: deflate
 Authorization: Bearer {{esm_token}}
-
-### Entity GET VR
-GET {{hostname}}/{{account}}/entity?_type.string=vabaduse rist HTTP/1.1
-Accept-Encoding: deflate
-Authorization: Bearer {{esm_token}}
-
-### Entity GET VRK
-GET {{hostname}}/{{account}}/entity?_type.string=vrkavaler HTTP/1.1
-Accept-Encoding: deflate
-Authorization: Bearer {{esm_token}}
-
-### POST vrk
-POST {{hostname}}/{{account}}/entity HTTP/1.1
-Accept-Encoding: deflate
-Authorization: Bearer {{esm_token}}
-Content-Type: application/json; charset=utf-8
-
-[
-    {"type": "_type", "string": "vrkavaler", "reference": "66d56de42acf2af0bc794b9d"},
-    {"type": "forename", "string": "Jane4"},
-    {"type": "surname", "string": "Doe4"}
-]
 
 ### Aggregate entity
 GET {{hostname}}/{{account}}/entity/66d87895f2daf46b3144cc4c/aggregate HTTP/1.1
@@ -74,18 +57,15 @@ Accept-Encoding: deflate
 Authorization: Bearer {{esm_token}}
 Content-Type: application/json; charset=utf-8
 
-### Entity GET VRK id's
-GET {{hostname}}/{{account}}/entity?_type.string=vrkavaler&props=_id&limit=10000 HTTP/1.1
-Accept-Encoding: deflate
-Authorization: Bearer {{esm_token}}
-
-### List all entity types
-GET {{hostname}}/{{account}}/entity?_type.string=entity HTTP/1.1
+### Entity GET kaart id's
+GET {{hostname}}/{{account}}/entity?_type.string=kaart&props=_id&limit=10000 HTTP/1.1
 Accept-Encoding: deflate
 Authorization: Bearer {{esm_token}}
 
 ### DELETE entities
-DELETE {{hostname}}/{{account}}/entity?_type.string=vrkavaler
+@type_to_delete=kaart
+###
+DELETE {{hostname}}/{{account}}/entity?_type.string={{type_to_delete}}
 Accept-Encoding: deflate
 Authorization: Bearer {{esm_token}}
 Content-Type: application/json; charset=utf-8
@@ -104,18 +84,3 @@ Content-Type: application/json; charset=utf-8
         "filetype": "image/png"
     }
 ]
-
-### A.CURL
-curl --request POST \
-  --url entu.app/api/esmuuseum/entity/66eabbe42e92de098dfc8125 \
-  --header 'accept-encoding: deflate' \
-  --header 'authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50cyI6eyJlc211dXNldW0iOiI2NmI2MjQ1YzdlZmM5YWMwNmE0MzdiOTcifSwiaWF0IjoxNzI3ODc1NDA4LCJleHAiOjE3MjgwNDgyMDgsImF1ZCI6IjgyLjEzMS4xMjIuMjM4In0.i241WU3ayDacgzhPyItmhfc6-BrRca85QEBRCjxpGyM' \
-  --header 'content-type: application/json; charset=utf-8' \
-  --header 'user-agent: vscode-restclient' \
-  --data '[{"type": "photo","filename": "0003, aalberg, viktor.png","filesize": 231269,"filetype": "image/png"}]'
-
-### B. upload file
-PUT https://entu-files.fra1.digitaloceanspaces.com/esmuuseum/66eabbe42e92de098dfc8125/66fd4fd35e887861b1032778?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=DO00G2JGVW2FDH2PP334%2F20241002%2Ffra1%2Fs3%2Faws4_request&X-Amz-Date=20241002T135115Z&X-Amz-Expires=60&X-Amz-Signature=f58a204ba259049453ea48f8d7959b21f9b5b14d44556c05d95e3c63eb717924&X-Amz-SignedHeaders=content-disposition%3Bhost&x-amz-acl=private&x-id=PutObject HTTP/1.1
-ACL: private
-Content-Disposition: inline;filename=\"0003,%20aalberg,%20viktor.png\""
-Content-Type: image/png
