@@ -5,7 +5,7 @@
  * Uses the useEntuAuth composable for authentication
  */
 
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 
 export const useEntuApi = () => {
   const { token, isAuthenticated, refreshToken } = useEntuAuth()
