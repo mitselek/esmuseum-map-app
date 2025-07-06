@@ -4,7 +4,7 @@ This file is a template for internal AI context and notes. Add relevant informat
 
 ## Project Overview
 
-ESMuseum Map App - A Nuxt.js 3 application for the Estonian Museum interactive map, displaying museum information with KML import capabilities.
+ESMuseum Map App - A Nuxt.js 3 application for the Estonian Museum interactive map, displaying museum information with KML import capabilities. The app features secure OAuth-based authentication, interactive maps, and integration with the Entu API for museum data.
 
 ## Tech Stack
 
@@ -21,10 +21,18 @@ ESMuseum Map App - A Nuxt.js 3 application for the Estonian Museum interactive m
 ## Project Structure
 
 ```text
-app/pages/         # Nuxt file-based routing
+app/
+  components/     # Reusable Vue components
+  composables/    # Vue composables (including authentication)
+  middleware/     # Nuxt routing middleware
+  pages/          # Nuxt file-based routing
+  plugins/        # Nuxt plugins
+  assets/         # CSS and other assets
 public/           # Static assets
 .config/          # All configuration files (Nuxt, ESLint, Tailwind, i18n)
+.copilot-docs/    # Public documentation
 .copilot-workspace/ # Working documents and planning
+scripts/          # Utility scripts
 ```
 
 ## Development Guidelines
@@ -53,12 +61,20 @@ public/           # Static assets
 - Support English (en) and Estonian (et)
 - Store translations in component `<i18n>` blocks or locale files
 
+### Authentication
+
+- OAuth-based authentication via Entu API
+- Multiple authentication providers (Google, Apple, Smart-ID, Mobile-ID, ID-Card)
+- Secure token management with automatic refresh
+- Backend-only API key authentication for maintenance tasks
+- Route protection middleware for authenticated routes
+
 ### API Integration
 
-- Discogs API (music-related data)
-- Entu API (museum data)
+- Entu API for museum data and authentication
 - Use environment variables (see `.env.example`)
 - Implement proper error handling
+- OAuth flow for secure authentication
 
 ### Performance & Best Practices
 
