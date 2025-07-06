@@ -2,8 +2,6 @@
 
 This file is a template for internal AI context and notes. Add relevant information as needed.
 
-# Project Context & Guidelines
-
 ## Project Overview
 
 ESMuseum Map App - A Nuxt.js 3 application for the Estonian Museum interactive map, displaying museum information with KML import capabilities.
