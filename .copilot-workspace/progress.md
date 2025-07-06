@@ -1,16 +1,29 @@
-# Progress Log
+# ESMuseum Map App - Project Progress
 
-This file is a template for tracking project progress. Add entries as work is completed or milestones are reached.
-
-**Last Updated**: July 2, 2025
+**Last Updated**: July 7, 2025
 
 ## Current Status
 
 - ✅ **Environment Setup**: Workspace structure established
 - ✅ **Working Agreements**: Collaboration framework defined
-- 🚧 **Project Planning**: Ready to begin feature specification
+- ✅ **Authentication**: Entu OAuth authentication implemented and merged
+- 🚧 **Feature Planning**: Deciding on next feature priority
 
 ## Completed Items
+
+### F001: Entu OAuth Authentication (July 7, 2025)
+
+- Implemented OAuth-based authentication with multiple providers:
+  - Google
+  - Apple
+  - Smart-ID
+  - Mobile-ID
+  - ID-Card
+- Created secure token management system with automatic refresh
+- Removed public API key authentication, restricting it to backend/maintenance use only
+- Added comprehensive developer tools and documentation
+- Cleaned up codebase with ESLint and fixed all code quality issues
+- [Feature Documentation](features/F001-entu-oauth-authentication.md)
 
 ### Setup & Planning (July 2, 2025)
 
@@ -25,17 +38,24 @@ This file is a template for tracking project progress. Add entries as work is co
 
 ## Active Work
 
-- None currently - ready for first feature specification
+- Planning next feature implementation
 
 ## Next Steps
 
-1. Discuss project vision and initial feature requirements
-2. Create first feature specification (F001)
-3. Begin implementation of core functionality
+1. Select next feature to implement from candidates:
+   - KML Integration & Visualization
+   - Map UI Improvements
+   - User Profile & Preferences
+   - Admin Dashboard
+   - Offline Functionality
+   - 3D Visualization Integration
+   - Search & Filter Improvements
+2. Create feature specification (F002)
+3. Begin implementation
 
 ## Statistics
 
-- **Features Completed**: 0
+- **Features Completed**: 1
 - **Features In Progress**: 0
 - **Bugs Fixed**: 0
 - **ADRs Created**: 0
