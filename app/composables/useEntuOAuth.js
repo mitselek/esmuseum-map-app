@@ -70,27 +70,15 @@ export const useEntuOAuth = () => {
 
       // In client context, show the URL and ask for confirmation before redirecting
       if (import.meta.client) {
+        // Log OAuth URL information for debugging purposes
         console.log('=== OAUTH AUTHENTICATION URL ===')
         console.log(`Provider: ${provider}`)
         console.log(`Full Auth URL: ${authUrl}`)
         console.log(`Callback URL (decoded): ${callbackUrl.value}`)
         console.log('===============================')
 
-        // Confirm before redirecting (for development only)
-        if (import.meta.dev) {
-          if (confirm('Ready to redirect to OAuth authentication?\n\nAuth URL: ' + authUrl + '\n\nCallback URL: ' + callbackUrl.value)) {
-            window.location.href = authUrl
-          }
-          else {
-            error.value = 'Authentication cancelled by user'
-            isLoading.value = false
-            return false
-          }
-        }
-        else {
-          // In production, redirect directly
-          window.location.href = authUrl
-        }
+        // Redirect directly to the OAuth authentication URL
+        window.location.href = authUrl
       }
 
       return true
