@@ -28,38 +28,45 @@
           </NuxtLink>
         </div>
 
-        <!-- Language toggle -->
-        <button
-          class="rounded bg-blue-700 px-2 py-1 text-sm hover:bg-blue-600"
-          @click="toggleLocale"
-        >
-          {{ $t('changeLanguage') }}
-        </button>
+        <!-- Language switcher with flags -->
+        <div class="flex items-center space-x-2">
+          <button
+            v-if="currentLocale !== 'et'"
+            title="Eesti keel"
+            class="rounded bg-blue-700 px-2 py-1 text-sm text-white transition-colors hover:bg-blue-600"
+            @click="currentLocale = 'et'"
+          >
+            🇪🇪
+          </button>
+          <button
+            v-if="currentLocale !== 'en'"
+            title="English"
+            class="rounded bg-blue-700 px-2 py-1 text-sm text-white transition-colors hover:bg-blue-600"
+            @click="currentLocale = 'en'"
+          >
+            🇬🇧
+          </button>
+          <button
+            v-if="currentLocale !== 'uk'"
+            title="Українська"
+            class="rounded bg-blue-700 px-2 py-1 text-sm text-white transition-colors hover:bg-blue-600"
+            @click="currentLocale = 'uk'"
+          >
+            🇺🇦
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-const { locale } = useI18n()
+const { locale, setLocale } = useI18n()
 const { isAuthenticated, user, logout } = useEntuAuth()
 
-const toggleLocale = () => {
-  locale.value = locale.value === 'et' ? 'en' : 'et'
-}
+// Ensure locale changes are handled properly
+const currentLocale = computed({
+  get: () => locale.value,
+  set: (value) => setLocale(value)
+})
 </script>
-
-<i18n lang="yaml">
-en:
-  appName: ESMuseum Map
-  changeLanguage: Switch to Estonian
-  login: Login
-  logout: Logout
-  loggedIn: Logged in
-et:
-  appName: ESMuseumi kaart
-  changeLanguage: Lülitu inglise keelele
-  login: Logi sisse
-  logout: Logi välja
-  loggedIn: Sisse logitud
-</i18n>
