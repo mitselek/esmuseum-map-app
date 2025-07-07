@@ -39,10 +39,18 @@
 ## Active Work
 
 - Planning next feature implementation
+- **Feature F002: Estonian as Main Language**
+  - Update i18n configuration to default to Estonian
+  - Ensure all strings have Estonian translations
+  - Add a language switcher to the UI
+  - Test functionality and update documentation
 
 ## Next Steps
 
-1. Select next feature to implement from candidates:
+1. Complete implementation of "F002: Estonian as Main Language"
+2. Test and validate Estonian language functionality
+3. Update project documentation with feature details
+4. Select next feature to implement from candidates:
    - KML Integration & Visualization
    - Map UI Improvements
    - User Profile & Preferences
@@ -50,12 +58,10 @@
    - Offline Functionality
    - 3D Visualization Integration
    - Search & Filter Improvements
-2. Create feature specification (F002)
-3. Begin implementation
 
 ## Statistics
 
 - **Features Completed**: 1
-- **Features In Progress**: 0
+- **Features In Progress**: 1
 - **Bugs Fixed**: 0
 - **ADRs Created**: 0
