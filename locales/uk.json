@@ -1,0 +1,34 @@
+{
+  "welcome": "Ласкаво просимо",
+  "login": "Увійти",
+  "logout": "Вийти",
+  "loggedIn": "Увійшли",
+  "language": "Мова",
+  "appName": "ESMuseum Карти",
+  "title": "ESMuseum Карти",
+  "description": "Додаток карт естонських музеїв",
+  "loading": "Завантаження...",
+  "error": "Помилка",
+  "noMaps": "Карти не знайдено",
+  "untitled": "Без назви",
+  "viewMap": "Переглянути карту",
+  "redirecting": "Перенаправлення...",
+  "navigation": {
+    "title": "Навігація",
+    "maps": "Карти",
+    "requiresLogin": "Потрібен вхід",
+    "kmlPlugin": "KML Плагін",
+    "entuConsole": "Entu консоль"
+  },
+  "browserConsole": {
+    "title": "Консоль браузера",
+    "description": "Відкрийте консоль розробника браузера (F12) для взаємодії з Entu API.",
+    "quickStart": "Швидкий старт:",
+    "step1": "Крок 1: Отримати всі карти",
+    "step2": "Крок 2: Створити новий запис"
+  },
+  "authentication": {
+    "title": "Автентифікація",
+    "description": "Ця консоль призначена для розробників, які хочуть тестувати функціональність Entu API."
+  }
+}
