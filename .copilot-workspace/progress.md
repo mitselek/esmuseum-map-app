@@ -52,8 +52,6 @@
 - Configured proper locale handling and text direction
 - [Feature Documentation](features/F002-estonian-main-language.md)
 
-## Active Development
-
 ### F004: Smart Location Selection for Task Responses (September 5, 2025)
 
 **Status**: ✅ Complete
@@ -166,12 +164,6 @@
 - Organized public vs private documentation structure
 - **Created onboarding flow**: "set up workspace" as standard entry point
 - Updated project README with AI assistant guidance
-
-## Active Work
-
-- Planning next feature implementation
-- Considering response submission enhancements
-- Evaluating map integration options
 
 ## Next Priority
 
