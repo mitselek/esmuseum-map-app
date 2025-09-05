@@ -34,11 +34,17 @@ Location entities for geographical points and places
 
 ### Properties
 
-This entity type has no custom properties defined.
+- **name**: string - Location name (searchable)
+- **kirjeldus**: text - Location description (supports markdown)
+- **long**: number - Longitude coordinate (7 decimal places)
+- **lat**: number - Latitude coordinate (7 decimal places)
+- **photo**: file - Location photo
+- **link**: string - External link or URL
+- **pildilingid**: string (list) - Photo URLs (supports markdown)
 
 ### Usage
 
-Represents geographical locations that can be imported via KML and are associated with maps.
+Geographical locations that can be imported via KML and are associated with maps. Supports precise coordinates, photos, and external links.
 
 ## department
 
@@ -133,11 +139,13 @@ Map entities for geographical and location-based content
 
 ### Properties
 
-This entity type has no custom properties defined.
+- **name**: string - Map name
+- **kirjeldus**: text - Map description (supports markdown)
+- **url**: string - Map URL or external link
 
 ### Usage
 
-Maps that can contain multiple locations (asukoht) and are used in assignments.
+Maps that can contain multiple locations (asukoht) and are used in assignments. Support external URLs and detailed descriptions.
 
 ## person
 
@@ -202,10 +210,11 @@ Task/assignment system for educational activities
 - **tahtaeg**: datetime - Deadline
 - **kaart**: reference - Associated map
 - **grupp**: reference - Assigned group
+- **vastuseid**: number - Number of expected answers
 
 ### Usage
 
-Educational assignments that can be assigned to groups with deadlines and map associations.
+Educational assignments that can be assigned to groups with deadlines and map associations. Includes tracking of expected response count.
 
 ## vastus
 
@@ -228,10 +237,11 @@ Response/answer system for task submissions
 - **asukoht**: reference - Location reference
 - **kirjeldus**: string - Response description
 - **photo**: file - Response photo
+- **geopunkt**: string - Geolocation coordinates
 
 ### Usage
 
-Submissions and responses to assignments, can include location data and photos.
+Submissions and responses to assignments, can include location data, photos, and precise coordinates.
 
 ## vr_aum2rk
 
