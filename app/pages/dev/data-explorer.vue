@@ -26,6 +26,8 @@ const fetchCompleteDataModel = async () => {
       allProperties.value = propertiesResponse.entities
     }
 
+    console.log('Fetched entity types:', entityTypes.value)
+    console.log('Fetched properties:', allProperties.value)
     // Build the complete data model
     buildDataModel()
   }
