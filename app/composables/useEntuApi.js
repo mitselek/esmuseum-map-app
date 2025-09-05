@@ -96,10 +96,11 @@ export const useEntuApi = () => {
    */
   const searchEntities = async (query) => {
     // Build the query string
+    console.log('Searching entities with query:', query)
     const queryString = Object.entries(query)
       .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
       .join('&')
-
+    console.log('Searching entities with query:', queryString)
     return callApi(`/entity?${queryString}`)
   }
 
