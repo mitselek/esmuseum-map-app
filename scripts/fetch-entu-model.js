@@ -1,5 +1,5 @@
 // Fetch Entu data model: all entity types and their properties (including references)
-// Outputs YAML (machine) and Markdown (human) to .copilot-workspace/model/
+// Outputs YAML (machine) and Markdown (human) to docs/model/
 
 import fs from 'fs'
 import path from 'path'
@@ -95,7 +95,7 @@ async function fetchModel () {
   const typesResp = await apiGet('/entity?_type.string=entity', token)
   // Save intermediate API response for inspection
   fs.writeFileSync(
-    path.join(__dirname, '../.copilot-workspace/model/raw-entity-definitions.json'),
+    path.join(__dirname, '../docs/model/raw-entity-definitions.json'),
     JSON.stringify(typesResp, null, 2),
     'utf8'
   )
@@ -272,7 +272,7 @@ try {
   fetchModel()
     .then((model) => {
       console.log('Model fetched successfully, saving outputs...')
-      const outDir = path.join(__dirname, '../.copilot-workspace/model')
+      const outDir = path.join(__dirname, '../docs/model')
       fs.writeFileSync(path.join(outDir, 'model.yaml'), yaml.dump(model), 'utf8')
       fs.writeFileSync(path.join(outDir, 'model.md'), toMarkdown(model), 'utf8')
       console.log('Entu data model updated')
