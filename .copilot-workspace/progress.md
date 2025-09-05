@@ -9,7 +9,8 @@
 - ✅ **Authentication**: Entu OAuth authentication implemented and merged
 - ✅ **Estonian Language**: Estonian as main language implemented and working
 - ✅ **Pupil Dashboard**: Complete student task management system implemented
-- 🚧 **Smart Location Selection**: Enhanced location picker with proximity-based suggestions in development
+- ✅ **Smart Location Selection**: Enhanced location picker with proximity-based suggestions completed
+- 🚧 **Form Submission**: Response persistence and file upload system in planning
 
 ## Completed Items
 
@@ -55,7 +56,7 @@
 
 ### F004: Smart Location Selection for Task Responses (September 5, 2025)
 
-**Status**: 🚧 Core Implementation Complete
+**Status**: ✅ Complete
 
 #### Phase 1: ✅ Data Loading & API Integration
 
@@ -110,12 +111,36 @@
 
 #### Next Steps
 
-- 🔄 **Testing**: User testing with real location data
-- 🔄 **Performance**: Optimization for large location datasets
-- 🔄 **Enhancement**: Map visualization integration
-- 🔄 **Analytics**: Location selection pattern analysis
+- ✅ **Testing**: User testing with real location data completed
+- ✅ **Performance**: Optimization for large location datasets implemented
+- ✅ **Enhancement**: GPS auto-request and location reordering completed
+- 🔄 **Analytics**: Location selection pattern analysis (future enhancement)
 
 [Feature Documentation](features/F004-smart-location-selection.md)
+
+## Active Development
+
+### F005: Form Submission & Response Management (September 5, 2025)
+
+**Status**: 🚧 Planning
+
+#### Planned Features
+
+- **Response Persistence**: Complete form submission with Entu API integration
+- **File Upload**: Integrate file attachment with response entities
+- **Response Management**: Load, edit, and update existing responses
+- **Error Handling**: Comprehensive validation and user feedback
+- **Data Integrity**: Proper entity relationships and timestamps
+
+#### Implementation Approach
+
+- Entity structure definition for `vastus` (response) entities
+- Form submission logic with create/update scenarios
+- File upload integration with Entu's file storage
+- Response loading and form population
+- User experience enhancements with loading states and error handling
+
+[Feature Documentation](features/F005-form-submission.md)
 
 ## Previously Completed
 
@@ -148,12 +173,13 @@
 - Considering response submission enhancements
 - Evaluating map integration options
 
-## Next Steps
+## Next Priority
 
-1. Complete response submission system:
+1. Complete F005 Form Submission & Response Management:
    - User response persistence and retrieval
    - File upload server-side handling
    - Response editing and updates
+   - Comprehensive error handling and validation
 2. Implement map integration for location-based tasks
 3. Add teacher/admin dashboard for task management
 4. Consider offline functionality and PWA features
@@ -161,7 +187,7 @@
 
 ## Statistics
 
-- **Features Completed**: 3
-- **Features In Progress**: 0
+- **Features Completed**: 4
+- **Features In Progress**: 1
 - **Bugs Fixed**: 0
 - **ADRs Created**: 0
