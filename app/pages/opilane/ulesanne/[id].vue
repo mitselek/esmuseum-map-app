@@ -111,24 +111,6 @@
         </h3>
 
         <form @submit.prevent="submitResponse">
-          <!-- Text Response -->
-          <div class="mb-4">
-            <label
-              for="response-text"
-              class="mb-2 block text-sm font-medium text-gray-700"
-            >
-              Vastus
-            </label>
-            <textarea
-              id="response-text"
-              v-model="responseForm.text"
-              class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              rows="4"
-              placeholder="Kirjuta oma vastus siia..."
-              :disabled="submitting"
-            />
-          </div>
-
           <!-- File Upload -->
           <div class="mb-4">
             <label
@@ -151,37 +133,106 @@
             </p>
           </div>
 
-          <!-- Location Capture -->
+          <!-- Location Selection -->
           <div class="mb-6">
-            <div class="flex items-center justify-between">
-              <label class="text-sm font-medium text-gray-700">
-                Asukoht
-              </label>
-              <button
-                type="button"
-                class="text-sm text-blue-600 hover:text-blue-800"
-                :disabled="gettingLocation || submitting"
-                @click="getCurrentLocation"
-              >
-                {{ gettingLocation ? 'Otsin asukohta...' : 'Määra praegune asukoht' }}
-              </button>
-            </div>
+            <label class="mb-2 block text-sm font-medium text-gray-700">
+              Asukoht
+            </label>
+
+            <!-- Location Picker Component -->
+            <LocationPicker
+              :locations="mapLocations"
+              :user-position="userPosition"
+              :selected="selectedLocation"
+              :loading="loadingLocations"
+              :error="locationError"
+              @select="onLocationSelect"
+              @manual="showManualCoordinates = true"
+              @request-location="onRequestLocation"
+              @retry="loadLocations"
+            />
+
+            <!-- Manual Coordinate Entry (fallback) -->
             <div
-              v-if="responseForm.geopunkt"
+              v-if="showManualCoordinates"
+              class="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4"
+            >
+              <div class="mb-3 flex items-center justify-between">
+                <h4 class="text-sm font-medium text-gray-700">
+                  Käsitsi koordinaadid
+                </h4>
+                <button
+                  type="button"
+                  class="text-sm text-gray-600 hover:text-gray-800"
+                  @click="showManualCoordinates = false"
+                >
+                  ✕ Sulge
+                </button>
+              </div>
+
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs text-gray-600">
+                    Koordinaadid (lat,lng formaat)
+                  </label>
+                  <input
+                    v-model="manualCoordinates"
+                    type="text"
+                    placeholder="näiteks: 59.4370, 24.7536"
+                    class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    :disabled="submitting"
+                  >
+                </div>
+
+                <div class="flex space-x-2">
+                  <button
+                    type="button"
+                    class="text-sm text-blue-600 hover:text-blue-800"
+                    :disabled="gettingLocation || submitting"
+                    @click="getCurrentLocation"
+                  >
+                    {{ gettingLocation ? 'Otsin asukohta...' : 'Kasuta praegust asukohta' }}
+                  </button>
+
+                  <button
+                    type="button"
+                    class="text-sm text-green-600 hover:text-green-800"
+                    :disabled="!manualCoordinates || submitting"
+                    @click="useManualCoordinates"
+                  >
+                    Kasuta neid koordinaate
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Current Selection Display -->
+            <div
+              v-if="responseForm.geopunkt && !showManualCoordinates"
               class="mt-2 rounded-lg bg-green-50 p-3"
             >
               <p class="text-sm text-green-800">
-                📍 Asukoht määratud: {{ formatCoordinates(responseForm.geopunkt) }}
+                📍 Asukoht määratud: {{ formatDisplayCoordinates(responseForm.geopunkt) }}
               </p>
             </div>
-            <div
-              v-else
-              class="mt-2 rounded-lg bg-gray-50 p-3"
+          </div>
+
+          <!-- Text Response -->
+          <div class="mb-4">
+            <label
+              for="response-text"
+              class="mb-2 block text-sm font-medium text-gray-700"
             >
-              <p class="text-sm text-gray-600">
-                Asukoht pole määratud
-              </p>
-            </div>
+              Vastus
+            </label>
+            <textarea
+              id="response-text"
+              v-model="responseForm.text"
+              class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              rows="4"
+              placeholder="Kirjuta oma vastus siia..."
+              :disabled="submitting"
+            />
           </div>
 
           <!-- Submit Button -->
@@ -217,6 +268,16 @@ definePageMeta({
 const route = useRoute()
 const { user } = useEntuAuth()
 const { getEntity, createEntity, updateEntity } = useEntuApi()
+const {
+  userPosition,
+  locationError,
+  getUserPosition,
+  requestGPSOnLoad,
+  loadTaskLocations,
+  sortByDistance,
+  formatCoordinates,
+  getLocationCoordinates
+} = useLocation()
 
 // Reactive data
 const task = ref(null)
@@ -225,6 +286,13 @@ const pending = ref(true)
 const error = ref(null)
 const submitting = ref(false)
 const gettingLocation = ref(false)
+
+// Location-related state
+const mapLocations = ref([])
+const loadingLocations = ref(false)
+const selectedLocation = ref(null)
+const showManualCoordinates = ref(false)
+const manualCoordinates = ref('')
 
 // Form data
 const responseForm = ref({
@@ -250,6 +318,14 @@ const canSubmit = computed(() => {
   return responseForm.value.text.trim().length > 0 || responseForm.value.file
 })
 
+// Watch for GPS position changes and reorder locations
+watch(userPosition, (newPosition) => {
+  if (newPosition && mapLocations.value.length > 0) {
+    console.log('GPS position updated, reordering locations by distance')
+    mapLocations.value = sortByDistance(mapLocations.value, newPosition)
+  }
+}, { deep: true })
+
 // Methods
 const goBack = () => {
   navigateTo('/opilane')
@@ -271,6 +347,12 @@ const loadTask = async () => {
 
     // Load user's existing response if any
     await loadUserResponse()
+
+    // Load map locations for this task
+    await loadLocations()
+
+    // Request GPS position in background (non-blocking)
+    requestGPSOnLoad()
   }
   catch (err) {
     console.error('Error loading task:', err)
@@ -278,6 +360,37 @@ const loadTask = async () => {
   }
   finally {
     pending.value = false
+  }
+}
+
+const loadLocations = async () => {
+  try {
+    loadingLocations.value = true
+
+    if (!task.value) {
+      console.log('No task available for loading locations')
+      return
+    }
+
+    // Load locations for this task's map
+    const locations = await loadTaskLocations(task.value)
+    console.log('Loaded locations:', locations)
+
+    // Sort by distance if we have user position
+    if (userPosition.value) {
+      mapLocations.value = sortByDistance(locations, userPosition.value)
+    }
+    else {
+      mapLocations.value = locations
+    }
+  }
+  catch (err) {
+    console.error('Error loading locations:', err)
+    // Don't show error to user - just log it and continue without locations
+    mapLocations.value = []
+  }
+  finally {
+    loadingLocations.value = false
   }
 }
 
@@ -334,17 +447,29 @@ const submitResponse = async () => {
 }
 
 const getCurrentLocation = () => {
+  gettingLocation.value = true
+
   if (!navigator.geolocation) {
     alert('Geolokatsioon pole selles brauseris toetatud')
+    gettingLocation.value = false
     return
   }
-
-  gettingLocation.value = true
 
   navigator.geolocation.getCurrentPosition(
     (position) => {
       const { latitude, longitude } = position.coords
-      responseForm.value.geopunkt = `${latitude},${longitude}`
+      const coordinates = `${latitude},${longitude}`
+
+      if (showManualCoordinates.value) {
+        // Update manual input field
+        manualCoordinates.value = coordinates
+      }
+      else {
+        // Direct assignment to form
+        responseForm.value.geopunkt = coordinates
+        selectedLocation.value = null
+      }
+
       gettingLocation.value = false
     },
     (err) => {
@@ -365,10 +490,47 @@ const handleFileSelect = (event) => {
   responseForm.value.file = file
 }
 
-const formatCoordinates = (geopunkt) => {
-  if (!geopunkt) return ''
-  const [lat, lng] = geopunkt.split(',')
-  return `${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)}`
+// Location-related methods
+const onLocationSelect = (location) => {
+  selectedLocation.value = location
+  if (location) {
+    responseForm.value.geopunkt = getLocationCoordinates(location)
+    showManualCoordinates.value = false
+  }
+  else {
+    responseForm.value.geopunkt = ''
+  }
+}
+
+const onRequestLocation = async () => {
+  try {
+    gettingLocation.value = true
+    await getUserPosition()
+
+    // Re-sort locations by distance
+    if (mapLocations.value.length > 0) {
+      mapLocations.value = sortByDistance(mapLocations.value, userPosition.value)
+    }
+  }
+  catch (err) {
+    console.error('Error getting user position:', err)
+    // Error is already handled by the composable
+  }
+  finally {
+    gettingLocation.value = false
+  }
+}
+
+const useManualCoordinates = () => {
+  if (manualCoordinates.value) {
+    responseForm.value.geopunkt = manualCoordinates.value
+    selectedLocation.value = null
+    showManualCoordinates.value = false
+  }
+}
+
+const formatDisplayCoordinates = (geopunkt) => {
+  return formatCoordinates(geopunkt)
 }
 
 // Helper methods for task data

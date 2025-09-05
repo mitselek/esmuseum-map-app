@@ -95,7 +95,11 @@ export const useEntuApi = () => {
    * Search for entities
    */
   const searchEntities = async (query) => {
-    // Build the query string
+    // Build the query string,
+    // if limit is not specified, add a default limit=1000
+    if (!query.limit) {
+      query.limit = 1000
+    }
     console.log('Searching entities with query:', query)
     const queryString = Object.entries(query)
       .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
