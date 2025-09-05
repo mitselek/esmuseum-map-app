@@ -199,6 +199,8 @@ ulesanne:
       type: reference
     - name: grupp
       type: reference
+    - name: vastuseid
+      type: number
 vastus:
   attributes:
     label:
@@ -222,6 +224,8 @@ vastus:
       type: string
     - name: photo
       type: file
+    - name: geopunkt
+      type: string
 kaart:
   attributes:
     label:
@@ -238,6 +242,13 @@ kaart:
       reference: 687c9fd8259fc48ba59cf2e4
       entity_type: menu
       value: Kaardid
+  properties:
+    - name: name
+      type: string
+    - name: kirjeldus
+      type: text
+    - name: url
+      type: string
 asukoht:
   attributes:
     label:
@@ -259,3 +270,18 @@ asukoht:
       reference: 687a1404259fc48ba59cdffa
       entity_type: plugin
       value: KML import
+  properties:
+    - name: name
+      type: string
+    - name: kirjeldus
+      type: text
+    - name: long
+      type: number
+    - name: lat
+      type: number
+    - name: photo
+      type: file
+    - name: link
+      type: string
+    - name: pildilingid
+      type: string
