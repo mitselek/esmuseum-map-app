@@ -266,8 +266,7 @@ definePageMeta({
 })
 
 const route = useRoute()
-const { user } = useEntuAuth()
-const { getEntity, createEntity, updateEntity } = useEntuApi()
+const { getEntity } = useEntuApi()
 const {
   userPosition,
   locationError,
@@ -415,20 +414,52 @@ const submitResponse = async () => {
   try {
     submitting.value = true
 
+    // Prepare response data in the new F006 API format
     const responseData = {
-      text: responseForm.value.text,
-      geopunkt: responseForm.value.geopunkt,
-      ulesanne: task.value.id,
-      person: user.value._id
+      taskId: task.value.id,
+      responses: [
+        {
+          questionId: 'text-response',
+          value: responseForm.value.text || '',
+          type: 'text'
+        },
+        {
+          questionId: 'location-response',
+          value: responseForm.value.geopunkt || '',
+          type: 'location',
+          metadata: responseForm.value.geopunkt
+            ? {
+                coordinates: getLocationCoordinates(responseForm.value.geopunkt)
+              }
+            : undefined
+        }
+      ].filter((r) => r.value) // Only include responses with values
     }
 
+    // Get auth token for API call
+    const { token } = useEntuAuth()
+
     if (userResponse.value) {
-      // Update existing response
-      await updateEntity(userResponse.value.id, responseData)
+      // Update existing response using F006 API
+      await $fetch(`/api/responses/${userResponse.value.id}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token.value}`,
+          'Content-Type': 'application/json'
+        },
+        body: responseData
+      })
     }
     else {
-      // Create new response
-      await createEntity('vastus', responseData)
+      // Create new response using F006 API
+      await $fetch('/api/responses', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token.value}`,
+          'Content-Type': 'application/json'
+        },
+        body: responseData
+      })
     }
 
     // Show success message
