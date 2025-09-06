@@ -19,10 +19,12 @@ const oauthProviders = [
 
 onMounted(() => {
   if (import.meta.client) {
+    // Get redirect URL from localStorage
     redirectPath.value = localStorage.getItem('auth_redirect') || '/'
+    console.log('Login page loaded with redirect path:', redirectPath.value)
   }
 
-  // If already authenticated, redirect
+  // Check token and refresh if needed
   if (isAuthenticated.value) {
     handleSuccessfulLogin()
   }
@@ -31,12 +33,17 @@ onMounted(() => {
 // Handle login success
 const handleSuccessfulLogin = () => {
   if (import.meta.client) {
-    // Clear the stored redirect path
-    localStorage.removeItem('auth_redirect')
-
-    // Navigate to the redirect path or home
-    const path = redirectPath.value || '/'
-    router.push(path)
+    // Use utility to get and clear the stored redirect path
+    import('~/utils/auth-check.client').then(({ getAndClearRedirect }) => {
+      const path = getAndClearRedirect() || '/'
+      console.log('Login successful, redirecting to:', path)
+      router.push(path)
+    }).catch(() => {
+      // Fallback if module import fails
+      const path = redirectPath.value || '/'
+      console.log('Login successful, redirecting to:', path)
+      router.push(path)
+    })
   }
 }
 
@@ -46,11 +53,6 @@ const handleSuccessfulLogin = () => {
 const loginWithOAuth = async () => {
   oauthLoginLoading.value = true
   try {
-    // Store the current path for redirect after successful login
-    if (import.meta.client) {
-      localStorage.setItem('auth_redirect', redirectPath.value || '/')
-    }
-
     // Start the OAuth flow which will redirect to OAuth.ee with the selected provider
     await startOAuthFlow(selectedProvider.value)
   }

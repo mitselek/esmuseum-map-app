@@ -3,6 +3,11 @@
  * Uses Nuxt's built-in validation and error handling
  */
 
+import { createLogger } from './logger'
+
+// Create a logger for this module
+const logger = createLogger('validation')
+
 // TypeScript interfaces for type safety
 export interface CreateResponseRequest {
   taskId: string
@@ -52,6 +57,14 @@ export interface ApiError {
 }
 
 /**
+ * Optional location query shape used by endpoints that compute distances
+ */
+export interface LocationQuery {
+  lat?: number
+  lng?: number
+}
+
+/**
  * Validate required string field
  */
 export function validateRequiredString(value: any, fieldName: string): string {
@@ -95,7 +108,10 @@ export function validateResponseType(type: any): 'text' | 'location' | 'file' {
  * Validate coordinates object
  */
 export function validateCoordinates(coords: any): { lat: number; lng: number } {
+  logger.debug('Validating coordinates', { coords })
+  
   if (!coords || typeof coords !== 'object') {
+    logger.warn('Invalid coordinates structure')
     throw createError({
       statusCode: 400,
       statusMessage: 'Coordinates must be an object with lat and lng properties'
@@ -106,6 +122,7 @@ export function validateCoordinates(coords: any): { lat: number; lng: number } {
   const lng = parseFloat(coords.lng)
 
   if (isNaN(lat) || isNaN(lng)) {
+    logger.warn('Invalid coordinate values', { lat: coords.lat, lng: coords.lng })
     throw createError({
       statusCode: 400,
       statusMessage: 'Coordinates lat and lng must be valid numbers'
@@ -113,6 +130,7 @@ export function validateCoordinates(coords: any): { lat: number; lng: number } {
   }
 
   if (lat < -90 || lat > 90) {
+    logger.warn('Latitude out of range', { lat })
     throw createError({
       statusCode: 400,
       statusMessage: 'Latitude must be between -90 and 90'
@@ -120,12 +138,14 @@ export function validateCoordinates(coords: any): { lat: number; lng: number } {
   }
 
   if (lng < -180 || lng > 180) {
+    logger.warn('Longitude out of range', { lng })
     throw createError({
       statusCode: 400,
       statusMessage: 'Longitude must be between -180 and 180'
     })
   }
 
+  logger.debug('Coordinates validated successfully', { lat, lng })
   return { lat, lng }
 }
 
@@ -185,7 +205,10 @@ export function validateResponseItem(item: any, index: number) {
  * Validate create response request body
  */
 export function validateCreateResponseRequest(body: any): CreateResponseRequest {
+  logger.debug('Validating create response request', { hasBody: !!body })
+  
   if (!body || typeof body !== 'object') {
+    logger.warn('Invalid request body structure')
     throw createError({
       statusCode: 400,
       statusMessage: 'Request body must be a JSON object'
@@ -195,8 +218,10 @@ export function validateCreateResponseRequest(body: any): CreateResponseRequest 
   const taskId = validateRequiredString(body.taskId, 'taskId')
   const responsesArray = validateRequiredArray(body.responses, 'responses')
 
+  logger.debug('Validating response items', { responseCount: responsesArray.length })
   const responses = responsesArray.map((item, index) => validateResponseItem(item, index))
 
+  logger.debug('Create response request validated successfully', { taskId, responseCount: responses.length })
   return { taskId, responses }
 }
 
@@ -231,15 +256,86 @@ export function createSuccessResponse<T>(data: T): ApiResponse<T> {
  * Validate entity ID parameter
  */
 export function validateEntityId(id: any): string {
+  logger.debug('Validating entity ID', { id })
+  
   const entityId = validateRequiredString(id, 'id')
   
   // Basic MongoDB ObjectId format validation (24 hex characters)
   if (!/^[a-fA-F0-9]{24}$/.test(entityId)) {
+    logger.warn('Invalid entity ID format', { entityId })
     throw createError({
       statusCode: 400,
       statusMessage: 'Invalid entity ID format'
     })
   }
   
+  logger.debug('Entity ID validated successfully', { entityId })
   return entityId
+}
+
+/**
+ * Validate optional lat/lng query parameters.
+ * Returns an object with numeric lat/lng only if both are present and valid.
+ */
+export function validateLocationQuery(query: any): LocationQuery {
+  logger.debug('Validating location query', { query })
+  
+  const latRaw = query?.lat ?? query?.latitude
+  const lngRaw = query?.lng ?? query?.long ?? query?.longitude
+
+  if (latRaw === undefined && lngRaw === undefined) {
+    logger.debug('No location parameters provided')
+    return {}
+  }
+
+  if (latRaw === undefined || lngRaw === undefined) {
+    logger.warn('Incomplete location parameters', { latRaw, lngRaw })
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Both lat and lng must be provided together'
+    })
+  }
+
+  const lat = parseFloat(String(latRaw))
+  const lng = parseFloat(String(lngRaw))
+
+  if (Number.isNaN(lat) || Number.isNaN(lng)) {
+    logger.warn('Invalid location parameter types', { latRaw, lngRaw })
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'lat and lng must be valid numbers'
+    })
+  }
+
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    logger.warn('Location parameters out of range', { lat, lng })
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'lat must be [-90,90] and lng must be [-180,180]'
+    })
+  }
+
+  logger.debug('Location query validated successfully', { lat, lng })
+  return { lat, lng }
+}
+
+/**
+ * Calculate distance in meters between two coordinates using the Haversine formula
+ */
+export function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  logger.debug('Calculating distance', { from: { lat: lat1, lng: lng1 }, to: { lat: lat2, lng: lng2 } })
+  
+  const toRad = (deg: number) => (deg * Math.PI) / 180
+  const R = 6371000 // meters
+  const dLat = toRad(lat2 - lat1)
+  const dLng = toRad(lng2 - lng1)
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  const distance = R * c
+  
+  logger.debug('Distance calculated', { distance: Math.round(distance) })
+  return distance
 }
