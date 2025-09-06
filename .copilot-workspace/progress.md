@@ -118,6 +118,194 @@
 
 ## Active Development
 
+### F006: Server API Routes for Form Submission (September 6, 2025)
+
+**Status**: 🚧 Planning
+
+#### Overview
+
+Replace direct Entu API calls in components with dedicated Nuxt server API routes for better architecture, validation, error handling, and security.
+
+#### Planned Architecture
+
+```text
+server/
+├── api/
+│   ├── responses/
+│   │   ├── index.post.ts          # Create new response
+│   │   ├── [id].put.ts            # Update existing response
+│   │   ├── [id].get.ts            # Get response by ID
+│   │   └── user/[userId].get.ts   # Get user's responses for task
+│   ├── tasks/
+│   │   ├── [id].get.ts            # Get task details with enhanced data
+│   │   ├── [id]/responses.get.ts  # Get all responses for task (admin)
+│   │   └── [id]/locations.get.ts  # Get task locations with computed distances
+│   ├── files/
+│   │   ├── upload.post.ts         # Handle file uploads to Entu
+│   │   └── [id].get.ts            # Serve/proxy files from Entu
+│   └── auth/
+│       ├── validate.post.ts       # Validate token and return user info
+│       └── refresh.post.ts        # Refresh token
+```
+
+#### Phase 1: Response Management API
+
+- **POST `/api/responses`**: Create new task response
+  - Validation: text OR file required, task and user validation
+  - File upload handling with Entu integration
+  - Response entity creation with proper relationships
+  - Return structured response with success/error states
+
+- **PUT `/api/responses/[id]`**: Update existing response
+  - Ownership validation (user can only edit their responses)
+  - Merge updates with existing data
+  - Handle file replacement scenarios
+  - Audit trail for response changes
+
+- **GET `/api/responses/[id]`**: Get specific response
+  - Authorization check (user access control)
+  - Include file references and metadata
+  - Response formatting for frontend consumption
+
+- **GET `/api/responses/user/[userId]`**: Get user's responses for task
+  - Query parameter: `taskId` for filtering
+  - Include response status and submission timestamps
+  - Handle pagination for users with many responses
+
+#### Phase 2: Enhanced Task API
+
+- **GET `/api/tasks/[id]`**: Get task with computed data
+  - Include user's existing response if any
+  - Add response count and metadata
+  - Include location data with distance calculations
+  - Permission checks for task access
+
+- **GET `/api/tasks/[id]/locations`**: Get locations with distances
+  - Accept user coordinates as query parameters
+  - Return sorted locations by distance
+  - Include location metadata and descriptions
+  - Caching for performance optimization
+
+#### Phase 3: File Management API
+
+- **POST `/api/files/upload`**: Handle file uploads
+  - Multipart form data processing
+  - File type and size validation
+  - Integration with Entu file storage API
+  - Return file reference for response linking
+
+- **GET `/api/files/[id]`**: Serve files (proxy from Entu)
+  - Authorization checks for file access
+  - Proper content-type headers
+  - Caching strategies for performance
+
+#### Phase 4: Authentication API
+
+- **POST `/api/auth/validate`**: Validate token
+  - Token verification and user data extraction
+  - Return user info with permissions
+  - Rate limiting for security
+
+- **POST `/api/auth/refresh`**: Refresh expired tokens
+  - Seamless token renewal
+  - Updated user data synchronization
+
+#### Technical Implementation Details
+
+**Error Handling Strategy:**
+
+```typescript
+// Standardized error response format
+interface APIError {
+  success: false
+  error: {
+    code: string
+    message: string
+    details?: any
+  }
+  timestamp: string
+}
+
+// Success response format
+interface APISuccess<T> {
+  success: true
+  data: T
+  timestamp: string
+  meta?: {
+    pagination?: PaginationInfo
+    cache?: CacheInfo
+  }
+}
+```
+
+**Validation Framework:**
+
+- Use Zod or similar for request validation
+- Standardized validation error responses
+- Type-safe request/response interfaces
+
+**Security Measures:**
+
+- Rate limiting on all endpoints
+- CORS configuration for frontend access
+- Request size limits for file uploads
+- Authorization middleware for protected routes
+
+#### Frontend Integration
+
+**New Composable: `useTaskResponseAPI`**
+
+```javascript
+export const useTaskResponseAPI = () => {
+  const submitResponse = async (taskId, responseData) => {
+    return await $fetch('/api/responses', {
+      method: 'POST',
+      body: { taskId, ...responseData }
+    })
+  }
+
+  const updateResponse = async (responseId, updates) => {
+    return await $fetch(`/api/responses/${responseId}`, {
+      method: 'PUT',
+      body: updates
+    })
+  }
+
+  const getUserResponse = async (taskId) => {
+    return await $fetch(`/api/responses/user/${userId}?taskId=${taskId}`)
+  }
+
+  return { submitResponse, updateResponse, getUserResponse }
+}
+```
+
+**Updated Component Usage:**
+
+- Replace direct Entu API calls with server API calls
+- Improved error handling with structured responses
+- Better loading states with API response metadata
+- Simplified component logic with server-side processing
+
+#### Benefits
+
+1. **Architecture**: Clean separation of concerns, business logic on server
+2. **Security**: Server-side validation, token handling, rate limiting
+3. **Performance**: Caching, optimized queries, reduced client-server round trips
+4. **Maintainability**: Centralized API logic, easier testing and debugging
+5. **User Experience**: Better error messages, loading states, offline capabilities
+6. **Scalability**: Easier to add middleware, monitoring, and scaling strategies
+
+#### Success Criteria
+
+- All form submissions go through server API routes
+- File uploads work seamlessly with progress indication
+- Error handling provides clear user feedback
+- Performance is equal or better than direct API calls
+- API endpoints are well-documented and type-safe
+- Integration tests cover all API endpoints
+
+[Feature Documentation](features/F006-server-api-routes.md)
+
 ### F005: Form Submission & Response Management (September 5, 2025)
 
 **Status**: 🚧 Planning
