@@ -14,53 +14,35 @@ if (import.meta.client) {
   isDev.value = import.meta.dev || false
 }
 
-// Process the callback when the component mounts
+// Process the callback safely when the component mounts
 onMounted(async () => {
-  if (import.meta.client) {
-    // Log the current URL for debugging
-    const currentUrl = window.location.href
-    const urlObj = new URL(currentUrl)
-    const fullPath = urlObj.pathname
+  if (!import.meta.client) return
 
-    debugInfo.value = `Processing callback:\n- Full URL: ${currentUrl}\n- Path: ${fullPath}`
+  // Log the current URL for debugging
+  const currentUrl = window.location.href
+  const urlObj = new URL(currentUrl)
+  const fullPath = urlObj.pathname
 
-    // Check for the token in query parameters or path
-    const searchParams = urlObj.searchParams
+  // Check if we have a redirect stored and log it explicitly
+  const storedRedirect = localStorage.getItem('auth_redirect')
 
-    let potentialToken = ''
-    let extractionMethod = ''
-
-    // First check for JWT in query parameter (preferred method)
-    if (searchParams.has('jwt')) {
-      potentialToken = searchParams.get('jwt')
-      extractionMethod = 'query parameter'
-      debugInfo.value += `\n- Found token in jwt query parameter`
-    }
-    // Fallback: check in the path
-    else if (fullPath.startsWith('/auth/callback')) {
-      const callbackPath = '/auth/callback'
-      potentialToken = fullPath.substring(callbackPath.length)
-
-      // Clean up the token if it starts with / or ?
-      if (potentialToken.startsWith('/') || potentialToken.startsWith('?')) {
-        potentialToken = potentialToken.substring(1)
-      }
-
-      extractionMethod = 'path'
-      debugInfo.value += `\n- Fallback: extracted token from URL path`
-    }
-
-    if (potentialToken) {
-      debugInfo.value += `\n- Detected token (${extractionMethod}): ${potentialToken.substring(0, 10) + '...'}`
-    }
-    else {
-      debugInfo.value += '\n- No token detected in URL'
-    }
-
-    console.log('OAuth callback processing:', currentUrl)
+  // DEBUG: Investigate all localStorage entries related to auth/redirect
+  const allKeys = []
+  for (let i = 0; i < localStorage.length; i++) {
+    allKeys.push(localStorage.key(i))
   }
+  const allAuthKeys = allKeys.filter((key) => key && (key.includes('auth') || key.includes('redirect')))
+  const allAuthValues = allAuthKeys.map((key) => `${key}: ${localStorage.getItem(key)}`)
+
+  debugInfo.value = `Processing callback:
+- Full URL: ${currentUrl}
+- Path: ${fullPath}
+- Stored redirect: ${storedRedirect || 'none'}
+- All auth keys: ${JSON.stringify(allAuthKeys)}
+- All auth values: ${allAuthValues.join(', ')}`
 
   try {
+    // Let the OAuth handler do all the work
     const result = await handleOAuthCallback()
     if (result) {
       debugInfo.value += '\n\nAuthentication successful!'
@@ -97,9 +79,9 @@ onMounted(async () => {
 
       <p>{{ $t('redirecting') }}</p>
 
-      <!-- Show debug info in development environment -->
+      <!-- Show debug info (temporarily enabling in production for debugging) -->
       <div
-        v-if="debugInfo && isDev"
+        v-if="debugInfo"
         class="mt-4 rounded bg-gray-100 p-4 font-mono text-xs"
       >
         <pre>{{ debugInfo }}</pre>

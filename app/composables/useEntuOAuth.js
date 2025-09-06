@@ -14,7 +14,6 @@ export const useEntuOAuth = () => {
   // Runtime configuration
   const config = useRuntimeConfig()
   const router = useRouter()
-  const route = useRoute()
 
   // Get the auth composable for authentication state
   const { isAuthenticated } = useEntuAuth()
@@ -53,8 +52,17 @@ export const useEntuOAuth = () => {
 
       // Store the current URL to redirect back after auth
       if (import.meta.client) {
-        const currentPath = route.fullPath
-        localStorage.setItem('auth_redirect', currentPath)
+        // Store the OAuth callback configuration separate from the redirect path
+        // DO NOT modify auth_redirect here - it's set by the middleware
+
+        // Log all redirect-related items in localStorage
+        console.log('OAuth flow: current redirect values in localStorage:')
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i)
+          if (key && (key.includes('auth') || key.includes('redirect'))) {
+            console.log(`- ${key}: ${localStorage.getItem(key)}`)
+          }
+        }
 
         // Get the current origin for the callback URL
         const origin = window.location.origin
@@ -148,14 +156,36 @@ export const useEntuOAuth = () => {
       console.log('Authentication successful, received token data')
 
       // Redirect to the original page or home
-      let redirectUrl = '/'
       if (import.meta.client) {
-        redirectUrl = localStorage.getItem('auth_redirect') || '/'
-        console.log('Redirecting to:', redirectUrl)
-        localStorage.removeItem('auth_redirect')
+        // Use the centralized auth utility
+        import('~/utils/auth-check.client').then(({ REDIRECT_KEY, logAuthStorage }) => {
+          // Log all auth storage for debugging
+          logAuthStorage()
+
+          // Get the original path stored BEFORE starting the OAuth flow
+          const originalRedirect = localStorage.getItem(REDIRECT_KEY)
+
+          if (originalRedirect && originalRedirect !== '/login') {
+            console.log('Found original redirect path:', originalRedirect)
+            localStorage.removeItem(REDIRECT_KEY)
+
+            // Skip login page entirely and go directly to the target page
+            router.push(originalRedirect)
+          }
+          else {
+            // Fallback
+            console.log('No valid redirect path found, redirecting to home')
+            router.push('/')
+          }
+        }).catch((err) => {
+          console.error('Failed to import auth-check utility:', err)
+          router.push('/')
+        })
+      }
+      else {
+        router.push('/')
       }
 
-      router.push(redirectUrl)
       return authData
     }
     catch (err) {

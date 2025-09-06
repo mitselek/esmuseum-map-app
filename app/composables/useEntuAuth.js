@@ -8,7 +8,7 @@
  * - Maintaining authentication state
  */
 
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 // State
 const token = ref(null)
@@ -114,15 +114,18 @@ export const useEntuAuth = () => {
     return tokenExpiry.value && tokenExpiry.value <= Date.now()
   })
 
-  // Initialize from localStorage on client side
-  onMounted(() => {
-    if (import.meta.client) {
-      // Check if token is expired and refresh if needed
-      if (isTokenExpired.value) {
-        refreshToken()
-      }
+  // Check token expiration on initialization and refresh if needed
+  // This is safe to call directly (no onMounted needed) as it's not a lifecycle hook
+  const checkAndRefreshToken = () => {
+    if (import.meta.client && isTokenExpired.value) {
+      refreshToken().catch((err) => {
+        console.error('Failed to refresh token:', err)
+      })
     }
-  })
+  }
+
+  // Initialize token check (safe to call directly)
+  checkAndRefreshToken()
 
   /**
    * Get a new auth token from Entu API
@@ -243,6 +246,7 @@ export const useEntuAuth = () => {
     error,
     getToken,
     refreshToken,
-    logout
+    logout,
+    checkAndRefreshToken // Expose the check function for components to call in their setup
   }
 }
