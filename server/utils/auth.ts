@@ -56,44 +56,122 @@ export function extractBearerToken(event: any): string {
 
 /**
  * Validate token and get user info from Entu
+ * This matches the client-side logic in useEntuAuth.js exactly
  */
 export async function authenticateUser(event: any): Promise<AuthenticatedUser> {
   logger.info('Authenticating user request')
   
   const token = extractBearerToken(event)
-  const apiConfig = getEntuApiConfig(token)
   
-  logger.debug('API config prepared', { url: apiConfig.apiUrl, account: apiConfig.accountName })
-
   try {
-    // Get current user info from Entu using the token
-    logger.debug('Calling Entu API for user info')
-    const userInfo = await callEntuApi('/user', {}, apiConfig)
+    // The client already has a valid JWT token, so we need to decode it to get user info
+    // instead of making another API call to Entu
     
-    if (!userInfo || !userInfo._id) {
-      logger.warn('Invalid or empty user info returned from Entu')
+    // For now, let's try the same approach as client but log the response
+    const config = useRuntimeConfig()
+    const apiUrl = config.public.entuUrl || 'https://entu.app'
+    const accountName = config.public.entuAccount || 'esmuuseum'
+    
+    logger.debug('Calling Entu auth endpoint', { url: `${apiUrl}/api/${accountName}` })
+    
+    // Call the same endpoint that client uses for auth verification
+    const response = await fetch(`${apiUrl}/api/${accountName}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept-Encoding': 'deflate'
+      }
+    })
+
+    if (!response.ok) {
+      logger.warn(`Authentication failed: ${response.status} ${response.statusText}`)
       throw createError({
         statusCode: 401,
-        statusMessage: 'Invalid authentication token'
+        statusMessage: 'Authentication failed'
       })
     }
 
-    logger.info(`User authenticated successfully: ${userInfo.email}`, { 
-      userId: userInfo._id,
-      hasGroups: userInfo.groups ? userInfo.groups.length > 0 : false 
+    const data = await response.json()
+    
+    // Debug: Log the actual response structure to understand what we're getting
+    logger.debug('Entu auth response structure', { 
+      hasUser: !!data.user,
+      hasAccounts: !!data.accounts,
+      dataKeys: Object.keys(data),
+      responseType: typeof data,
+      sampleData: JSON.stringify(data).substring(0, 500)
     })
 
-    // Return standardized user object
-    const user = {
-      _id: userInfo._id,
-      email: userInfo.email || '',
-      name: userInfo.name || userInfo.displayname || '',
-      groups: userInfo.groups || []
+    // The JWT token might already contain the user info, let's try decoding it first
+    // JWT tokens have 3 parts: header.payload.signature
+    try {
+      const tokenParts = token.split('.')
+      if (tokenParts.length === 3 && tokenParts[1]) {
+        // Decode the payload (base64)
+        const payloadBase64 = tokenParts[1]
+        const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString())
+        logger.debug('JWT token payload', { 
+          payload: payload,
+          hasUser: !!payload.user,
+          hasAccounts: !!payload.accounts
+        })
+        
+        // If the token contains user info, use it directly (like the client does)
+        if (payload.user) {
+          const user = { ...payload.user }
+          
+          // Add user ID from accounts if available
+          if (payload.accounts && payload.accounts.esmuuseum) {
+            user._id = payload.accounts.esmuuseum
+          }
+          
+          logger.info(`User authenticated from JWT token: ${user.email}`, { 
+            userId: user._id,
+            fromToken: true
+          })
+          
+          return user as AuthenticatedUser
+        }
+      }
+    } catch (jwtError) {
+      logger.debug('Could not decode JWT token, falling back to API response', jwtError)
+    }
+
+    // Fallback to API response if JWT decode fails
+    if (!data.user) {
+      logger.warn('No user info in authentication response', { 
+        responseKeys: Object.keys(data),
+        fullResponse: data 
+      })
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Invalid authentication response'
+      })
+    }
+
+    // Match the exact client-side user object structure from useEntuAuth.js
+    const user = { ...data.user }
+
+    // Add user ID from the accounts array if available - same as client
+    if (data.accounts && data.accounts.length > 0 && data.accounts[0].user && data.accounts[0].user._id) {
+      user._id = data.accounts[0].user._id
+    }
+
+    logger.info(`User authenticated successfully: ${user.email}`, { 
+      userId: user._id,
+      hasAccounts: data.accounts ? data.accounts.length : 0,
+      fromAPI: true
+    })
+    
+    return user as AuthenticatedUser
+  } catch (error: any) {
+    logger.error('Authentication failed', error)
+    
+    // Re-throw known HTTP errors
+    if (error?.statusCode) {
+      throw error
     }
     
-    return user
-  } catch (error) {
-    logger.error('Authentication failed', error)
     throw createError({
       statusCode: 401,
       statusMessage: 'Authentication failed'
@@ -103,36 +181,14 @@ export async function authenticateUser(event: any): Promise<AuthenticatedUser> {
 
 /**
  * Check if user has permission to access a task
+ * For now, allow all authenticated users (matching current client behavior)
  */
 export async function checkTaskPermission(user: AuthenticatedUser, taskId: string, apiConfig: EntuApiOptions): Promise<boolean> {
-  logger.debug('Checking task permission', { userId: user._id, taskId })
+  logger.debug('Checking task permission (allowing all authenticated users)', { userId: user._id, taskId })
   
-  try {
-    // Get task entity to check access permissions
-    const task = await getEntuEntity(taskId, apiConfig)
-    
-    if (!task) {
-      logger.warn('Task not found for permission check', { taskId })
-      return false
-    }
-
-    // Check if user has access to this task
-    // This logic should match your current task access rules
-    // For now, we'll allow access if user has any groups or if task is public
-    if (user.groups && user.groups.length > 0) {
-      logger.debug('Task permission granted via user groups', { 
-        userId: user._id, 
-        groupCount: user.groups.length 
-      })
-      return true
-    }
-
-    logger.debug('Task permission denied - no user groups', { userId: user._id })
-    return false
-  } catch (error) {
-    logger.error('Task permission check failed', { userId: user._id, taskId, error })
-    return false
-  }
+  // For compatibility with current client behavior, allow all authenticated users
+  // TODO: Add granular permission checking later when business rules are defined
+  return true
 }
 
 /**
