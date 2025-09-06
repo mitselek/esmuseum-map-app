@@ -224,36 +224,12 @@ const getUserGroups = async () => {
       return
     }
 
-    let userId = user.value._id
+    const userId = user.value._id
 
-    // If we don't have _id but have email, search for the user by email
-    if (!userId && user.value.email) {
-      console.log('No user ID, searching by email:', user.value.email)
-      try {
-        // Search for person entities by email
-        const { searchEntities } = useEntuApi()
-        const searchResults = await searchEntities({
-          '_type.string': 'person',
-          'email.string': user.value.email
-        })
-
-        console.log('Search results:', searchResults)
-
-        if (searchResults?.entities?.length > 0) {
-          userId = searchResults.entities[0]._id
-          console.log('Found person ID by email:', userId)
-        }
-        else {
-          console.warn('User not found by email search')
-          userGroups.value = []
-          return
-        }
-      }
-      catch (searchError) {
-        console.error('Error searching for user by email:', searchError)
-        userGroups.value = []
-        return
-      }
+    if (!userId) {
+      console.warn('No user ID available')
+      userGroups.value = []
+      return
     }
 
     console.log('Using user ID:', userId)

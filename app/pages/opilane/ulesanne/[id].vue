@@ -419,7 +419,7 @@ const submitResponse = async () => {
       text: responseForm.value.text,
       geopunkt: responseForm.value.geopunkt,
       ulesanne: task.value.id,
-      person: user.value.id
+      person: user.value._id
     }
 
     if (userResponse.value) {

@@ -177,7 +177,13 @@ export const useEntuAuth = () => {
 
         // Get user info if available
         if (data.user) {
-          user.value = data.user
+          // Start with the basic user info (email, name)
+          user.value = { ...data.user }
+
+          // Add user ID from the accounts array if available
+          if (data.accounts && data.accounts.length > 0 && data.accounts[0].user && data.accounts[0].user._id) {
+            user.value._id = data.accounts[0].user._id
+          }
         }
 
         return data
