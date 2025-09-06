@@ -73,7 +73,7 @@
           class="text-xs text-blue-600 hover:text-blue-800"
           @click="requestLocation"
         >
-          📍 Määra asukoht
+          📍 Kasuta GPS-i
         </button>
         <span
           v-else-if="gettingLocation"
@@ -85,7 +85,7 @@
           v-else-if="userPosition"
           class="text-xs text-green-600"
         >
-          ✓ Asukoht määratud
+          📍 GPS kasutusel
         </span>
       </div>
 
@@ -235,17 +235,21 @@ const requestLocation = async () => {
 }
 
 const getLocationName = (location) => {
-  return location.name?.[0]?.string
+  return (
+    location.name?.[0]?.string
     || location.properties?.name?.[0]?.value
     || location.properties?.nimi?.[0]?.value
     || location.name
     || 'Nimetu asukoht'
+  )
 }
 
 const getLocationDescription = (location) => {
-  return location.properties?.description?.[0]?.value
+  return (
+    location.properties?.description?.[0]?.value
     || location.properties?.kirjeldus?.[0]?.value
     || location.description
     || null
+  )
 }
 </script>
