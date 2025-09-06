@@ -266,7 +266,7 @@ definePageMeta({
 })
 
 const route = useRoute()
-const { getEntity } = useEntuApi()
+const { token } = useEntuAuth() // Get token for server API
 const {
   userPosition,
   locationError,
@@ -340,8 +340,14 @@ const loadTask = async () => {
       throw new Error('Ülesande ID puudub')
     }
 
-    // Load task details
-    const taskResponse = await getEntity(taskId)
+    // Load task details using server API
+    console.log('Loading task via server API:', taskId)
+    const taskResponse = await $fetch(`/api/tasks/${taskId}`, {
+      headers: {
+        Authorization: `Bearer ${token.value}`
+      }
+    })
+    console.log('Server API response:', taskResponse)
     task.value = taskResponse.entity
 
     // Load user's existing response if any
