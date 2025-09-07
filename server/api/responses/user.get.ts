@@ -4,7 +4,8 @@
  */
 
 import { validateRequiredString, createSuccessResponse } from '../../utils/validation'
-import { withAuth, type AuthenticatedUser } from '../../utils/auth'
+import { withAuth } from '../../utils/auth'
+import type { AuthenticatedUser } from '../../utils/auth'
 import { searchEntuEntities, getEntuApiConfig } from '../../utils/entu'
 
 export default defineEventHandler(async (event) => {
@@ -62,15 +63,15 @@ export default defineEventHandler(async (event) => {
         })),
         count: responses.length
       })
-
-    } catch (error: any) {
+    }
+    catch (error: any) {
       console.error('Failed to get user responses:', error)
-      
+
       // Re-throw known errors
       if (error?.statusCode) {
         throw error
       }
-      
+
       throw createError({
         statusCode: 500,
         statusMessage: 'Failed to get user responses'
@@ -80,7 +81,7 @@ export default defineEventHandler(async (event) => {
 })
 
 // Helper function to extract Bearer token
-function extractBearerToken(event: any): string {
+function extractBearerToken (event: any): string {
   const authHeader = getHeader(event, 'authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     throw createError({

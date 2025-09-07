@@ -3,7 +3,8 @@
  * Handles token validation and user authentication
  */
 
-import { callEntuApi, getEntuEntity, getEntuApiConfig, type EntuApiOptions } from './entu'
+import { callEntuApi, getEntuEntity, getEntuApiConfig } from './entu'
+import type { EntuApiOptions } from './entu'
 import { createLogger } from './logger'
 
 // Create a logger for this module
@@ -19,11 +20,11 @@ export interface AuthenticatedUser {
 /**
  * Extract and validate Bearer token from Authorization header
  */
-export function extractBearerToken(event: any): string {
+export function extractBearerToken (event: any): string {
   logger.debug('Extracting bearer token from request')
-  
+
   const authHeader = getHeader(event, 'authorization')
-  
+
   if (!authHeader) {
     logger.warn('No Authorization header found in request')
     throw createError({
@@ -41,7 +42,7 @@ export function extractBearerToken(event: any): string {
   }
 
   const token = authHeader.substring(7).trim()
-  
+
   if (!token) {
     logger.warn('Empty Bearer token')
     throw createError({
@@ -58,27 +59,27 @@ export function extractBearerToken(event: any): string {
  * Validate token and get user info from Entu
  * This matches the client-side logic in useEntuAuth.js exactly
  */
-export async function authenticateUser(event: any): Promise<AuthenticatedUser> {
+export async function authenticateUser (event: any): Promise<AuthenticatedUser> {
   logger.info('Authenticating user request')
-  
+
   const token = extractBearerToken(event)
-  
+
   try {
     // The client already has a valid JWT token, so we need to decode it to get user info
     // instead of making another API call to Entu
-    
+
     // For now, let's try the same approach as client but log the response
     const config = useRuntimeConfig()
     const apiUrl = config.public.entuUrl || 'https://entu.app'
     const accountName = config.public.entuAccount || 'esmuuseum'
-    
+
     logger.debug('Calling Entu auth endpoint', { url: `${apiUrl}/api/${accountName}` })
-    
+
     // Call the same endpoint that client uses for auth verification
     const response = await fetch(`${apiUrl}/api/${accountName}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Accept-Encoding': 'deflate'
       }
     })
@@ -92,9 +93,9 @@ export async function authenticateUser(event: any): Promise<AuthenticatedUser> {
     }
 
     const data = await response.json()
-    
+
     // Debug: Log the actual response structure to understand what we're getting
-    logger.debug('Entu auth response structure', { 
+    logger.debug('Entu auth response structure', {
       hasUser: !!data.user,
       hasAccounts: !!data.accounts,
       dataKeys: Object.keys(data),
@@ -110,38 +111,39 @@ export async function authenticateUser(event: any): Promise<AuthenticatedUser> {
         // Decode the payload (base64)
         const payloadBase64 = tokenParts[1]
         const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString())
-        logger.debug('JWT token payload', { 
+        logger.debug('JWT token payload', {
           payload: payload,
           hasUser: !!payload.user,
           hasAccounts: !!payload.accounts
         })
-        
+
         // If the token contains user info, use it directly (like the client does)
         if (payload.user) {
           const user = { ...payload.user }
-          
+
           // Add user ID from accounts if available
           if (payload.accounts && payload.accounts.esmuuseum) {
             user._id = payload.accounts.esmuuseum
           }
-          
-          logger.info(`User authenticated from JWT token: ${user.email}`, { 
+
+          logger.info(`User authenticated from JWT token: ${user.email}`, {
             userId: user._id,
             fromToken: true
           })
-          
+
           return user as AuthenticatedUser
         }
       }
-    } catch (jwtError) {
+    }
+    catch (jwtError) {
       logger.debug('Could not decode JWT token, falling back to API response', jwtError)
     }
 
     // Fallback to API response if JWT decode fails
     if (!data.user) {
-      logger.warn('No user info in authentication response', { 
+      logger.warn('No user info in authentication response', {
         responseKeys: Object.keys(data),
-        fullResponse: data 
+        fullResponse: data
       })
       throw createError({
         statusCode: 401,
@@ -157,21 +159,22 @@ export async function authenticateUser(event: any): Promise<AuthenticatedUser> {
       user._id = data.accounts[0].user._id
     }
 
-    logger.info(`User authenticated successfully: ${user.email}`, { 
+    logger.info(`User authenticated successfully: ${user.email}`, {
       userId: user._id,
       hasAccounts: data.accounts ? data.accounts.length : 0,
       fromAPI: true
     })
-    
+
     return user as AuthenticatedUser
-  } catch (error: any) {
+  }
+  catch (error: any) {
     logger.error('Authentication failed', error)
-    
+
     // Re-throw known HTTP errors
     if (error?.statusCode) {
       throw error
     }
-    
+
     throw createError({
       statusCode: 401,
       statusMessage: 'Authentication failed'
@@ -183,9 +186,9 @@ export async function authenticateUser(event: any): Promise<AuthenticatedUser> {
  * Check if user has permission to access a task
  * For now, allow all authenticated users (matching current client behavior)
  */
-export async function checkTaskPermission(user: AuthenticatedUser, taskId: string, apiConfig: EntuApiOptions): Promise<boolean> {
+export async function checkTaskPermission (user: AuthenticatedUser, taskId: string, apiConfig: EntuApiOptions): Promise<boolean> {
   logger.debug('Checking task permission (allowing all authenticated users)', { userId: user._id, taskId })
-  
+
   // For compatibility with current client behavior, allow all authenticated users
   // TODO: Add granular permission checking later when business rules are defined
   return true
@@ -194,13 +197,13 @@ export async function checkTaskPermission(user: AuthenticatedUser, taskId: strin
 /**
  * Check if user has permission to modify a response
  */
-export async function checkResponsePermission(user: AuthenticatedUser, responseId: string, apiConfig: EntuApiOptions): Promise<boolean> {
+export async function checkResponsePermission (user: AuthenticatedUser, responseId: string, apiConfig: EntuApiOptions): Promise<boolean> {
   logger.debug('Checking response permission', { userId: user._id, responseId })
-  
+
   try {
     // Get response entity to check ownership
     const response = await getEntuEntity(responseId, apiConfig)
-    
+
     if (!response) {
       logger.warn('Response not found for permission check', { responseId })
       return false
@@ -209,17 +212,18 @@ export async function checkResponsePermission(user: AuthenticatedUser, responseI
     // Check if user owns this response
     // This assumes the response has a user field with the user ID
     const responseUserId = response.user?._id || response.userId || response._creator
-    
+
     const hasPermission = responseUserId === user._id
-    logger.debug('Response permission check result', { 
-      userId: user._id, 
+    logger.debug('Response permission check result', {
+      userId: user._id,
       responseId,
       responseUserId,
-      hasPermission 
+      hasPermission
     })
-    
+
     return hasPermission
-  } catch (error) {
+  }
+  catch (error) {
     logger.error('Response permission check failed', { userId: user._id, responseId, error })
     return false
   }
@@ -228,21 +232,22 @@ export async function checkResponsePermission(user: AuthenticatedUser, responseI
 /**
  * Middleware wrapper for authenticated routes
  */
-export async function withAuth<T>(
+export async function withAuth<T> (
   event: any,
   handler: (event: any, user: AuthenticatedUser) => Promise<T>
 ): Promise<T> {
   logger.debug('Processing authenticated request', { path: getRouterParam(event, 'id') || 'unknown' })
-  
+
   try {
     const user = await authenticateUser(event)
     logger.debug('Authentication successful, executing handler', { userId: user._id })
-    
+
     const result = await handler(event, user)
     logger.debug('Handler executed successfully')
-    
+
     return result
-  } catch (error) {
+  }
+  catch (error) {
     logger.error('Authenticated request failed', error)
     throw error
   }

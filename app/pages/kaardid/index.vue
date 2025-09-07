@@ -1,7 +1,7 @@
 <script setup>
 // Define middleware for this route to require authentication
 definePageMeta({
-  middleware: ['auth']
+  middleware: ['pupil-auth']
 })
 
 // Get Entu API access

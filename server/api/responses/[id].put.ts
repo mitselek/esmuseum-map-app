@@ -4,7 +4,8 @@
  */
 
 import { validateUpdateResponseRequest, validateEntityId, createSuccessResponse } from '../../utils/validation'
-import { withAuth, checkResponsePermission, type AuthenticatedUser } from '../../utils/auth'
+import { withAuth, checkResponsePermission } from '../../utils/auth'
+import type { AuthenticatedUser } from '../../utils/auth'
 import { updateEntuEntity, getEntuApiConfig } from '../../utils/entu'
 
 export default defineEventHandler(async (event) => {
@@ -22,7 +23,7 @@ export default defineEventHandler(async (event) => {
     // Check if user has permission to update this response
     const apiConfig = getEntuApiConfig(extractBearerToken(event))
     const hasPermission = await checkResponsePermission(user, responseId, apiConfig)
-    
+
     if (!hasPermission) {
       throw createError({
         statusCode: 403,
@@ -52,15 +53,15 @@ export default defineEventHandler(async (event) => {
         message: 'Response updated successfully',
         updatedAt: updateData.muutmisaeg
       })
-
-    } catch (error: any) {
+    }
+    catch (error: any) {
       console.error('Failed to update response:', error)
-      
+
       // Re-throw known errors
       if (error?.statusCode) {
         throw error
       }
-      
+
       throw createError({
         statusCode: 500,
         statusMessage: 'Failed to update response'
@@ -70,7 +71,7 @@ export default defineEventHandler(async (event) => {
 })
 
 // Helper function to extract Bearer token
-function extractBearerToken(event: any): string {
+function extractBearerToken (event: any): string {
   const authHeader = getHeader(event, 'authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     throw createError({

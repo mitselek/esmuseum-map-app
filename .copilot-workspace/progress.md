@@ -31,7 +31,7 @@
 ### F003: Pupil Dashboard & Task Management (September 5, 2025)
 
 - Implemented comprehensive student interface for educational task management:
-  - **Authentication Middleware**: Client-side localStorage token validation with auto-redirect
+  - **Authentication Middleware**: Client-side `pupil-auth` localStorage token validation with auto-redirect
   - **Task Dashboard**: Group-based task listing with responsive design and status tracking
   - **Task Detail Pages**: Complete task information with multi-format response submission
   - **Entu API Integration**: Corrected API usage patterns with proper data model compliance

@@ -49,13 +49,15 @@ This composable provides methods for interacting with the Entu API:
 - `getEntityTypes()` - Gets all entity types
 - `getEntitiesByType()` - Gets entities by type
 
-### 4. Authentication Middleware (`auth.js`)
+### 4. Authentication Middleware (`pupil-auth.js`)
 
-This middleware protects routes that require authentication:
+Client-side route protection is provided by `app/middleware/pupil-auth.js`:
 
-- Checks if user is authenticated
-- Redirects to login page if not authenticated
+- Checks if a user is authenticated in the browser
+- Redirects to the login page if not authenticated
 - Stores the original destination for redirect after login
+
+Note: The older `app/middleware/auth.js` file has been removed. Use `pupil-auth` for client-side route guards. For server-side API routes use the `withAuth` wrapper from `server/utils/auth.ts` which decodes and validates request tokens and enforces authentication.
 
 ### 5. Login Page (`/login/index.vue`)
 
@@ -74,7 +76,7 @@ To protect a route and require authentication, add the `auth` middleware to the 
 ```vue
 <script setup>
 definePageMeta({
-  middleware: ['auth']
+  middleware: ['pupil-auth']
 })
 </script>
 ```

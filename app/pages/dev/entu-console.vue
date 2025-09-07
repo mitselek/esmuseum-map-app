@@ -1,7 +1,7 @@
 <script setup>
 // Define middleware to require authentication
 definePageMeta({
-  middleware: ['auth']
+  middleware: ['pupil-auth']
 })
 </script>
 
