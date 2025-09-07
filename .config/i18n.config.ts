@@ -22,17 +22,7 @@ export default defineI18nConfig(() => ({
       redirecting: 'Suunamine...',
       navigation: {
         title: 'Navigatsioon',
-        maps: 'Kaardid',
-        requiresLogin: 'Nõuab sisselogimist',
-        kmlPlugin: 'KML Plugin',
-        entuConsole: 'Entu konsool'
-      },
-      browserConsole: {
-        title: 'Brauseri konsool',
-        description: 'Ava oma brauseri arenduskonsool (F12) Entu API-ga suhtlemiseks.',
-        quickStart: 'Kiire alustamine:',
-        step1: 'Samm 1: Hangi kõik kaardid',
-        step2: 'Samm 2: Loo uus kirje'
+        requiresLogin: 'Nõuab sisselogimist'
       },
       authentication: {
         title: 'Autentimine',
@@ -139,17 +129,7 @@ export default defineI18nConfig(() => ({
       redirecting: 'Redirecting...',
       navigation: {
         title: 'Navigation',
-        maps: 'Maps',
-        requiresLogin: 'Requires login',
-        kmlPlugin: 'KML Plugin',
-        entuConsole: 'Entu console'
-      },
-      browserConsole: {
-        title: 'Browser console',
-        description: 'Open your browser developer console (F12) to interact with the Entu API.',
-        quickStart: 'Quick start:',
-        step1: 'Step 1: Get all maps',
-        step2: 'Step 2: Create new entry'
+        requiresLogin: 'Requires login'
       },
       authentication: {
         title: 'Authentication',
@@ -256,17 +236,7 @@ export default defineI18nConfig(() => ({
       redirecting: 'Перенаправлення...',
       navigation: {
         title: 'Навігація',
-        maps: 'Карти',
-        requiresLogin: 'Потрібен вхід',
-        kmlPlugin: 'KML Плагін',
-        entuConsole: 'Entu консоль'
-      },
-      browserConsole: {
-        title: 'Консоль браузера',
-        description: 'Відкрийте консоль розробника браузера (F12) для взаємодії з Entu API.',
-        quickStart: 'Швидкий старт:',
-        step1: 'Крок 1: Отримати всі карти',
-        step2: 'Крок 2: Створити новий запис'
+        requiresLogin: 'Потрібен вхід'
       },
       authentication: {
         title: 'Автентифікація',
