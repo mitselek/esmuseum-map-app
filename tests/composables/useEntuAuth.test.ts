@@ -52,7 +52,11 @@ describe('Client Auth Composables', () => {
 
   describe('useEntuAuth composable behavior', () => {
     it('should initialize with token from localStorage', () => {
-      localStorage.getItem.mockReturnValue(mockTokens.valid)
+      localStorage.getItem.mockImplementation((key) => {
+        if (key === 'esm_token') return mockTokens.valid
+        if (key === 'esm_user') return JSON.stringify({ email: 'test@example.com', name: 'Test User' })
+        return null
+      })
       
       const auth = mockUseEntuAuth()
       
