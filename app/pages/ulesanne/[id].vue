@@ -327,7 +327,7 @@ watch(userPosition, (newPosition) => {
 
 // Methods
 const goBack = () => {
-  navigateTo('/opilane')
+  navigateTo('/')
 }
 
 const loadTask = async () => {
