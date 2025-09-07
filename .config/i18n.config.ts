@@ -86,7 +86,19 @@ export default defineI18nConfig(() => ({
         geolocationNotSupported: 'Geolokatsioon pole selles brauseris toetatud',
         geolocationError: 'Asukoha määramisel tekkis viga: {error}',
         noTitle: 'Nimetu ülesanne',
-        totalResponses: '{count} vastust kokku'
+        totalResponses: '{count} vastust kokku',
+        // LocationPicker translations
+        selectedLocation: 'Valitud asukoht',
+        changeLocation: 'Muuda',
+        loadingLocationsList: 'Laen asukohti...',
+        selectLocation: 'Vali asukoht ({count})',
+        useGPS: '📍 Kasuta GPS-i',
+        searchingLocationGPS: '🔍 Otsin asukohta...',
+        gpsActive: '📍 GPS kasutusel',
+        searchLocations: 'Otsi asukohti...',
+        noLocationsForTask: 'Selle ülesande jaoks pole asukohti määratud',
+        manualCoordinatesEntry: '✏️ Sisesta koordinaadid käsitsi',
+        unnamedLocation: 'Nimetu asukoht'
       },
       userGroups: {
         getUserGroups: 'getUserGroups kutsutud - kasutaja:',
@@ -193,7 +205,19 @@ export default defineI18nConfig(() => ({
         geolocationNotSupported: 'Geolocation is not supported in this browser',
         geolocationError: 'Geolocation error: {error}',
         noTitle: 'Untitled task',
-        totalResponses: '{count} responses total'
+        totalResponses: '{count} responses total',
+        // LocationPicker translations
+        selectedLocation: 'Selected location',
+        changeLocation: 'Change',
+        loadingLocationsList: 'Loading locations...',
+        selectLocation: 'Select location ({count})',
+        useGPS: '📍 Use GPS',
+        searchingLocationGPS: '🔍 Searching for location...',
+        gpsActive: '📍 GPS active',
+        searchLocations: 'Search locations...',
+        noLocationsForTask: 'No locations defined for this task',
+        manualCoordinatesEntry: '✏️ Enter coordinates manually',
+        unnamedLocation: 'Unnamed location'
       },
       userGroups: {
         getUserGroups: 'getUserGroups called - user:',
@@ -300,7 +324,19 @@ export default defineI18nConfig(() => ({
         geolocationNotSupported: 'Геолокація не підтримується в цьому браузері',
         geolocationError: 'Помилка геолокації: {error}',
         noTitle: 'Завдання без назви',
-        totalResponses: '{count} відповідей всього'
+        totalResponses: '{count} відповідей всього',
+        // LocationPicker translations
+        selectedLocation: 'Вибране місце',
+        changeLocation: 'Змінити',
+        loadingLocationsList: 'Завантаження місць...',
+        selectLocation: 'Виберіть місце ({count})',
+        useGPS: '📍 Використати GPS',
+        searchingLocationGPS: '🔍 Пошук місцезнаходження...',
+        gpsActive: '📍 GPS активний',
+        searchLocations: 'Пошук місць...',
+        noLocationsForTask: 'Для цього завдання не визначено місць',
+        manualCoordinatesEntry: '✏️ Ввести координати вручну',
+        unnamedLocation: 'Місце без назви'
       },
       userGroups: {
         getUserGroups: 'getUserGroups викликано - користувач:',
