@@ -177,7 +177,7 @@ const loadTasks = async () => {
           '_type.string': 'ulesanne'
         }
       })
-      
+
       if (allTasksResponse?.entities?.length > 0) {
         console.log('Found tasks in system, displaying all available tasks')
         tasks.value = allTasksResponse.entities
