@@ -8,7 +8,7 @@
             class="mr-3 text-gray-600 hover:text-gray-900"
             @click="goBack"
           >
-            ← Back
+            {{ $t('taskDetail.back') }}
           </button>
           <h1 class="text-lg font-semibold text-gray-900">
             {{ taskTitle }}
