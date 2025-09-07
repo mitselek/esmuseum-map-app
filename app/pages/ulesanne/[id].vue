@@ -8,7 +8,7 @@
             class="mr-3 text-gray-600 hover:text-gray-900"
             @click="goBack"
           >
-            ← Tagasi
+            ← Back
           </button>
           <h1 class="text-lg font-semibold text-gray-900">
             {{ taskTitle }}
@@ -38,7 +38,7 @@
           class="mt-2 text-sm text-red-600 underline hover:text-red-800"
           @click="loadTask"
         >
-          Proovi uuesti
+          {{ $t('taskDetail.retry') }}
         </button>
       </div>
     </div>
@@ -70,18 +70,18 @@
             class="flex items-center"
           >
             <span class="mr-2">👥</span>
-            <span>Grupp: {{ getTaskGroup(task) }}</span>
+            <span>{{ $t('tasks.group') }}: {{ getTaskGroup(task) }}</span>
           </div>
           <div class="flex items-center">
             <span class="mr-2">📊</span>
-            <span>Vastuseid kokku: {{ getResponseCount(task) }}</span>
+            <span>{{ $t('taskDetail.totalResponses', { count: getResponseCount(task) }) }}</span>
           </div>
           <div
             v-if="getUserResponse()"
             class="flex items-center"
           >
             <span class="mr-2">✅</span>
-            <span class="text-green-600">Sinu vastus on esitatud</span>
+            <span class="text-green-600">{{ $t('taskDetail.responseAlreadySubmitted') }}</span>
           </div>
         </div>
       </div>
@@ -92,14 +92,14 @@
         class="mb-4 rounded-lg border bg-white p-4 shadow-sm"
       >
         <h3 class="mb-3 text-lg font-medium text-gray-900">
-          Kaart
+          {{ $t('taskDetail.map') }}
         </h3>
         <div class="rounded-lg bg-gray-100 p-8 text-center">
           <div class="text-gray-500">
             🗺️
           </div>
           <p class="mt-2 text-sm text-gray-600">
-            Kaardi integratsioon tuleb hiljem
+            {{ $t('taskDetail.mapIntegrationComing') }}
           </p>
         </div>
       </div>
@@ -107,7 +107,7 @@
       <!-- Response Form -->
       <div class="rounded-lg border bg-white p-4 shadow-sm">
         <h3 class="mb-4 text-lg font-medium text-gray-900">
-          {{ getUserResponse() ? 'Sinu vastus' : 'Esita vastus' }}
+          {{ getUserResponse() ? $t('taskDetail.yourResponse') : $t('taskDetail.submitResponse') }}
         </h3>
 
         <form @submit.prevent="submitResponse">
@@ -117,7 +117,7 @@
               for="response-file"
               class="mb-2 block text-sm font-medium text-gray-700"
             >
-              Lisa fail (valikuline)
+              {{ $t('taskDetail.addFile') }}
             </label>
             <input
               id="response-file"
@@ -129,14 +129,14 @@
               @change="handleFileSelect"
             >
             <p class="mt-1 text-xs text-gray-500">
-              Lubatud: pildid, PDF, Word dokumendid
+              {{ $t('taskDetail.allowedFiles') }}
             </p>
           </div>
 
           <!-- Location Selection -->
           <div class="mb-6">
             <label class="mb-2 block text-sm font-medium text-gray-700">
-              Asukoht
+              {{ $t('taskDetail.location') }}
             </label>
 
             <!-- Location Picker Component -->
@@ -159,26 +159,26 @@
             >
               <div class="mb-3 flex items-center justify-between">
                 <h4 class="text-sm font-medium text-gray-700">
-                  Käsitsi koordinaadid
+                  {{ $t('taskDetail.manualCoordinates') }}
                 </h4>
                 <button
                   type="button"
                   class="text-sm text-gray-600 hover:text-gray-800"
                   @click="showManualCoordinates = false"
                 >
-                  ✕ Sulge
+                  {{ $t('taskDetail.close') }}
                 </button>
               </div>
 
               <div class="space-y-3">
                 <div>
                   <label class="block text-xs text-gray-600">
-                    Koordinaadid (lat,lng formaat)
+                    {{ $t('taskDetail.coordinatesFormat') }}
                   </label>
                   <input
                     v-model="manualCoordinates"
                     type="text"
-                    placeholder="näiteks: 59.4370, 24.7536"
+                    :placeholder="$t('taskDetail.coordinatesExample')"
                     class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     :disabled="submitting"
                   >
@@ -191,7 +191,7 @@
                     :disabled="gettingLocation || submitting"
                     @click="getCurrentLocation"
                   >
-                    {{ gettingLocation ? 'Otsin asukohta...' : 'Kasuta praegust asukohta' }}
+                    {{ gettingLocation ? $t('taskDetail.searchingLocation') : $t('taskDetail.useCurrentLocation') }}
                   </button>
 
                   <button
@@ -200,7 +200,7 @@
                     :disabled="!manualCoordinates || submitting"
                     @click="useManualCoordinates"
                   >
-                    Kasuta neid koordinaate
+                    {{ $t('taskDetail.useTheseCoordinates') }}
                   </button>
                 </div>
               </div>
@@ -212,7 +212,7 @@
               class="mt-2 rounded-lg bg-green-50 p-3"
             >
               <p class="text-sm text-green-800">
-                📍 Asukoht määratud: {{ formatDisplayCoordinates(responseForm.geopunkt) }}
+                {{ $t('taskDetail.locationSet', { coordinates: formatDisplayCoordinates(responseForm.geopunkt) }) }}
               </p>
             </div>
           </div>
@@ -223,14 +223,14 @@
               for="response-text"
               class="mb-2 block text-sm font-medium text-gray-700"
             >
-              Vastus
+              {{ $t('taskDetail.response') }}
             </label>
             <textarea
               id="response-text"
               v-model="responseForm.text"
               class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               rows="4"
-              placeholder="Kirjuta oma vastus siia..."
+              :placeholder="$t('taskDetail.responsePlaceholder')"
               :disabled="submitting"
             />
           </div>
@@ -242,7 +242,7 @@
               class="w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               :disabled="!canSubmit || submitting"
             >
-              {{ submitting ? 'Esitan...' : (getUserResponse() ? 'Uuenda vastust' : 'Esita vastus') }}
+              {{ submitting ? $t('taskDetail.submitting') : (getUserResponse() ? $t('taskDetail.updateResponse') : $t('taskDetail.submitResponseBtn')) }}
             </button>
 
             <div
@@ -250,7 +250,7 @@
               class="text-center"
             >
               <p class="text-xs text-gray-500">
-                Saad oma vastust muuta kuni tähtaja lõpuni
+                {{ $t('taskDetail.canUpdateUntilDeadline') }}
               </p>
             </div>
           </div>
@@ -267,6 +267,7 @@ definePageMeta({
 
 const route = useRoute()
 const { token } = useEntuAuth() // Get token for server API
+const { t } = useI18n()
 const {
   userPosition,
   locationError,
@@ -305,7 +306,7 @@ const fileInput = ref(null)
 
 // Computed properties
 const taskTitle = computed(() => {
-  return task.value ? getTaskTitle(task.value) : 'Laen...'
+  return task.value ? getTaskTitle(task.value) : t('taskDetail.loading')
 })
 
 const hasMapData = computed(() => {
@@ -337,11 +338,11 @@ const loadTask = async () => {
 
     const taskId = route.params.id
     if (!taskId) {
-      throw new Error('Ülesande ID puudub')
+      throw new Error(t('taskDetail.noTaskId'))
     }
 
     // Load task details using server API
-    console.log('Loading task via server API:', taskId)
+    console.log(t('taskDetail.loadingTaskViaApi', { taskId }))
     const taskResponse = await $fetch(`/api/tasks/${taskId}`, {
       headers: {
         Authorization: `Bearer ${token.value}`
@@ -360,8 +361,8 @@ const loadTask = async () => {
     requestGPSOnLoad()
   }
   catch (err) {
-    console.error('Error loading task:', err)
-    error.value = err.message || 'Viga ülesande laadimisel'
+    console.error(t('taskDetail.errorLoadingTask', { error: err.message }))
+    error.value = err.message || t('taskDetail.errorLoadingTaskGeneric')
   }
   finally {
     pending.value = false
@@ -373,13 +374,14 @@ const loadLocations = async () => {
     loadingLocations.value = true
 
     if (!task.value) {
-      console.log('No task available for loading locations')
+      console.log(t('taskDetail.noTaskForLocations'))
       return
     }
 
     // Load locations for this task's map
+    console.log(t('taskDetail.loadingLocations'))
     const locations = await loadTaskLocations(task.value)
-    console.log('Loaded locations:', locations)
+    console.log(t('taskDetail.loadedLocations', { count: locations.length }))
 
     // Sort by distance if we have user position
     if (userPosition.value) {
@@ -390,7 +392,7 @@ const loadLocations = async () => {
     }
   }
   catch (err) {
-    console.error('Error loading locations:', err)
+    console.error(t('taskDetail.errorLoadingLocations', { error: err.message }))
     // Don't show error to user - just log it and continue without locations
     mapLocations.value = []
   }
@@ -469,57 +471,50 @@ const submitResponse = async () => {
     }
 
     // Show success message
-    alert('Vastus on edukalt esitatud!')
+    alert(t('taskDetail.responseSubmittedSuccessfully'))
 
     // Reload response data
     await loadUserResponse()
   }
   catch (err) {
-    console.error('Error submitting response:', err)
-    alert('Viga vastuse esitamisel: ' + (err.message || 'Tundmatu viga'))
+    console.error(t('taskDetail.errorSubmittingResponse', { error: err.message }))
+    alert(t('taskDetail.errorSubmittingResponse', { error: err.message || t('taskDetail.unknownError') }))
   }
   finally {
     submitting.value = false
   }
 }
 
-const getCurrentLocation = () => {
-  gettingLocation.value = true
+const getCurrentLocation = async () => {
+  try {
+    gettingLocation.value = true
 
-  if (!navigator.geolocation) {
-    alert('Geolokatsioon pole selles brauseris toetatud')
-    gettingLocation.value = false
-    return
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const { latitude, longitude } = position.coords
-      const coordinates = `${latitude},${longitude}`
-
-      if (showManualCoordinates.value) {
-        // Update manual input field
-        manualCoordinates.value = coordinates
-      }
-      else {
-        // Direct assignment to form
-        responseForm.value.geopunkt = coordinates
-        selectedLocation.value = null
-      }
-
-      gettingLocation.value = false
-    },
-    (err) => {
-      console.error('Geolocation error:', err)
-      alert('Asukoha määramisel tekkis viga: ' + err.message)
-      gettingLocation.value = false
-    },
-    {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 60000
+    // Check if geolocation is supported
+    if (!navigator.geolocation) {
+      throw new Error(t('taskDetail.geolocationNotSupported'))
     }
-  )
+
+    const position = await getUserPosition()
+    const coordinates = `${position.lat},${position.lng}`
+
+    if (showManualCoordinates.value) {
+      // Update manual input field
+      manualCoordinates.value = coordinates
+    }
+    else {
+      // Direct assignment to form
+      responseForm.value.geopunkt = coordinates
+      selectedLocation.value = null
+    }
+  }
+  catch (err) {
+    console.error(t('taskDetail.geolocationError', { error: err.message }))
+    // Show user-friendly error message
+    alert(t('taskDetail.geolocationError', { error: err.message }))
+  }
+  finally {
+    gettingLocation.value = false
+  }
 }
 
 const handleFileSelect = (event) => {
@@ -575,7 +570,7 @@ const getTaskTitle = (task) => {
   return task.properties?.title?.[0]?.value
     || task.properties?.name?.[0]?.value
     || task.properties?.pealkiri?.[0]?.value
-    || 'Nimetu ülesanne'
+    || t('taskDetail.noTitle')
 }
 
 const getTaskDescription = (task) => {
@@ -592,7 +587,7 @@ const getResponseCount = (task) => {
 const getTaskGroup = (task) => {
   const gruppRef = task.properties?.grupp?.[0]
   if (gruppRef?.reference_id) {
-    return gruppRef.reference_displayname || 'Grupp'
+    return gruppRef.reference_displayname || t('tasks.group')
   }
   return null
 }
