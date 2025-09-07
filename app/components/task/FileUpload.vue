@@ -6,18 +6,44 @@
     >
       {{ $t('taskDetail.addFile') }}
     </label>
-    <input
-      :id="inputId"
-      ref="fileInput"
-      type="file"
-      class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-      :accept="acceptedTypes"
-      :disabled="disabled"
-      @change="handleFileSelect"
+
+    <!-- Drag and Drop Area -->
+    <div
+      class="relative rounded-lg border-2 border-dashed border-gray-300 p-6 text-center transition-colors"
+      :class="{
+        'border-blue-400 bg-blue-50': isDragging,
+        'hover:border-gray-400': !disabled && !isDragging,
+      }"
+      @dragover.prevent="handleDragOver"
+      @dragleave.prevent="handleDragLeave"
+      @drop.prevent="handleDrop"
     >
-    <p class="mt-1 text-xs text-gray-500">
-      {{ $t('taskDetail.allowedFiles') }}
-    </p>
+      <input
+        :id="inputId"
+        ref="fileInput"
+        type="file"
+        class="absolute inset-0 size-full cursor-pointer opacity-0"
+        :accept="acceptedTypes"
+        :disabled="disabled"
+        @change="handleFileSelect"
+      >
+
+      <div
+        v-if="!selectedFile"
+        class="space-y-2"
+      >
+        <div class="mx-auto size-12 text-gray-400">
+          📁
+        </div>
+        <div class="text-sm text-gray-600">
+          <span class="font-medium text-blue-600">{{ $t('taskDetail.clickToUpload') }}</span>
+          {{ $t('taskDetail.orDragAndDrop') }}
+        </div>
+        <p class="text-xs text-gray-500">
+          {{ $t('taskDetail.allowedFiles') }}
+        </p>
+      </div>
+    </div>
 
     <!-- Selected File Display -->
     <div
@@ -46,8 +72,8 @@
 <script setup>
 const props = defineProps({
   modelValue: {
-    type: File,
-    default: null
+    type: [File, Array],
+    default: () => []
   },
   acceptedTypes: {
     type: String,
@@ -66,25 +92,67 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const fileInput = ref(null)
-const selectedFile = ref(props.modelValue)
+const isDragging = ref(false)
 
-// Watch for external changes to modelValue
-watch(() => props.modelValue, (newFile) => {
-  selectedFile.value = newFile
+// Handle both single file and array of files
+const selectedFiles = computed(() => {
+  if (Array.isArray(props.modelValue)) {
+    return props.modelValue
+  }
+  return props.modelValue ? [props.modelValue] : []
 })
+
+const selectedFile = computed(() => {
+  return selectedFiles.value[0] || null
+})
+
+const validateAndEmitFile = (file) => {
+  if (!file) return
+
+  // Check file size (limit to 10MB)
+  const maxSize = 10 * 1024 * 1024 // 10MB
+  if (file.size > maxSize) {
+    alert(`File is too large. Maximum size is ${formatFileSize(maxSize)}`)
+    return false
+  }
+
+  // Always emit as array for consistency with form persistence
+  emit('update:modelValue', [file])
+  return true
+}
 
 const handleFileSelect = (event) => {
   const file = event.target.files[0]
-  selectedFile.value = file
-  emit('update:modelValue', file)
+  if (!validateAndEmitFile(file)) {
+    event.target.value = '' // Clear the input if validation failed
+  }
+}
+
+const handleDragOver = () => {
+  if (!props.disabled) {
+    isDragging.value = true
+  }
+}
+
+const handleDragLeave = () => {
+  isDragging.value = false
+}
+
+const handleDrop = (event) => {
+  isDragging.value = false
+  if (props.disabled) return
+
+  const files = event.dataTransfer.files
+  if (files.length > 0) {
+    validateAndEmitFile(files[0])
+  }
 }
 
 const clearFile = () => {
-  selectedFile.value = null
   if (fileInput.value) {
     fileInput.value.value = ''
   }
-  emit('update:modelValue', null)
+  emit('update:modelValue', [])
 }
 
 const formatFileSize = (bytes) => {

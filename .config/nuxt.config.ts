@@ -8,7 +8,6 @@ export default defineNuxtConfig({
   },
   modules: [
     '@nuxt/eslint',
-    '@nuxt/scripts',
     '@nuxtjs/i18n',
     '@nuxtjs/tailwindcss',
     '@vueuse/nuxt',
@@ -17,6 +16,34 @@ export default defineNuxtConfig({
   ssr: false,
   devtools: { enabled: false },
   spaLoadingTemplate: false,
+  // Fix mobile hydration issues
+  vue: {
+    compilerOptions: {
+      isCustomElement: (tag) => false
+    }
+  },
+  app: {
+    head: {
+      meta: [
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+      ]
+    }
+  },
+  // Disable development features that cause mobile issues
+  experimental: {
+    payloadExtraction: false
+  },
+  build: {
+    analyze: false
+  },
+  // Configure Vite to prevent devtools issues
+  vite: {
+    define: {
+      __VUE_PROD_DEVTOOLS__: false,
+      __VUE_OPTIONS_API__: true,
+      __VUE_DEVTOOLS__: false
+    }
+  },
   runtimeConfig: {
     entuKey: '',
     public: {
@@ -42,11 +69,10 @@ export default defineNuxtConfig({
       useCookie: true,
       cookieKey: 'i18n_locale',
       fallbackLocale: 'et'
-    }
-  },
-  scripts: {
-    registry: {
-      plausibleAnalytics: { domain: 'plugins.entu.app' }
+    },
+    // Disable optimization that causes mobile issues
+    bundle: {
+      optimizeTranslationDirective: false
     }
   },
   tailwindcss: {

@@ -11,6 +11,7 @@
     "dev:mobile": "nuxt dev --host 0.0.0.0 --port 3000",
     "build": "nuxt build",
     "start": "node .output/server/index.mjs",
+    "start:mobile": "HOST=0.0.0.0 PORT=3000 node .output/server/index.mjs",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "cleanup": "nuxt cleanup",
