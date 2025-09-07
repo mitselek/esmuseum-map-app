@@ -7,7 +7,8 @@
   "type": "module",
   "scripts": {
     "lint": "eslint . --fix --config .config/eslint.config.js",
-    "dev": "nuxt dev",
+    "dev": "nuxt dev --host 0.0.0.0",
+    "dev:mobile": "nuxt dev --host 0.0.0.0 --port 3000",
     "build": "nuxt build",
     "start": "node .output/server/index.mjs",
     "generate": "nuxt generate",

@@ -1,5 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  devServer: {
+    https: {
+      key: './localhost+3-key.pem',
+      cert: './localhost+3.pem'
+    }
+  },
   modules: [
     '@nuxt/eslint',
     '@nuxt/scripts',
