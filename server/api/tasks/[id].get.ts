@@ -30,8 +30,8 @@ export default defineEventHandler(async (event) => {
         })
       }
 
-      // Get task details using the same API call as client
-      const taskResult = await getEntuEntity(taskId, apiConfig)
+      // Get task details with all required properties including kaart (map) reference
+      const taskResult = await getEntuEntity(taskId, apiConfig, 'name,grupp,kaart,kirjeldus')
 
       if (!taskResult) {
         throw createError({
