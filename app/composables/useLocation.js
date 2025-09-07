@@ -49,13 +49,14 @@ export const useLocation = () => {
       throw new Error('Map ID is required')
     }
 
-    const { searchEntities } = useEntuApi()
+    const { token } = useEntuAuth()
 
     try {
-      // Query locations that belong to this map
-      const response = await searchEntities({
-        '_type.string': 'asukoht',
-        '_parent.reference': mapId
+      // Query locations that belong to this map via server API
+      const response = await $fetch(`/api/locations/${mapId}`, {
+        headers: {
+          Authorization: `Bearer ${token.value}`
+        }
       })
 
       console.log(`Loaded ${response?.entities?.length || 0} locations for map ${mapId}`)

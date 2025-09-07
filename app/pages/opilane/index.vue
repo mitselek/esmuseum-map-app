@@ -166,8 +166,8 @@ const loadTasks = async () => {
       }
     }
 
-    // DEBUG: First try to load all tasks without group filtering
-    console.log('🔍 DEBUG: Loading ALL tasks without filtering...')
+    // Try to load all tasks without group filtering
+    console.log('Loading all available tasks...')
     try {
       const allTasksResponse = await $fetch('/api/tasks/search', {
         headers: {
@@ -177,19 +177,18 @@ const loadTasks = async () => {
           '_type.string': 'ulesanne'
         }
       })
-      console.log('🔍 DEBUG: All tasks in system:', allTasksResponse)
-
+      
       if (allTasksResponse?.entities?.length > 0) {
-        console.log('✅ Found tasks in system, proceeding with group filtering...')
+        console.log('Found tasks in system, displaying all available tasks')
         tasks.value = allTasksResponse.entities
         return
       }
       else {
-        console.log('❌ No tasks found in system at all')
+        console.log('No tasks found in system')
       }
     }
-    catch (debugError) {
-      console.error('🔍 DEBUG: Error loading all tasks:', debugError)
+    catch (taskError) {
+      console.error('Error loading tasks:', taskError)
     }
 
     // Get user's groups first
@@ -220,7 +219,6 @@ const loadTasks = async () => {
             'grupp.reference': group._id
           }
         })
-        console.log('Server API tasks response:', taskResponse)
 
         console.log(`Tasks found for group ${group.name}:`, taskResponse)
 
@@ -273,11 +271,7 @@ const getUserGroups = async () => {
     })
     const userProfile = userProfileResponse.entity
 
-    console.log('🔍 DEBUG: Full userProfileResponse:', userProfileResponse)
-    console.log('🔍 DEBUG: userProfile keys:', Object.keys(userProfile))
-    console.log('🔍 DEBUG: userProfile._parent exists?', !!userProfile._parent)
-    console.log('🔍 DEBUG: userProfile._parent length:', userProfile._parent?.length)
-    console.log('🔍 DEBUG: userProfile._parent content:', userProfile._parent)
+    console.log('User profile loaded:', Object.keys(userProfile))
 
     // Filter parent relationships to find groups directly
     const groupParents = userProfile._parent?.filter((parent) => parent.entity_type === 'grupp') || []
@@ -298,16 +292,14 @@ const getUserGroups = async () => {
       role: 'member' // Could enhance this based on relationship type
     }))
 
-    console.log('Filtered groups:', groups)
     console.log('User groups found:', groups)
     userGroups.value = groups
 
-    // Debug: Log if user has groups
     if (groups.length === 0) {
-      console.warn('❌ User has no groups - no tasks will be loaded')
+      console.warn('User has no groups - no tasks will be loaded')
     }
     else {
-      console.log('✅ User has groups, will load tasks:', groups.map((g) => g.name))
+      console.log('User has groups, will load tasks:', groups.map((g) => g.name))
     }
   }
   catch (err) {
