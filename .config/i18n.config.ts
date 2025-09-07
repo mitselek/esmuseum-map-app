@@ -16,6 +16,7 @@ export default defineI18nConfig(() => ({
       description: 'Eesti muuseumide kaartide rakendus',
       loading: 'Laadimine...',
       error: 'Viga',
+      retry: 'Proovi uuesti',
       noMaps: 'Kaarte ei leitud',
       untitled: 'Nimetu',
       viewMap: 'Vaata kaarti',
@@ -32,7 +33,9 @@ export default defineI18nConfig(() => ({
       student: 'õpilane',
       tasks: {
         title: 'Minu ülesanded',
+        allTasks: 'Kõik ülesanded',
         noTasks: 'Hetkel pole ühtegi ülesannet määratud',
+        loading: 'Laen ülesandeid...',
         loadingTasks: 'Laen ülesandeid - kasutaja:',
         foundTasks: 'Leidsin süsteemis ülesandeid, kuvan kõik saadaolevad ülesanded',
         noTasksInSystem: 'Süsteemis ei leitud ühtegi ülesannet',
@@ -44,7 +47,16 @@ export default defineI18nConfig(() => ({
         responses: 'vastust',
         group: 'Grupp',
         pending: 'Ootel',
-        retry: 'Proovi uuesti'
+        retry: 'Proovi uuesti',
+        selectTask: 'Vali ülesanne',
+        selectTaskDescription: 'Alustamiseks vali külgmenüüst ülesanne',
+        taskId: 'Ülesande ID',
+        taskContent: 'Ülesande sisu',
+        placeholder: {
+          intro: 'See on ülesande sisu kohatäide. Tegelikud ülesande küsimused ja vorm implementeeritakse järgmistes sammudes.',
+          info: 'See demonstreerib F007 ühendatud SPA arhitektuuri responsiivse disaini ja olekuhaldusega.',
+          next: 'Järgmisena ehitame tegelikud vormikomponendid ja integreerime olemasoleva ülesandesüsteemiga.'
+        }
       },
       taskDetail: {
         back: '← Tagasi',
@@ -135,6 +147,7 @@ export default defineI18nConfig(() => ({
       description: 'Estonian museum maps application',
       loading: 'Loading...',
       error: 'Error',
+      retry: 'Try again',
       noMaps: 'No maps found',
       untitled: 'Untitled',
       viewMap: 'View map',
@@ -151,7 +164,9 @@ export default defineI18nConfig(() => ({
       student: 'student',
       tasks: {
         title: 'My Tasks',
+        allTasks: 'All Tasks',
         noTasks: 'No tasks currently assigned',
+        loading: 'Loading tasks...',
         loadingTasks: 'Loading tasks - user:',
         foundTasks: 'Found tasks in system, displaying all available tasks',
         noTasksInSystem: 'No tasks found in system',
@@ -163,7 +178,16 @@ export default defineI18nConfig(() => ({
         responses: 'responses',
         group: 'Group',
         pending: 'Pending',
-        retry: 'Try again'
+        retry: 'Try again',
+        selectTask: 'Select a task',
+        selectTaskDescription: 'Choose a task from the sidebar to get started',
+        taskId: 'Task ID',
+        taskContent: 'Task Content',
+        placeholder: {
+          intro: 'This is a placeholder for the task content. The actual task questions and form will be implemented in the next steps.',
+          info: 'This demonstrates the F007 unified SPA architecture with responsive design and state management.',
+          next: 'Next we will build the actual form components and integrate with the existing task system.'
+        }
       },
       taskDetail: {
         back: '← Back',
@@ -254,6 +278,7 @@ export default defineI18nConfig(() => ({
       description: 'Додаток карт естонських музеїв',
       loading: 'Завантаження...',
       error: 'Помилка',
+      retry: 'Спробувати знову',
       noMaps: 'Карти не знайдено',
       untitled: 'Без назви',
       viewMap: 'Переглянути карту',
@@ -270,7 +295,9 @@ export default defineI18nConfig(() => ({
       student: 'студент',
       tasks: {
         title: 'Мої завдання',
+        allTasks: 'Всі завдання',
         noTasks: 'Наразі завдання не призначені',
+        loading: 'Завантаження завдань...',
         loadingTasks: 'Завантаження завдань - користувач:',
         foundTasks: 'Знайшов завдання в системі, показую всі доступні завдання',
         noTasksInSystem: 'В системі не знайдено жодного завдання',
@@ -282,7 +309,16 @@ export default defineI18nConfig(() => ({
         responses: 'відповідей',
         group: 'Група',
         pending: 'Очікування',
-        retry: 'Спробувати знову'
+        retry: 'Спробувати знову',
+        selectTask: 'Виберіть завдання',
+        selectTaskDescription: 'Оберіть завдання з бічної панелі, щоб почати',
+        taskId: 'ID завдання',
+        taskContent: 'Зміст завдання',
+        placeholder: {
+          intro: 'Це заповнювач для змісту завдання. Справжні питання та форма завдання будуть реалізовані в наступних кроках.',
+          info: 'Це демонструє уніфіковану SPA архітектуру F007 з адаптивним дизайном та управлінням станом.',
+          next: 'Далі ми створимо справжні компоненти форм та інтегруємо з існуючою системою завдань.'
+        }
       },
       taskDetail: {
         back: '← Назад',
