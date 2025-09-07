@@ -1,9 +1,13 @@
 import { beforeAll, afterEach, afterAll } from 'vitest'
 import { setupServer } from 'msw/node'
 import { authApiMocks } from './mocks/entu-auth-api'
+import { taskApiMocks } from './mocks/task-api'
 
-// Setup MSW server
-const server = setupServer(...authApiMocks)
+// Setup MSW server with all API mocks
+const server = setupServer(...authApiMocks, ...taskApiMocks)
+
+// Export server for use in individual tests
+export { server }
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' })
