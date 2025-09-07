@@ -13,16 +13,13 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "cleanup": "nuxt cleanup",
-    "test": "vitest run tests/api tests/unit tests/composables --exclude tests/server",
-    "test:all": "vitest",
-    "test:run": "vitest run tests/api tests/unit tests/composables --exclude tests/server",
-    "test:watch": "vitest watch tests/api tests/unit tests/composables --exclude tests/server",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:unit": "vitest run tests/unit",
-    "test:api": "vitest run tests/api",
-    "test:auth": "vitest run tests/unit/auth-*.test.ts",
+    "test:api": "vitest run tests/api", 
     "test:composables": "vitest run tests/composables",
-    "test:working": "vitest run tests/api tests/unit tests/composables --exclude tests/server",
-    "test:coverage": "vitest run --coverage tests/api tests/unit tests/composables --exclude tests/server"
+    "test:auth": "vitest run tests/unit/auth-*.test.ts tests/api/auth-*.test.ts tests/composables/*Auth*.test.ts",
+    "test:coverage": "vitest run --coverage"
   },
   "engines": {
     "node": "22.x"
