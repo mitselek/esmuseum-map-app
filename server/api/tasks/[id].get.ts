@@ -40,11 +40,9 @@ export default defineEventHandler(async (event) => {
         })
       }
 
-      // Return in the exact same format as client getEntity call
+      // Return the result directly since getEntuEntity already returns {entity: ...}
       // Client expects: taskResponse.entity
-      return {
-        entity: taskResult
-      }
+      return taskResult
     }
     catch (error: any) {
       console.error('Failed to get task data:', error)
