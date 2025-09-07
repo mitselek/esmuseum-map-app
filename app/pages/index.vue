@@ -342,30 +342,20 @@ const getUserGroups = async () => {
 }
 
 const getTaskTitle = (task) => {
-  return task.properties?.title?.[0]?.value
-    || task.properties?.name?.[0]?.value
-    || task.properties?.pealkiri?.[0]?.value
-    || t('taskDetail.noTitle')
+  return task.name?.[0]?.string || t('taskDetail.noTitle')
 }
 
-const getTaskDescription = (task) => {
-  return task.properties?.description?.[0]?.value
-    || task.properties?.kirjeldus?.[0]?.value
-    || task.properties?.sisu?.[0]?.value
-    || null
+const getTaskDescription = (_task) => {
+  // No description field in the known task structure
+  return null
 }
 
 const getResponseCount = (task) => {
-  return task.properties?.vastuseid?.[0]?.value || 0
+  return task.vastuseid?.[0]?.number || 0
 }
 
 const getTaskGroup = (task) => {
-  // Extract group name from grupp reference
-  const gruppRef = task.properties?.grupp?.[0]
-  if (gruppRef?.reference_id) {
-    return gruppRef.reference_displayname || t('tasks.group')
-  }
-  return null
+  return task.grupp?.[0]?.string || null
 }
 
 const getStatusText = (_task) => {
