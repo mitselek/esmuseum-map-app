@@ -166,6 +166,32 @@ const loadTasks = async () => {
       }
     }
 
+    // DEBUG: First try to load all tasks without group filtering
+    console.log('🔍 DEBUG: Loading ALL tasks without filtering...')
+    try {
+      const allTasksResponse = await $fetch('/api/tasks/search', {
+        headers: {
+          Authorization: `Bearer ${token.value}`
+        },
+        query: {
+          '_type.string': 'ulesanne'
+        }
+      })
+      console.log('🔍 DEBUG: All tasks in system:', allTasksResponse)
+
+      if (allTasksResponse?.entities?.length > 0) {
+        console.log('✅ Found tasks in system, proceeding with group filtering...')
+        tasks.value = allTasksResponse.entities
+        return
+      }
+      else {
+        console.log('❌ No tasks found in system at all')
+      }
+    }
+    catch (debugError) {
+      console.error('🔍 DEBUG: Error loading all tasks:', debugError)
+    }
+
     // Get user's groups first
     await getUserGroups()
 

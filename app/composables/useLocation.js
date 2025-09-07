@@ -81,11 +81,21 @@ export const useLocation = () => {
 
     // Debug: log the task structure to understand map reference format
     console.log('Task structure:', task)
+    console.log('Task entity keys:', Object.keys(task.entity || {}))
     console.log('Task kaart property:', task.kaart)
+    console.log('Task entity kaart property:', task.entity?.kaart)
 
-    // Get map reference from task - the kaart property is directly on the task
+    // Check for kaart in task.entity.properties (where Entu API typically puts properties)
+    console.log('Task entity properties:', task.entity?.properties)
+    console.log('Task entity properties kaart:', task.entity?.properties?.kaart)
+
+    // Get map reference from task - check multiple possible locations
     let mapReference = task.kaart?.[0]?.reference
       || task.kaart?.[0]?._id
+      || task.entity?.properties?.kaart?.[0]?.reference
+      || task.entity?.properties?.kaart?.[0]?._id
+      || task.entity?.kaart?.[0]?.reference
+      || task.entity?.kaart?.[0]?._id
       || task.kaart
 
     console.log('Raw map reference:', mapReference, typeof mapReference)

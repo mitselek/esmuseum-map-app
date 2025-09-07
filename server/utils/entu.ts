@@ -72,9 +72,13 @@ export async function callEntuApi (endpoint: string, options: Partial<RequestIni
 /**
  * Get entity by ID from Entu
  */
-export async function getEntuEntity (entityId: string, apiConfig: EntuApiOptions) {
-  logger.debug(`Getting entity: ${entityId}`)
-  return callEntuApi(`/entity/${entityId}`, {}, apiConfig)
+export async function getEntuEntity (entityId: string, apiConfig: EntuApiOptions, properties?: string) {
+  logger.debug(`Getting entity: ${entityId}`, { properties })
+  let endpoint = `/entity/${entityId}`
+  if (properties) {
+    endpoint += `?props=${encodeURIComponent(properties)}`
+  }
+  return callEntuApi(endpoint, {}, apiConfig)
 }
 
 /**
