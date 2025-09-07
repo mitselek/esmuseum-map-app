@@ -5,7 +5,8 @@
  */
 
 import { validateEntityId, createSuccessResponse } from '../../utils/validation'
-import { withAuth, checkTaskPermission, type AuthenticatedUser, extractBearerToken } from '../../utils/auth'
+import { withAuth, checkTaskPermission, extractBearerToken } from '../../utils/auth'
+import type { AuthenticatedUser } from '../../utils/auth'
 import { getEntuEntity, getEntuApiConfig } from '../../utils/entu'
 
 export default defineEventHandler(async (event) => {
@@ -15,13 +16,13 @@ export default defineEventHandler(async (event) => {
 
     // Get and validate task ID from URL
     const taskId = validateEntityId(getRouterParam(event, 'id'))
-    
+
     try {
       const apiConfig = getEntuApiConfig(extractBearerToken(event))
 
       // Check if user has permission to access this task (currently allows all authenticated users)
       const hasPermission = await checkTaskPermission(user, taskId, apiConfig)
-      
+
       if (!hasPermission) {
         throw createError({
           statusCode: 403,
@@ -31,7 +32,7 @@ export default defineEventHandler(async (event) => {
 
       // Get task details using the same API call as client
       const taskResult = await getEntuEntity(taskId, apiConfig)
-      
+
       if (!taskResult) {
         throw createError({
           statusCode: 404,
@@ -44,15 +45,15 @@ export default defineEventHandler(async (event) => {
       return {
         entity: taskResult
       }
-
-    } catch (error: any) {
+    }
+    catch (error: any) {
       console.error('Failed to get task data:', error)
-      
+
       // Re-throw known errors
       if (error?.statusCode) {
         throw error
       }
-      
+
       throw createError({
         statusCode: 500,
         statusMessage: 'Failed to get task data'

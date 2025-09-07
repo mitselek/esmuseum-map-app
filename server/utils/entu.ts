@@ -17,18 +17,18 @@ export interface EntuApiOptions {
 /**
  * Make authenticated API call to Entu
  */
-export async function callEntuApi(endpoint: string, options: Partial<RequestInit> = {}, apiConfig: EntuApiOptions) {
+export async function callEntuApi (endpoint: string, options: Partial<RequestInit> = {}, apiConfig: EntuApiOptions) {
   const url = `${apiConfig.apiUrl}/api/${apiConfig.accountName}${endpoint}`
-  
+
   logger.debug(`Making API call to: ${endpoint}`, {
     method: options.method || 'GET',
     url,
     hasBody: !!options.body
   })
-  
+
   const requestOptions: RequestInit = {
     headers: {
-      'Authorization': `Bearer ${apiConfig.token}`,
+      Authorization: `Bearer ${apiConfig.token}`,
       'Accept-Encoding': 'deflate',
       'Content-Type': 'application/json',
       ...options.headers
@@ -45,7 +45,7 @@ export async function callEntuApi(endpoint: string, options: Partial<RequestInit
         status: response.status,
         statusText: response.statusText
       })
-      
+
       throw createError({
         statusCode: response.status,
         statusMessage: `Entu API error: ${response.status} ${response.statusText}`
@@ -57,9 +57,10 @@ export async function callEntuApi(endpoint: string, options: Partial<RequestInit
       status: response.status,
       hasData: !!data
     })
-    
+
     return data
-  } catch (error) {
+  }
+  catch (error) {
     logger.error(`Entu API call failed: ${endpoint}`, error)
     throw createError({
       statusCode: 500,
@@ -71,7 +72,7 @@ export async function callEntuApi(endpoint: string, options: Partial<RequestInit
 /**
  * Get entity by ID from Entu
  */
-export async function getEntuEntity(entityId: string, apiConfig: EntuApiOptions) {
+export async function getEntuEntity (entityId: string, apiConfig: EntuApiOptions) {
   logger.debug(`Getting entity: ${entityId}`)
   return callEntuApi(`/entity/${entityId}`, {}, apiConfig)
 }
@@ -79,7 +80,7 @@ export async function getEntuEntity(entityId: string, apiConfig: EntuApiOptions)
 /**
  * Create entity in Entu
  */
-export async function createEntuEntity(entityType: string, entityData: any, apiConfig: EntuApiOptions) {
+export async function createEntuEntity (entityType: string, entityData: any, apiConfig: EntuApiOptions) {
   logger.debug(`Creating entity of type: ${entityType}`, { entityData })
   return callEntuApi('/entity', {
     method: 'POST',
@@ -93,7 +94,7 @@ export async function createEntuEntity(entityType: string, entityData: any, apiC
 /**
  * Update entity in Entu
  */
-export async function updateEntuEntity(entityId: string, entityData: any, apiConfig: EntuApiOptions) {
+export async function updateEntuEntity (entityId: string, entityData: any, apiConfig: EntuApiOptions) {
   logger.debug(`Updating entity: ${entityId}`, { entityData })
   return callEntuApi(`/entity/${entityId}`, {
     method: 'POST',
@@ -104,32 +105,32 @@ export async function updateEntuEntity(entityId: string, entityData: any, apiCon
 /**
  * Search entities in Entu
  */
-export async function searchEntuEntities(query: Record<string, any>, apiConfig: EntuApiOptions) {
+export async function searchEntuEntities (query: Record<string, any>, apiConfig: EntuApiOptions) {
   logger.debug('Searching entities', { query })
   const queryString = Object.entries(query)
     .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
     .join('&')
-  
+
   return callEntuApi(`/entity?${queryString}`, {}, apiConfig)
 }
 
 /**
  * Get Entu API configuration from runtime config
  */
-export function getEntuApiConfig(token: string): EntuApiOptions {
+export function getEntuApiConfig (token: string): EntuApiOptions {
   const config = useRuntimeConfig()
-  
+
   const apiConfig = {
     token,
     apiUrl: (config.public.entuUrl as string) || 'https://entu.app',
     accountName: (config.public.entuAccount as string) || 'esmuuseum'
   }
-  
-  logger.debug('Created API config', { 
-    url: apiConfig.apiUrl, 
+
+  logger.debug('Created API config', {
+    url: apiConfig.apiUrl,
     account: apiConfig.accountName,
-    hasToken: !!token 
+    hasToken: !!token
   })
-  
+
   return apiConfig
 }

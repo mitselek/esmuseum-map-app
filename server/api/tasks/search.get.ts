@@ -4,7 +4,8 @@
  * Compatible with current client-side searchEntities implementation
  */
 
-import { withAuth, type AuthenticatedUser, extractBearerToken } from '../../utils/auth'
+import { withAuth, extractBearerToken } from '../../utils/auth'
+import type { AuthenticatedUser } from '../../utils/auth'
 import { searchEntuEntities, getEntuApiConfig } from '../../utils/entu'
 
 export default defineEventHandler(async (event) => {
@@ -18,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
       // Convert query parameters to search format
       const searchQuery: Record<string, any> = {}
-      
+
       // Copy all query parameters for the search
       for (const [key, value] of Object.entries(query)) {
         if (value !== undefined && value !== null) {
@@ -33,18 +34,18 @@ export default defineEventHandler(async (event) => {
 
       // Perform the search
       const searchResult = await searchEntuEntities(searchQuery, apiConfig)
-      
+
       // Return in the exact same format as client searchEntities call
       return searchResult
-
-    } catch (error: any) {
+    }
+    catch (error: any) {
       console.error('Failed to search tasks:', error)
-      
+
       // Re-throw known errors
       if (error?.statusCode) {
         throw error
       }
-      
+
       throw createError({
         statusCode: 500,
         statusMessage: 'Failed to search tasks'

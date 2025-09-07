@@ -4,7 +4,8 @@
  */
 
 import { validateCreateResponseRequest, createSuccessResponse } from '../utils/validation'
-import { withAuth, checkTaskPermission, type AuthenticatedUser } from '../utils/auth'
+import { withAuth, checkTaskPermission } from '../utils/auth'
+import type { AuthenticatedUser } from '../utils/auth'
 import { createEntuEntity, getEntuApiConfig, searchEntuEntities } from '../utils/entu'
 
 export default defineEventHandler(async (event) => {
@@ -19,7 +20,7 @@ export default defineEventHandler(async (event) => {
     // Check if user has permission to respond to this task
     const apiConfig = getEntuApiConfig(extractBearerToken(event))
     const hasPermission = await checkTaskPermission(user, validatedData.taskId, apiConfig)
-    
+
     if (!hasPermission) {
       throw createError({
         statusCode: 403,
@@ -67,15 +68,15 @@ export default defineEventHandler(async (event) => {
         message: 'Response created successfully',
         submittedAt: responseData.esitamisaeg
       })
-
-    } catch (error: any) {
+    }
+    catch (error: any) {
       console.error('Failed to create response:', error)
-      
+
       // Re-throw known errors
       if (error?.statusCode) {
         throw error
       }
-      
+
       throw createError({
         statusCode: 500,
         statusMessage: 'Failed to create response'
@@ -85,7 +86,7 @@ export default defineEventHandler(async (event) => {
 })
 
 // Helper function to extract Bearer token (avoiding circular import)
-function extractBearerToken(event: any): string {
+function extractBearerToken (event: any): string {
   const authHeader = getHeader(event, 'authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     throw createError({

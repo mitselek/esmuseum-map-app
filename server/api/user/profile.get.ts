@@ -4,7 +4,8 @@
  * Compatible with current client-side implementation
  */
 
-import { withAuth, type AuthenticatedUser, extractBearerToken } from '../../utils/auth'
+import { withAuth, extractBearerToken } from '../../utils/auth'
+import type { AuthenticatedUser } from '../../utils/auth'
 import { getEntuEntity, getEntuApiConfig } from '../../utils/entu'
 
 export default defineEventHandler(async (event) => {
@@ -17,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
       // Get user's full profile using their ID
       const userProfileResult = await getEntuEntity(user._id, apiConfig)
-      
+
       if (!userProfileResult) {
         throw createError({
           statusCode: 404,
@@ -38,15 +39,15 @@ export default defineEventHandler(async (event) => {
       return {
         entity: userProfileResult
       }
-
-    } catch (error: any) {
+    }
+    catch (error: any) {
       console.error('Failed to get user profile:', error)
-      
+
       // Re-throw known errors
       if (error?.statusCode) {
         throw error
       }
-      
+
       throw createError({
         statusCode: 500,
         statusMessage: 'Failed to get user profile'

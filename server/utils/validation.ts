@@ -67,7 +67,7 @@ export interface LocationQuery {
 /**
  * Validate required string field
  */
-export function validateRequiredString(value: any, fieldName: string): string {
+export function validateRequiredString (value: any, fieldName: string): string {
   if (!value || typeof value !== 'string' || value.trim().length === 0) {
     throw createError({
       statusCode: 400,
@@ -80,7 +80,7 @@ export function validateRequiredString(value: any, fieldName: string): string {
 /**
  * Validate required array field
  */
-export function validateRequiredArray(value: any, fieldName: string): any[] {
+export function validateRequiredArray (value: any, fieldName: string): any[] {
   if (!Array.isArray(value) || value.length === 0) {
     throw createError({
       statusCode: 400,
@@ -93,7 +93,7 @@ export function validateRequiredArray(value: any, fieldName: string): any[] {
 /**
  * Validate response type enum
  */
-export function validateResponseType(type: any): 'text' | 'location' | 'file' {
+export function validateResponseType (type: any): 'text' | 'location' | 'file' {
   const validTypes = ['text', 'location', 'file']
   if (!validTypes.includes(type)) {
     throw createError({
@@ -107,9 +107,9 @@ export function validateResponseType(type: any): 'text' | 'location' | 'file' {
 /**
  * Validate coordinates object
  */
-export function validateCoordinates(coords: any): { lat: number; lng: number } {
+export function validateCoordinates (coords: any): { lat: number, lng: number } {
   logger.debug('Validating coordinates', { coords })
-  
+
   if (!coords || typeof coords !== 'object') {
     logger.warn('Invalid coordinates structure')
     throw createError({
@@ -152,7 +152,7 @@ export function validateCoordinates(coords: any): { lat: number; lng: number } {
 /**
  * Validate response item structure
  */
-export function validateResponseItem(item: any, index: number) {
+export function validateResponseItem (item: any, index: number) {
   if (!item || typeof item !== 'object') {
     throw createError({
       statusCode: 400,
@@ -204,9 +204,9 @@ export function validateResponseItem(item: any, index: number) {
 /**
  * Validate create response request body
  */
-export function validateCreateResponseRequest(body: any): CreateResponseRequest {
+export function validateCreateResponseRequest (body: any): CreateResponseRequest {
   logger.debug('Validating create response request', { hasBody: !!body })
-  
+
   if (!body || typeof body !== 'object') {
     logger.warn('Invalid request body structure')
     throw createError({
@@ -228,7 +228,7 @@ export function validateCreateResponseRequest(body: any): CreateResponseRequest 
 /**
  * Validate update response request body
  */
-export function validateUpdateResponseRequest(body: any): UpdateResponseRequest {
+export function validateUpdateResponseRequest (body: any): UpdateResponseRequest {
   if (!body || typeof body !== 'object') {
     throw createError({
       statusCode: 400,
@@ -245,7 +245,7 @@ export function validateUpdateResponseRequest(body: any): UpdateResponseRequest 
 /**
  * Create standardized success response
  */
-export function createSuccessResponse<T>(data: T): ApiResponse<T> {
+export function createSuccessResponse<T> (data: T): ApiResponse<T> {
   return {
     success: true,
     data
@@ -255,11 +255,11 @@ export function createSuccessResponse<T>(data: T): ApiResponse<T> {
 /**
  * Validate entity ID parameter
  */
-export function validateEntityId(id: any): string {
+export function validateEntityId (id: any): string {
   logger.debug('Validating entity ID', { id })
-  
+
   const entityId = validateRequiredString(id, 'id')
-  
+
   // Basic MongoDB ObjectId format validation (24 hex characters)
   if (!/^[a-fA-F0-9]{24}$/.test(entityId)) {
     logger.warn('Invalid entity ID format', { entityId })
@@ -268,7 +268,7 @@ export function validateEntityId(id: any): string {
       statusMessage: 'Invalid entity ID format'
     })
   }
-  
+
   logger.debug('Entity ID validated successfully', { entityId })
   return entityId
 }
@@ -277,9 +277,9 @@ export function validateEntityId(id: any): string {
  * Validate optional lat/lng query parameters.
  * Returns an object with numeric lat/lng only if both are present and valid.
  */
-export function validateLocationQuery(query: any): LocationQuery {
+export function validateLocationQuery (query: any): LocationQuery {
   logger.debug('Validating location query', { query })
-  
+
   const latRaw = query?.lat ?? query?.latitude
   const lngRaw = query?.lng ?? query?.long ?? query?.longitude
 
@@ -322,20 +322,20 @@ export function validateLocationQuery(query: any): LocationQuery {
 /**
  * Calculate distance in meters between two coordinates using the Haversine formula
  */
-export function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+export function calculateDistance (lat1: number, lng1: number, lat2: number, lng2: number): number {
   logger.debug('Calculating distance', { from: { lat: lat1, lng: lng1 }, to: { lat: lat2, lng: lng2 } })
-  
+
   const toRad = (deg: number) => (deg * Math.PI) / 180
   const R = 6371000 // meters
   const dLat = toRad(lat2 - lat1)
   const dLng = toRad(lng2 - lng1)
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-    Math.sin(dLng / 2) * Math.sin(dLng / 2)
+  const a
+    = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+      + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2))
+      * Math.sin(dLng / 2) * Math.sin(dLng / 2)
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
   const distance = R * c
-  
+
   logger.debug('Distance calculated', { distance: Math.round(distance) })
   return distance
 }
