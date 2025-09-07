@@ -26,18 +26,14 @@ export default defineEventHandler(async (event) => {
         })
       }
 
-      // Debug: Log what we're returning
-      console.log('Server returning user profile structure:', {
-        hasParent: !!userProfileResult._parent,
-        parentCount: userProfileResult._parent?.length || 0,
-        parentTypes: userProfileResult._parent?.map((p: any) => p.entity_type) || [],
-        sampleParent: userProfileResult._parent?.[0]
-      })
+      // Extract the actual entity from the response
+      // Entu API returns { entity: { ... } } format
+      const userEntity = userProfileResult.entity || userProfileResult
 
       // Return in the exact same format as client getEntity call
       // Client expects: userProfileResponse.entity
       return {
-        entity: userProfileResult
+        entity: userEntity
       }
     }
     catch (error: any) {
