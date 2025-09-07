@@ -262,7 +262,7 @@
 
 <script setup>
 definePageMeta({
-  middleware: 'pupil-auth'
+  middleware: 'auth'
 })
 
 const route = useRoute()
@@ -349,6 +349,9 @@ const loadTask = async () => {
       }
     })
     console.log('Server API response:', taskResponse)
+    console.log('Task entity:', taskResponse.entity)
+    console.log('Task name array:', taskResponse.entity?.name)
+    console.log('Task name string:', taskResponse.entity?.name?.[0]?.string)
     task.value = taskResponse.entity
 
     // Load user's existing response if any
@@ -567,7 +570,13 @@ const formatDisplayCoordinates = (geopunkt) => {
 
 // Helper methods for task data
 const getTaskTitle = (task) => {
-  return task.name?.[0]?.string || t('taskDetail.noTitle')
+  console.log('getTaskTitle called with task:', task)
+  console.log('task.name:', task?.name)
+  console.log('task.name[0]:', task?.name?.[0])
+  console.log('task.name[0].string:', task?.name?.[0]?.string)
+  const title = task.name?.[0]?.string || t('taskDetail.noTitle')
+  console.log('Final title:', title)
+  return title
 }
 
 const getTaskDescription = (_task) => {

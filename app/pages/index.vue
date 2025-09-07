@@ -135,7 +135,7 @@
 
 <script setup>
 definePageMeta({
-  middleware: 'pupil-auth'
+  middleware: 'auth'
 })
 
 // Composables
