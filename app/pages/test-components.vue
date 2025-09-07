@@ -295,7 +295,7 @@ definePageMeta({
 const { $t: _$t } = useI18n()
 
 // Component selection
-const activeComponent = ref(null)
+const activeComponent = ref('file')
 
 const components = [
   { id: 'info', name: 'TaskInfoCard', description: 'Displays task metadata and information' },
