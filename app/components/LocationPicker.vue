@@ -8,7 +8,7 @@
       <div class="flex items-center justify-between">
         <div>
           <h4 class="font-medium text-green-800">
-            Valitud asukoht
+            {{ t('taskDetail.selectedLocation') }}
           </h4>
           <p class="text-sm text-green-700">
             {{ getLocationName(selectedLocation) }}
@@ -25,7 +25,7 @@
           class="text-sm text-green-600 hover:text-green-800"
           @click="clearSelection"
         >
-          Muuda
+          {{ t('taskDetail.changeLocation') }}
         </button>
       </div>
     </div>
@@ -37,7 +37,7 @@
     >
       <div class="mx-auto size-6 animate-spin rounded-full border-b-2 border-blue-600" />
       <p class="mt-2 text-sm text-gray-600">
-        Laen asukohti...
+        {{ t('taskDetail.loadingLocationsList') }}
       </p>
     </div>
 
@@ -54,7 +54,7 @@
         class="mt-2 text-xs text-red-600 underline hover:text-red-800"
         @click="$emit('retry')"
       >
-        Proovi uuesti
+        {{ t('taskDetail.retry') }}
       </button>
     </div>
 
@@ -65,7 +65,7 @@
     >
       <div class="mb-3 flex items-center justify-between">
         <h4 class="text-sm font-medium text-gray-700">
-          Vali asukoht ({{ sortedLocations.length }})
+          {{ t('taskDetail.selectLocation', { count: sortedLocations.length }) }}
         </h4>
         <button
           v-if="!userPosition && !gettingLocation"
@@ -73,19 +73,19 @@
           class="text-xs text-blue-600 hover:text-blue-800"
           @click="requestLocation"
         >
-          📍 Kasuta GPS-i
+          {{ t('taskDetail.useGPS') }}
         </button>
         <span
           v-else-if="gettingLocation"
           class="text-xs text-gray-500"
         >
-          🔍 Otsin asukohta...
+          {{ t('taskDetail.searchingLocationGPS') }}
         </span>
         <span
           v-else-if="userPosition"
           class="text-xs text-green-600"
         >
-          📍 GPS kasutusel
+          {{ t('taskDetail.gpsActive') }}
         </span>
       </div>
 
@@ -97,7 +97,7 @@
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="Otsi asukohti..."
+          :placeholder="t('taskDetail.searchLocations')"
           class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
         >
       </div>
@@ -146,7 +146,7 @@
         📍
       </div>
       <p class="text-sm text-gray-600">
-        Selle ülesande jaoks pole asukohti määratud
+        {{ t('taskDetail.noLocationsForTask') }}
       </p>
     </div>
 
@@ -157,7 +157,7 @@
         class="text-sm text-gray-600 hover:text-gray-800"
         @click="$emit('manual')"
       >
-        ✏️ Sisesta koordinaadid käsitsi
+        {{ t('taskDetail.manualCoordinatesEntry') }}
       </button>
     </div>
   </div>
@@ -165,6 +165,8 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+
+const { t } = useI18n()
 
 const props = defineProps({
   locations: {
@@ -240,7 +242,7 @@ const getLocationName = (location) => {
     || location.properties?.name?.[0]?.value
     || location.properties?.nimi?.[0]?.value
     || location.name
-    || 'Nimetu asukoht'
+    || t('taskDetail.unnamedLocation')
   )
 }
 
