@@ -115,9 +115,10 @@ export const useEntuAuth = () => {
   })
 
   // Check token expiration on initialization and refresh if needed
-  // This is safe to call directly (no onMounted needed) as it's not a lifecycle hook
-  const checkAndRefreshToken = () => {
+  // Make sure refreshToken is hoisted before it's referenced to avoid TDZ errors
+  function checkAndRefreshToken () {
     if (import.meta.client && isTokenExpired.value) {
+      // Call refreshToken which is defined below (hoisted function declaration ensures it's available)
       refreshToken().catch((err) => {
         console.error('Failed to refresh token:', err)
       })
@@ -211,7 +212,8 @@ export const useEntuAuth = () => {
   /**
    * Refresh the token if it's expired or about to expire
    */
-  const refreshToken = async (forceRefresh = false) => {
+  // Hoisted function declaration so it exists before any references (avoids TDZ when plugin calls checkAndRefreshToken early)
+  async function refreshToken (forceRefresh = false) {
     // Only refresh if the token is expired, about to expire, or if forced
     if (forceRefresh || isTokenExpired.value || (tokenExpiry.value && tokenExpiry.value - Date.now() < 30 * 60 * 1000)) {
       return await getToken()

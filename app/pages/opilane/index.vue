@@ -125,8 +125,7 @@ definePageMeta({
 })
 
 // Composables
-const { user, logout: authLogout } = useEntuAuth()
-const { getEntity } = useEntuApi()
+const { user, logout: authLogout, token } = useEntuAuth()
 
 // Reactive data
 const tasks = ref([])
@@ -184,12 +183,18 @@ const loadTasks = async () => {
     for (const group of userGroups.value) {
       console.log('Fetching tasks for group:', group.name, 'ID:', group._id)
       try {
-        // Query tasks assigned to this specific group
-        const { searchEntities } = useEntuApi()
-        const taskResponse = await searchEntities({
-          '_type.string': 'ulesanne',
-          'grupp.reference': group._id
+        // Query tasks assigned to this specific group via server API
+        console.log('Loading tasks via server API for group:', group._id)
+        const taskResponse = await $fetch('/api/tasks/search', {
+          headers: {
+            Authorization: `Bearer ${token.value}`
+          },
+          query: {
+            '_type.string': 'ulesanne',
+            'grupp.reference': group._id
+          }
         })
+        console.log('Server API tasks response:', taskResponse)
 
         console.log(`Tasks found for group ${group.name}:`, taskResponse)
 
@@ -234,12 +239,19 @@ const getUserGroups = async () => {
 
     console.log('Using user ID:', userId)
 
-    // Get current user's full profile to access parent groups
-    const userProfileResponse = await getEntity(userId)
+    // Get current user's full profile to access parent groups via server API
+    const userProfileResponse = await $fetch('/api/user/profile', {
+      headers: {
+        Authorization: `Bearer ${token.value}`
+      }
+    })
     const userProfile = userProfileResponse.entity
 
-    console.log('User profile:', userProfile)
-    console.log('User profile _parent:', userProfile._parent)
+    console.log('🔍 DEBUG: Full userProfileResponse:', userProfileResponse)
+    console.log('🔍 DEBUG: userProfile keys:', Object.keys(userProfile))
+    console.log('🔍 DEBUG: userProfile._parent exists?', !!userProfile._parent)
+    console.log('🔍 DEBUG: userProfile._parent length:', userProfile._parent?.length)
+    console.log('🔍 DEBUG: userProfile._parent content:', userProfile._parent)
 
     // Filter parent relationships to find groups directly
     const groupParents = userProfile._parent?.filter((parent) => parent.entity_type === 'grupp') || []
@@ -263,6 +275,14 @@ const getUserGroups = async () => {
     console.log('Filtered groups:', groups)
     console.log('User groups found:', groups)
     userGroups.value = groups
+
+    // Debug: Log if user has groups
+    if (groups.length === 0) {
+      console.warn('❌ User has no groups - no tasks will be loaded')
+    }
+    else {
+      console.log('✅ User has groups, will load tasks:', groups.map((g) => g.name))
+    }
   }
   catch (err) {
     console.warn('Error fetching user groups:', err)
