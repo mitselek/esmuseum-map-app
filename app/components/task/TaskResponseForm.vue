@@ -80,6 +80,11 @@
 </template>
 
 <script setup>
+// Import child components
+import FileUpload from '~/components/task/FileUpload.vue'
+import ResponseTextarea from '~/components/task/ResponseTextarea.vue'
+import ManualCoordinatesInput from '~/components/task/ManualCoordinatesInput.vue'
+
 const { t } = useI18n()
 
 const props = defineProps({
