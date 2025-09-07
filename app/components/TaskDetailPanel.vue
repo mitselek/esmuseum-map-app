@@ -193,7 +193,11 @@ const submitting = ref(false)
 
 // Helper functions (matching existing task detail page)
 const getTaskTitle = (task) => {
-  return task?.name?.[0]?.string || task?.name || t('taskDetail.noTitle', 'Untitled Task')
+  // Handle both data structures: task.name (string) or task.name[0].string (array format)
+  if (typeof task?.name === 'string') {
+    return task.name || t('taskDetail.noTitle', 'Untitled Task')
+  }
+  return task?.name?.[0]?.string || t('taskDetail.noTitle', 'Untitled Task')
 }
 
 const getTaskDescription = (task) => {

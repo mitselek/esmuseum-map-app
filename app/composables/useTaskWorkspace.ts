@@ -3,19 +3,26 @@
  * Handles all tasks, selection, and form persistence for F007 SPA
  */
 
-export const useTaskWorkspace = () => {
-  // Global state
-  const tasks = ref<any[]>([])
-  const selectedTaskId = ref<string | null>(null)
-  const userResponses = ref(new Map<string, any>())
-  const loading = ref(true)
-  const error = ref<string | null>(null)
+// Global state outside the composable to persist across navigation
+const globalTasks = ref<any[]>([])
+const globalSelectedTaskId = ref<string | null>(null)
+const globalUserResponses = ref(new Map<string, any>())
+const globalLoading = ref(true)
+const globalError = ref<string | null>(null)
 
+export const useTaskWorkspace = () => {
   const router = useRouter()
   const route = useRoute()
   
   // Authentication
   const { user, token } = useEntuAuth()
+  
+  // Use global state
+  const tasks = globalTasks
+  const selectedTaskId = globalSelectedTaskId
+  const userResponses = globalUserResponses
+  const loading = globalLoading
+  const error = globalError
   
   // Computed properties
   const selectedTask = computed(() => {

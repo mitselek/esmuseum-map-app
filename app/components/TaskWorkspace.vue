@@ -1,26 +1,5 @@
 <template>
   <div class="flex h-screen bg-gray-50">
-    <!-- Mobile Menu Button (only visible on mobile) -->
-    <button
-      v-if="isMobile && !sidebarVisible"
-      class="fixed left-4 top-20 z-50 rounded-lg bg-blue-600 p-2 text-white shadow-lg lg:hidden"
-      @click="toggleSidebar"
-    >
-      <svg
-        class="size-6"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 6h16M4 12h16M4 18h16"
-        />
-      </svg>
-    </button>
-
     <!-- Desktop Sidebar / Mobile Drawer -->
     <div
       class="relative transition-all duration-300 ease-in-out"
