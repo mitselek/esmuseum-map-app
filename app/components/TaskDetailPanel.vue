@@ -357,11 +357,11 @@ const checkPermissions = async (taskId) => {
 
 // Load existing response when task changes
 watch(selectedTask, async (newTask) => {
-  if (newTask) {
+  if (newTask && newTask._id) {
     const { token } = useEntuAuth()
 
     // Check permissions first
-    await checkPermissions()
+    await checkPermissions(newTask._id)
 
     if (token.value) {
       try {

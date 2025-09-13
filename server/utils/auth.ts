@@ -57,7 +57,7 @@ export function extractBearerToken (event: any): string {
 
 /**
  * Validate token and get user info from Entu
- * This matches the client-side logic in useEntuAuth.js exactly
+ * Optimized: Use JWT token directly instead of making API calls
  */
 export async function authenticateUser (event: any): Promise<AuthenticatedUser> {
   logger.info('Authenticating user request')
@@ -65,121 +65,123 @@ export async function authenticateUser (event: any): Promise<AuthenticatedUser> 
   const token = extractBearerToken(event)
 
   try {
-    // The client already has a valid JWT token, so we need to decode it to get user info
-    // instead of making another API call to Entu
-
-    // For now, let's try the same approach as client but log the response
-    const config = useRuntimeConfig()
-    const apiUrl = config.public.entuUrl || 'https://entu.app'
-    const accountName = config.public.entuAccount || 'esmuuseum'
-
-    logger.debug('Calling Entu auth endpoint', { url: `${apiUrl}/api/${accountName}` })
-
-    // Call the same endpoint that client uses for auth verification
-    const response = await fetch(`${apiUrl}/api/${accountName}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Accept-Encoding': 'deflate'
-      }
-    })
-
-    if (!response.ok) {
-      logger.warn(`Authentication failed: ${response.status} ${response.statusText}`)
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Authentication failed'
-      })
-    }
-
-    const data = await response.json()
-
-    // Debug: Log the actual response structure to understand what we're getting
-    logger.debug('Entu auth response structure', {
-      hasUser: !!data.user,
-      hasAccounts: !!data.accounts,
-      dataKeys: Object.keys(data),
-      responseType: typeof data,
-      sampleData: JSON.stringify(data).substring(0, 500)
-    })
-
-    // The JWT token might already contain the user info, let's try decoding it first
     // JWT tokens have 3 parts: header.payload.signature
-    try {
-      const tokenParts = token.split('.')
-      if (tokenParts.length === 3 && tokenParts[1]) {
-        // Decode the payload (base64)
-        const payloadBase64 = tokenParts[1]
-        const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString())
-        logger.debug('JWT token payload', {
-          payload: payload,
-          hasUser: !!payload.user,
-          hasAccounts: !!payload.accounts
-        })
-
-        // If the token contains user info, use it directly (like the client does)
-        if (payload.user) {
-          const user = { ...payload.user }
-
-          // Add user ID from accounts if available
-          if (payload.accounts && payload.accounts.esmuuseum) {
-            user._id = payload.accounts.esmuuseum
-          }
-
-          logger.info(`User authenticated from JWT token: ${user.email}`, {
-            userId: user._id,
-            fromToken: true
-          })
-
-          return user as AuthenticatedUser
-        }
-      }
-    }
-    catch (jwtError) {
-      logger.debug('Could not decode JWT token, falling back to API response', jwtError)
+    const tokenParts = token.split('.')
+    if (tokenParts.length !== 3 || !tokenParts[1]) {
+      throw new Error('Invalid JWT token format')
     }
 
-    // Fallback to API response if JWT decode fails
-    if (!data.user) {
-      logger.warn('No user info in authentication response', {
-        responseKeys: Object.keys(data),
-        fullResponse: data
-      })
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Invalid authentication response'
-      })
+    // Decode the payload (base64)
+    const payloadBase64 = tokenParts[1]
+    const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString())
+    
+    logger.debug('JWT token payload', {
+      payload: payload,
+      hasUser: !!payload.user,
+      hasAccounts: !!payload.accounts
+    })
+
+    // Validate token hasn't expired
+    if (payload.exp && Date.now() >= payload.exp * 1000) {
+      throw new Error('JWT token has expired')
     }
 
-    // Match the exact client-side user object structure from useEntuAuth.js
-    const user = { ...data.user }
-
-    // Add user ID from the accounts array if available - same as client
-    if (data.accounts && data.accounts.length > 0 && data.accounts[0].user && data.accounts[0].user._id) {
-      user._id = data.accounts[0].user._id
+    // Extract user info from JWT payload
+    if (!payload.user) {
+      throw new Error('No user info in JWT token')
     }
 
-    logger.info(`User authenticated successfully: ${user.email}`, {
+    const user = { ...payload.user }
+
+    // Add user ID from accounts if available
+    if (payload.accounts && payload.accounts.esmuuseum) {
+      user._id = payload.accounts.esmuuseum
+    }
+
+    if (!user._id) {
+      throw new Error('No user ID found in JWT token')
+    }
+
+    logger.info(`User authenticated from JWT token: ${user.email}`, {
       userId: user._id,
-      hasAccounts: data.accounts ? data.accounts.length : 0,
-      fromAPI: true
+      fromToken: true
     })
 
     return user as AuthenticatedUser
   }
   catch (error: any) {
-    logger.error('Authentication failed', error)
+    logger.error('JWT authentication failed', error)
 
-    // Re-throw known HTTP errors
-    if (error?.statusCode) {
-      throw error
+    // Fallback to API call only if JWT parsing fails
+    logger.debug('Falling back to Entu API authentication')
+    return await authenticateUserViaAPI(event, token)
+  }
+}
+
+/**
+ * Fallback: Authenticate via Entu API (slower)
+ */
+async function authenticateUserViaAPI (event: any, token: string): Promise<AuthenticatedUser> {
+  const config = useRuntimeConfig()
+  const apiUrl = config.public.entuUrl || 'https://entu.app'
+  const accountName = config.public.entuAccount || 'esmuuseum'
+
+  logger.debug('Calling Entu auth endpoint', { url: `${apiUrl}/api/${accountName}` })
+
+  // Call the same endpoint that client uses for auth verification
+  const response = await fetch(`${apiUrl}/api/${accountName}`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Accept-Encoding': 'deflate'
     }
+  })
 
+  if (!response.ok) {
+    logger.warn(`Authentication failed: ${response.status} ${response.statusText}`)
     throw createError({
       statusCode: 401,
       statusMessage: 'Authentication failed'
     })
   }
+
+  const data = await response.json()
+
+  // Debug: Log the actual response structure to understand what we're getting
+  logger.debug('Entu auth response structure', {
+    hasUser: !!data.user,
+    hasAccounts: !!data.accounts,
+    dataKeys: Object.keys(data),
+    responseType: typeof data,
+    sampleData: JSON.stringify(data).substring(0, 500)
+  })
+
+  if (!data.user) {
+    logger.warn('No user info in authentication response', {
+      responseKeys: Object.keys(data),
+      fullResponse: data
+    })
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Invalid authentication response'
+    })
+  }
+
+  // Match the exact client-side user object structure from useEntuAuth.js
+  const user = { ...data.user }
+
+  // Add user ID from the accounts array if available - same as client
+  if (data.accounts && data.accounts.length > 0 && data.accounts[0].user && data.accounts[0].user._id) {
+    user._id = data.accounts[0].user._id
+  }
+
+  logger.info(`User authenticated successfully: ${user.email}`, {
+    userId: user._id,
+    hasAccounts: data.accounts ? data.accounts.length : 0,
+    fromAPI: true
+  })
+
+  return user as AuthenticatedUser
 }
 
 /**
