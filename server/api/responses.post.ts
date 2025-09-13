@@ -32,8 +32,8 @@ export default defineEventHandler(async (event) => {
       // Check if user already has a response for this task
       const existingResponse = await searchEntuEntities({
         '_type.string': 'vastus',
-        'ulesanne._id': validatedData.taskId,
-        'kasutaja._id': user._id,
+        '_parent._id': validatedData.taskId,
+        '_owner._id': user._id,
         limit: 1
       }, apiConfig)
 
@@ -46,27 +46,21 @@ export default defineEventHandler(async (event) => {
 
       // Prepare response data for Entu
       const responseData = {
-        _type: 'vastus',
-        ulesanne: validatedData.taskId,
-        kasutaja: user._id,
-        vastused: validatedData.responses.map((response: any) => ({
-          kuesimusId: response.questionId,
-          vastus: response.value,
-          tuup: response.type,
-          metadata: response.metadata
-        })),
-        esitamisaeg: new Date().toISOString(),
-        staatus: 'esitatud'
+        _parent: validatedData.taskId,
+        kirjeldus: validatedData.responses[0]?.value || ''
       }
 
       // Create the response in Entu
       const createdResponse = await createEntuEntity('vastus', responseData, apiConfig)
+      
+      console.log('Created response from Entu:', JSON.stringify(createdResponse, null, 2))
 
       // Return success response
       return createSuccessResponse({
-        id: createdResponse._id,
+        id: createdResponse._id || 'unknown',
         message: 'Response created successfully',
-        submittedAt: responseData.esitamisaeg
+        submittedAt: new Date().toISOString(),
+        data: createdResponse
       })
     }
     catch (error: any) {

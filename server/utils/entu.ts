@@ -14,6 +14,14 @@ export interface EntuApiOptions {
   accountName: string
 }
 
+interface EntuProperty {
+  type: string
+  string?: string
+  reference?: string
+  number?: number
+  boolean?: boolean
+}
+
 /**
  * Make authenticated API call to Entu
  */
@@ -40,22 +48,33 @@ export async function callEntuApi (endpoint: string, options: Partial<RequestIni
     const response = await fetch(url, requestOptions)
 
     if (!response.ok) {
+      // Try to get the response body for more detailed error info
+      let errorDetails = ''
+      try {
+        const errorBody = await response.text()
+        errorDetails = errorBody
+      } catch (e) {
+        // Ignore if we can't read the response body
+      }
+
       logger.warn(`API call failed: ${response.status} ${response.statusText}`, {
         endpoint,
         status: response.status,
-        statusText: response.statusText
+        statusText: response.statusText,
+        errorDetails
       })
 
       throw createError({
         statusCode: response.status,
-        statusMessage: `Entu API error: ${response.status} ${response.statusText}`
+        statusMessage: `Entu API error: ${response.status} ${response.statusText}${errorDetails ? ` - ${errorDetails}` : ''}`
       })
     }
 
     const data = await response.json()
     logger.debug(`API call successful: ${endpoint}`, {
       status: response.status,
-      hasData: !!data
+      hasData: !!data,
+      dataKeys: data ? Object.keys(data) : []
     })
 
     return data
@@ -85,13 +104,36 @@ export async function getEntuEntity (entityId: string, apiConfig: EntuApiOptions
  * Create entity in Entu
  */
 export async function createEntuEntity (entityType: string, entityData: any, apiConfig: EntuApiOptions) {
-  logger.debug(`Creating entity of type: ${entityType}`, { entityData })
+  // Convert flat object to Entu property array format
+  const properties: EntuProperty[] = [
+    { type: '_type', string: entityType },
+    { type: '_inheritrights', boolean: true } // Always add inheritrights for new entities
+  ]
+  
+  // Add each property from entityData
+  for (const [key, value] of Object.entries(entityData)) {
+    if (value !== null && value !== undefined) {
+      if (key === 'ulesanne' || key === 'asukoht' || key === '_parent') {
+        // Reference properties
+        properties.push({ type: key, reference: value as string })
+      } else if (typeof value === 'string') {
+        // String properties  
+        properties.push({ type: key, string: value })
+      } else if (typeof value === 'number') {
+        // Number properties
+        properties.push({ type: key, number: value })
+      } else if (typeof value === 'boolean') {
+        // Boolean properties (including _inheritrights, etc.)
+        properties.push({ type: key, boolean: value })
+      }
+    }
+  }
+
+  logger.debug(`Creating entity of type: ${entityType}`, { properties })
+  
   return callEntuApi('/entity', {
     method: 'POST',
-    body: JSON.stringify({
-      _type: entityType,
-      ...entityData
-    })
+    body: JSON.stringify(properties)
   }, apiConfig)
 }
 
