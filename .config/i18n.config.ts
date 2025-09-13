@@ -99,6 +99,9 @@ export default defineI18nConfig(() => ({
         geolocationError: 'Asukoha määramisel tekkis viga: {error}',
         noTitle: 'Nimetu ülesanne',
         totalResponses: '{count} vastust kokku',
+        checkingPermissions: 'Kontrollin õigusi...',
+        noPermission: 'Juurdepääs keelatud',
+        noPermissionDescription: 'Sul pole õigust sellele ülesandele vastata. Võta ühendust õpetajaga, kui arvad, et see on viga.',
         // LocationPicker translations
         selectedLocation: 'Valitud asukoht',
         changeLocation: 'Muuda',
@@ -230,6 +233,9 @@ export default defineI18nConfig(() => ({
         geolocationError: 'Geolocation error: {error}',
         noTitle: 'Untitled task',
         totalResponses: '{count} responses total',
+        checkingPermissions: 'Checking permissions...',
+        noPermission: 'Access denied',
+        noPermissionDescription: 'You don\'t have permission to respond to this task. Contact your teacher if you think this is an error.',
         // LocationPicker translations
         selectedLocation: 'Selected location',
         changeLocation: 'Change',
@@ -361,6 +367,9 @@ export default defineI18nConfig(() => ({
         geolocationError: 'Помилка геолокації: {error}',
         noTitle: 'Завдання без назви',
         totalResponses: '{count} відповідей всього',
+        checkingPermissions: 'Перевірка дозволів...',
+        noPermission: 'Доступ заборонено',
+        noPermissionDescription: 'У вас немає дозволу відповідати на це завдання. Зверніться до вчителя, якщо ви вважаєте, що це помилка.',
         // LocationPicker translations
         selectedLocation: 'Вибране місце',
         changeLocation: 'Змінити',

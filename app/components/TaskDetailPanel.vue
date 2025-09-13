@@ -109,7 +109,51 @@
               {{ $t('taskDetail.yourResponse') }}
             </h3>
 
-            <form @submit.prevent="submitResponse">
+            <!-- Permission checking state -->
+            <div
+              v-if="checkingPermissions"
+              class="flex items-center justify-center py-8"
+            >
+              <div class="text-center">
+                <div class="mx-auto mb-3 size-8 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+                <p class="text-sm text-gray-500">
+                  {{ $t('taskDetail.checkingPermissions') }}
+                </p>
+              </div>
+            </div>
+
+            <!-- No permissions message -->
+            <div
+              v-else-if="!hasResponsePermission"
+              class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-center"
+            >
+              <div class="mx-auto mb-3 size-12 text-amber-600">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
+                </svg>
+              </div>
+              <h4 class="mb-2 font-medium text-amber-800">
+                {{ $t('taskDetail.noPermission') }}
+              </h4>
+              <p class="text-sm text-amber-700">
+                {{ $t('taskDetail.noPermissionDescription') }}
+              </p>
+            </div>
+
+            <!-- Response form (shown only with permission) -->
+            <form
+              v-else
+              @submit.prevent="submitResponse"
+            >
               <!-- Location Selection (if needed) -->
               <div
                 v-if="needsLocation"
@@ -190,6 +234,8 @@ const responseForm = ref({
 })
 
 const submitting = ref(false)
+const checkingPermissions = ref(false)
+const hasResponsePermission = ref(false)
 
 // Helper functions (matching existing task detail page)
 const getTaskTitle = (task) => {
@@ -230,14 +276,46 @@ const submitResponse = async () => {
   submitting.value = true
 
   try {
+    const { token } = useEntuAuth()
+
+    if (!token.value) {
+      console.error('Not authenticated')
+      return
+    }
+
     console.log('Submitting response for task:', selectedTask.value._id)
-    console.log('Response data:', responseForm.value)
 
-    // TODO: Implement actual submission
-    await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API call
+    // Prepare the API request data matching the server validation
+    const requestData = {
+      taskId: selectedTask.value._id,
+      responses: [
+        {
+          questionId: 'default', // Using default for simple text response
+          type: 'text',
+          value: responseForm.value.text,
+          metadata: {}
+        }
+      ]
+    }
 
-    // Success handling
-    console.log('Response submitted successfully')
+    console.log('Request data:', requestData)
+
+    // Call the API endpoint
+    const response = await $fetch('/api/responses', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+        'Content-Type': 'application/json'
+      },
+      body: requestData
+    })
+
+    console.log('Response submitted successfully:', response)
+
+    // Reset form after successful submission
+    responseForm.value.text = ''
+    responseForm.value.geopunkt = null
+    responseForm.value.file = null
   }
   catch (error) {
     console.error('Failed to submit response:', error)
@@ -247,15 +325,97 @@ const submitResponse = async () => {
   }
 }
 
+// Check permissions for current task
+const checkPermissions = async (taskId) => {
+  const { token } = useEntuAuth()
+
+  if (!token.value) {
+    hasResponsePermission.value = false
+    return
+  }
+
+  try {
+    checkingPermissions.value = true
+
+    const permissionData = await $fetch(`/api/tasks/${taskId}/permissions`, {
+      headers: {
+        Authorization: `Bearer ${token.value}`
+      }
+    })
+
+    console.log('Permission check result:', permissionData)
+    hasResponsePermission.value = permissionData.success && permissionData.hasPermission
+  }
+  catch (error) {
+    console.log('Permission check failed:', error)
+    hasResponsePermission.value = false
+  }
+  finally {
+    checkingPermissions.value = false
+  }
+}
+
 // Load existing response when task changes
 watch(selectedTask, async (newTask) => {
   if (newTask) {
-    // TODO: Load existing user response
-    responseForm.value = {
-      text: '',
-      geopunkt: null,
-      file: null
+    const { token } = useEntuAuth()
+
+    // Check permissions first
+    await checkPermissions()
+
+    if (token.value) {
+      try {
+        // Try to fetch existing response
+        const responseData = await $fetch(`/api/responses/${newTask._id}`, {
+          headers: {
+            Authorization: `Bearer ${token.value}`
+          }
+        })
+
+        console.log('Loaded existing response:', responseData)
+
+        if (responseData.success && responseData.response) {
+          // Fill form with existing response data
+          const existingResponse = responseData.response
+          responseForm.value = {
+            text: existingResponse.kirjeldus?.[0]?.string || '',
+            geopunkt: existingResponse.geopunkt?.[0]?.string || null,
+            file: null // Files need special handling
+          }
+          console.log('Filled form with existing data:', responseForm.value)
+        }
+        else {
+          // No existing response, clear form
+          responseForm.value = {
+            text: '',
+            geopunkt: null,
+            file: null
+          }
+        }
+      }
+      catch (error) {
+        console.log('No existing response found or error loading:', error)
+        // Clear form if no response found
+        responseForm.value = {
+          text: '',
+          geopunkt: null,
+          file: null
+        }
+      }
     }
+    else {
+      // Not authenticated, clear form
+      responseForm.value = {
+        text: '',
+        geopunkt: null,
+        file: null
+      }
+    }
+  }
+  else {
+    // No task selected, reset permission state
+    hasResponsePermission.value = false
+    checkingPermissions.value = false
   }
 }, { immediate: true })
 </script>

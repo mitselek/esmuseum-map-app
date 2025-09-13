@@ -184,14 +184,48 @@ export async function authenticateUser (event: any): Promise<AuthenticatedUser> 
 
 /**
  * Check if user has permission to access a task
- * For now, allow all authenticated users (matching current client behavior)
+ * User must be in task's _owner, _editor, or _expander properties to create responses
  */
 export async function checkTaskPermission (user: AuthenticatedUser, taskId: string, apiConfig: EntuApiOptions): Promise<boolean> {
-  logger.debug('Checking task permission (allowing all authenticated users)', { userId: user._id, taskId })
+  logger.debug('Checking task permission', { userId: user._id, taskId })
 
-  // For compatibility with current client behavior, allow all authenticated users
-  // TODO: Add granular permission checking later when business rules are defined
-  return true
+  try {
+    // Get the task entity to check permissions
+    const taskResponse = await getEntuEntity(taskId, apiConfig)
+    
+    if (!taskResponse) {
+      logger.warn('Task not found for permission check', { taskId })
+      return false
+    }
+
+    // Entu returns entities wrapped in an 'entity' property
+    const task = taskResponse.entity || taskResponse
+
+    // Check if user is in any of the permission arrays
+    const permissionArrays = [
+      task._owner || [],
+      task._editor || [],
+      task._expander || []
+    ]
+
+    for (const permissionArray of permissionArrays) {
+      if (Array.isArray(permissionArray)) {
+        const hasPermission = permissionArray.some((permission: any) => 
+          permission.reference === user._id || permission._id === user._id
+        )
+        if (hasPermission) {
+          logger.debug('User has permission on task', { userId: user._id, taskId })
+          return true
+        }
+      }
+    }
+
+    logger.warn('User does not have permission on task', { userId: user._id, taskId })
+    return false
+  } catch (error) {
+    logger.error('Error checking task permission', { error, userId: user._id, taskId })
+    return false
+  }
 }
 
 /**
