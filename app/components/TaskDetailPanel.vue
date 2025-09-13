@@ -22,17 +22,7 @@
       <div class="flex-1 overflow-y-auto bg-gray-50 p-6">
         <div class="mx-auto max-w-4xl space-y-6">
           <!-- Map Card (if task has location data) -->
-          <div
-            v-if="hasMapData"
-            class="rounded-lg border bg-white p-6 shadow-sm"
-          >
-            <h3 class="mb-4 text-lg font-medium text-gray-900">
-              {{ $t('taskDetail.map') }}
-            </h3>
-            <div class="rounded-lg bg-gray-100 p-8 text-center text-gray-500">
-              🗺️ {{ $t('taskDetail.mapIntegrationComing') }}
-            </div>
-          </div>
+          <TaskMapCard v-if="hasMapData" />
 
           <!-- User Location Override -->
           <div
