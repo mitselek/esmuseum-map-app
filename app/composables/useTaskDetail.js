@@ -69,17 +69,17 @@ export const useTaskDetail = () => {
 
   const parseCoordinates = (coordString) => {
     if (!coordString || typeof coordString !== 'string') return null
-    
+
     try {
       const parts = coordString.split(',').map((s) => s.trim())
       if (parts.length !== 2) return null
-      
+
       const lat = parseFloat(parts[0])
       const lng = parseFloat(parts[1])
-      
+
       if (isNaN(lat) || isNaN(lng)) return null
       if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null
-      
+
       return { lat, lng }
     }
     catch {
@@ -138,18 +138,24 @@ export const useTaskDetail = () => {
 
     try {
       const { loadMapLocations, sortByDistance } = useLocation()
-      
+
       // Debug: Log the task structure to understand the data format
       console.log('Loading locations for task:', task)
       console.log('Task keys:', Object.keys(task))
-      
+
       // Extract map ID from task - try different possible field names
-      const mapId = task.map?._id || task.map?.id || task.mapId || task.map
-      
+      // 'kaart' is Estonian for 'map' and is typically an array in Entu
+      const mapId = task.kaart?.[0]?._id || task.kaart?.[0]?.id || task.kaart?.[0]?.reference
+        || task.kaart?._id || task.kaart?.id || task.kaart
+        || task.map?.[0]?._id || task.map?.[0]?.id
+        || task.map?._id || task.map?.id || task.mapId || task.map
+
       console.log('Extracted map ID:', mapId)
-      
+      console.log('Task.kaart:', task.kaart)
+      console.log('Task.kaart[0]:', task.kaart?.[0])
+
       if (!mapId) {
-        console.log('No map ID found in task. Task.map:', task.map)
+        console.log('No map ID found in task. Task.kaart:', task.kaart, 'Task.map:', task.map)
         return []
       }
 
@@ -159,7 +165,7 @@ export const useTaskDetail = () => {
       if (userPosition) {
         return sortByDistance(locations, userPosition)
       }
-      
+
       return locations
     }
     catch (error) {
@@ -220,16 +226,16 @@ export const useTaskDetail = () => {
     getTaskTitle,
     getTaskDescription,
     getResponseCount,
-    
+
     // Permission checking
     checkTaskPermissions,
-    
+
     // Location utilities
     getLocationCoordinates,
     parseCoordinates,
     getCurrentPosition,
     loadTaskLocations,
-    
+
     // Response management
     getTaskResponseStats,
     loadExistingResponse
