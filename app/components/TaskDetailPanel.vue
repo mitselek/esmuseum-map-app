@@ -58,11 +58,19 @@ const { t } = useI18n()
 const {
   userPosition,
   getUserPosition,
-  loadTaskLocations: loadMapLocations,
   sortByDistance,
   getLocationCoordinates
 } = useLocation()
-const { getTaskResponseStats } = useTaskResponseStats()
+
+// Use task detail composable
+const {
+  getTaskTitle,
+  getTaskDescription,
+  getResponseCount,
+  checkTaskPermissions,
+  loadTaskLocations: loadLocations,
+  getTaskResponseStats
+} = useTaskDetail()
 
 // Response stats state
 const taskResponseStats = ref(null)
@@ -86,31 +94,6 @@ const selectedLocation = ref(null)
 const showManualCoordinates = ref(false)
 const manualCoordinates = ref('')
 const hasManualOverride = ref(false)
-
-// Helper functions (matching existing task detail page)
-const getTaskTitle = (task) => {
-  // Handle both data structures: task.name (string) or task.name[0].string (array format)
-  if (typeof task?.name === 'string') {
-    return task.name || t('taskDetail.noTitle', 'Untitled Task')
-  }
-  return task?.name?.[0]?.string || t('taskDetail.noTitle', 'Untitled Task')
-}
-
-const getTaskDescription = (task) => {
-  return task?.description?.[0]?.string || task?.description || null
-}
-
-const getResponseCount = (task) => {
-  // Handle Entu array format for response count
-  if (task?.vastuseid && Array.isArray(task.vastuseid) && task.vastuseid[0]?.number !== undefined) {
-    return task.vastuseid[0].number
-  }
-  // Fallback for direct number
-  if (typeof task?.responseCount === 'number') {
-    return task.responseCount
-  }
-  return 0
-}
 
 // Geolocation functionality
 const getCurrentLocation = async () => {
@@ -188,16 +171,7 @@ const loadTaskLocations = async () => {
 
   try {
     loadingTaskLocations.value = true
-
-    const locations = await loadMapLocations(selectedTask.value)
-
-    // Sort by distance if we have user position
-    if (userPosition.value) {
-      taskLocations.value = sortByDistance(locations, userPosition.value)
-    }
-    else {
-      taskLocations.value = locations
-    }
+    taskLocations.value = await loadLocations(selectedTask.value, userPosition.value)
   }
   catch (err) {
     console.error('Error loading task locations:', err)
@@ -300,25 +274,13 @@ const needsLocation = computed(() => {
 
 // Check permissions for current task
 const checkPermissions = async (taskId) => {
-  const { token } = useEntuAuth()
-
-  if (!token.value) {
-    hasResponsePermission.value = false
-    return
-  }
-
   try {
     checkingPermissions.value = true
-
-    const permissionData = await $fetch(`/api/tasks/${taskId}/permissions`, {
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      }
-    })
-
-    hasResponsePermission.value = permissionData.success && permissionData.hasPermission
+    const result = await checkTaskPermissions(taskId)
+    hasResponsePermission.value = result.hasPermission
   }
-  catch {
+  catch (error) {
+    console.error('Permission check failed:', error)
     hasResponsePermission.value = false
   }
   finally {
