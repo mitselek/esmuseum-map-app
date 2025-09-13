@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
         '_type.string': 'vastus',
         '_parent._id': finalTaskId,
         '_owner._id': user._id,
-        '_limit': 1
+        'limit': 1
       }, apiConfig)
 
       const hasResponse = userResponse.entities && userResponse.entities.length > 0
