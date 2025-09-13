@@ -1,6 +1,6 @@
 # ESMuseum Map App - Project Progress
 
-**Last Updated**: September 8, 2025
+**Last Updated**: September 13, 2025
 
 ## Current Status
 
@@ -11,7 +11,10 @@
 - ✅ **Pupil Dashboard**: Complete student task management system implemented
 - ✅ **Smart Location Selection**: Enhanced location picker with proximity-based suggestions completed
 - ✅ **Unified SPA Architecture**: F007 single-page application with mobile compatibility completed
-- 🚧 **Form Submission**: Response persistence and file upload system in planning
+- ✅ **Response Management API**: Server API routes for form submission implemented
+- ✅ **API Documentation**: Comprehensive documentation structure established
+- ✅ **Response Count Display**: "x of y responses" format with actual vs expected counts
+- 🚧 **Code Organization**: Large component files need to be broken into manageable pieces
 
 ## Completed Items
 
@@ -223,6 +226,65 @@ F007 establishes the foundation for advanced features:
 - Native mobile app development
 
 [Feature Documentation](features/F007-unified-single-page-app.md)
+
+### F009: Response Count Display Enhancement (September 13, 2025)
+
+**Status**: ✅ Completed
+
+- **Problem**: UI showed "25 responses total" which was misleading - this represented expected responses set by teacher, not actual submissions
+- **Solution**: Implemented "x of y responses" format where x = actual submitted responses, y = expected responses
+- **Key Components**:
+  - **New API Endpoint**: `/api/tasks/[taskId]/responses/count` - Counts actual submitted responses
+  - **New Composable**: `useTaskResponseStats.ts` - Manages actual vs expected response counts
+  - **UI Updates**: Both `TaskDetailPanel.vue` and `TaskSidebar.vue` show "0 of 25 responses" format
+  - **Translations**: Added `responsesProgress` key in Estonian, English, and Ukrainian
+- **Performance Features**:
+  - Response stats caching in TaskSidebar for multiple tasks
+  - Graceful fallback to expected count while loading actual count
+  - Delayed API calls to prevent overwhelming the server
+- **Technical Implementation**:
+  - `vastuseid[0].number` = expected responses (set by teacher)
+  - API search for `'_type.string': 'vastus'` entities = actual responses
+  - Reactive state management with proper error handling
+- This enhancement provides teachers and students clear visibility into task completion progress
+
+### API Documentation Structure (September 13, 2025)
+
+**Status**: ✅ Completed
+
+- **Comprehensive Documentation**: Established `.copilot-docs/api/` structure for team-accessible API reference
+- **Key Documentation Files**:
+  - `README.md` - API overview and getting started guide
+  - `server-api.md` - Complete server endpoint reference with examples
+  - `api-requests/server-api.http` - VS Code REST Client compatible request collection
+- **Documentation Features**:
+  - Complete endpoint documentation for all server APIs
+  - Request/response examples with proper JSON formatting
+  - Authentication guides and error handling documentation
+  - Executable HTTP request files for immediate testing
+- **Integration Benefits**:
+  - Developers can test APIs directly from VS Code
+  - Comprehensive examples for frontend integration
+  - Maintainable documentation alongside code changes
+  - Supports both human reference and automated testing workflows
+
+### Code Quality & Maintenance (September 2025)
+
+**Status**: 🚧 In Progress
+
+- **Dead Code Removal**: Systematic cleanup of F007 SPA migration remnants (1,449 lines removed)
+  - Phase 1: Test/debug pages removal (517 lines)
+  - Phase 2: Multi-page architecture remnants (932 lines)
+  - Bundle optimization: 248.87 kB → 247.49 kB client bundle
+- **Component Refactoring**: Large files identified for modularization
+  - `TaskSidebar.vue` (340+ lines) - Needs breakdown into smaller components
+  - `TaskDetailPanel.vue` (874+ lines) - Complex component requiring separation of concerns
+  - `useTaskWorkspace.ts` - Task management composable optimization needed
+- **Planned Improvements**:
+  - Extract reusable UI components from large files
+  - Implement proper separation of concerns
+  - Create focused, testable component modules
+  - Improve maintainability and development experience
 
 ## Active Development
 
@@ -469,20 +531,27 @@ export const useTaskResponseAPI = () => {
 
 ## Next Priority
 
-1. Complete F005 Form Submission & Response Management:
-   - User response persistence and retrieval
+1. **Code Organization & Refactoring**:
+   - Break down large component files (TaskSidebar.vue, TaskDetailPanel.vue)
+   - Extract reusable components and improve separation of concerns
+   - Enhance maintainability and testability
+2. **Complete F006 Server API Routes**:
+   - Finalize response management endpoints
    - File upload server-side handling
-   - Response editing and updates
-   - Comprehensive error handling and validation
-2. Implement map integration for location-based tasks
-3. Add teacher/admin dashboard for task management
-4. Consider offline functionality and PWA features
-5. Enhance mobile experience with native app considerations
+   - Comprehensive validation and error handling
+3. **Advanced Features**:
+   - Map integration for location-based tasks
+   - Teacher/admin dashboard for task management
+   - Offline functionality and PWA features
+   - Enhanced mobile experience
 
 ## Statistics
 
-- **Features Completed**: 5 (F001, F002, F003, F004, F007)
-- **Features In Progress**: 1 (F006)
+- **Features Completed**: 6 (F001, F002, F003, F004, F007, F009)
+- **Features In Progress**: 2 (F006, F008)
 - **Features Planned**: 1 (F005)
+- **Enhancement Areas**: 1 (Code organization & component refactoring)
 - **Bugs Fixed**: 1 (Mobile Vue devtools compatibility)
 - **ADRs Created**: 0
+- **Lines of Code Removed**: 1,449 (dead code cleanup)
+- **API Endpoints Added**: 1 (response count tracking)
