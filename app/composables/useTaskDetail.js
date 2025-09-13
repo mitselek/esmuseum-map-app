@@ -216,6 +216,121 @@ export const useTaskDetail = () => {
     }
   }
 
+  /**
+   * Handle task selection and initialization
+   * @param {Object} task - The selected task
+   * @param {Object} options - Configuration options
+   * @returns {Promise<Object>} Task initialization result
+   */
+  const initializeTask = async (task, options = {}) => {
+    const {
+      responseFormRef,
+      getCurrentLocation,
+      needsLocation,
+      checkPermissions,
+      loadTaskLocations: loadLocations,
+      setStats,
+      resetState
+    } = options
+
+    if (!task) {
+      // No task selected, reset states
+      if (resetState) {
+        resetState()
+      }
+      return { success: false, reason: 'no_task' }
+    }
+
+    const taskId = task._id || task.id
+    if (!taskId) {
+      return { success: false, reason: 'no_task_id' }
+    }
+
+    try {
+      const { token } = useEntuAuth()
+
+      // Check permissions first
+      if (checkPermissions) {
+        await checkPermissions(taskId)
+      }
+
+      // Load task response stats
+      try {
+        const stats = await getTaskResponseStats(task)
+        if (setStats) {
+          setStats(stats)
+        }
+      }
+      catch (error) {
+        console.warn('Failed to load task response stats:', error)
+        if (setStats) {
+          setStats(null)
+        }
+      }
+
+      // Load task locations
+      if (loadLocations) {
+        await loadLocations()
+      }
+
+      // Handle authentication and response loading
+      if (token.value) {
+        try {
+          // Try to fetch existing response
+          const responseData = await $fetch(`/api/responses/${taskId}`, {
+            headers: {
+              Authorization: `Bearer ${token.value}`
+            }
+          })
+
+          if (responseData.success && responseData.response) {
+            // Existing response found
+            return {
+              success: true,
+              hasExistingResponse: true,
+              response: responseData.response
+            }
+          }
+          else {
+            // No existing response - handle auto-geolocation
+            await handleAutoGeolocation(needsLocation, getCurrentLocation, responseFormRef)
+            return { success: true, hasExistingResponse: false }
+          }
+        }
+        catch (error) {
+          console.log('No existing response found or error loading:', error)
+          // Handle auto-geolocation for new response
+          await handleAutoGeolocation(needsLocation, getCurrentLocation, responseFormRef)
+          return { success: true, hasExistingResponse: false }
+        }
+      }
+      else {
+        // Not authenticated
+        console.log('Not authenticated')
+        return { success: true, authenticated: false }
+      }
+    }
+    catch (error) {
+      console.error('Error initializing task:', error)
+      return { success: false, error }
+    }
+  }
+
+  /**
+   * Handle auto-geolocation for tasks that need location
+   */
+  const handleAutoGeolocation = async (needsLocation, getCurrentLocation, responseFormRef) => {
+    if (needsLocation?.value && getCurrentLocation) {
+      try {
+        await getCurrentLocation(responseFormRef)
+      }
+      catch (error) {
+        console.log('Auto-geolocation failed:', error)
+        // Continue without location - user can set manually
+      }
+    }
+  }
+
   return {
     // Task data helpers
     getTaskTitle,
@@ -233,6 +348,10 @@ export const useTaskDetail = () => {
 
     // Response management
     getTaskResponseStats,
-    loadExistingResponse
+    loadExistingResponse,
+
+    // Task initialization
+    initializeTask,
+    handleAutoGeolocation
   }
 }
