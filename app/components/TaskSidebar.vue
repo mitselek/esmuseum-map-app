@@ -167,7 +167,12 @@
                     clip-rule="evenodd"
                   />
                 </svg>
-                {{ getResponseCount(task) }} {{ $t('tasks.responses') }}
+                <span v-if="taskResponseStatsCache.has(task._id)">
+                  {{ getResponseStatsText(task) }}
+                </span>
+                <span v-else>
+                  {{ getResponseCount(task) }} {{ $t('tasks.responses') }}
+                </span>
               </div>
 
               <!-- Due Date (if available) -->
@@ -213,6 +218,11 @@ const {
   loadTasks,
   selectTask
 } = useTaskWorkspace()
+const { getTaskResponseStats } = useTaskResponseStats()
+const { t } = useI18n()
+
+// Response stats cache for all tasks
+const taskResponseStatsCache = ref(new Map())
 
 // Search functionality
 const searchQuery = ref('')
@@ -275,6 +285,24 @@ const getResponseCount = (task) => {
   return 0
 }
 
+const getResponseStatsText = (task) => {
+  const stats = taskResponseStatsCache.value.get(task._id)
+  if (stats) {
+    return `${stats.actual} / ${stats.expected} ${t('tasks.responses')}`
+  }
+  return `${getResponseCount(task)} ${t('tasks.responses')}`
+}
+
+const loadTaskResponseStats = async (task) => {
+  try {
+    const stats = await getTaskResponseStats(task)
+    taskResponseStatsCache.value.set(task._id, stats)
+  }
+  catch (error) {
+    console.warn(`Failed to load response stats for task ${task._id}:`, error)
+  }
+}
+
 const getTaskDueDate = (task) => {
   // Handle Entu array format for due date
   if (task.tahtaeg && Array.isArray(task.tahtaeg) && task.tahtaeg[0]?.datetime) {
@@ -292,6 +320,18 @@ const getTaskDueDate = (task) => {
   }
   return null
 }
+
+// Load response stats for all tasks when tasks change
+watch(tasks, async (newTasks) => {
+  if (newTasks && newTasks.length > 0) {
+    // Load stats for each task (with some delay to avoid overwhelming the API)
+    for (const task of newTasks) {
+      await loadTaskResponseStats(task)
+      // Small delay between requests
+      await new Promise((resolve) => setTimeout(resolve, 100))
+    }
+  }
+}, { immediate: false })
 
 // Load tasks when component mounts
 onMounted(async () => {
