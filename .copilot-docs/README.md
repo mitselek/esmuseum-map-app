@@ -49,6 +49,12 @@ This command will:
 - `development.md` - Development guidelines and technical standards
 - `working-agreements.md` - Team collaboration and AI-assisted development process
 - `decisions/` - Finalized Architectural Decision Records (ADRs)
+- `api/` - API documentation and integration guides
+- `api-requests/` - HTTP request files for API testing
+- `authentication/` - Authentication implementation guides
+- `designs/` - UI/UX designs and specifications
+- `diagrams/` - Technical architecture diagrams
+- `technical-notes.md` - Technical implementation notes
 
 ## Purpose
 
