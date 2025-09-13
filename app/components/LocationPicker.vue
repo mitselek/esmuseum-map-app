@@ -81,12 +81,6 @@
         >
           {{ t('taskDetail.searchingLocationGPS') }}
         </span>
-        <span
-          v-else-if="userPosition"
-          class="text-xs text-green-600"
-        >
-          {{ t('taskDetail.gpsActive') }}
-        </span>
       </div>
 
       <!-- Search Filter -->
