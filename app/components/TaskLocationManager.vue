@@ -178,6 +178,19 @@ interface Emits {
   (e: 'locationChange', coordinates: string | null): void
 }
 
+interface Coordinates {
+  lat: number
+  lng: number
+  accuracy?: number
+  manual?: boolean
+}
+
+interface GeolocationCoords {
+  latitude: number
+  longitude: number
+  accuracy: number
+}
+
 defineProps<Props>()
 const emit = defineEmits<Emits>()
 
@@ -187,8 +200,8 @@ const { t } = useI18n()
 // Local state - manage location independently for now
 const geolocationLoading = ref(false)
 const geolocationError = ref<string | null>(null)
-const userPosition = ref<Record<string, unknown> | null>(null)
-const userLocation = ref<Record<string, unknown> | null>(null)
+const userPosition = ref<Coordinates | null>(null)
+const userLocation = ref<GeolocationCoords | null>(null)
 const showManualCoordinates = ref(false)
 const manualCoordinates = ref('')
 const hasManualOverride = ref(false)
@@ -280,7 +293,7 @@ const applyManualLocation = () => {
   const lng = parseFloat(parts[1]!)
 
   // Override user position with manual coordinates
-  userPosition.value = { lat, lng, accuracy: null, manual: true }
+  userPosition.value = { lat, lng, accuracy: undefined, manual: true }
   hasManualOverride.value = true
   showManualCoordinates.value = false
 
