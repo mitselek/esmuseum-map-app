@@ -60,7 +60,15 @@
               </span>
               <span class="flex items-center">
                 <span class="mr-1">📊</span>
-                {{ $t('taskDetail.totalResponses', { count: getResponseCount(selectedTask) }) }}
+                <span v-if="taskResponseStats">
+                  {{ $t('taskDetail.responsesProgress', {
+                    actual: taskResponseStats.actual,
+                    expected: taskResponseStats.expected,
+                  }) }}
+                </span>
+                <span v-else>
+                  {{ $t('taskDetail.totalResponses', { count: getResponseCount(selectedTask) }) }}
+                </span>
               </span>
             </div>
           </div>
@@ -408,6 +416,10 @@ const {
   sortByDistance,
   getLocationCoordinates
 } = useLocation()
+const { getTaskResponseStats } = useTaskResponseStats()
+
+// Response stats state
+const taskResponseStats = ref(null)
 
 // Form state
 const responseForm = ref({
@@ -447,7 +459,15 @@ const getTaskDescription = (task) => {
 }
 
 const getResponseCount = (task) => {
-  return task?.responseCount || 0
+  // Handle Entu array format for response count
+  if (task?.vastuseid && Array.isArray(task.vastuseid) && task.vastuseid[0]?.number !== undefined) {
+    return task.vastuseid[0].number
+  }
+  // Fallback for direct number
+  if (typeof task?.responseCount === 'number') {
+    return task.responseCount
+  }
+  return 0
 }
 
 // Geolocation functionality
@@ -696,7 +716,7 @@ const submitResponse = async () => {
     }
 
     // Call the API endpoint
-    const response = await $fetch('/api/responses', {
+    await $fetch('/api/responses', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token.value}`,
@@ -758,6 +778,15 @@ watch(selectedTask, async (newTask) => {
 
     // Check permissions first
     await checkPermissions(taskId)
+
+    // Load task response stats
+    try {
+      taskResponseStats.value = await getTaskResponseStats(newTask)
+    }
+    catch (error) {
+      console.warn('Failed to load task response stats:', error)
+      taskResponseStats.value = null
+    }
 
     // Load task locations
     await loadTaskLocations()
