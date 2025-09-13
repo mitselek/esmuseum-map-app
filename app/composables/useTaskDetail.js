@@ -143,19 +143,14 @@ export const useTaskDetail = () => {
       console.log('Loading locations for task:', task)
       console.log('Task keys:', Object.keys(task))
 
-      // Extract map ID from task - try different possible field names
+      // Extract map ID from task - use reference field for actual map entity
       // 'kaart' is Estonian for 'map' and is typically an array in Entu
-      const mapId = task.kaart?.[0]?._id || task.kaart?.[0]?.id || task.kaart?.[0]?.reference
+      const mapId = task.kaart?.[0]?.reference || task.kaart?.[0]?._id || task.kaart?.[0]?.id
         || task.kaart?._id || task.kaart?.id || task.kaart
-        || task.map?.[0]?._id || task.map?.[0]?.id
+        || task.map?.[0]?.reference || task.map?.[0]?._id || task.map?.[0]?.id
         || task.map?._id || task.map?.id || task.mapId || task.map
 
-      console.log('Extracted map ID:', mapId)
-      console.log('Task.kaart:', task.kaart)
-      console.log('Task.kaart[0]:', task.kaart?.[0])
-
       if (!mapId) {
-        console.log('No map ID found in task. Task.kaart:', task.kaart, 'Task.map:', task.map)
         return []
       }
 
