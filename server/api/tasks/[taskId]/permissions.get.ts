@@ -6,6 +6,9 @@
 import { withAuth, checkTaskPermission } from '../../../utils/auth'
 import type { AuthenticatedUser } from '../../../utils/auth'
 import { getEntuApiConfig } from '../../../utils/entu'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('task-permissions')
 
 export default defineEventHandler(async (event) => {
   return withAuth(event, async (event: any, user: AuthenticatedUser) => {
@@ -18,6 +21,15 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         statusMessage: 'Task ID is required'
+      })
+    }
+
+    // Validate task ID format (should be MongoDB ObjectId)
+    if (!/^[0-9a-fA-F]{24}$/.test(taskId)) {
+      logger.warn(`Invalid task ID format: ${taskId}`)
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Invalid task ID format'
       })
     }
 
@@ -36,7 +48,7 @@ export default defineEventHandler(async (event) => {
       }
     }
     catch (error: any) {
-      console.error('Failed to check task permissions:', error)
+      logger.error('Task permission check failed', error)
 
       // Re-throw known errors
       if (error?.statusCode) {

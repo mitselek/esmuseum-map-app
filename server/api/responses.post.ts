@@ -7,6 +7,9 @@ import { validateCreateResponseRequest, createSuccessResponse } from '../utils/v
 import { withAuth, checkTaskPermission } from '../utils/auth'
 import type { AuthenticatedUser } from '../utils/auth'
 import { createEntuEntity, getEntuApiConfig, searchEntuEntities } from '../utils/entu'
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('responses-post')
 
 export default defineEventHandler(async (event) => {
   return withAuth(event, async (event: any, user: AuthenticatedUser) => {
@@ -64,7 +67,7 @@ export default defineEventHandler(async (event) => {
       })
     }
     catch (error: any) {
-      console.error('Failed to create response:', error)
+      logger.error('Failed to create response', error)
 
       // Re-throw known errors
       if (error?.statusCode) {

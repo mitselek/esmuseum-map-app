@@ -6,6 +6,9 @@
 import { withAuth } from '../../utils/auth'
 import type { AuthenticatedUser } from '../../utils/auth'
 import { getEntuApiConfig, searchEntuEntities } from '../../utils/entu'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('responses-api')
 
 export default defineEventHandler(async (event) => {
   return withAuth(event, async (event: any, user: AuthenticatedUser) => {
@@ -14,12 +17,26 @@ export default defineEventHandler(async (event) => {
 
     const taskId = getRouterParam(event, 'taskId')
     
-    console.log('GET /api/responses/[taskId] - Task ID:', taskId)
+    // Try alternative methods to get the task ID
+    const alternativeTaskId = event.context?.params?.taskId 
+      || event.context?.params?.id
+      || event.node?.req?.params?.taskId
     
-    if (!taskId) {
+    const finalTaskId = taskId || alternativeTaskId
+    
+    if (!finalTaskId) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Task ID is required'
+      })
+    }
+
+    // Validate task ID format (should be MongoDB ObjectId)
+    if (!/^[0-9a-fA-F]{24}$/.test(finalTaskId)) {
+      logger.warn(`Invalid task ID format: ${finalTaskId}`)
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Invalid task ID format'
       })
     }
 
@@ -30,14 +47,14 @@ export default defineEventHandler(async (event) => {
       // Search for user's response to this task
       const userResponse = await searchEntuEntities({
         '_type.string': 'vastus',
-        '_parent._id': taskId,
+        '_parent._id': finalTaskId,
         '_owner._id': user._id,
-        limit: 1
+        '_limit': 1
       }, apiConfig)
 
-      console.log('Found user response:', userResponse)
+      const hasResponse = userResponse.entities && userResponse.entities.length > 0
 
-      if (userResponse.entities && userResponse.entities.length > 0) {
+      if (hasResponse) {
         return {
           success: true,
           response: userResponse.entities[0]
@@ -50,7 +67,7 @@ export default defineEventHandler(async (event) => {
       }
     }
     catch (error: any) {
-      console.error('Failed to fetch user response:', error)
+      logger.error('Failed to fetch user response', error)
 
       // Re-throw known errors
       if (error?.statusCode) {

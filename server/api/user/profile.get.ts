@@ -7,6 +7,9 @@
 import { withAuth, extractBearerToken } from '../../utils/auth'
 import type { AuthenticatedUser } from '../../utils/auth'
 import { getEntuEntity, getEntuApiConfig } from '../../utils/entu'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('user-profile')
 
 export default defineEventHandler(async (event) => {
   return withAuth(event, async (event: any, user: AuthenticatedUser) => {
@@ -37,7 +40,7 @@ export default defineEventHandler(async (event) => {
       }
     }
     catch (error: any) {
-      console.error('Failed to get user profile:', error)
+      logger.error('Failed to get user profile', error)
 
       // Re-throw known errors
       if (error?.statusCode) {

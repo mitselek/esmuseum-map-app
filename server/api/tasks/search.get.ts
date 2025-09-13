@@ -7,6 +7,9 @@
 import { withAuth, extractBearerToken } from '../../utils/auth'
 import type { AuthenticatedUser } from '../../utils/auth'
 import { searchEntuEntities, getEntuApiConfig } from '../../utils/entu'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('tasks-search')
 
 export default defineEventHandler(async (event) => {
   return withAuth(event, async (event: any, user: AuthenticatedUser) => {
@@ -39,7 +42,7 @@ export default defineEventHandler(async (event) => {
       return searchResult
     }
     catch (error: any) {
-      console.error('Failed to search tasks:', error)
+      logger.error('Task search failed', error)
 
       // Re-throw known errors
       if (error?.statusCode) {
