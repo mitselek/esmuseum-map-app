@@ -60,8 +60,6 @@ export function extractBearerToken (event: any): string {
  * Optimized: Use JWT token directly instead of making API calls
  */
 export async function authenticateUser (event: any): Promise<AuthenticatedUser> {
-  logger.info('Authenticating user request')
-
   const token = extractBearerToken(event)
 
   try {
@@ -93,21 +91,15 @@ export async function authenticateUser (event: any): Promise<AuthenticatedUser> 
 
     const user = { ...payload.user }
 
-    // Add user ID from accounts if available
-    if (payload.accounts && payload.accounts.esmuuseum) {
-      user._id = payload.accounts.esmuuseum
+    // Get account ID for this app
+    const accountId = payload.accounts?.esmuuseum
+    if (!accountId) {
+      throw new Error('No account access found in JWT token')
     }
 
-    if (!user._id) {
-      throw new Error('No user ID found in JWT token')
-    }
+    user._id = accountId
 
-    logger.info(`User authenticated from JWT token: ${user.email}`, {
-      userId: user._id,
-      fromToken: true
-    })
-
-    return user as AuthenticatedUser
+    return user
   }
   catch (error: any) {
     logger.error('JWT authentication failed', error)
@@ -175,12 +167,6 @@ async function authenticateUserViaAPI (event: any, token: string): Promise<Authe
     user._id = data.accounts[0].user._id
   }
 
-  logger.info(`User authenticated successfully: ${user.email}`, {
-    userId: user._id,
-    hasAccounts: data.accounts ? data.accounts.length : 0,
-    fromAPI: true
-  })
-
   return user as AuthenticatedUser
 }
 
@@ -196,12 +182,18 @@ export async function checkTaskPermission (user: AuthenticatedUser, taskId: stri
     const taskResponse = await getEntuEntity(taskId, apiConfig)
     
     if (!taskResponse) {
-      logger.warn('Task not found for permission check', { taskId })
+      logger.warn(`Task not found: ${taskId}`)
       return false
     }
 
     // Entu returns entities wrapped in an 'entity' property
     const task = taskResponse.entity || taskResponse
+
+    // Additional check: if entity exists but has no data, it might not be a valid task
+    if (!task || !task._id) {
+      logger.warn(`Invalid task entity: ${taskId}`)
+      return false
+    }
 
     // Check if user is in any of the permission arrays
     const permissionArrays = [

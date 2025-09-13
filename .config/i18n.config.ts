@@ -118,7 +118,21 @@ export default defineI18nConfig(() => ({
         searchLocations: 'Otsi asukohti...',
         noLocationsForTask: 'Selle ülesande jaoks pole asukohti määratud',
         manualCoordinatesEntry: '✏️ Sisesta koordinaadid käsitsi',
-        unnamedLocation: 'Nimetu asukoht'
+        unnamedLocation: 'Nimetu asukoht',
+        // User location override translations
+        yourLocation: 'Sinu asukoht',
+        locationDetected: 'Asukoht tuvastatud',
+        detectLocation: 'Tuvasta asukoht',
+        detectLocationHelp: 'Kasuta GPS-i oma asukoha tuvastamiseks',
+        refresh: 'Värskenda',
+        manualLocationOverride: 'Käsitsi asukoha määramine',
+        enterManually: 'Sisesta käsitsi',
+        cancel: 'Tühista',
+        manualLocationHelp: 'See muudab sinu asukohta kaardi sorteerimiseks',
+        applyLocation: 'Rakenda asukoht',
+        clearOverride: 'Eemalda käsitsi määramine',
+        manualLocationActive: 'Käsitsi määratud asukoht aktiivne',
+        remove: 'Eemalda'
       },
       userGroups: {
         getUserGroups: 'getUserGroups kutsutud - kasutaja:',
@@ -257,7 +271,21 @@ export default defineI18nConfig(() => ({
         searchLocations: 'Search locations...',
         noLocationsForTask: 'No locations defined for this task',
         manualCoordinatesEntry: '✏️ Enter coordinates manually',
-        unnamedLocation: 'Unnamed location'
+        unnamedLocation: 'Unnamed location',
+        // User location override translations
+        yourLocation: 'Your location',
+        locationDetected: 'Location detected',
+        detectLocation: 'Detect location',
+        detectLocationHelp: 'Use GPS to detect your location',
+        refresh: 'Refresh',
+        manualLocationOverride: 'Manual location override',
+        enterManually: 'Enter manually',
+        cancel: 'Cancel',
+        manualLocationHelp: 'This will override your location for map sorting',
+        applyLocation: 'Apply location',
+        clearOverride: 'Clear override',
+        manualLocationActive: 'Manual location override active',
+        remove: 'Remove'
       },
       userGroups: {
         getUserGroups: 'getUserGroups called - user:',
@@ -396,7 +424,21 @@ export default defineI18nConfig(() => ({
         searchLocations: 'Пошук місць...',
         noLocationsForTask: 'Для цього завдання не визначено місць',
         manualCoordinatesEntry: '✏️ Ввести координати вручну',
-        unnamedLocation: 'Місце без назви'
+        unnamedLocation: 'Місце без назви',
+        // User location override translations
+        yourLocation: 'Ваше місцезнаходження',
+        locationDetected: 'Місцезнаходження виявлено',
+        detectLocation: 'Виявити місцезнаходження',
+        detectLocationHelp: 'Використати GPS для виявлення вашого місцезнаходження',
+        refresh: 'Оновити',
+        manualLocationOverride: 'Ручне перевизначення місцезнаходження',
+        enterManually: 'Ввести вручну',
+        cancel: 'Скасувати',
+        manualLocationHelp: 'Це перевизначить ваше місцезнаходження для сортування карти',
+        applyLocation: 'Застосувати місцезнаходження',
+        clearOverride: 'Очистити перевизначення',
+        manualLocationActive: 'Ручне перевизначення місцезнаходження активне',
+        remove: 'Видалити'
       },
       userGroups: {
         getUserGroups: 'getUserGroups викликано - користувач:',

@@ -11,27 +11,31 @@ enum LogLevel {
 }
 
 /**
+ * Check if we should log at this level
+ */
+function shouldLog(level: LogLevel): boolean {
+  const isDev = process.env.NODE_ENV === 'development'
+  
+  // Always log WARN and ERROR in any environment
+  if (level === LogLevel.WARN || level === LogLevel.ERROR) {
+    return true
+  }
+  
+  // In development, also log INFO
+  if (isDev && level === LogLevel.INFO) {
+    return true
+  }
+  
+  // Never log DEBUG
+  return false
+}
+
+/**
  * Create a formatted log message with timestamp, level, and module
  */
-function formatLogMessage (level: LogLevel, module: string, message: string, data?: any): string {
-  const timestamp = new Date().toISOString()
-  let logMessage = `[${timestamp}] [${level}] [${module}] ${message}`
-
-  if (data) {
-    try {
-      // Try to stringify the data, or just convert to string if not possible
-      const dataStr = typeof data === 'object'
-        ? JSON.stringify(data, null, 2)
-        : String(data)
-
-      logMessage += `\n${dataStr}`
-    }
-    catch (err) {
-      logMessage += `\n[Failed to stringify data: ${err}]`
-    }
-  }
-
-  return logMessage
+function formatLogMessage (level: LogLevel, module: string, message: string): string {
+  const timestamp = new Date().toISOString().substring(11, 19) // Just time, not full date
+  return `[${timestamp}] [${module}] ${message}`
 }
 
 /**
@@ -40,19 +44,26 @@ function formatLogMessage (level: LogLevel, module: string, message: string, dat
 export function createLogger (moduleName: string) {
   return {
     debug: (message: string, data?: any) => {
-      console.log(formatLogMessage(LogLevel.DEBUG, moduleName, message, data))
+      // Debug logs are completely disabled
     },
 
     info: (message: string, data?: any) => {
-      console.log(formatLogMessage(LogLevel.INFO, moduleName, message, data))
+      if (shouldLog(LogLevel.INFO)) {
+        console.log(formatLogMessage(LogLevel.INFO, moduleName, message))
+      }
     },
 
     warn: (message: string, data?: any) => {
-      console.warn(formatLogMessage(LogLevel.WARN, moduleName, message, data))
+      if (shouldLog(LogLevel.WARN)) {
+        console.warn(formatLogMessage(LogLevel.WARN, moduleName, message))
+      }
     },
 
     error: (message: string, error?: any) => {
-      console.error(formatLogMessage(LogLevel.ERROR, moduleName, message, error))
+      if (shouldLog(LogLevel.ERROR)) {
+        const errorMsg = error?.message || error?.statusMessage || String(error || '')
+        console.error(formatLogMessage(LogLevel.ERROR, moduleName, `${message}: ${errorMsg}`))
+      }
     }
   }
 }

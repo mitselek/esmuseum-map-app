@@ -73,8 +73,6 @@ export const useTaskWorkspace = () => {
       // Load tasks from each group
       for (const parentGroup of groupParents) {
         try {
-          console.log(`Loading tasks for group: ${parentGroup.string || parentGroup.reference}`)
-          
           const groupTasks = await $fetch('/api/tasks/search', {
             headers: {
               Authorization: `Bearer ${token.value}`
@@ -86,10 +84,7 @@ export const useTaskWorkspace = () => {
             }
           })
 
-          console.log(`Tasks found for group ${parentGroup.string}:`, groupTasks)
-
-          if (groupTasks?.entities?.length > 0) {
-            allTasks.push(...groupTasks.entities.map((task: any) => ({
+          if (groupTasks.entities && groupTasks.entities.length > 0) {            allTasks.push(...groupTasks.entities.map((task: any) => ({
               ...task,
               groupId: parentGroup.reference,
               groupName: parentGroup.string || 'Unknown Group'
@@ -101,7 +96,6 @@ export const useTaskWorkspace = () => {
       }
 
       tasks.value = allTasks
-      console.log(`Loaded ${allTasks.length} tasks total`)
 
     } catch (err: unknown) {
       console.error('Failed to load tasks:', err)

@@ -59,13 +59,6 @@ export const useLocation = () => {
         }
       })
 
-      console.log(`Loaded ${response?.entities?.length || 0} locations for map ${mapId}`)
-      console.log('First location details:', response?.entities?.[0])
-      if (response?.entities?.[0]) {
-        console.log('First location properties:', response.entities[0].properties)
-        console.log('First location lat:', response.entities[0].properties?.lat)
-        console.log('First location long:', response.entities[0].properties?.long)
-      }
       return response?.entities || []
     }
     catch (error) {
@@ -80,16 +73,6 @@ export const useLocation = () => {
       throw new Error('Task is required')
     }
 
-    // Debug: log the task structure to understand map reference format
-    console.log('Task structure:', task)
-    console.log('Task entity keys:', Object.keys(task.entity || {}))
-    console.log('Task kaart property:', task.kaart)
-    console.log('Task entity kaart property:', task.entity?.kaart)
-
-    // Check for kaart in task.entity.properties (where Entu API typically puts properties)
-    console.log('Task entity properties:', task.entity?.properties)
-    console.log('Task entity properties kaart:', task.entity?.properties?.kaart)
-
     // Get map reference from task - check multiple possible locations
     let mapReference = task.kaart?.[0]?.reference
       || task.kaart?.[0]?._id
@@ -99,20 +82,15 @@ export const useLocation = () => {
       || task.entity?.kaart?.[0]?._id
       || task.kaart
 
-    console.log('Raw map reference:', mapReference, typeof mapReference)
-
     // If mapReference is an object, extract the ID
     if (typeof mapReference === 'object' && mapReference !== null) {
       mapReference = mapReference.reference || mapReference._id || mapReference.id
-      console.log('Extracted map reference:', mapReference)
     }
 
     if (!mapReference || typeof mapReference !== 'string') {
-      console.log('Task has no associated map or invalid map reference:', mapReference)
       return []
     }
 
-    console.log('Loading locations for map:', mapReference)
     return await loadMapLocations(mapReference)
   }
 
@@ -156,15 +134,29 @@ export const useLocation = () => {
       return `${location.coordinates.lat},${location.coordinates.lng}`
     }
 
-    // Try to extract from geopunkt field
-    const geopunkt = location.properties?.geopunkt?.[0]?.value || location.geopunkt
+    // Try to extract from geopunkt field (various formats)
+    const geopunkt = location.geopunkt?.[0]?.string
+      || location.geopunkt?.[0]?.value
+      || location.geopunkt
+      || location.properties?.geopunkt?.[0]?.value
+      || location.properties?.geopunkt?.[0]?.string
     if (geopunkt) {
       return geopunkt
     }
 
-    // Try to extract from separate lat/long fields
-    const lat = location.lat?.[0]?.number || location.properties?.lat?.[0]?.value || location.properties?.lat?.[0]?.number
-    const lng = location.long?.[0]?.number || location.properties?.long?.[0]?.value || location.properties?.long?.[0]?.number
+    // Try to extract from separate lat/long fields (various formats)
+    const lat = location.lat?.[0]?.number
+      || location.lat?.[0]?.value
+      || location.lat?.[0]?.string
+      || location.properties?.lat?.[0]?.value
+      || location.properties?.lat?.[0]?.number
+      || location.properties?.lat?.[0]?.string
+    const lng = location.long?.[0]?.number
+      || location.long?.[0]?.value
+      || location.long?.[0]?.string
+      || location.properties?.long?.[0]?.value
+      || location.properties?.long?.[0]?.number
+      || location.properties?.long?.[0]?.string
 
     if (lat != null && lng != null) {
       return `${lat},${lng}`
