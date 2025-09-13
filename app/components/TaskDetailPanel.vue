@@ -341,7 +341,6 @@
                   :loading="loadingTaskLocations"
                   :error="geolocationError"
                   @select="onLocationSelect"
-                  @manual="startManualEntry"
                   @request-location="onRequestLocation"
                   @retry="loadTaskLocations"
                 />
