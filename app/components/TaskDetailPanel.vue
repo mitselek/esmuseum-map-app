@@ -31,69 +31,21 @@
           />
 
           <!-- Response Form -->
-          <div class="rounded-lg border bg-white p-6 shadow-sm">
-            <h3 class="mb-4 text-lg font-medium text-gray-900">
-              {{ $t('taskDetail.yourResponse') }}
-            </h3>
-
-            <!-- Permission checking state -->
-            <TaskPermissionLoading v-if="checkingPermissions" />
-
-            <!-- No permissions message -->
-            <TaskNoPermission v-else-if="!hasResponsePermission" />
-
-            <!-- Response form (shown only with permission) -->
-            <form
-              v-else
-              @submit.prevent="submitResponse"
-            >
-              <!-- Location Selection (if needed) -->
-              <div
-                v-if="needsLocation"
-                class="mb-6"
-              >
-                <label class="mb-3 block text-sm font-medium text-gray-700">
-                  {{ $t('taskDetail.location') }}
-                </label>
-
-                <!-- LocationPicker Component -->
-                <LocationPicker
-                  :locations="taskLocations"
-                  :user-position="userPosition"
-                  :selected="selectedLocation"
-                  :loading="loadingTaskLocations"
-                  :error="geolocationError"
-                  @select="onLocationSelect"
-                  @request-location="onRequestLocation"
-                  @retry="loadTaskLocations"
-                />
-              </div>
-
-              <!-- Text Response -->
-              <TaskResponseTextarea
-                v-model:response-text="responseForm.text"
-                :submitting="submitting"
-              />
-
-              <!-- File Upload -->
-              <TaskFileUpload />
-
-              <!-- Submit Button -->
-              <div class="flex flex-col space-y-2">
-                <button
-                  type="submit"
-                  class="w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  :disabled="!canSubmit || submitting"
-                >
-                  {{ submitting ? $t('taskDetail.submitting') : $t('taskDetail.submitResponseBtn') }}
-                </button>
-
-                <p class="text-center text-xs text-gray-500">
-                  {{ $t('taskDetail.canUpdateUntilDeadline') }}
-                </p>
-              </div>
-            </form>
-          </div>
+          <TaskResponseForm
+            ref="responseFormRef"
+            :selected-task="selectedTask"
+            :checking-permissions="checkingPermissions"
+            :has-response-permission="hasResponsePermission"
+            :needs-location="needsLocation"
+            :task-locations="taskLocations"
+            :user-position="userPosition"
+            :selected-location="selectedLocation"
+            :loading-task-locations="loadingTaskLocations"
+            :geolocation-error="geolocationError"
+            @location-select="onLocationSelect"
+            @request-location="onRequestLocation"
+            @load-task-locations="loadTaskLocations"
+          />
         </div>
       </div>
     </div>
@@ -115,14 +67,10 @@ const { getTaskResponseStats } = useTaskResponseStats()
 // Response stats state
 const taskResponseStats = ref(null)
 
-// Form state
-const responseForm = ref({
-  text: '',
-  geopunkt: null,
-  file: null
-})
+// Response form reference
+const responseFormRef = ref(null)
 
-const submitting = ref(false)
+// Form permissions state
 const checkingPermissions = ref(false)
 const hasResponsePermission = ref(false)
 
@@ -196,7 +144,9 @@ const getCurrentLocation = async () => {
         }
 
         // Set the coordinates in the response form
-        responseForm.value.geopunkt = `${coords.latitude.toFixed(6)},${coords.longitude.toFixed(6)}`
+        if (responseFormRef.value) {
+          responseFormRef.value.setLocation(`${coords.latitude.toFixed(6)},${coords.longitude.toFixed(6)}`)
+        }
 
         geolocationLoading.value = false
         resolve(coords)
@@ -262,11 +212,15 @@ const loadTaskLocations = async () => {
 const onLocationSelect = (location) => {
   selectedLocation.value = location
   if (location) {
-    responseForm.value.geopunkt = getLocationCoordinates(location)
+    if (responseFormRef.value) {
+      responseFormRef.value.setLocation(getLocationCoordinates(location))
+    }
     showManualCoordinates.value = false
   }
   else {
-    responseForm.value.geopunkt = null
+    if (responseFormRef.value) {
+      responseFormRef.value.setLocation(null)
+    }
   }
 }
 
@@ -344,60 +298,6 @@ const needsLocation = computed(() => {
   return !!selectedTask.value && hasMapData.value
 })
 
-const canSubmit = computed(() => {
-  return responseForm.value.text.trim().length > 0
-})
-
-// Form submission
-const submitResponse = async () => {
-  if (!canSubmit.value || !selectedTask.value) return
-
-  submitting.value = true
-
-  try {
-    const { token } = useEntuAuth()
-
-    if (!token.value) {
-      console.error('Not authenticated')
-      return
-    }
-
-    // Prepare the API request data matching the server validation
-    const requestData = {
-      taskId: selectedTask.value._id,
-      responses: [
-        {
-          questionId: 'default', // Using default for simple text response
-          type: 'text',
-          value: responseForm.value.text,
-          metadata: {}
-        }
-      ]
-    }
-
-    // Call the API endpoint
-    await $fetch('/api/responses', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token.value}`,
-        'Content-Type': 'application/json'
-      },
-      body: requestData
-    })
-
-    // Reset form after successful submission
-    responseForm.value.text = ''
-    responseForm.value.geopunkt = null
-    responseForm.value.file = null
-  }
-  catch (error) {
-    console.error('Failed to submit response:', error)
-  }
-  finally {
-    submitting.value = false
-  }
-}
-
 // Check permissions for current task
 const checkPermissions = async (taskId) => {
   const { token } = useEntuAuth()
@@ -461,24 +361,13 @@ watch(selectedTask, async (newTask) => {
         })
 
         if (responseData.success && responseData.response) {
-          // Fill form with existing response data
-          const existingResponse = responseData.response
-          responseForm.value = {
-            text: existingResponse.kirjeldus?.[0]?.string || '',
-            geopunkt: existingResponse.geopunkt?.[0]?.string || null,
-            file: null // Files need special handling
-          }
+          // Existing response found - form component will handle its state
+          console.log('Found existing response:', responseData.response)
         }
         else {
-          // No existing response, clear form
-          responseForm.value = {
-            text: '',
-            geopunkt: null,
-            file: null
-          }
-
-          // Auto-geolocate if task needs location and no existing location
-          if (needsLocation.value && !responseForm.value.geopunkt) {
+          // No existing response - form starts empty
+          // Auto-geolocate if task needs location
+          if (needsLocation.value) {
             try {
               await getCurrentLocation()
             }
@@ -510,12 +399,8 @@ watch(selectedTask, async (newTask) => {
       }
     }
     else {
-      // Not authenticated, clear form
-      responseForm.value = {
-        text: '',
-        geopunkt: null,
-        file: null
-      }
+      // Not authenticated, clear form (form component handles its own state)
+      console.log('Not authenticated')
     }
   }
   else {
