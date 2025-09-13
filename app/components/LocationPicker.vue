@@ -149,17 +149,6 @@
         {{ t('taskDetail.noLocationsForTask') }}
       </p>
     </div>
-
-    <!-- Manual Entry Option -->
-    <div class="mt-4 border-t pt-4">
-      <button
-        type="button"
-        class="text-sm text-gray-600 hover:text-gray-800"
-        @click="$emit('manual')"
-      >
-        {{ t('taskDetail.manualCoordinatesEntry') }}
-      </button>
-    </div>
   </div>
 </template>
 
@@ -191,7 +180,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['select', 'manual', 'requestLocation', 'retry'])
+const emit = defineEmits(['select', 'requestLocation', 'retry'])
 
 // Local state
 const searchQuery = ref('')
