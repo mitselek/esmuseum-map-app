@@ -39,10 +39,16 @@ export default defineEventHandler(async (event) => {
       const searchResult = await searchEntuEntities({
         '_type.string': 'asukoht',
         '_parent.reference': mapId,
-        '_limit': 10000
+        'limit': 10000
       }, apiConfig)
 
       const locations = searchResult?.entities || []
+      
+      logger.info(`Loaded ${locations.length} locations for map ${mapId}`, {
+        requestedLimit: 10000,
+        actualCount: locations.length,
+        searchResultCount: searchResult?.count
+      })
 
       // Return in the same format as the client-side searchEntities call
       return {
