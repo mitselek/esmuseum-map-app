@@ -83,8 +83,7 @@ const {
 // Use completed tasks tracking
 const {
   completedTaskIds,
-  loadCompletedTasks,
-  markTaskCompleted
+  loadCompletedTasks
 } = useCompletedTasks()
 
 // Response stats state

@@ -52,7 +52,7 @@ export default defineI18nConfig(() => ({
       },
       taskDetail: {
         map: "Kaart",
-        mapIntegrationComing: "Kaardi integratsioon tuleb hiljem",
+
         yourResponse: "Sinu vastus",
         addFile: "Lisa fail (valikuline)",
         allowedFiles: "Lubatud: pildid, PDF, Word dokumendid",
@@ -83,11 +83,7 @@ export default defineI18nConfig(() => ({
         noLocationsForTask: "Selle ülesande jaoks pole asukohti määratud",
         unnamedLocation: "Nimetu asukoht",
         // User location override translations
-        yourLocation: "Sinu asukoht",
-        detectingLocation: "Asukohta tuvastatakse...",
-        locationPermissionHelp: "Luba asukoha kasutamine, et jätkata ülesandega",
-        locationDetected: "Asukoht tuvastatud",
-        detectLocationHelp: "Kasuta GPS-i oma asukoha tuvastamiseks",
+
         manualLocationOverride: "Käsitsi asukoha määramine",
         enterManually: "Sisesta käsitsi",
         cancel: "Tühista",
@@ -99,7 +95,7 @@ export default defineI18nConfig(() => ({
       },
       map: {
         loading: "Kaardi laadimine...",
-        yourLocation: "Sinu asukoht",
+
       },
     },
     en: {
@@ -153,7 +149,7 @@ export default defineI18nConfig(() => ({
       },
       taskDetail: {
         map: "Map",
-        mapIntegrationComing: "Map integration coming later",
+
         yourResponse: "Your Response",
         addFile: "Add file (optional)",
         allowedFiles: "Allowed: images, PDF, Word documents",
@@ -186,11 +182,7 @@ export default defineI18nConfig(() => ({
         noLocationsForTask: "No locations defined for this task",
         unnamedLocation: "Unnamed location",
         // User location override translations
-        yourLocation: "Your location",
-        detectingLocation: "Detecting location...",
-        locationPermissionHelp: "Allow location access to continue with the task",
-        locationDetected: "Location detected",
-        detectLocationHelp: "Use GPS to detect your location",
+
         manualLocationOverride: "Manual location override",
         enterManually: "Enter manually",
         cancel: "Cancel",
@@ -202,7 +194,7 @@ export default defineI18nConfig(() => ({
       },
       map: {
         loading: "Loading map...",
-        yourLocation: "Your location",
+
       },
     },
     uk: {
@@ -252,7 +244,7 @@ export default defineI18nConfig(() => ({
       },
       taskDetail: {
         map: "Карта",
-        mapIntegrationComing: "Інтеграція карти буде пізніше",
+
         yourResponse: "Ваша відповідь",
         addFile: "Додати файл (необов'язково)",
         allowedFiles: "Дозволено: зображення, PDF, документи Word",
@@ -284,12 +276,7 @@ export default defineI18nConfig(() => ({
         noLocationsForTask: "Для цього завдання не визначено місць",
         unnamedLocation: "Місце без назви",
         // User location override translations
-        yourLocation: "Ваше місцезнаходження",
-        detectingLocation: "Виявлення місцезнаходження...",
-        locationPermissionHelp: "Дозвольте доступ до локації, щоб продовжити з завданням",
-        locationDetected: "Місцезнаходження виявлено",
-        detectLocationHelp:
-          "Використати GPS для виявлення вашого місцезнаходження",
+
         manualLocationOverride: "Ручне перевизначення місцезнаходження",
         enterManually: "Ввести вручну",
         cancel: "Скасувати",
@@ -302,7 +289,7 @@ export default defineI18nConfig(() => ({
       },
       map: {
         loading: "Завантаження карти...",
-        yourLocation: "Ваше місцезнаходження",
+
       },
     },
   },
