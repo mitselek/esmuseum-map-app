@@ -89,8 +89,19 @@ const {
   loadCompletedTasks
 } = useCompletedTasks()
 
-// Response stats state
-const taskResponseStats = ref(null)
+// Use task scoring
+const scoringData = useTaskScoring(computed(() => selectedTask.value))
+
+// Response stats state - computed from scoring data
+const taskResponseStats = computed(() => {
+  if (!scoringData.totalExpected.value || scoringData.totalExpected.value === 0) {
+    return null
+  }
+  return {
+    actual: scoringData.uniqueLocationsCount.value,
+    expected: scoringData.totalExpected.value
+  }
+})
 
 // Response form reference
 const responseFormRef = ref(null)
@@ -175,6 +186,11 @@ const handleResponseSubmitted = (responseData) => {
       responseData
     )
   }
+
+  // Reload the page to ensure fresh data
+  setTimeout(() => {
+    window.location.reload()
+  }, 500) // Small delay to let the optimistic update show briefly
 }
 
 // Check if task needs location
@@ -212,7 +228,6 @@ watch(selectedTask, async (newTask) => {
     needsLocation,
     checkPermissions,
     loadTaskLocations,
-    setStats: (stats) => { taskResponseStats.value = stats },
     resetState: () => {
       hasResponsePermission.value = false
       checkingPermissions.value = false
