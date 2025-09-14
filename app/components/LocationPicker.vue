@@ -54,7 +54,7 @@
         class="mt-2 text-xs text-red-600 underline hover:text-red-800"
         @click="$emit('retry')"
       >
-        {{ t('taskDetail.retry') }}
+        {{ $t('common.retry') }}
       </button>
     </div>
 
