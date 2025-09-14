@@ -40,7 +40,6 @@
             :has-response-permission="hasResponsePermission"
             :needs-location="needsLocation"
             :task-locations="taskLocations"
-            :user-position="userPosition"
             :selected-location="selectedLocation"
             :loading-task-locations="loadingTaskLocations"
             :geolocation-error="geolocationError"
@@ -57,8 +56,6 @@
 <script setup>
 const { selectedTask, clearSelection } = useTaskWorkspace()
 const {
-  userPosition,
-  sortByDistance,
   getLocationCoordinates
 } = useLocation()
 
@@ -76,10 +73,8 @@ const {
 const {
   geolocationError,
   showManualCoordinates,
-  getCurrentLocation,
   onRequestLocation,
-  handleLocationChange,
-  watchPosition
+  handleLocationChange
 } = useTaskGeolocation()
 
 // Response stats state
@@ -106,7 +101,8 @@ const loadTaskLocations = async () => {
 
   try {
     loadingTaskLocations.value = true
-    taskLocations.value = await loadLocations(selectedTask.value, userPosition.value)
+    // Don't pass userPosition here - let LocationPicker handle GPS-based sorting
+    taskLocations.value = await loadLocations(selectedTask.value)
   }
   catch (err) {
     console.error('Error loading task locations:', err)
@@ -175,7 +171,6 @@ watch(selectedTask, async (newTask) => {
   // Use the task initialization function
   await initializeTask(newTask, {
     responseFormRef,
-    getCurrentLocation,
     needsLocation,
     checkPermissions,
     loadTaskLocations,
@@ -189,7 +184,6 @@ watch(selectedTask, async (newTask) => {
   })
 }, { immediate: true })
 
-// Set up position watching for location sorting
-// This automatically re-sorts locations when user position changes
-watchPosition(userPosition, taskLocations, sortByDistance)
+// Note: Location sorting is now handled automatically in LocationPicker component
+// via the centralized GPS service, so no need for manual position watching here
 </script>

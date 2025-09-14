@@ -63,6 +63,13 @@ export default defineI18nConfig(() => ({
           next: 'Järgmisena ehitame tegelikud vormikomponendid ja integreerime olemasoleva ülesandesüsteemiga.'
         }
       },
+      gps: {
+        enableLocationTitle: 'Luba asukoht parema kasutuskogemuse jaoks',
+        enableLocationDescription: 'Aitab sortida asukohti kauguse järgi ja täita asukohaväljad automaatselt',
+        allowLocation: 'Luba asukoht',
+        notNow: 'Mitte praegu',
+        requesting: 'Küsin asukohta'
+      },
       taskDetail: {
         back: '← Tagasi',
         loading: 'Laen...',
@@ -216,6 +223,13 @@ export default defineI18nConfig(() => ({
           next: 'Next we will build the actual form components and integrate with the existing task system.'
         }
       },
+      gps: {
+        enableLocationTitle: 'Enable location for better experience',
+        enableLocationDescription: 'Helps sort locations by distance and auto-fill location fields',
+        allowLocation: 'Allow location',
+        notNow: 'Not now',
+        requesting: 'Requesting location'
+      },
       taskDetail: {
         back: '← Back',
         loading: 'Loading...',
@@ -368,6 +382,13 @@ export default defineI18nConfig(() => ({
           info: 'Це демонструє уніфіковану SPA архітектуру F007 з адаптивним дизайном та управлінням станом.',
           next: 'Далі ми створимо справжні компоненти форм та інтегруємо з існуючою системою завдань.'
         }
+      },
+      gps: {
+        enableLocationTitle: 'Увімкнути геолокацію для кращого досвіду',
+        enableLocationDescription: 'Допомагає сортувати місця за відстанню та автоматично заповнювати поля місцезнаходження',
+        allowLocation: 'Дозволити геолокацію',
+        notNow: 'Не зараз',
+        requesting: 'Запит геолокації'
       },
       taskDetail: {
         back: '← Назад',

@@ -1,5 +1,8 @@
 <template>
   <div class="min-h-screen bg-gray-50">
+    <!-- GPS Permission Prompt -->
+    <GPSPermissionPrompt />
+
     <!-- Header -->
     <AppHeader />
 
@@ -11,6 +14,12 @@
 <script setup>
 definePageMeta({
   middleware: 'auth'
+})
+
+// Initialize GPS with permission detection
+const { initializeGPSWithPermissionCheck } = useLocation()
+onMounted(() => {
+  initializeGPSWithPermissionCheck()
 })
 
 // Set page title

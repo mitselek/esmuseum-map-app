@@ -28,17 +28,13 @@
         <p class="text-sm text-red-800">
           ⚠️ {{ geolocationError }}
         </p>
-        <button
-          type="button"
-          class="mt-2 text-sm text-red-600 underline hover:text-red-800"
-          @click="getCurrentLocation"
-        >
-          {{ $t('taskDetail.retry') }}
-        </button>
+        <p class="mt-1 text-xs text-red-600">
+          {{ $t('taskDetail.locationPermissionHelp') }}
+        </p>
       </div>
 
       <div
-        v-else-if="userPosition"
+        v-else-if="effectiveUserPosition"
         class="rounded-lg border border-green-200 bg-green-50 p-4"
       >
         <div class="flex items-center justify-between">
@@ -47,19 +43,12 @@
               📍 {{ $t('taskDetail.locationDetected') }}
             </p>
             <p class="mt-1 text-xs text-green-600">
-              {{ userPosition.lat.toFixed(6) }}, {{ userPosition.lng.toFixed(6) }}
-              <span v-if="userPosition.accuracy">
-                (±{{ Math.round(userPosition.accuracy) }}m)
+              {{ effectiveUserPosition.lat.toFixed(6) }}, {{ effectiveUserPosition.lng.toFixed(6) }}
+              <span v-if="effectiveUserPosition.accuracy">
+                (±{{ Math.round(effectiveUserPosition.accuracy) }}m)
               </span>
             </p>
           </div>
-          <button
-            type="button"
-            class="text-sm text-green-600 underline hover:text-green-800"
-            @click="getCurrentLocation"
-          >
-            {{ $t('taskDetail.refresh') }}
-          </button>
         </div>
       </div>
 
@@ -67,13 +56,9 @@
         v-else
         class="rounded-lg border border-gray-200 bg-gray-50 p-4"
       >
-        <button
-          type="button"
-          class="flex items-center text-sm text-blue-600 hover:text-blue-800"
-          @click="getCurrentLocation"
-        >
-          📍 {{ $t('taskDetail.detectLocation') }}
-        </button>
+        <p class="text-sm text-gray-600">
+          📍 {{ $t('taskDetail.detectingLocation') }}
+        </p>
         <p class="mt-1 text-xs text-gray-500">
           {{ $t('taskDetail.detectLocationHelp') }}
         </p>
@@ -178,99 +163,67 @@ interface Emits {
   (e: 'locationChange', coordinates: string | null): void
 }
 
-interface Coordinates {
+interface _Coordinates {
   lat: number
   lng: number
   accuracy?: number
   manual?: boolean
 }
 
-interface GeolocationCoords {
-  latitude: number
-  longitude: number
-  accuracy: number
-}
-
 defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // Composables
-const { t } = useI18n()
+const {
+  userPosition,
+  gettingLocation,
+  locationError,
+  setManualOverride
+} = useLocation()
 
-// Local state - manage location independently for now
-const geolocationLoading = ref(false)
-const geolocationError = ref<string | null>(null)
-const userPosition = ref<Coordinates | null>(null)
-const userLocation = ref<GeolocationCoords | null>(null)
+// Local state for manual override functionality
 const showManualCoordinates = ref(false)
 const manualCoordinates = ref('')
 const hasManualOverride = ref(false)
 
-// Geolocation functionality
-const getCurrentLocation = async () => {
-  if (!navigator.geolocation) {
-    geolocationError.value = t('taskDetail.geolocationNotSupported')
-    return false
-  }
+// Map centralized GPS state to local display state
+const geolocationLoading = computed(() => gettingLocation.value)
+const geolocationError = computed(() => locationError.value)
 
-  geolocationLoading.value = true
-  geolocationError.value = null
-
-  return new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const coords = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy
-        }
-
-        // Save detected location separately for restoration
-        userLocation.value = coords
-
-        // Update user position (unless manually overridden)
-        if (!hasManualOverride.value) {
-          userPosition.value = {
-            lat: coords.latitude,
-            lng: coords.longitude,
-            accuracy: coords.accuracy
-          }
-        }
-
-        // Emit coordinates to parent
-        const coordString = `${coords.latitude.toFixed(6)},${coords.longitude.toFixed(6)}`
-        emit('locationChange', coordString)
-
-        geolocationLoading.value = false
-        resolve(coords)
-      },
-      (error) => {
-        let errorMessage = t('taskDetail.geolocationError', { error: error.message })
-
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            errorMessage = 'User denied geolocation permission'
-            break
-          case error.POSITION_UNAVAILABLE:
-            errorMessage = 'Location information unavailable'
-            break
-          case error.TIMEOUT:
-            errorMessage = 'Location request timed out'
-            break
-        }
-
-        geolocationError.value = errorMessage
-        geolocationLoading.value = false
-        reject(error)
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000 // 5 minutes
+// Computed effective position (GPS or manual override)
+const effectiveUserPosition = computed(() => {
+  if (hasManualOverride.value) {
+    const parts = manualCoordinates.value.split(',').map((s) => s.trim())
+    if (parts.length === 2) {
+      const lat = parseFloat(parts[0]!)
+      const lng = parseFloat(parts[1]!)
+      if (!isNaN(lat) && !isNaN(lng)) {
+        return { lat, lng, accuracy: undefined, manual: true }
       }
-    )
-  })
-}
+    }
+  }
+  return userPosition.value
+})
+
+// Watch for GPS position changes and emit to parent
+const lastEmittedPosition = ref<string | null>(null)
+
+watch(effectiveUserPosition, (newPosition) => {
+  if (newPosition && !hasManualOverride.value) {
+    const coordString = `${newPosition.lat.toFixed(6)},${newPosition.lng.toFixed(6)}`
+
+    // Only emit if position has changed significantly (prevent recursive updates)
+    if (lastEmittedPosition.value !== coordString) {
+      lastEmittedPosition.value = coordString
+      emit('locationChange', coordString)
+    }
+  }
+}, { immediate: false }) // Don't emit immediately on mount
+
+// Watch manual override state to control GPS updates
+watch(hasManualOverride, (isManual) => {
+  setManualOverride(isManual)
+})
 
 // Manual location override functions
 const isValidCoordinates = (coords: string) => {
@@ -288,22 +241,11 @@ const isValidCoordinates = (coords: string) => {
 const applyManualLocation = () => {
   if (!isValidCoordinates(manualCoordinates.value)) return
 
-  const parts = manualCoordinates.value.split(',').map((s) => s.trim())
-  const lat = parseFloat(parts[0]!)
-  const lng = parseFloat(parts[1]!)
-
-  // Override user position with manual coordinates
-  userPosition.value = { lat, lng, accuracy: undefined, manual: true }
   hasManualOverride.value = true
   showManualCoordinates.value = false
 
-  // Emit coordinates to parent
+  // Emit manual coordinates to parent
   emit('locationChange', manualCoordinates.value)
-
-  // Re-sort locations with new position (TODO: implement sorting if needed)
-  // if (taskLocations.value.length > 0) {
-  //   taskLocations.value = sortByDistance(taskLocations.value, userPosition.value)
-  // }
 }
 
 const clearManualLocation = () => {
@@ -311,27 +253,15 @@ const clearManualLocation = () => {
   manualCoordinates.value = ''
   showManualCoordinates.value = false
 
-  // Reset to detected GPS position if available
-  if (userLocation.value) {
-    userPosition.value = {
-      lat: userLocation.value.latitude,
-      lng: userLocation.value.longitude,
-      accuracy: userLocation.value.accuracy
-    }
-
-    // Emit GPS coordinates to parent
-    const coordString = `${userLocation.value.latitude.toFixed(6)},${userLocation.value.longitude.toFixed(6)}`
+  // Reset to GPS position and emit it
+  if (userPosition.value) {
+    const gpsPos = userPosition.value as { lat: number, lng: number }
+    const coordString = `${gpsPos.lat.toFixed(6)},${gpsPos.lng.toFixed(6)}`
     emit('locationChange', coordString)
   }
   else {
-    userPosition.value = null
     emit('locationChange', null)
   }
-
-  // Re-sort locations (TODO: implement sorting if needed)
-  // if (taskLocations.value.length > 0 && userPosition.value) {
-  //   taskLocations.value = sortByDistance(taskLocations.value, userPosition.value)
-  // }
 }
 
 const cancelManualEntry = () => {
@@ -341,13 +271,9 @@ const cancelManualEntry = () => {
 
 // Start manual entry with prefilled coordinates
 const startManualEntry = () => {
-  // Prefill with current user position if available
-  if (userPosition.value && userPosition.value.lat && userPosition.value.lng) {
-    manualCoordinates.value = `${userPosition.value.lat.toFixed(6)},${userPosition.value.lng.toFixed(6)}`
-  }
-  else if (userLocation.value) {
-    // Fallback to detected GPS location
-    manualCoordinates.value = `${userLocation.value.latitude.toFixed(6)},${userLocation.value.longitude.toFixed(6)}`
+  // Prefill with current effective position if available
+  if (effectiveUserPosition.value?.lat && effectiveUserPosition.value?.lng) {
+    manualCoordinates.value = `${effectiveUserPosition.value.lat.toFixed(6)},${effectiveUserPosition.value.lng.toFixed(6)}`
   }
   else {
     // No location available, start with empty

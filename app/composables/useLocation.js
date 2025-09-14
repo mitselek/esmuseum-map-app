@@ -1,45 +1,213 @@
 /**
- * Location management composable for task responses
- * Handles location loading, distance calculation, and user position
+ * Centralized Geolocation Service
+ * Handles GPS location requests with caching, deduplication, and automatic updates
  */
 
 import { ref, computed } from 'vue'
 import { sortLocationsByDistance, getCurrentPosition } from '~/utils/distance'
 
-export const useLocation = () => {
-  // Reactive state
-  const userPosition = ref(null)
-  const gettingLocation = ref(false)
-  const locationError = ref(null)
+// Global state shared across all component instances
+const globalUserPosition = ref(null)
+const globalGettingLocation = ref(false)
+const globalLocationError = ref(null)
+const globalLastRequestTime = ref(null)
+const globalManualOverride = ref(false)
+const globalShowGPSPrompt = ref(false) // Start hidden, will show based on permission check
+const globalPermissionDenied = ref(false)
+let globalUpdateInterval = null
+let globalPendingRequest = null
 
-  // Auto-request GPS position when component loads
-  const requestGPSOnLoad = async () => {
-    try {
-      await getUserPosition()
-    }
-    catch (err) {
-      console.warn('Could not get GPS position on load:', err)
-      // Don't throw error - GPS is optional
+export const useLocation = () => {
+  // Use global state for shared location data
+  const userPosition = globalUserPosition
+  const gettingLocation = globalGettingLocation
+  const locationError = globalLocationError
+  const showGPSPrompt = globalShowGPSPrompt
+  const permissionDenied = globalPermissionDenied
+
+  // Start automatic GPS updates (30 seconds)
+  const startGPSUpdates = () => {
+    if (globalUpdateInterval) return // Already running
+
+    globalUpdateInterval = setInterval(() => {
+      // Skip updates if manual override is active
+      if (globalManualOverride.value) {
+        console.log('GPS updates paused - manual override active')
+        return
+      }
+
+      // Refresh GPS position
+      getUserPosition(true) // forceUpdate = true
+    }, 30000) // 30 seconds
+
+    console.log('GPS auto-updates started (30s interval)')
+  }
+
+  // Stop automatic GPS updates
+  const stopGPSUpdates = () => {
+    if (globalUpdateInterval) {
+      clearInterval(globalUpdateInterval)
+      globalUpdateInterval = null
+      console.log('GPS auto-updates stopped')
     }
   }
 
-  // Get user's current position
-  const getUserPosition = async (options = {}) => {
-    gettingLocation.value = true
-    locationError.value = null
-
+  // Check current geolocation permission status
+  const checkGeolocationPermission = async () => {
     try {
-      const position = await getCurrentPosition(options)
-      userPosition.value = position
-      return position
+      if (!navigator.permissions) {
+        console.log('Permissions API not supported')
+        return 'unknown'
+      }
+
+      const permission = await navigator.permissions.query({ name: 'geolocation' })
+      console.log('Current geolocation permission:', permission.state)
+      return permission.state // 'granted', 'denied', or 'prompt'
     }
     catch (error) {
-      locationError.value = error.message
-      console.error('Error getting user position:', error)
-      throw error
+      console.warn('Could not check geolocation permission:', error)
+      return 'unknown'
     }
-    finally {
-      gettingLocation.value = false
+  }
+
+  // Initialize GPS based on current permission state
+  const initializeGPSWithPermissionCheck = async () => {
+    const permissionState = await checkGeolocationPermission()
+
+    switch (permissionState) {
+      case 'granted':
+        console.log('✅ Permission already granted - starting GPS immediately')
+        globalShowGPSPrompt.value = false
+        globalPermissionDenied.value = false
+        await getUserPosition()
+        startGPSUpdates()
+        break
+
+      case 'denied':
+        console.log('❌ Permission denied - not showing GPS prompt')
+        globalShowGPSPrompt.value = false
+        globalPermissionDenied.value = true
+        break
+
+      case 'prompt':
+      case 'unknown':
+      default:
+        console.log('❓ Permission not determined - showing GPS prompt')
+        globalShowGPSPrompt.value = true
+        globalPermissionDenied.value = false
+        break
+    }
+
+    // Monitor permission changes
+    try {
+      if (navigator.permissions) {
+        const permission = await navigator.permissions.query({ name: 'geolocation' })
+        permission.addEventListener('change', () => {
+          console.log('Geolocation permission changed to:', permission.state)
+          // Re-initialize based on new permission state
+          initializeGPSWithPermissionCheck()
+        })
+      }
+    }
+    catch (error) {
+      console.warn('Could not monitor permission changes:', error)
+    }
+  }
+
+  // Set manual override state (pauses automatic updates)
+  const setManualOverride = (isManual) => {
+    globalManualOverride.value = isManual
+    console.log(`Manual override ${isManual ? 'enabled' : 'disabled'}`)
+  }
+
+  // Request GPS permission (triggered by user action)
+  const requestGPSPermission = () => {
+    globalShowGPSPrompt.value = false
+
+    // Call GPS immediately while still in user gesture context
+    getUserPosition(true).then(() => {
+      globalPermissionDenied.value = false
+    }).catch((error) => {
+      globalPermissionDenied.value = true
+      console.log('GPS permission denied or failed:', error.message)
+    })
+  }
+
+  // Dismiss GPS prompt without requesting
+  const dismissGPSPrompt = () => {
+    globalShowGPSPrompt.value = false
+    globalPermissionDenied.value = true
+  }
+
+  // Get user's current position with caching and deduplication
+  const getUserPosition = async (forceUpdate = false, options = {}) => {
+    // Return cached position if available and not forcing update
+    if (!forceUpdate && globalUserPosition.value && globalLastRequestTime.value) {
+      console.log('Returning cached GPS position')
+      return globalUserPosition.value
+    }
+
+    // If there's already a pending request, return that promise
+    if (globalPendingRequest) {
+      console.log('GPS request already in progress, waiting...')
+      return globalPendingRequest
+    }
+
+    // Create new GPS request
+    globalPendingRequest = (async () => {
+      globalGettingLocation.value = true
+      globalLocationError.value = null
+
+      try {
+        console.log('Requesting fresh GPS position...')
+        const position = await getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0, // Always get fresh position
+          ...options
+        })
+
+        // Only update if position has changed significantly
+        const hasSignificantChange = !globalUserPosition.value
+          || Math.abs(globalUserPosition.value.lat - position.lat) > 0.0001 // ~10 meters
+          || Math.abs(globalUserPosition.value.lng - position.lng) > 0.0001
+
+        if (hasSignificantChange) {
+          globalUserPosition.value = position
+          globalLastRequestTime.value = Date.now()
+          console.log('GPS position updated:', position)
+        }
+        else {
+          console.log('GPS position unchanged, skipping update')
+          globalLastRequestTime.value = Date.now() // Update timestamp even if position unchanged
+        }
+
+        return globalUserPosition.value
+      }
+      catch (error) {
+        globalLocationError.value = error.message
+        console.error('Error getting GPS position:', error)
+        throw error
+      }
+      finally {
+        globalGettingLocation.value = false
+        globalPendingRequest = null
+      }
+    })()
+
+    return globalPendingRequest
+  }
+
+  // Auto-request GPS position when service is first used
+  const initializeGPS = async () => {
+    try {
+      await getUserPosition()
+      startGPSUpdates()
+    }
+    catch (err) {
+      console.warn('Could not get initial GPS position:', err)
+      // Still start updates for future attempts
+      startGPSUpdates()
     }
   }
 
@@ -182,10 +350,12 @@ export const useLocation = () => {
       || null
   }
 
-  // Clear user position
+  // Clear user position and stop updates
   const clearUserPosition = () => {
-    userPosition.value = null
-    locationError.value = null
+    globalUserPosition.value = null
+    globalLocationError.value = null
+    globalLastRequestTime.value = null
+    stopGPSUpdates()
   }
 
   return {
@@ -193,10 +363,20 @@ export const useLocation = () => {
     userPosition,
     gettingLocation,
     locationError,
+    showGPSPrompt,
+    permissionDenied,
 
-    // Methods
+    // Core GPS methods
     getUserPosition,
-    requestGPSOnLoad,
+    initializeGPS,
+    initializeGPSWithPermissionCheck,
+    checkGeolocationPermission,
+    setManualOverride,
+    stopGPSUpdates,
+    requestGPSPermission,
+    dismissGPSPrompt,
+
+    // Location data methods
     loadMapLocations,
     loadTaskLocations,
     sortByDistance,
