@@ -1,0 +1,1660 @@
+# Entu API HTTP Request Examples
+@api_hostname=entu.app/api
+@account=esmuuseum
+
+### Entity GET sample response
+GET {{api_hostname}}/{{account}}/entity/68c7331a85a9d472cca35ce9 HTTP/1.1
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_token}}
+
+@sample_task_id=68bab85d43e4daafab199988
+@student_id=66b6245c7efc9ac06a437ba0
+### Get entity responses
+GET {{api_hostname}}/{{account}}/entity/?_type.string=vastus&_parent.reference={{sample_task_id}}&_owner.reference={{student_id}} HTTP/1.1
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_token}}
+
+
+### Sample response body for entity responses
+@sample_response_body={
+  "pipeline": [
+  ],
+  "pipelineCount": 9,
+  "entities": [
+    {
+      "_id": "68bf035e43e4daafab199ee3",
+      "_type": [
+        {
+          "_id": "68bf035e43e4daafab199ee4",
+          "string": "vastus",
+          "reference": "686917401749f351b9c82f58",
+          "property_type": "_type",
+          "entity_type": "entity"
+        }
+      ],
+      "ulesanne": [
+        {
+          "_id": "68bf035e43e4daafab199ee5",
+          "reference": "68bab85d43e4daafab199988",
+          "property_type": "ulesanne",
+          "string": "proovikas",
+          "entity_type": "ulesanne"
+        }
+      ],
+      "_reference": [
+        {
+          "_id": "68bf035e43e4daafab199ee5",
+          "reference": "68bab85d43e4daafab199988",
+          "property_type": "ulesanne",
+          "string": "proovikas",
+          "entity_type": "ulesanne"
+        },
+        {
+          "_id": "68c5bd3f85a9d472cca35b95",
+          "reference": "688260735d95233e69c2a585",
+          "property_type": "asukoht",
+          "string": "Ajutine rannapatarei (120 mm)",
+          "entity_type": "asukoht"
+        }
+      ],
+      "kirjeldus": [
+        {
+          "_id": "68bf035e43e4daafab199ee6",
+          "string": "This is a sample answer created via API"
+        }
+      ],
+      "_sharing": [
+        {
+          "_id": "68bf035f43e4daafab199eeb",
+          "string": "domain"
+        },
+        {
+          "_id": "68c5655785a9d472cca35b3a",
+          "string": "domain"
+        }
+      ],
+      "_inheritrights": [
+        {
+          "_id": "68bf035f43e4daafab199eec",
+          "boolean": true
+        },
+        {
+          "_id": "68c5655785a9d472cca35b3b",
+          "boolean": true
+        }
+      ],
+      "_owner": [
+        {
+          "_id": "68bf035f43e4daafab199eed",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        },
+        {
+          "_id": "68c027bba4e8ff73bb89e7b5",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database"
+        }
+      ],
+      "_created": [
+        {
+          "_id": "68bf035f43e4daafab199eee",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "datetime": "2025-09-08T16:25:02.865Z",
+          "property_type": "_created",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "photo": [
+        {
+          "_id": "68c54c0085a9d472cca35b1b",
+          "filename": "IMG_8238.JPG",
+          "filesize": 2371113,
+          "filetype": "application/octet-stream"
+        }
+      ],
+      "geopunkt": [
+        {
+          "_id": "68c55dae85a9d472cca35b27",
+          "string": "2,2"
+        }
+      ],
+      "_parent": [
+        {
+          "_id": "68c5655785a9d472cca35b39",
+          "reference": "68bab85d43e4daafab199988",
+          "property_type": "_parent",
+          "string": "proovikas",
+          "entity_type": "ulesanne"
+        }
+      ],
+      "asukoht": [
+        {
+          "_id": "68c5bd3f85a9d472cca35b95",
+          "reference": "688260735d95233e69c2a585",
+          "property_type": "asukoht",
+          "string": "Ajutine rannapatarei (120 mm)",
+          "entity_type": "asukoht"
+        }
+      ],
+      "_parent_viewer": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_expander": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_editor": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_owner": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_editor": [
+        {
+          "_id": "68bf035f43e4daafab199eed",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        },
+        {
+          "_id": "68c027bba4e8ff73bb89e7b5",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database"
+        }
+      ],
+      "_expander": [
+        {
+          "_id": "68bf035f43e4daafab199eed",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        },
+        {
+          "_id": "68c027bba4e8ff73bb89e7b5",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database"
+        }
+      ],
+      "_viewer": [
+        {
+          "_id": "68bf035f43e4daafab199eed",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        },
+        {
+          "_id": "68c027bba4e8ff73bb89e7b5",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database"
+        }
+      ],
+      "_thumbnail": "https://entu-files.fra1.digitaloceanspaces.com/esmuuseum/68bf035e43e4daafab199ee3/68c54c0085a9d472cca35b1b?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=DO801F6TUNWNR8FXG2MZ%2F20250914%2Ffra1%2Fs3%2Faws4_request&X-Amz-Date=20250914T214347Z&X-Amz-Expires=60&X-Amz-Signature=262a786872d90acf384aee19039fe5d6f964101f4629320e5dc1c86beb6b3cdf&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject"
+    },
+    {
+      "_id": "68c58ed085a9d472cca35b6a",
+      "_type": [
+        {
+          "_id": "68c58ed085a9d472cca35b6b",
+          "string": "vastus"
+        }
+      ],
+      "_inheritrights": [
+        {
+          "_id": "68c58ed085a9d472cca35b6c",
+          "boolean": true
+        }
+      ],
+      "_parent": [
+        {
+          "_id": "68c58ed085a9d472cca35b6d",
+          "reference": "68bab85d43e4daafab199988",
+          "property_type": "_parent",
+          "string": "proovikas",
+          "entity_type": "ulesanne"
+        }
+      ],
+      "kirjeldus": [
+        {
+          "_id": "68c58ed085a9d472cca35b6e",
+          "string": "test"
+        }
+      ],
+      "_sharing": [
+        {
+          "_id": "68c58ed085a9d472cca35b6f",
+          "string": "domain"
+        }
+      ],
+      "_owner": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c58ed085a9d472cca35b70",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_created": [
+        {
+          "_id": "68c58ed085a9d472cca35b71",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "datetime": "2025-09-13T15:33:36.167Z",
+          "property_type": "_created",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_parent_viewer": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_expander": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_editor": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_owner": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_editor": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c58ed085a9d472cca35b70",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_expander": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c58ed085a9d472cca35b70",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_viewer": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c58ed085a9d472cca35b70",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ]
+    },
+    {
+      "_id": "68c58f1e85a9d472cca35b74",
+      "_type": [
+        {
+          "_id": "68c58f1e85a9d472cca35b75",
+          "string": "vastus"
+        }
+      ],
+      "_inheritrights": [
+        {
+          "_id": "68c58f1e85a9d472cca35b76",
+          "boolean": true
+        }
+      ],
+      "_parent": [
+        {
+          "_id": "68c58f1e85a9d472cca35b77",
+          "reference": "68bab85d43e4daafab199988",
+          "property_type": "_parent",
+          "string": "proovikas",
+          "entity_type": "ulesanne"
+        }
+      ],
+      "kirjeldus": [
+        {
+          "_id": "68c58f1e85a9d472cca35b78",
+          "string": "sdfgsdfgsdfg"
+        }
+      ],
+      "_sharing": [
+        {
+          "_id": "68c58f1e85a9d472cca35b79",
+          "string": "domain"
+        }
+      ],
+      "_owner": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c58f1e85a9d472cca35b7a",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_created": [
+        {
+          "_id": "68c58f1e85a9d472cca35b7b",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "datetime": "2025-09-13T15:34:54.739Z",
+          "property_type": "_created",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_parent_viewer": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_expander": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_editor": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_owner": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_editor": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c58f1e85a9d472cca35b7a",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_expander": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c58f1e85a9d472cca35b7a",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_viewer": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c58f1e85a9d472cca35b7a",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ]
+    },
+    {
+      "_id": "68c58f9885a9d472cca35b7c",
+      "_type": [
+        {
+          "_id": "68c58f9885a9d472cca35b7d",
+          "string": "vastus"
+        }
+      ],
+      "_inheritrights": [
+        {
+          "_id": "68c58f9885a9d472cca35b7e",
+          "boolean": true
+        }
+      ],
+      "_parent": [
+        {
+          "_id": "68c58f9885a9d472cca35b7f",
+          "reference": "68bab85d43e4daafab199988",
+          "property_type": "_parent",
+          "string": "proovikas",
+          "entity_type": "ulesanne"
+        }
+      ],
+      "kirjeldus": [
+        {
+          "_id": "68c58f9885a9d472cca35b80",
+          "string": "asdasdasd"
+        }
+      ],
+      "_sharing": [
+        {
+          "_id": "68c58f9885a9d472cca35b81",
+          "string": "domain"
+        }
+      ],
+      "_owner": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c58f9885a9d472cca35b82",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_created": [
+        {
+          "_id": "68c58f9885a9d472cca35b83",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "datetime": "2025-09-13T15:36:56.372Z",
+          "property_type": "_created",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_parent_viewer": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_expander": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_editor": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_owner": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_editor": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c58f9885a9d472cca35b82",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_expander": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c58f9885a9d472cca35b82",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_viewer": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c58f9885a9d472cca35b82",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ]
+    },
+    {
+      "_id": "68c5d39485a9d472cca35c2b",
+      "_type": [
+        {
+          "_id": "68c5d39485a9d472cca35c2c",
+          "string": "vastus"
+        }
+      ],
+      "_inheritrights": [
+        {
+          "_id": "68c5d39485a9d472cca35c2d",
+          "boolean": true
+        }
+      ],
+      "_parent": [
+        {
+          "_id": "68c5d39485a9d472cca35c2e",
+          "reference": "68bab85d43e4daafab199988",
+          "property_type": "_parent",
+          "string": "proovikas",
+          "entity_type": "ulesanne"
+        }
+      ],
+      "kirjeldus": [
+        {
+          "_id": "68c5d39485a9d472cca35c2f",
+          "string": "dsftghdfgh"
+        }
+      ],
+      "_sharing": [
+        {
+          "_id": "68c5d39485a9d472cca35c30",
+          "string": "domain"
+        }
+      ],
+      "_owner": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c5d39485a9d472cca35c31",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_created": [
+        {
+          "_id": "68c5d39485a9d472cca35c32",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "datetime": "2025-09-13T20:27:00.508Z",
+          "property_type": "_created",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_parent_viewer": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_expander": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_editor": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_owner": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_editor": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c5d39485a9d472cca35c31",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_expander": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c5d39485a9d472cca35c31",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_viewer": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c5d39485a9d472cca35c31",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ]
+    },
+    {
+      "_id": "68c7222f85a9d472cca35cd7",
+      "_type": [
+        {
+          "_id": "68c7222f85a9d472cca35cd8",
+          "string": "vastus"
+        }
+      ],
+      "_inheritrights": [
+        {
+          "_id": "68c7222f85a9d472cca35cd9",
+          "boolean": true
+        }
+      ],
+      "_parent": [
+        {
+          "_id": "68c7222f85a9d472cca35cda",
+          "reference": "68bab85d43e4daafab199988",
+          "property_type": "_parent",
+          "string": "proovikas",
+          "entity_type": "ulesanne"
+        }
+      ],
+      "kirjeldus": [
+        {
+          "_id": "68c7222f85a9d472cca35cdb",
+          "string": "huvitav"
+        }
+      ],
+      "_sharing": [
+        {
+          "_id": "68c7222f85a9d472cca35cdc",
+          "string": "domain"
+        }
+      ],
+      "_owner": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c7222f85a9d472cca35cdd",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_created": [
+        {
+          "_id": "68c7222f85a9d472cca35cde",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "datetime": "2025-09-14T20:14:39.694Z",
+          "property_type": "_created",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_parent_viewer": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_expander": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_editor": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_owner": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_editor": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c7222f85a9d472cca35cdd",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_expander": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c7222f85a9d472cca35cdd",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_viewer": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c7222f85a9d472cca35cdd",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ]
+    },
+    {
+      "_id": "68c7225a85a9d472cca35cdf",
+      "_type": [
+        {
+          "_id": "68c7225a85a9d472cca35ce0",
+          "string": "vastus"
+        }
+      ],
+      "_inheritrights": [
+        {
+          "_id": "68c7225a85a9d472cca35ce1",
+          "boolean": true
+        }
+      ],
+      "_parent": [
+        {
+          "_id": "68c7225a85a9d472cca35ce2",
+          "reference": "68bab85d43e4daafab199988",
+          "property_type": "_parent",
+          "string": "proovikas",
+          "entity_type": "ulesanne"
+        }
+      ],
+      "kirjeldus": [
+        {
+          "_id": "68c7225a85a9d472cca35ce3",
+          "string": "fafafaaa"
+        }
+      ],
+      "_sharing": [
+        {
+          "_id": "68c7225a85a9d472cca35ce4",
+          "string": "domain"
+        }
+      ],
+      "_owner": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c7225a85a9d472cca35ce5",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_created": [
+        {
+          "_id": "68c7225a85a9d472cca35ce6",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "datetime": "2025-09-14T20:15:22.484Z",
+          "property_type": "_created",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_parent_viewer": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_expander": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_editor": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_owner": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_editor": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c7225a85a9d472cca35ce5",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_expander": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c7225a85a9d472cca35ce5",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ],
+      "_viewer": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        },
+        {
+          "_id": "68c7225a85a9d472cca35ce5",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person"
+        }
+      ]
+    },
+    {
+      "_id": "68c7331a85a9d472cca35ce7",
+      "geopunkt": [
+        {
+          "_id": "68c7331a85a9d472cca35ce8",
+          "string": "25.123,64.456"
+        }
+      ],
+      "_parent": [
+        {
+          "_id": "68c7331a85a9d472cca35ceb",
+          "reference": "68bab85d43e4daafab199988",
+          "property_type": "_parent",
+          "string": "proovikas",
+          "entity_type": "ulesanne"
+        },
+        {
+          "_id": "68c7331b85a9d472cca35cf4",
+          "reference": "686917231749f351b9c82f4c",
+          "property_type": "_parent",
+          "string": "ulesanne",
+          "entity_type": "entity"
+        }
+      ],
+      "_type": [
+        {
+          "_id": "68c7331a85a9d472cca35cec",
+          "reference": "686917401749f351b9c82f58",
+          "property_type": "_type",
+          "string": "vastus",
+          "entity_type": "entity"
+        }
+      ],
+      "_sharing": [
+        {
+          "_id": "68c7331a85a9d472cca35cef",
+          "string": "domain"
+        }
+      ],
+      "_inheritrights": [
+        {
+          "_id": "68c7331a85a9d472cca35cf2",
+          "boolean": true
+        }
+      ],
+      "_owner": [
+        {
+          "_id": "686917231749f351b9c82f56",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68c7331b85a9d472cca35cf6",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database"
+        }
+      ],
+      "_created": [
+        {
+          "_id": "68c7331b85a9d472cca35cf8",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "datetime": "2025-09-14T21:26:48.901Z",
+          "property_type": "_created",
+          "string": "esmuuseum",
+          "entity_type": "database"
+        }
+      ],
+      "_parent_viewer": [
+        {
+          "_id": "686917231749f351b9c82f56",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_expander": [
+        {
+          "_id": "686917231749f351b9c82f56",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_editor": [
+        {
+          "_id": "686917231749f351b9c82f56",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_owner": [
+        {
+          "_id": "686917231749f351b9c82f56",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_editor": [
+        {
+          "_id": "686917231749f351b9c82f56",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68c7331b85a9d472cca35cf6",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database"
+        }
+      ],
+      "_expander": [
+        {
+          "_id": "686917231749f351b9c82f56",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68c7331b85a9d472cca35cf6",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database"
+        }
+      ],
+      "_viewer": [
+        {
+          "_id": "686917231749f351b9c82f56",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_owner",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68c7331b85a9d472cca35cf6",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database"
+        }
+      ]
+    },
+    {
+      "_id": "68c7331a85a9d472cca35ce9",
+      "asukoht": [
+        {
+          "_id": "68c7331a85a9d472cca35cea",
+          "reference": "688260755d95233e69c2a5e3",
+          "property_type": "asukoht",
+          "string": "AEGNA RAUDTEE",
+          "entity_type": "asukoht"
+        }
+      ],
+      "_reference": [
+        {
+          "_id": "68c7331a85a9d472cca35cea",
+          "reference": "688260755d95233e69c2a5e3",
+          "property_type": "asukoht",
+          "string": "AEGNA RAUDTEE",
+          "entity_type": "asukoht"
+        }
+      ],
+      "_parent": [
+        {
+          "_id": "68c7331a85a9d472cca35ced",
+          "reference": "68bab85d43e4daafab199988",
+          "property_type": "_parent",
+          "string": "proovikas",
+          "entity_type": "ulesanne"
+        }
+      ],
+      "_type": [
+        {
+          "_id": "68c7331a85a9d472cca35cee",
+          "reference": "686917401749f351b9c82f58",
+          "property_type": "_type",
+          "string": "vastus",
+          "entity_type": "entity"
+        }
+      ],
+      "_sharing": [
+        {
+          "_id": "68c7331a85a9d472cca35cf0",
+          "string": "domain"
+        }
+      ],
+      "_inheritrights": [
+        {
+          "_id": "68c7331a85a9d472cca35cf1",
+          "boolean": true
+        }
+      ],
+      "_owner": [
+        {
+          "_id": "68c7331b85a9d472cca35cf5",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database"
+        }
+      ],
+      "_created": [
+        {
+          "_id": "68c7331b85a9d472cca35cf7",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "datetime": "2025-09-14T21:26:50.438Z",
+          "property_type": "_created",
+          "string": "esmuuseum",
+          "entity_type": "database"
+        }
+      ],
+      "kirjeldus": [
+        {
+          "_id": "68c7332985a9d472cca35cf9",
+          "string": "näidis kirjeldus"
+        }
+      ],
+      "photo": [
+        {
+          "_id": "68c7334385a9d472cca35cfa",
+          "filename": "Kevin_Kohjus_265_10062025.jpg",
+          "filesize": 5578478,
+          "filetype": "image/jpeg"
+        }
+      ],
+      "geopunkt": [
+        {
+          "_id": "68c7335885a9d472cca35cfb",
+          "string": "24.45,64.56"
+        }
+      ],
+      "_parent_viewer": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_expander": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_editor": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_parent_owner": [
+        {
+          "_id": "68bab85d43e4daafab19998c",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database",
+          "inherited": true
+        }
+      ],
+      "_editor": [
+        {
+          "_id": "68c7331b85a9d472cca35cf5",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database"
+        }
+      ],
+      "_expander": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68c7331b85a9d472cca35cf5",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database"
+        }
+      ],
+      "_viewer": [
+        {
+          "_id": "68c570b385a9d472cca35b5d",
+          "reference": "66b6245c7efc9ac06a437b97",
+          "property_type": "_expander",
+          "string": "Mihkel Putrinš",
+          "entity_type": "person",
+          "inherited": true
+        },
+        {
+          "_id": "68c7331b85a9d472cca35cf5",
+          "reference": "66b6245c7efc9ac06a437ba0",
+          "property_type": "_owner",
+          "string": "esmuuseum",
+          "entity_type": "database"
+        }
+      ],
+      "_thumbnail": "https://entu-files.fra1.digitaloceanspaces.com/esmuuseum/68c7331a85a9d472cca35ce9/68c7334385a9d472cca35cfa?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=DO801F6TUNWNR8FXG2MZ%2F20250914%2Ffra1%2Fs3%2Faws4_request&X-Amz-Date=20250914T214347Z&X-Amz-Expires=60&X-Amz-Signature=481ec197326a632d102c11e6c2da16e41e390809d84869b99a0a095eeeac652b&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject"
+    }
+  ],
+  "count": 9,
+  "limit": 100,
+  "skip": 0
+}
