@@ -27,7 +27,6 @@
         <!-- LocationPicker Component -->
         <LocationPicker
           :locations="taskLocations"
-          :user-position="userPosition"
           :selected="selectedLocation"
           :loading="loadingTaskLocations"
           :error="geolocationError"
@@ -86,10 +85,6 @@ const props = defineProps({
   taskLocations: {
     type: Array,
     default: () => []
-  },
-  userPosition: {
-    type: Object,
-    default: null
   },
   selectedLocation: {
     type: Object,

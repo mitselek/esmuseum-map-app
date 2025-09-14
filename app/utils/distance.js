@@ -71,6 +71,50 @@ export function formatDistance (distance) {
   }
 }
 
+// Cache for location coordinates to avoid re-parsing
+const coordinateCache = new WeakMap()
+
+/**
+ * Get coordinates for a location with caching
+ * @param {object} location - Location object
+ * @param {string} coordinateField - Field name containing coordinates
+ * @returns {object|null} Coordinates object or null
+ */
+function getLocationCoordinates (location, coordinateField = 'geopunkt') {
+  // Check cache first
+  if (coordinateCache.has(location)) {
+    return coordinateCache.get(location)
+  }
+
+  let coordinates = null
+
+  // Try to extract coordinates from geopunkt field (string format)
+  const coordString = location.properties?.[coordinateField]?.[0]?.value
+    || location.properties?.[coordinateField]
+    || location[coordinateField]
+
+  if (coordString) {
+    coordinates = parseCoordinates(coordString)
+  }
+
+  // If no geopunkt, try to extract from separate lat/long fields
+  if (!coordinates) {
+    const lat = location.lat?.[0]?.number || location.properties?.lat?.[0]?.value || location.properties?.lat?.[0]?.number
+    const lng = location.long?.[0]?.number || location.properties?.long?.[0]?.value || location.properties?.long?.[0]?.number
+
+    if (lat != null && lng != null) {
+      coordinates = {
+        lat: parseFloat(lat),
+        lng: parseFloat(lng)
+      }
+    }
+  }
+
+  // Cache the result
+  coordinateCache.set(location, coordinates)
+  return coordinates
+}
+
 /**
  * Sort locations by distance from a reference point
  * @param {Array} locations - Array of location objects with coordinates
@@ -83,56 +127,34 @@ export function sortLocationsByDistance (locations, userPosition, coordinateFiel
     return locations
   }
 
-  return locations
-    .map((location) => {
-      let coordinates = null
+  // Create array of [location, distance] pairs for sorting
+  const locationsWithDistance = locations.map((location) => {
+    const coordinates = getLocationCoordinates(location, coordinateField)
 
-      // Try to extract coordinates from geopunkt field (string format)
-      const coordString = location.properties?.[coordinateField]?.[0]?.value
-        || location.properties?.[coordinateField]
-        || location[coordinateField]
+    if (!coordinates) {
+      return [location, Infinity, 'Asukoht teadmata', null]
+    }
 
-      if (coordString) {
-        coordinates = parseCoordinates(coordString)
-      }
+    const distance = calculateDistance(
+      userPosition.lat,
+      userPosition.lng,
+      coordinates.lat,
+      coordinates.lng
+    )
 
-      // If no geopunkt, try to extract from separate lat/long fields
-      if (!coordinates) {
-        const lat = location.lat?.[0]?.number || location.properties?.lat?.[0]?.value || location.properties?.lat?.[0]?.number
-        const lng = location.long?.[0]?.number || location.properties?.long?.[0]?.value || location.properties?.long?.[0]?.number
+    return [location, distance, formatDistance(distance), coordinates]
+  })
 
-        if (lat != null && lng != null) {
-          coordinates = {
-            lat: parseFloat(lat),
-            lng: parseFloat(lng)
-          }
-        }
-      }
+  // Sort by distance
+  locationsWithDistance.sort((a, b) => a[1] - b[1])
 
-      if (!coordinates) {
-        return {
-          ...location,
-          distance: Infinity,
-          distanceText: 'Asukoht teadmata',
-          coordinates: null
-        }
-      }
-
-      const distance = calculateDistance(
-        userPosition.lat,
-        userPosition.lng,
-        coordinates.lat,
-        coordinates.lng
-      )
-
-      return {
-        ...location,
-        distance,
-        distanceText: formatDistance(distance),
-        coordinates
-      }
-    })
-    .sort((a, b) => a.distance - b.distance)
+  // Return new objects with distance properties
+  return locationsWithDistance.map(([location, distance, distanceText, coordinates]) => ({
+    ...location,
+    distance,
+    distanceText,
+    coordinates
+  }))
 }
 
 /**

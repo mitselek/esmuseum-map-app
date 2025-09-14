@@ -67,19 +67,17 @@
         <h4 class="text-sm font-medium text-gray-700">
           {{ t('taskDetail.selectLocation', { count: sortedLocations.length }) }}
         </h4>
-        <button
-          v-if="!userPosition && !gettingLocation"
-          type="button"
-          class="text-xs text-blue-600 hover:text-blue-800"
-          @click="requestLocation"
-        >
-          {{ t('taskDetail.useGPS') }}
-        </button>
         <span
-          v-else-if="gettingLocation"
+          v-if="gettingLocation"
           class="text-xs text-gray-500"
         >
           {{ t('taskDetail.searchingLocationGPS') }}
+        </span>
+        <span
+          v-else-if="userPosition"
+          class="text-xs text-green-600"
+        >
+          📍 GPS sorted
         </span>
       </div>
 
@@ -147,18 +145,15 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 
 const { t } = useI18n()
+const { userPosition, gettingLocation, sortByDistance } = useLocation()
 
 const props = defineProps({
   locations: {
     type: Array,
     default: () => []
-  },
-  userPosition: {
-    type: Object,
-    default: null
   },
   selected: {
     type: Object,
@@ -174,18 +169,54 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['select', 'requestLocation', 'retry'])
+const emit = defineEmits(['select', 'retry'])
 
 // Local state
 const searchQuery = ref('')
-const gettingLocation = ref(false)
+
+// Cache for sorted locations to prevent unnecessary re-renders
+const sortedLocationsCache = ref([])
+const lastUserPosition = ref(null)
+const lastLocationsArray = ref(null)
+
+// Helper to check if position has changed significantly
+const hasPositionChangedSignificantly = (oldPos, newPos) => {
+  if (!oldPos || !newPos) return true
+  const threshold = 0.001 // ~100 meters
+  return Math.abs(oldPos.lat - newPos.lat) > threshold
+    || Math.abs(oldPos.lng - newPos.lng) > threshold
+}
+
+// Watch for changes and update cache
+watch([() => props.locations, userPosition], ([newLocations, newPosition]) => {
+  const locations = newLocations || []
+
+  // Check if we need to update
+  const needsUpdate = !lastLocationsArray.value
+    || lastLocationsArray.value !== locations
+    || !lastUserPosition.value
+    || !newPosition
+    || hasPositionChangedSignificantly(lastUserPosition.value, newPosition)
+
+  if (needsUpdate) {
+    let sortedLocs = [...locations]
+
+    // If we have user position, sort by distance
+    if (newPosition && locations.length > 0) {
+      sortedLocs = sortByDistance(locations, newPosition)
+    }
+
+    // Update cache
+    sortedLocationsCache.value = sortedLocs
+    lastUserPosition.value = newPosition ? { ...newPosition } : null
+    lastLocationsArray.value = locations
+  }
+}, { immediate: true })
 
 // Computed
 const selectedLocation = computed(() => props.selected)
 
-const sortedLocations = computed(() => {
-  return props.locations || []
-})
+const sortedLocations = computed(() => sortedLocationsCache.value)
 
 const filteredLocations = computed(() => {
   if (!searchQuery.value) {
@@ -209,16 +240,6 @@ const clearSelection = () => {
   emit('select', null)
 }
 
-const requestLocation = async () => {
-  gettingLocation.value = true
-  try {
-    await emit('requestLocation')
-  }
-  finally {
-    gettingLocation.value = false
-  }
-}
-
 const getLocationName = (location) => {
   return (
     location.name?.[0]?.string
@@ -237,4 +258,11 @@ const getLocationDescription = (location) => {
     || null
   )
 }
+
+// Auto-request GPS on component mount for automatic location sorting
+onMounted(() => {
+  // GPS is automatically requested by the centralized useLocation service
+  // No need for manual request - locations will auto-sort when GPS becomes available
+  console.log('LocationPicker mounted - GPS auto-sort enabled')
+})
 </script>
