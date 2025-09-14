@@ -201,7 +201,8 @@ const clearManualLocation = () => {
     const gpsPos = props.userPosition
     const coordString = `${gpsPos.lat.toFixed(6)},${gpsPos.lng.toFixed(6)}`
     emit('location-change', coordString)
-  } else {
+  }
+  else {
     emit('location-change', null)
   }
 }
@@ -216,7 +217,8 @@ const startManualEntry = () => {
   // Prefill with current effective position if available
   if (effectiveUserPosition.value?.lat && effectiveUserPosition.value?.lng) {
     manualCoordinates.value = `${effectiveUserPosition.value.lat.toFixed(6)},${effectiveUserPosition.value.lng.toFixed(6)}`
-  } else {
+  }
+  else {
     // No location available, start with empty
     manualCoordinates.value = ''
   }
