@@ -142,6 +142,7 @@ export const useTaskDetail = () => {
       // Debug: Log the task structure to understand the data format
       console.log('Loading locations for task:', task)
       console.log('Task keys:', Object.keys(task))
+      console.log('Task kaart field:', task.kaart)
 
       // Extract map ID from task - use reference field for actual map entity
       // 'kaart' is Estonian for 'map' and is typically an array in Entu
@@ -150,18 +151,20 @@ export const useTaskDetail = () => {
         || task.map?.[0]?.reference || task.map?.[0]?._id || task.map?.[0]?.id
         || task.map?._id || task.map?.id || task.mapId || task.map
 
+      console.log('Extracted mapId:', mapId)
+
       if (!mapId) {
+        console.warn('No map ID found for task')
         return []
       }
 
       const locations = await loadMapLocations(mapId)
+      console.log('Loaded locations:', locations)
 
-      // Sort by distance if we have user position
-      if (userPosition) {
-        return sortByDistance(locations, userPosition)
-      }
-
-      return locations
+      // Always process locations to extract coordinates, sort by distance if we have user position
+      const processedLocations = sortByDistance(locations, userPosition)
+      console.log('Processed locations:', processedLocations)
+      return processedLocations
     }
     catch (error) {
       console.error('Error loading task locations:', error)

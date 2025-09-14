@@ -97,6 +97,10 @@ export default defineI18nConfig(() => ({
         manualLocationActive: "Käsitsi määratud asukoht aktiivne",
         remove: "Eemalda",
       },
+      map: {
+        loading: "Kaardi laadimine...",
+        yourLocation: "Sinu asukoht",
+      },
     },
     en: {
       // Authentication
@@ -196,6 +200,10 @@ export default defineI18nConfig(() => ({
         manualLocationActive: "Manual location override active",
         remove: "Remove",
       },
+      map: {
+        loading: "Loading map...",
+        yourLocation: "Your location",
+      },
     },
     uk: {
       // Authentication
@@ -291,6 +299,10 @@ export default defineI18nConfig(() => ({
         clearOverride: "Очистити перевизначення",
         manualLocationActive: "Ручне перевизначення місцезнаходження активне",
         remove: "Видалити",
+      },
+      map: {
+        loading: "Завантаження карти...",
+        yourLocation: "Ваше місцезнаходження",
       },
     },
   },
