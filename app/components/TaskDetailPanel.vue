@@ -25,16 +25,12 @@
           <!-- Map Card (if task has location data) -->
           <TaskMapCard v-if="hasMapData" />
 
-          <!-- User Location Override -->
-          <div
+          <!-- Location Manager -->
+          <TaskLocationManager
             v-if="needsLocation"
-            class="mb-4"
-          >
-            <TaskLocationOverride
-              :manual-coordinates="manualCoordinates"
-              @location-change="handleLocationOverride"
-            />
-          </div>
+            :has-map-data="hasMapData"
+            @location-change="handleLocationOverride"
+          />
 
           <!-- Response Form -->
           <TaskResponseForm
@@ -80,7 +76,6 @@ const {
 const {
   geolocationError,
   showManualCoordinates,
-  manualCoordinates,
   getCurrentLocation,
   onRequestLocation,
   handleLocationChange,
