@@ -48,9 +48,21 @@ export default defineEventHandler(async (event) => {
       }
 
       // Prepare response data for Entu
-      const responseData = {
+      const responseData: any = {
         _parent: validatedData.taskId,
         kirjeldus: validatedData.responses[0]?.value || ''
+      }
+
+      // Add location reference if provided
+      const locationId = validatedData.responses[0]?.metadata?.locationId
+      if (locationId) {
+        responseData.asukoht = locationId
+      }
+
+      // Add coordinates if provided
+      const coordinates = validatedData.responses[0]?.metadata?.coordinates
+      if (coordinates && coordinates.lat && coordinates.lng) {
+        responseData.geopunkt = `${coordinates.lat},${coordinates.lng}`
       }
 
       // Create the response in Entu
