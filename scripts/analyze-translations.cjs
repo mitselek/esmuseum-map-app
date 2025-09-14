@@ -12,7 +12,6 @@
 
 const fs = require('fs')
 const path = require('path')
-const { execSync } = require('child_process')
 
 // Configuration
 const CONFIG = {
@@ -42,27 +41,11 @@ function extractDefinedKeys () {
   const configContent = fs.readFileSync(configPath, 'utf8')
   const keys = new Set()
 
-  // Function to recursively extract keys from an object
-  function extractKeysFromObject (obj, prefix = '') {
-    for (const [key, value] of Object.entries(obj)) {
-      const fullKey = prefix ? `${prefix}.${key}` : key
-
-      if (typeof value === 'string') {
-        keys.add(fullKey)
-      }
-      else if (typeof value === 'object' && value !== null) {
-        extractKeysFromObject(value, fullKey)
-      }
-    }
-  }
-
   // Extract locale objects (en, et, uk) and get their structure
   const localePattern = /^\s*(en|et|uk):\s*{/gm
   let match
 
   while ((match = localePattern.exec(configContent)) !== null) {
-    const locale = match[1]
-
     // Find the content of this locale section
     let braceCount = 1
     let startIndex = match.index + match[0].length
@@ -77,18 +60,47 @@ function extractDefinedKeys () {
     if (braceCount === 0) {
       const sectionContent = configContent.substring(startIndex, endIndex)
 
-      try {
-        // Parse the locale object and extract keys (without locale prefix)
-        const objectContent = `{${sectionContent}}`
-        const localeObj = eval(`(${objectContent})`)
-        extractKeysFromObject(localeObj)
+      // Parse nested object structure manually
+      function parseNestedKeys (content, prefix = '') {
+        const lines = content.split('\n')
+        const stack = [prefix]
 
-        // Only process one locale to avoid duplicates
-        break
+        for (const line of lines) {
+          const trimmed = line.trim()
+
+          // Skip empty lines and comments
+          if (!trimmed || trimmed.startsWith('//')) continue
+
+          // Handle object start: key: {
+          const objectStartMatch = trimmed.match(/^(\w+):\s*\{/)
+          if (objectStartMatch) {
+            const key = objectStartMatch[1]
+            const newPrefix = stack[stack.length - 1] ? `${stack[stack.length - 1]}.${key}` : key
+            stack.push(newPrefix)
+            continue
+          }
+
+          // Handle object end: }
+          if (trimmed === '}' || trimmed === '},') {
+            stack.pop()
+            continue
+          }
+
+          // Handle string properties: key: 'value'
+          const stringMatch = trimmed.match(/^(\w+):\s*['"`]/)
+          if (stringMatch) {
+            const key = stringMatch[1]
+            const currentPrefix = stack[stack.length - 1]
+            const fullKey = currentPrefix ? `${currentPrefix}.${key}` : key
+            keys.add(fullKey)
+          }
+        }
       }
-      catch (e) {
-        console.warn(`Warning: Could not parse ${locale} locale object: ${e.message}`)
-      }
+
+      parseNestedKeys(sectionContent)
+
+      // Only process one locale to avoid duplicates
+      break
     }
   }
 
@@ -103,6 +115,11 @@ function extractUsedKeys () {
   console.log('🔍 Scanning codebase for used translation keys...')
 
   const keys = new Set()
+
+  // Pre-compile regex patterns for better performance
+  const compiledPatterns = CONFIG.translationPatterns.map((pattern) =>
+    new RegExp(pattern.source, pattern.flags)
+  )
 
   // Function to scan a directory recursively
   function scanDirectory (dir) {
@@ -145,9 +162,8 @@ function extractUsedKeys () {
     try {
       const content = fs.readFileSync(filePath, 'utf8')
 
-      CONFIG.translationPatterns.forEach((pattern) => {
+      compiledPatterns.forEach((regex) => {
         let match
-        const regex = new RegExp(pattern.source, pattern.flags)
         while ((match = regex.exec(content)) !== null) {
           keys.add(match[1])
         }
@@ -169,11 +185,21 @@ function generateReport (definedKeys, usedKeys) {
   console.log('\n📊 TRANSLATION ANALYSIS REPORT\n')
   console.log('='.repeat(50))
 
-  // Find unused keys
-  const unusedKeys = new Set([...definedKeys].filter((key) => !usedKeys.has(key)))
+  // Find unused keys (efficient Set operations)
+  const unusedKeys = new Set()
+  for (const key of definedKeys) {
+    if (!usedKeys.has(key)) {
+      unusedKeys.add(key)
+    }
+  }
 
   // Find missing keys (used but not defined)
-  const missingKeys = new Set([...usedKeys].filter((key) => !definedKeys.has(key)))
+  const missingKeys = new Set()
+  for (const key of usedKeys) {
+    if (!definedKeys.has(key)) {
+      missingKeys.add(key)
+    }
+  }
 
   console.log(`📖 Total defined keys: ${definedKeys.size}`)
   console.log(`🔍 Total used keys: ${usedKeys.size}`)
@@ -218,23 +244,43 @@ function cleanupUnusedKeys (unusedKeys) {
   fs.writeFileSync(backupPath, configContent)
   console.log(`💾 Created backup: ${backupPath}`)
 
-  // Remove unused keys from each locale section
-  const locales = ['en', 'et', 'uk']
+  // Remove unused keys (enhanced to handle nested keys)
+  const simpleKeys = []
+  const nestedKeys = []
 
-  locales.forEach((locale) => {
-    unusedKeys.forEach((keyToRemove) => {
-      // Remove simple keys: keyName: 'value',
-      const simpleKeyPattern = new RegExp(`^\\s*${keyToRemove}:\\s*['"\`][^'"\`]*['"\`],?\\s*$`, 'gm')
-      configContent = configContent.replace(simpleKeyPattern, '')
-
-      // For nested keys, we need more complex logic
-      if (keyToRemove.includes('.')) {
-        const keyParts = keyToRemove.split('.')
-        // This is a simplified approach - in practice, you'd want more sophisticated nested key removal
-        console.log(`⚠️  Manual review needed for nested key: ${keyToRemove}`)
-      }
-    })
+  // Separate simple and nested keys for different handling
+  unusedKeys.forEach((keyToRemove) => {
+    if (keyToRemove.includes('.')) {
+      nestedKeys.push(keyToRemove)
+    }
+    else {
+      simpleKeys.push(keyToRemove)
+    }
   })
+
+  // Remove simple keys with batch regex
+  if (simpleKeys.length > 0) {
+    const escapedKeys = simpleKeys.map((key) => key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    const batchPattern = new RegExp(`^\\s*(${escapedKeys.join('|')}):\\s*['"\`][^'"\`]*['"\`],?\\s*$`, 'gm')
+    configContent = configContent.replace(batchPattern, '')
+  }
+
+  // Remove nested keys properly
+  if (nestedKeys.length > 0) {
+    console.log(`🔧 Removing ${nestedKeys.length} nested keys...`)
+
+    nestedKeys.forEach((keyToRemove) => {
+      const keyParts = keyToRemove.split('.')
+      const leafKey = keyParts[keyParts.length - 1]
+
+      // Create regex to match the leaf key and its value within the nested structure
+      const escapedLeafKey = leafKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      const nestedKeyPattern = new RegExp(`^\\s*${escapedLeafKey}:\\s*['"\`][^'"\`]*['"\`],?\\s*$`, 'gm')
+
+      configContent = configContent.replace(nestedKeyPattern, '')
+      console.log(`   ✓ Removed: ${keyToRemove}`)
+    })
+  }
 
   // Clean up empty lines
   configContent = configContent.replace(/\n\s*\n\s*\n/g, '\n\n')
