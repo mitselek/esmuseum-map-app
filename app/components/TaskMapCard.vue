@@ -1,14 +1,34 @@
 <template>
   <div class="rounded-lg border bg-white p-6 shadow-sm">
-    <h3 class="mb-4 text-lg font-medium text-gray-900">
-      {{ $t('taskDetail.map') }}
-    </h3>
+    <!-- Progress indicator -->
+    <div class="mb-4 flex items-center justify-between">
+      <h3 class="text-lg font-medium text-gray-900">
+        {{ $t('taskDetail.map') }}
+      </h3>
+      <div
+        v-if="scoringData.totalExpected > 0"
+        class="flex items-center space-x-2"
+      >
+        <div class="text-sm text-gray-600">
+          Progress:
+        </div>
+        <div class="flex items-center space-x-1">
+          <span class="font-semibold text-green-600">{{ scoringData.uniqueLocationsCount }}</span>
+          <span class="text-gray-400">/</span>
+          <span class="font-semibold text-gray-800">{{ scoringData.totalExpected }}</span>
+        </div>
+        <div class="text-xs text-gray-500">
+          ({{ scoringData.progressPercent }}%)
+        </div>
+      </div>
+    </div>
 
     <!-- Interactive Map -->
     <InteractiveMap
       :locations="taskLocations"
       :user-position="effectiveUserPosition"
       :completed-tasks="completedTasks"
+      :visited-locations="scoringData.visitedLocations.value"
       :loading="loadingLocations"
       :max-locations="5"
       @location-click="onLocationClick"
@@ -107,6 +127,13 @@
 <script setup>
 const props = defineProps({
   /**
+   * Task data for scoring
+   */
+  task: {
+    type: Object,
+    default: null
+  },
+  /**
    * Array of task locations to display
    */
   taskLocations: {
@@ -142,6 +169,9 @@ const emit = defineEmits(['location-click', 'map-ready', 'location-change'])
 const {
   setManualOverride
 } = useLocation()
+
+// Task scoring composable
+const scoringData = useTaskScoring(computed(() => props.task))
 
 // Local state for manual override functionality
 const showManualCoordinates = ref(false)

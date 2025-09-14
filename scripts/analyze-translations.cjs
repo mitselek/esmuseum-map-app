@@ -16,12 +16,14 @@ const path = require('path')
 // Configuration
 const CONFIG = {
   i18nConfigPath: '.config/i18n.config.ts',
-  sourceDirectories: ['app/', 'pages/', 'components/', 'composables/', 'layouts/', 'middleware/', 'plugins/'],
+  sourceDirectories: ['app/', 'server/'],
   fileExtensions: ['.vue', '.js', '.ts', '.jsx', '.tsx'],
   excludePatterns: ['node_modules/', '.git/', '.nuxt/', 'dist/', 'build/'],
   translationPatterns: [
     /\$t\(['"`]([^'"`]+)['"`]\)/g,
+    /\$t\(['"`]([^'"`]+)['"`]\s*,/g, // Added: multiline with comma
     /\bt\(['"`]([^'"`]+)['"`]\)/g,
+    /\bt\(['"`]([^'"`]+)['"`]\s*,/g, // Added: multiline with comma
     /i18n\.t\(['"`]([^'"`]+)['"`]\)/g,
     /useI18n\(\)\.t\(['"`]([^'"`]+)['"`]\)/g
   ]

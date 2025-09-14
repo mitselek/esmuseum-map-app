@@ -101,7 +101,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['locationSelect', 'requestLocation', 'loadTaskLocations'])
+const emit = defineEmits(['locationSelect', 'requestLocation', 'loadTaskLocations', 'response-submitted'])
 
 // Form state
 const responseForm = ref({
@@ -158,13 +158,20 @@ const submitResponse = async () => {
     }
 
     // Call the API endpoint
-    await $fetch('/api/responses', {
+    const response = await $fetch('/api/responses', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token.value}`,
         'Content-Type': 'application/json'
       },
       body: requestData
+    })
+
+    // Emit response submitted event for optimistic updates
+    emit('response-submitted', {
+      responseData: requestData,
+      apiResponse: response,
+      locationReference: props.selectedLocation?.reference
     })
 
     // Reset form after successful submission

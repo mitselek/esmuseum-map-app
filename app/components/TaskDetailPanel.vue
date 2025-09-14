@@ -25,6 +25,8 @@
           <!-- Map Card (if task has location data) -->
           <TaskMapCard
             v-if="hasMapData"
+            ref="taskMapCardRef"
+            :task="selectedTask"
             :task-locations="taskLocations"
             :user-position="userPosition"
             :completed-tasks="completedTaskIds"
@@ -48,6 +50,7 @@
             @location-select="onLocationSelect"
             @request-location="handleLocationRequest"
             @load-task-locations="loadTaskLocations"
+            @response-submitted="handleResponseSubmitted"
           />
         </div>
       </div>
@@ -91,6 +94,7 @@ const taskResponseStats = ref(null)
 
 // Response form reference
 const responseFormRef = ref(null)
+const taskMapCardRef = ref(null)
 
 // Form permissions state
 const checkingPermissions = ref(false)
@@ -125,7 +129,6 @@ const loadTaskLocations = async () => {
     loadingTaskLocations.value = true
     // Don't pass userPosition here - let LocationPicker handle GPS-based sorting
     const locations = await loadLocations(selectedTask.value)
-    console.log('TaskDetailPanel - Loaded task locations:', locations)
     taskLocations.value = locations
   }
   catch (err) {
@@ -161,6 +164,17 @@ const handleLocationRequest = async () => {
 // Handle location change from override
 const handleLocationOverride = (coordinates) => {
   handleLocationChange(coordinates, taskLocations)
+}
+
+// Handle response submission for optimistic scoring updates
+const handleResponseSubmitted = (responseData) => {
+  // Update scoring optimistically
+  if (taskMapCardRef.value?.scoringData && selectedLocation.value?.reference) {
+    taskMapCardRef.value.scoringData.addResponseOptimistically(
+      selectedLocation.value.reference,
+      responseData
+    )
+  }
 }
 
 // Check if task needs location
