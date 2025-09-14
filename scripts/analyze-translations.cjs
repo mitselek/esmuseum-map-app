@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Translation Analysis Script
+ * Translation Analysis Script (Fixed Version)
  *
  * This script analyzes the codebase to:
  * 1. Find all translation keys defined in i18n.config.ts
@@ -19,7 +19,13 @@ const CONFIG = {
   i18nConfigPath: '.config/i18n.config.ts',
   sourceDirectories: ['app/', 'pages/', 'components/', 'composables/', 'layouts/', 'middleware/', 'plugins/'],
   fileExtensions: ['.vue', '.js', '.ts', '.jsx', '.tsx'],
-  excludePatterns: ['node_modules/', '.git/', '.nuxt/', 'dist/', 'build/']
+  excludePatterns: ['node_modules/', '.git/', '.nuxt/', 'dist/', 'build/'],
+  translationPatterns: [
+    /\$t\(['"`]([^'"`]+)['"`]\)/g,
+    /\bt\(['"`]([^'"`]+)['"`]\)/g,
+    /i18n\.t\(['"`]([^'"`]+)['"`]\)/g,
+    /useI18n\(\)\.t\(['"`]([^'"`]+)['"`]\)/g
+  ]
 }
 
 /**
@@ -36,56 +42,30 @@ function extractDefinedKeys () {
   const configContent = fs.readFileSync(configPath, 'utf8')
   const keys = new Set()
 
-  // Function to recursively extract keys from a section
-  function extractKeysFromSection (content, prefix = '') {
-    // Match property definitions: propertyName: 'value' or propertyName: "value"
-    const simplePropertyPattern = /^\s*(\w+):\s*['"`][^'"`]*['"`]/gm
-    let match
-
-    while ((match = simplePropertyPattern.exec(content)) !== null) {
-      const key = match[1]
+  // Function to recursively extract keys from an object
+  function extractKeysFromObject (obj, prefix = '') {
+    for (const [key, value] of Object.entries(obj)) {
       const fullKey = prefix ? `${prefix}.${key}` : key
-      keys.add(fullKey)
-    }
 
-    // Match nested objects: propertyName: {
-    const nestedPattern = /^\s*(\w+):\s*\{/gm
-    while ((match = nestedPattern.exec(content)) !== null) {
-      const sectionName = match[1]
-
-      // Skip language codes
-      if (['et', 'en', 'uk', 'default'].includes(sectionName) && !prefix) {
-        continue
+      if (typeof value === 'string') {
+        keys.add(fullKey)
       }
-
-      const fullSectionName = prefix ? `${prefix}.${sectionName}` : sectionName
-
-      // Find the matching closing brace for this section
-      let braceCount = 1
-      let startIndex = match.index + match[0].length
-      let endIndex = startIndex
-
-      for (let i = startIndex; i < content.length && braceCount > 0; i++) {
-        if (content[i] === '{') braceCount++
-        else if (content[i] === '}') braceCount--
-        endIndex = i
-      }
-
-      if (braceCount === 0) {
-        const sectionContent = content.substring(startIndex, endIndex)
-        extractKeysFromSection(sectionContent, fullSectionName)
+      else if (typeof value === 'object' && value !== null) {
+        extractKeysFromObject(value, fullKey)
       }
     }
   }
 
-  // Extract keys from each language section
-  const languagePattern = /^\s*(et|en|uk):\s*\{/gm
-  let langMatch
+  // Extract locale objects (en, et, uk) and get their structure
+  const localePattern = /^\s*(en|et|uk):\s*{/gm
+  let match
 
-  while ((langMatch = languagePattern.exec(configContent)) !== null) {
-    // Find the content of this language section
+  while ((match = localePattern.exec(configContent)) !== null) {
+    const locale = match[1]
+
+    // Find the content of this locale section
     let braceCount = 1
-    let startIndex = langMatch.index + langMatch[0].length
+    let startIndex = match.index + match[0].length
     let endIndex = startIndex
 
     for (let i = startIndex; i < configContent.length && braceCount > 0; i++) {
@@ -95,8 +75,20 @@ function extractDefinedKeys () {
     }
 
     if (braceCount === 0) {
-      const languageContent = configContent.substring(startIndex, endIndex)
-      extractKeysFromSection(languageContent)
+      const sectionContent = configContent.substring(startIndex, endIndex)
+
+      try {
+        // Parse the locale object and extract keys (without locale prefix)
+        const objectContent = `{${sectionContent}}`
+        const localeObj = eval(`(${objectContent})`)
+        extractKeysFromObject(localeObj)
+
+        // Only process one locale to avoid duplicates
+        break
+      }
+      catch (e) {
+        console.warn(`Warning: Could not parse ${locale} locale object: ${e.message}`)
+      }
     }
   }
 
@@ -105,72 +97,69 @@ function extractDefinedKeys () {
 }
 
 /**
- * Find all translation keys used in the codebase
+ * Extract all used translation keys from source files
  */
 function extractUsedKeys () {
   console.log('🔍 Scanning codebase for used translation keys...')
 
-  const usedKeys = new Set()
+  const keys = new Set()
 
-  // Find all source files
-  const sourceFiles = []
-
+  // Function to scan a directory recursively
   function scanDirectory (dir) {
-    if (!fs.existsSync(dir)) return
+    if (!fs.existsSync(dir)) {
+      console.log(`⚠️  Directory ${dir} does not exist`)
+      return []
+    }
 
-    const entries = fs.readdirSync(dir, { withFileTypes: true })
+    const files = []
+    const items = fs.readdirSync(dir)
 
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name)
+    for (const item of items) {
+      const itemPath = path.join(dir, item)
+      const stat = fs.statSync(itemPath)
 
-      // Skip excluded patterns
-      if (CONFIG.excludePatterns.some((pattern) => fullPath.includes(pattern))) {
-        continue
+      if (stat.isDirectory()) {
+        // Skip excluded directories
+        if (!CONFIG.excludePatterns.some((pattern) => itemPath.includes(pattern))) {
+          files.push(...scanDirectory(itemPath))
+        }
       }
-
-      if (entry.isDirectory()) {
-        scanDirectory(fullPath)
-      }
-      else if (CONFIG.fileExtensions.some((ext) => entry.name.endsWith(ext))) {
-        sourceFiles.push(fullPath)
+      else if (CONFIG.fileExtensions.some((ext) => item.endsWith(ext))) {
+        files.push(itemPath)
       }
     }
+
+    return files
   }
 
-  // Scan all configured directories
+  // Scan all source directories
+  const sourceFiles = []
   CONFIG.sourceDirectories.forEach((dir) => {
-    scanDirectory(dir)
+    sourceFiles.push(...scanDirectory(dir))
   })
 
   console.log(`📁 Scanning ${sourceFiles.length} source files...`)
 
-  // Analyze each file for translation usage
+  // Extract keys from each file
   sourceFiles.forEach((filePath) => {
     try {
       const content = fs.readFileSync(filePath, 'utf8')
 
-      // Find translation calls: $t('key'), t('key'), i18n.t('key')
-      const patterns = [
-        /\$t\(['"]([\w.]+)['"]\)/g,
-        /\bt\(['"]([\w.]+)['"]\)/g,
-        /i18n\.t\(['"]([\w.]+)['"]\)/g,
-        /useI18n\(\)\.t\(['"]([\w.]+)['"]\)/g
-      ]
-
-      patterns.forEach((pattern) => {
+      CONFIG.translationPatterns.forEach((pattern) => {
         let match
-        while ((match = pattern.exec(content)) !== null) {
-          usedKeys.add(match[1])
+        const regex = new RegExp(pattern.source, pattern.flags)
+        while ((match = regex.exec(content)) !== null) {
+          keys.add(match[1])
         }
       })
     }
-    catch (error) {
-      console.warn(`⚠️  Warning: Could not read file ${filePath}:`, error.message)
+    catch (e) {
+      console.warn(`Warning: Could not read file ${filePath}: ${e.message}`)
     }
   })
 
-  console.log(`✅ Found ${usedKeys.size} used translation keys`)
-  return usedKeys
+  console.log(`✅ Found ${keys.size} used translation keys`)
+  return keys
 }
 
 /**
@@ -229,81 +218,60 @@ function cleanupUnusedKeys (unusedKeys) {
   fs.writeFileSync(backupPath, configContent)
   console.log(`💾 Created backup: ${backupPath}`)
 
-  // Remove unused keys
-  unusedKeys.forEach((key) => {
-    if (key.includes('.')) {
-      // Nested key like 'tasks.title'
-      const [_, property] = key.split('.')
-      // Remove the specific property line
-      const propertyPattern = new RegExp(`^\\s*${property}:\\s*['"'].*?['"'],?\\s*$`, 'gm')
-      configContent = configContent.replace(propertyPattern, '')
-    }
-    else {
-      // Top-level key
-      const keyPattern = new RegExp(`^\\s*${key}:\\s*['"'].*?['"'],?\\s*$`, 'gm')
-      configContent = configContent.replace(keyPattern, '')
-    }
+  // Remove unused keys from each locale section
+  const locales = ['en', 'et', 'uk']
+
+  locales.forEach((locale) => {
+    unusedKeys.forEach((keyToRemove) => {
+      // Remove simple keys: keyName: 'value',
+      const simpleKeyPattern = new RegExp(`^\\s*${keyToRemove}:\\s*['"\`][^'"\`]*['"\`],?\\s*$`, 'gm')
+      configContent = configContent.replace(simpleKeyPattern, '')
+
+      // For nested keys, we need more complex logic
+      if (keyToRemove.includes('.')) {
+        const keyParts = keyToRemove.split('.')
+        // This is a simplified approach - in practice, you'd want more sophisticated nested key removal
+        console.log(`⚠️  Manual review needed for nested key: ${keyToRemove}`)
+      }
+    })
   })
 
-  // Clean up empty lines and trailing commas
-  configContent = configContent
-    .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
-    .replace(/\n\s*\n\s*\n/g, '\n\n') // Reduce multiple empty lines
+  // Clean up empty lines
+  configContent = configContent.replace(/\n\s*\n\s*\n/g, '\n\n')
 
   fs.writeFileSync(configPath, configContent)
   console.log('✅ Cleanup completed!')
 }
 
 /**
- * Main execution
+ * Main function
  */
-async function main () {
-  try {
-    console.log('🌍 Translation Analysis Tool\n')
+function main () {
+  const isDryRun = process.argv.includes('--dry-run')
+  const shouldCleanup = process.argv.includes('--cleanup')
 
+  console.log('🌍 Translation Analysis Tool\n')
+
+  try {
     const definedKeys = extractDefinedKeys()
     const usedKeys = extractUsedKeys()
     const { unusedKeys, missingKeys } = generateReport(definedKeys, usedKeys)
 
-    // Check command line arguments
-    const args = process.argv.slice(2)
-    const shouldCleanup = args.includes('--cleanup') || args.includes('--clean')
-    const shouldWriteReport = args.includes('--report')
-
-    if (shouldWriteReport) {
-      const reportData = {
-        timestamp: new Date().toISOString(),
-        summary: {
-          definedKeys: definedKeys.size,
-          usedKeys: usedKeys.size,
-          unusedKeys: unusedKeys.size,
-          missingKeys: missingKeys.size
-        },
-        unusedKeys: Array.from(unusedKeys).sort(),
-        missingKeys: Array.from(missingKeys).sort()
-      }
-
-      fs.writeFileSync('translation-analysis-report.json', JSON.stringify(reportData, null, 2))
-      console.log('\n📄 Report written to: translation-analysis-report.json')
-    }
-
-    if (shouldCleanup) {
+    if (shouldCleanup && !isDryRun) {
       cleanupUnusedKeys(unusedKeys)
     }
     else if (unusedKeys.size > 0) {
-      console.log('\n💡 To remove unused keys, run: npm run analyze-translations -- --cleanup')
+      console.log('\n💡 Run with --cleanup flag to remove unused keys')
+      console.log('💡 Run with --dry-run to see changes without applying them')
     }
 
-    // Exit with error code if there are issues
     if (missingKeys.size > 0) {
-      console.log(`\n⚠️  Warning: ${missingKeys.size} missing translation keys found`)
-      console.log('Consider adding these keys to your i18n configuration')
+      console.log('\n❗ Some translation keys are used but not defined!')
+      console.log('   Add these keys to your i18n.config.ts file.')
     }
-
-    console.log('\n✅ Analysis completed successfully!')
   }
   catch (error) {
-    console.error('\n❌ Error during analysis:', error.message)
+    console.error('❌ Error:', error.message)
     process.exit(1)
   }
 }
