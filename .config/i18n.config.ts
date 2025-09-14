@@ -6,7 +6,9 @@ export default defineI18nConfig(() => ({
   missingWarn: false,
   messages: {
     et: {
-      welcome: 'Tere tulemast',
+        selectTask: 'Select task',
+        selectTaskDescription: 'Select a task from the sidebar to start',
+        taskId: 'Task ID',elcome: 'Tere tulemast',
       login: 'Logi sisse',
       logout: 'Logi välja',
       loggedIn: 'Sisse logitud',
@@ -54,7 +56,7 @@ export default defineI18nConfig(() => ({
         pending: 'Ootel',
         retry: 'Proovi uuesti',
         selectTask: 'Vali ülesanne',
-        selectTaskDescription: 'Alustamiseks vali külgmenüüst ülesanne',
+        selectTaskDescription: 'Vali ülesanne külgribalt, et alustada',
         taskId: 'Ülesande ID',
         taskContent: 'Ülesande sisu',
         placeholder: {
@@ -215,6 +217,10 @@ export default defineI18nConfig(() => ({
         retry: 'Try again',
         selectTask: 'Select a task',
         selectTaskDescription: 'Choose a task from the sidebar to get started',
+        backToList: 'Back to list',
+        hideSidebar: 'Hide sidebar',
+        showSidebar: 'Show sidebar',
+        taskDetails: 'Task details',
         taskId: 'Task ID',
         taskContent: 'Task Content',
         placeholder: {
