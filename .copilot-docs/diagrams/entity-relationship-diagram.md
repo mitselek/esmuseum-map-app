@@ -98,8 +98,8 @@ erDiagram
 
 1. **Kaart to Asukoht**: One map can contain many locations
 2. **Kaart to Ülesanne**: One map can be used in many tasks
-3. **Grupp to Ülesanne**: One group can be assigned to many tasks
+3. **Grupp to Ülesanne**: One group can be assigned many tasks
 4. **Person to Grupp**: One person can lead many groups (as grupijuht)
-5. **Person to Grupp**: Many persons can be members of many groups (many-to-many)
-6. **Ülesanne to Vastus**: One task can have many responses
+5. **Person to Grupp**: Many persons can be members (children) of many groups (many-to-many)
+6. **Ülesanne to Vastus**: One task can have many responses. Responses are children of tasks
 7. **Asukoht to Vastus**: One location can be referenced by many responses
