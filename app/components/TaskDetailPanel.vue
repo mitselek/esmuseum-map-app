@@ -31,10 +31,6 @@
             :loading-locations="loadingTaskLocations"
             @location-click="onMapLocationClick"
             @map-ready="onMapReady"
-          />          <!-- Location Manager -->
-          <TaskLocationManager
-            v-if="needsLocation"
-            :has-map-data="hasMapData"
             @location-change="handleLocationOverride"
           />
 
