@@ -3,13 +3,61 @@
     <h3 class="mb-4 text-lg font-medium text-gray-900">
       {{ $t('taskDetail.map') }}
     </h3>
-    <div class="rounded-lg bg-gray-100 p-8 text-center text-gray-500">
-      🗺️ {{ $t('taskDetail.mapIntegrationComing') }}
-    </div>
+
+    <!-- Interactive Map -->
+    <InteractiveMap
+      :locations="taskLocations"
+      :user-position="userPosition"
+      :completed-tasks="completedTasks"
+      :loading="loadingLocations"
+      :max-locations="5"
+      @location-click="onLocationClick"
+      @map-ready="onMapReady"
+    />
   </div>
 </template>
 
-<script setup lang="ts">
-// This is a simple placeholder component for the map integration
-// No props or logic needed at this stage
+<script setup>
+const props = defineProps({
+  /**
+   * Array of task locations to display
+   */
+  taskLocations: {
+    type: Array,
+    default: () => []
+  },
+  /**
+   * User's current GPS position
+   */
+  userPosition: {
+    type: Object,
+    default: null
+  },
+  /**
+   * Array of completed task IDs
+   */
+  completedTasks: {
+    type: Array,
+    default: () => []
+  },
+  /**
+   * Loading state for locations
+   */
+  loadingLocations: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const emit = defineEmits(['location-click', 'map-ready'])
+
+// Handle location clicks
+const onLocationClick = (location) => {
+  emit('location-click', location)
+}
+
+// Handle map ready event
+const onMapReady = () => {
+  emit('map-ready')
+}
 </script>
