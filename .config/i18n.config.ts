@@ -6,9 +6,27 @@ export default defineI18nConfig(() => ({
   missingWarn: false,
   messages: {
     et: {
-        selectTask: 'Select task',
-        selectTaskDescription: 'Select a task from the sidebar to start',
-        taskId: 'Task ID',elcome: 'Tere tulemast',
+        selectTask: 'Vali ülesanne',
+        selectTaskDescription: 'Vali ülesanne külgribalt, et alustada',
+        taskId: 'Ülesande ID',
+        
+        // Authentication
+        alreadyLoggedIn: 'Sa oled juba sisse logitud',
+        loggingIn: 'Logi sisse...',
+        loginWithOAuth: 'Logi sisse',
+        selectProvider: 'Vali teenusepakkuja',
+        continue: 'Jätka',
+        user: 'Kasutaja',
+
+        // Common
+        common: {
+          error: 'Viga',
+          noData: 'Andmed puuduvad',
+          reload: 'Laadi uuesti',
+          retry: 'Proovi uuesti'
+        },
+
+        welcome: 'Tere tulemast',
       login: 'Logi sisse',
       logout: 'Logi välja',
       loggedIn: 'Sisse logitud',
@@ -130,6 +148,8 @@ export default defineI18nConfig(() => ({
         unnamedLocation: 'Nimetu asukoht',
         // User location override translations
         yourLocation: 'Sinu asukoht',
+        detectingLocation: 'Asukohta tuvastatakse...',
+        locationPermissionHelp: 'Luba asukoha kasutamine, et jätkata ülesandega',
         locationDetected: 'Asukoht tuvastatud',
         detectLocation: 'Tuvasta asukoht',
         detectLocationHelp: 'Kasuta GPS-i oma asukoha tuvastamiseks',
@@ -168,7 +188,27 @@ export default defineI18nConfig(() => ({
       }
     },
     en: {
-      welcome: 'Welcome',
+        selectTask: 'Select task',
+        selectTaskDescription: 'Select a task from the sidebar to start',
+        taskId: 'Task ID',
+        
+        // Authentication
+        alreadyLoggedIn: 'You are already logged in',
+        loggingIn: 'Logging in...',
+        loginWithOAuth: 'Login',
+        selectProvider: 'Select provider',
+        continue: 'Continue',
+        user: 'User',
+
+        // Common
+        common: {
+          error: 'Error',
+          noData: 'No data',
+          reload: 'Reload',
+          retry: 'Retry'
+        },
+
+        welcome: 'Welcome',
       login: 'Login',
       logout: 'Logout',
       loggedIn: 'Logged in',
@@ -294,6 +334,8 @@ export default defineI18nConfig(() => ({
         unnamedLocation: 'Unnamed location',
         // User location override translations
         yourLocation: 'Your location',
+        detectingLocation: 'Detecting location...',
+        locationPermissionHelp: 'Allow location access to continue with the task',
         locationDetected: 'Location detected',
         detectLocation: 'Detect location',
         detectLocationHelp: 'Use GPS to detect your location',
@@ -332,7 +374,27 @@ export default defineI18nConfig(() => ({
       }
     },
     uk: {
-      welcome: 'Ласкаво просимо',
+        selectTask: 'Виберіть завдання',
+        selectTaskDescription: 'Оберіть завдання з бічної панелі, щоб почати',
+        taskId: 'ID завдання',
+        
+        // Authentication
+        alreadyLoggedIn: 'Ви вже увійшли в систему',
+        loggingIn: 'Вхід...',
+        loginWithOAuth: 'Увійти',
+        selectProvider: 'Оберіть провайдера',
+        continue: 'Продовжити',
+        user: 'Користувач',
+
+        // Common
+        common: {
+          error: 'Помилка',
+          noData: 'Немає даних',
+          reload: 'Перезавантажити',
+          retry: 'Спробувати знову'
+        },
+
+        welcome: 'Ласкаво просимо',
       login: 'Увійти',
       logout: 'Вийти',
       loggedIn: 'Увійшли',
@@ -454,6 +516,8 @@ export default defineI18nConfig(() => ({
         unnamedLocation: 'Місце без назви',
         // User location override translations
         yourLocation: 'Ваше місцезнаходження',
+        detectingLocation: 'Виявлення місцезнаходження...',
+        locationPermissionHelp: 'Дозвольте доступ до локації, щоб продовжити з завданням',
         locationDetected: 'Місцезнаходження виявлено',
         detectLocation: 'Виявити місцезнаходження',
         detectLocationHelp: 'Використати GPS для виявлення вашого місцезнаходження',
