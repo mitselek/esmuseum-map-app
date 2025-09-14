@@ -158,12 +158,11 @@ export const useTaskDetail = () => {
         return []
       }
 
+      console.log('Loading locations for mapId:', mapId)
       const locations = await loadMapLocations(mapId)
-      console.log('Loaded locations:', locations)
 
       // Always process locations to extract coordinates, sort by distance if we have user position
       const processedLocations = sortByDistance(locations, userPosition)
-      console.log('Processed locations:', processedLocations)
       return processedLocations
     }
     catch (error) {

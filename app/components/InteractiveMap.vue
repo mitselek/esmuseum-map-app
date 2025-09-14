@@ -76,13 +76,19 @@
           v-for="location in displayedLocations"
           :key="location._id || location.id"
           :lat-lng="[location.coordinates.lat, location.coordinates.lng]"
-          :icon="locationIcon"
+          :icon="getLocationIcon(location)"
         >
           <LPopup>
             <div>
               <h3 class="font-medium">
                 {{ getLocationName(location) }}
               </h3>
+              <div
+                v-if="isLocationVisited(location)"
+                class="mb-2 inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800"
+              >
+                ✓ {{ $t('map.visited') }}
+              </div>
               <p
                 v-if="getLocationDescription(location)"
                 class="mt-1 text-sm text-gray-600"
@@ -113,9 +119,12 @@ import {
   LPopup
 } from '@vue-leaflet/vue-leaflet'
 import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+
+// Import location utility
+const { formatCoordinates, getLocationName, getLocationDescription } = useLocation()
 
 // Import Leaflet CSS
-import 'leaflet/dist/leaflet.css'
 
 // Fix Leaflet icon issues in bundlers
 delete L.Icon.Default.prototype._getIconUrl
@@ -155,6 +164,13 @@ const props = defineProps({
     default: () => []
   },
   /**
+   * Set of visited location references for green markers
+   */
+  visitedLocations: {
+    type: Set,
+    default: () => new Set()
+  },
+  /**
    * Loading state from parent
    */
   loading: {
@@ -171,9 +187,6 @@ const mapContainer = ref(null)
 const error = ref(null)
 const zoom = ref(13)
 const center = ref([59.4370, 24.7536]) // Default to Tallinn
-
-// Use location utilities
-const { formatCoordinates, getLocationName, getLocationDescription } = useLocation()
 
 // Map configuration
 const mapOptions = {
@@ -206,9 +219,26 @@ const locationIcon = L.divIcon({
   iconAnchor: [8, 8]
 })
 
+const visitedLocationIcon = L.divIcon({
+  html: '<div style="background: #22c55e; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">✓</div>',
+  className: 'custom-visited-icon',
+  iconSize: [16, 16],
+  iconAnchor: [8, 8]
+})
+
+// Check if a location has been visited
+const isLocationVisited = (location) => {
+  const locationRef = location.reference || location._id
+  if (!locationRef || !props.visitedLocations) return false
+
+  return props.visitedLocations.has(locationRef)
+}// Get appropriate icon for location
+const getLocationIcon = (location) => {
+  return isLocationVisited(location) ? visitedLocationIcon : locationIcon
+}
+
 // Filter and process locations
 const displayedLocations = computed(() => {
-  console.log('InteractiveMap - Raw locations received:', props.locations)
   console.log('InteractiveMap - Completed tasks:', props.completedTasks)
 
   if (!props.locations?.length) {
@@ -221,21 +251,14 @@ const displayedLocations = computed(() => {
     const taskId = location._id || location.id
     return !props.completedTasks.includes(taskId)
   })
-  console.log('InteractiveMap - Unvisited locations:', unvisitedLocations)
 
   // Filter locations that have valid coordinates
   const locationsWithCoords = unvisitedLocations.filter((location) => {
     const hasCoords = location.coordinates
       && location.coordinates.lat
       && location.coordinates.lng
-    console.log('InteractiveMap - Location coordinate check:', {
-      location: location,
-      hasCoords: hasCoords,
-      coordinates: location.coordinates
-    })
     return hasCoords
   })
-  console.log('InteractiveMap - Locations with coordinates:', locationsWithCoords)
 
   // Sort by distance if user position is available
   let sortedLocations = locationsWithCoords

@@ -52,6 +52,11 @@ export default defineI18nConfig(() => ({
       },
       taskDetail: {
         map: "Kaart",
+        responsesProgress: "{actual} / {expected} vastust",
+        totalResponses: "{count} vastust kokku",
+        geolocationError: "Asukoha määramisel tekkis viga: {error}",
+        noTitle: "Nimetu ülesanne",
+        selectLocation: "Vali asukoht ({count} saadaval)",
 
         yourResponse: "Sinu vastus",
         addFile: "Lisa fail (valikuline)",
@@ -95,7 +100,8 @@ export default defineI18nConfig(() => ({
       },
       map: {
         loading: "Kaardi laadimine...",
-
+        yourLocation: "Sinu asukoht",
+        visited: "Külastatud",
       },
     },
     en: {
@@ -149,6 +155,11 @@ export default defineI18nConfig(() => ({
       },
       taskDetail: {
         map: "Map",
+        responsesProgress: "{actual} / {expected} responses",
+        totalResponses: "{count} total responses",
+        geolocationError: "Geolocation error: {error}",
+        noTitle: "Untitled Task",
+        selectLocation: "Select location ({count} available)",
 
         yourResponse: "Your Response",
         addFile: "Add file (optional)",
@@ -194,7 +205,8 @@ export default defineI18nConfig(() => ({
       },
       map: {
         loading: "Loading map...",
-
+        yourLocation: "Your location",
+        visited: "Visited",
       },
     },
     uk: {
@@ -244,6 +256,11 @@ export default defineI18nConfig(() => ({
       },
       taskDetail: {
         map: "Карта",
+        responsesProgress: "{actual} / {expected} відповідей",
+        totalResponses: "{count} всього відповідей",
+        geolocationError: "Помилка геолокації: {error}",
+        noTitle: "Завдання без назви",
+        selectLocation: "Оберіть місце ({count} доступно)",
 
         yourResponse: "Ваша відповідь",
         addFile: "Додати файл (необов'язково)",
@@ -289,7 +306,8 @@ export default defineI18nConfig(() => ({
       },
       map: {
         loading: "Завантаження карти...",
-
+        yourLocation: "Ваше місцезнаходження",
+        visited: "Відвідано",
       },
     },
   },
