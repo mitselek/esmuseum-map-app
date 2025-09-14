@@ -106,15 +106,18 @@ export async function getEntuEntity (entityId: string, apiConfig: EntuApiOptions
 export async function createEntuEntity (entityType: string, entityData: any, apiConfig: EntuApiOptions) {
   // Convert flat object to Entu property array format
   const properties: EntuProperty[] = [
-    { type: '_type', string: entityType },
+    { type: '_type', reference: getEntityTypeReference(entityType) }, // Use proper reference
     { type: '_inheritrights', boolean: true } // Always add inheritrights for new entities
   ]
   
   // Add each property from entityData
   for (const [key, value] of Object.entries(entityData)) {
     if (value !== null && value !== undefined) {
-      if (key === 'ulesanne' || key === 'asukoht' || key === '_parent') {
+      if (key === 'ulesanne' || key === '_parent') {
         // Reference properties
+        properties.push({ type: key, reference: value as string })
+      } else if (key === 'asukoht') {
+        // Location reference - special handling to include proper structure
         properties.push({ type: key, reference: value as string })
       } else if (typeof value === 'string') {
         // String properties  
@@ -135,6 +138,20 @@ export async function createEntuEntity (entityType: string, entityData: any, api
     method: 'POST',
     body: JSON.stringify(properties)
   }, apiConfig)
+}
+
+/**
+ * Get entity type reference ID for proper Entu structure
+ * These references should match the entity type definitions in Entu
+ */
+function getEntityTypeReference (entityType: string): string {
+  const entityTypeMap: Record<string, string> = {
+    'vastus': '686917401749f351b9c82f58', // Standard response entity type
+    'ulesanne': '686917231749f351b9c82f4c', // Task entity type
+    'asukoht': '686917581749f351b9c82f5a' // Location entity type
+  }
+  
+  return entityTypeMap[entityType] || entityType
 }
 
 /**

@@ -18,6 +18,7 @@ export interface CreateResponseRequest {
     metadata?: {
       fileName?: string
       fileSize?: number
+      locationId?: string  // Add location reference
       coordinates?: {
         lat: number
         lng: number
@@ -34,6 +35,7 @@ export interface UpdateResponseRequest {
     metadata?: {
       fileName?: string
       fileSize?: number
+      locationId?: string  // Add location reference
       coordinates?: {
         lat: number
         lng: number
@@ -176,6 +178,10 @@ export function validateResponseItem (item: any, index: number) {
 
     if (item.metadata.fileName) {
       metadata.fileName = validateRequiredString(item.metadata.fileName, `responses[${index}].metadata.fileName`)
+    }
+
+    if (item.metadata.locationId) {
+      metadata.locationId = validateRequiredString(item.metadata.locationId, `responses[${index}].metadata.locationId`)
     }
 
     if (item.metadata.fileSize !== undefined) {

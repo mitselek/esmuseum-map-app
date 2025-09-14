@@ -152,7 +152,20 @@ const submitResponse = async () => {
           questionId: 'default', // Using default for simple text response
           type: 'text',
           value: responseForm.value.text,
-          metadata: {}
+          metadata: {
+            // Include location reference if available
+            locationId: props.selectedLocation?.reference || props.selectedLocation?._id,
+            // Include coordinates if available
+            coordinates: responseForm.value.geopunkt
+              ? (() => {
+                  const coords = responseForm.value.geopunkt.split(',')
+                  return {
+                    lat: parseFloat(coords[0]?.trim()),
+                    lng: parseFloat(coords[1]?.trim())
+                  }
+                })()
+              : undefined
+          }
         }
       ]
     }
