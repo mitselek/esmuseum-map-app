@@ -60,6 +60,11 @@ export function useTaskScoring (taskData) {
       return
     }
 
+    console.log('🎯 useTaskScoring - Starting fetch with:', {
+      userId: user.value._id,
+      taskId: taskData.value._id
+    })
+
     loading.value = true
     error.value = null
 
