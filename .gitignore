@@ -6,6 +6,10 @@ dist
 node_modules
 coverage
 
+# Translation analysis reports (generated files)
+translation-analysis-report.json
+*.backup.*
+
 # Copilot private workspace - working documents and planning
 .copilot-workspace/*
 !.copilot-workspace/.keep

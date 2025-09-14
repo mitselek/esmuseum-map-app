@@ -24,7 +24,15 @@
       </div>
       <div class="flex items-center">
         <span class="mr-2">📊</span>
-        <span>{{ $t('taskDetail.totalResponses', { count: responseCount }) }}</span>
+        <span v-if="responseStats">
+          {{ $t('taskDetail.responsesProgress', {
+            actual: responseStats.actual,
+            expected: responseStats.expected,
+          }) }}
+        </span>
+        <span v-else>
+          {{ $t('taskDetail.totalResponses', { count: responseCount }) }}
+        </span>
       </div>
       <div
         v-if="hasUserResponse"
@@ -54,6 +62,10 @@ defineProps({
   responseCount: {
     type: Number,
     default: 0
+  },
+  responseStats: {
+    type: Object,
+    default: null
   },
   hasUserResponse: {
     type: Boolean,

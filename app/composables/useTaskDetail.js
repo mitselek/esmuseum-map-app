@@ -170,28 +170,11 @@ export const useTaskDetail = () => {
   }
 
   // Task response stats
+  // Import the proper response stats composable
+  const { getTaskResponseStats: getProperTaskResponseStats } = useTaskResponseStats()
+
   const getTaskResponseStats = async (task) => {
-    if (!task) return null
-
-    try {
-      const { token } = useEntuAuth()
-      if (!token.value) return null
-
-      const taskId = task._id || task.id
-      if (!taskId) return null
-
-      const response = await $fetch(`/api/tasks/${taskId}/stats`, {
-        headers: {
-          Authorization: `Bearer ${token.value}`
-        }
-      })
-
-      return response.success ? response.stats : null
-    }
-    catch (error) {
-      console.warn('Failed to load task response stats:', error)
-      return null
-    }
+    return await getProperTaskResponseStats(task)
   }
 
   // Load existing response data
