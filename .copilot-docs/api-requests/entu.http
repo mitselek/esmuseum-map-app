@@ -84,6 +84,11 @@ GET {{api_hostname}}/{{account}}/entity?_type.string=kaart&props=_id&limit=10000
 Accept-Encoding: deflate
 Authorization: Bearer {{esm_token}}
 
+### Entity get locations with filtered props
+GET {{api_hostname}}/{{account}}/entity?_type.string=asukoht&props=name.string,lat.number,long.number,kirjeldus.string&limit=2 HTTP/1.1
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_token}}
+
 ### DELETE entities
 @type_to_delete=kaart
 ###

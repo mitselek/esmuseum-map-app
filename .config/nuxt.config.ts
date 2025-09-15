@@ -47,7 +47,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     entuKey: '',
     public: {
-      entuUrl: ''
+      entuUrl: '',
+      entuAccount: '',
+      callbackOrigin: ''
     }
   },
   future: {
