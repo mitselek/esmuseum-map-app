@@ -7,7 +7,6 @@
  */
 
 import { createLogger } from '../../utils/logger'
-import { authenticateUser } from '../../utils/auth'
 
 const logger = createLogger('auth-callback')
 
@@ -90,18 +89,32 @@ export default defineEventHandler(async (event) => {
         accounts: authData.accounts?.length || 0
       })
       
-      // Now use the full token for authentication
-      const mockEvent = {
-        node: {
-          req: {
-            headers: {
-              authorization: `Bearer ${authData.token}`
-            }
-          }
-        }
+      // Debug: Log the structure of the auth response
+      logger.debug('Token exchange response structure', {
+        responseKeys: Object.keys(authData),
+        userKeys: authData.user ? Object.keys(authData.user) : [],
+        accountsStructure: authData.accounts ? authData.accounts.map((acc: any) => Object.keys(acc)) : [],
+        fullResponse: JSON.stringify(authData).substring(0, 1000)
+      })
+      
+      // Use the user data directly from the token exchange response
+      if (!authData.user) {
+        throw new Error('No user info in token exchange response')
       }
       
-      user = await authenticateUser(mockEvent)
+      // Create user object from the token exchange response
+      user = { ...authData.user }
+      
+      // Add user ID from accounts if available (same pattern as client-side auth)
+      if (authData.accounts && authData.accounts.length > 0 && authData.accounts[0].user && authData.accounts[0].user._id) {
+        user._id = authData.accounts[0].user._id
+      }
+      
+      logger.info('User authenticated from token exchange', { 
+        userId: user._id,
+        userEmail: user.email,
+        userName: user.name
+      })
       
     } catch (tokenExchangeError: any) {
       logger.error('Token exchange failed', tokenExchangeError)
