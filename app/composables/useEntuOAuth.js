@@ -55,10 +55,24 @@ export const useEntuOAuth = () => {
         // Store the OAuth callback configuration separate from the redirect path
         // DO NOT modify auth_redirect here - it's set by the middleware
 
-        // Get the current origin for the callback URL
-        const origin = window.location.origin
+        // Get the callback URL - use environment-specific configuration for production
+        // In production, Entu expects the IP address due to server configuration
+        let callbackOrigin = window.location.origin
+
+        // Check if we need to use a different callback origin for JWT audience validation
+        // This handles cases where the domain differs from what Entu expects for JWT audience
+        const callbackOriginOverride = config.public.callbackOrigin
+
+        if (callbackOriginOverride) {
+          callbackOrigin = callbackOriginOverride
+        }
+        else if (window.location.hostname === 'esmuseum.entu.ee') {
+          // Fallback: if on production domain, try the IP that Entu expects
+          callbackOrigin = 'https://64.226.65.17'
+        }
+
         // Use a callback URL with a query parameter - this helps Entu know where to put the token
-        callbackUrl.value = `${origin}/auth/callback?jwt=`
+        callbackUrl.value = `${callbackOrigin}/auth/callback?jwt=`
         localStorage.setItem('auth_callback_url', callbackUrl.value)
       }
 
