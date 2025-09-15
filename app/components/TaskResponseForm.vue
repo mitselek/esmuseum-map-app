@@ -30,6 +30,7 @@
           :selected="selectedLocation"
           :loading="loadingTaskLocations"
           :error="geolocationError"
+          :visited-locations="visitedLocations"
           @select="onLocationSelect"
           @request-location="onRequestLocation"
           @retry="loadTaskLocations"
@@ -97,6 +98,10 @@ const props = defineProps({
   geolocationError: {
     type: String,
     default: null
+  },
+  visitedLocations: {
+    type: Set,
+    default: () => new Set()
   }
 })
 
