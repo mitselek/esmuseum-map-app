@@ -55,15 +55,6 @@ export const useEntuOAuth = () => {
         // Store the OAuth callback configuration separate from the redirect path
         // DO NOT modify auth_redirect here - it's set by the middleware
 
-        // Log all redirect-related items in localStorage
-        console.log('OAuth flow: current redirect values in localStorage:')
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i)
-          if (key && (key.includes('auth') || key.includes('redirect'))) {
-            console.log(`- ${key}: ${localStorage.getItem(key)}`)
-          }
-        }
-
         // Get the current origin for the callback URL
         const origin = window.location.origin
         // Use a callback URL with a query parameter - this helps Entu know where to put the token

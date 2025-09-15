@@ -32,15 +32,12 @@ export const useLocation = () => {
     globalUpdateInterval = setInterval(() => {
       // Skip updates if manual override is active
       if (globalManualOverride.value) {
-        console.log('GPS updates paused - manual override active')
         return
       }
 
       // Refresh GPS position
       getUserPosition(true) // forceUpdate = true
     }, 30000) // 30 seconds
-
-    console.log('GPS auto-updates started (30s interval)')
   }
 
   // Stop automatic GPS updates
@@ -48,7 +45,6 @@ export const useLocation = () => {
     if (globalUpdateInterval) {
       clearInterval(globalUpdateInterval)
       globalUpdateInterval = null
-      console.log('GPS auto-updates stopped')
     }
   }
 
@@ -56,12 +52,10 @@ export const useLocation = () => {
   const checkGeolocationPermission = async () => {
     try {
       if (!navigator.permissions) {
-        console.log('Permissions API not supported')
         return 'unknown'
       }
 
       const permission = await navigator.permissions.query({ name: 'geolocation' })
-      console.log('Current geolocation permission:', permission.state)
       return permission.state // 'granted', 'denied', or 'prompt'
     }
     catch (error) {
@@ -76,7 +70,6 @@ export const useLocation = () => {
 
     switch (permissionState) {
       case 'granted':
-        console.log('✅ Permission already granted - starting GPS immediately')
         globalShowGPSPrompt.value = false
         globalPermissionDenied.value = false
         await getUserPosition()
@@ -84,7 +77,6 @@ export const useLocation = () => {
         break
 
       case 'denied':
-        console.log('❌ Permission denied - not showing GPS prompt')
         globalShowGPSPrompt.value = false
         globalPermissionDenied.value = true
         break
@@ -92,7 +84,6 @@ export const useLocation = () => {
       case 'prompt':
       case 'unknown':
       default:
-        console.log('❓ Permission not determined - showing GPS prompt')
         globalShowGPSPrompt.value = true
         globalPermissionDenied.value = false
         break
@@ -103,7 +94,6 @@ export const useLocation = () => {
       if (navigator.permissions) {
         const permission = await navigator.permissions.query({ name: 'geolocation' })
         permission.addEventListener('change', () => {
-          console.log('Geolocation permission changed to:', permission.state)
           // Re-initialize based on new permission state
           initializeGPSWithPermissionCheck()
         })
@@ -117,7 +107,6 @@ export const useLocation = () => {
   // Set manual override state (pauses automatic updates)
   const setManualOverride = (isManual) => {
     globalManualOverride.value = isManual
-    console.log(`Manual override ${isManual ? 'enabled' : 'disabled'}`)
   }
 
   // Request GPS permission (triggered by user action)
@@ -127,9 +116,8 @@ export const useLocation = () => {
     // Call GPS immediately while still in user gesture context
     getUserPosition(true).then(() => {
       globalPermissionDenied.value = false
-    }).catch((error) => {
+    }).catch(() => {
       globalPermissionDenied.value = true
-      console.log('GPS permission denied or failed:', error.message)
     })
   }
 
@@ -143,13 +131,11 @@ export const useLocation = () => {
   const getUserPosition = async (forceUpdate = false, options = {}) => {
     // Return cached position if available and not forcing update
     if (!forceUpdate && globalUserPosition.value && globalLastRequestTime.value) {
-      console.log('Returning cached GPS position')
       return globalUserPosition.value
     }
 
     // If there's already a pending request, return that promise
     if (globalPendingRequest) {
-      console.log('GPS request already in progress, waiting...')
       return globalPendingRequest
     }
 
@@ -159,7 +145,6 @@ export const useLocation = () => {
       globalLocationError.value = null
 
       try {
-        console.log('Requesting fresh GPS position...')
         const position = await getCurrentPosition({
           enableHighAccuracy: true,
           timeout: 10000,
@@ -175,10 +160,8 @@ export const useLocation = () => {
         if (hasSignificantChange) {
           globalUserPosition.value = position
           globalLastRequestTime.value = Date.now()
-          console.log('GPS position updated:', position)
         }
         else {
-          console.log('GPS position unchanged, skipping update')
           globalLastRequestTime.value = Date.now() // Update timestamp even if position unchanged
         }
 
@@ -204,8 +187,7 @@ export const useLocation = () => {
       await getUserPosition()
       startGPSUpdates()
     }
-    catch (err) {
-      console.warn('Could not get initial GPS position:', err)
+    catch {
       // Still start updates for future attempts
       startGPSUpdates()
     }

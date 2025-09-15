@@ -21,7 +21,6 @@ onMounted(() => {
   if (import.meta.client) {
     // Get redirect URL from localStorage
     redirectPath.value = localStorage.getItem('auth_redirect') || '/'
-    console.log('Login page loaded with redirect path:', redirectPath.value)
   }
 
   // Check token and refresh if needed
@@ -36,12 +35,10 @@ const handleSuccessfulLogin = () => {
     // Use utility to get and clear the stored redirect path
     import('~/utils/auth-check.client').then(({ getAndClearRedirect }) => {
       const path = getAndClearRedirect() || '/'
-      console.log('Login successful, redirecting to:', path)
       router.push(path)
     }).catch(() => {
       // Fallback if module import fails
       const path = redirectPath.value || '/'
-      console.log('Login successful, redirecting to:', path)
       router.push(path)
     })
   }

@@ -68,7 +68,7 @@ export default defineEventHandler(async (event) => {
       // Create the response in Entu
       const createdResponse = await createEntuEntity('vastus', responseData, apiConfig)
       
-      console.log('Created response from Entu:', JSON.stringify(createdResponse, null, 2))
+      logger.debug('Created response from Entu', createdResponse)
 
       // Return success response
       return createSuccessResponse({

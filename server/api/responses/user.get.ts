@@ -7,8 +7,11 @@ import { validateRequiredString, createSuccessResponse } from '../../utils/valid
 import { withAuth } from '../../utils/auth'
 import type { AuthenticatedUser } from '../../utils/auth'
 import { searchEntuEntities, getEntuApiConfig } from '../../utils/entu'
+import { createLogger } from '../../utils/logger'
 
 export default defineEventHandler(async (event) => {
+  const logger = createLogger('api:responses:user')
+  
   return withAuth(event, async (event: any, user: AuthenticatedUser) => {
     // Only allow GET method
     assertMethod(event, 'GET')
@@ -63,9 +66,8 @@ export default defineEventHandler(async (event) => {
         })),
         count: responses.length
       })
-    }
-    catch (error: any) {
-      console.error('Failed to get user responses:', error)
+    } catch (error: any) {
+      logger.error('Failed to get user responses', error)
 
       // Re-throw known errors
       if (error?.statusCode) {
