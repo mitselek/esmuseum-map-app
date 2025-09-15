@@ -61,18 +61,52 @@ export default defineEventHandler(async (event) => {
     }
     
     // Use our existing auth utility to validate the token
-    // Since this request is coming from our server, the audience should match
-    const mockEvent = {
-      node: {
-        req: {
-          headers: {
-            authorization: `Bearer ${tempToken}`
+    // But first, we need to exchange the temporary token for a full token
+    let user: any
+    try {
+      // Exchange the temporary token for a full authentication token
+      const config = useRuntimeConfig()
+      const apiUrl = config.public.entuUrl || 'https://entu.app'
+      const accountName = config.public.entuAccount || 'esmuuseum'
+      
+      logger.info('Exchanging temporary token for full auth token')
+      
+      const authResponse = await fetch(`${apiUrl}/api/auth?account=${accountName}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${tempToken}`,
+          'Accept-Encoding': 'deflate'
+        }
+      })
+      
+      if (!authResponse.ok) {
+        throw new Error(`Token exchange failed: ${authResponse.status} ${authResponse.statusText}`)
+      }
+      
+      const authData = await authResponse.json()
+      logger.info('Token exchange successful', { 
+        hasUser: !!authData.user,
+        hasToken: !!authData.token,
+        accounts: authData.accounts?.length || 0
+      })
+      
+      // Now use the full token for authentication
+      const mockEvent = {
+        node: {
+          req: {
+            headers: {
+              authorization: `Bearer ${authData.token}`
+            }
           }
         }
       }
+      
+      user = await authenticateUser(mockEvent)
+      
+    } catch (tokenExchangeError: any) {
+      logger.error('Token exchange failed', tokenExchangeError)
+      throw tokenExchangeError
     }
-    
-    const user = await authenticateUser(mockEvent)
     
     logger.info('Authentication successful', { userId: user._id })
     
