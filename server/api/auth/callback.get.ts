@@ -71,12 +71,31 @@ export default defineEventHandler(async (event) => {
       
       logger.info('Exchanging temporary token for full auth token')
       
+      // Debug the token exchange request
+      logger.info('Token exchange request details', {
+        url: `${apiUrl}/api/auth?account=${accountName}`,
+        tempTokenLength: tempToken.length,
+        tempTokenPrefix: tempToken.substring(0, 50) + '...',
+        headers: {
+          'Authorization': `Bearer ${tempToken.substring(0, 20)}...`,
+          'Accept-Encoding': 'deflate'
+        }
+      })
+      
       const authResponse = await fetch(`${apiUrl}/api/auth?account=${accountName}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${tempToken}`,
           'Accept-Encoding': 'deflate'
         }
+      })
+      
+      // Debug the response before parsing
+      logger.info('Token exchange response details', {
+        status: authResponse.status,
+        statusText: authResponse.statusText,
+        headers: Object.fromEntries(authResponse.headers.entries()),
+        url: authResponse.url
       })
       
       if (!authResponse.ok) {
