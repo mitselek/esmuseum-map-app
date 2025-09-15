@@ -43,6 +43,23 @@ export default defineEventHandler(async (event) => {
     
     logger.info('Found JWT token in callback', { tokenLength: tempToken.length })
     
+    // Debug: Let's decode the JWT to see what's in it
+    try {
+      const tokenParts = tempToken.split('.')
+      if (tokenParts.length === 3 && tokenParts[1]) {
+        const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString())
+        logger.info('JWT payload debug', {
+          payload,
+          hasUser: !!payload.user,
+          hasAccounts: !!payload.accounts,
+          audience: payload.aud,
+          subject: payload.sub
+        })
+      }
+    } catch (debugError) {
+      logger.warn('Failed to debug JWT payload', debugError)
+    }
+    
     // Use our existing auth utility to validate the token
     // Since this request is coming from our server, the audience should match
     const mockEvent = {
