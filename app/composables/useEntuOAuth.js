@@ -68,7 +68,9 @@ export const useEntuOAuth = () => {
         }
         else if (window.location.hostname === 'esmuseum.entu.ee') {
           // Fallback: if on production domain, try the IP that Entu expects
-          callbackOrigin = 'https://64.226.65.17'
+          // Note: This IP may change based on infrastructure. Use NUXT_PUBLIC_CALLBACK_ORIGIN
+          // environment variable for stable configuration: https://209.38.213.121
+          callbackOrigin = 'https://209.38.213.121'
         }
 
         // Use a callback URL with a query parameter - this helps Entu know where to put the token
