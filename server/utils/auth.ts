@@ -56,10 +56,53 @@ export function extractBearerToken (event: any): string {
 }
 
 /**
+ * Authenticate user via server-side session cookie
+ */
+async function authenticateUserViaSession (event: any): Promise<AuthenticatedUser | null> {
+  try {
+    const sessionToken = getCookie(event, 'auth-session')
+    
+    if (!sessionToken) {
+      return null
+    }
+    
+    // Decode the session token
+    const sessionData = JSON.parse(Buffer.from(sessionToken, 'base64').toString())
+    
+    // Check if session has expired
+    if (sessionData.expires < Date.now()) {
+      logger.debug('Session expired, clearing cookie')
+      deleteCookie(event, 'auth-session')
+      return null
+    }
+    
+    logger.debug('Session authentication successful', { userId: sessionData.userId })
+    
+    return {
+      _id: sessionData.userId,
+      email: sessionData.email,
+      name: sessionData.name
+    }
+    
+  } catch (error: any) {
+    logger.debug('Session authentication failed', error)
+    return null
+  }
+}
+
+/**
  * Validate token and get user info from Entu
+ * Supports both JWT token and session-based authentication
  * Optimized: Use JWT token directly instead of making API calls
  */
 export async function authenticateUser (event: any): Promise<AuthenticatedUser> {
+  // First try session-based authentication
+  const sessionUser = await authenticateUserViaSession(event)
+  if (sessionUser) {
+    return sessionUser
+  }
+  
+  // Fall back to JWT token authentication
   const token = extractBearerToken(event)
 
   try {
