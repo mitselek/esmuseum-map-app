@@ -29,7 +29,6 @@
             :task="selectedTask"
             :task-locations="taskLocations"
             :user-position="userPosition"
-            :completed-tasks="completedTaskIds"
             :loading-locations="loadingTaskLocations"
             @location-click="onMapLocationClick"
             @map-ready="onMapReady"
@@ -47,6 +46,7 @@
             :selected-location="selectedLocation"
             :loading-task-locations="loadingTaskLocations"
             :geolocation-error="geolocationError"
+            :visited-locations="scoringData.visitedLocations.value"
             @location-select="onLocationSelect"
             @request-location="handleLocationRequest"
             @load-task-locations="loadTaskLocations"
@@ -85,7 +85,6 @@ const {
 
 // Use completed tasks tracking
 const {
-  completedTaskIds,
   loadCompletedTasks
 } = useCompletedTasks()
 

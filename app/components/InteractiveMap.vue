@@ -33,7 +33,6 @@
     <!-- Map container -->
     <div
       v-else
-      ref="mapContainer"
       class="size-full"
     >
       <LMap
@@ -80,26 +79,26 @@
         >
           <LPopup>
             <div>
-              <h3 class="font-medium">
-                {{ getLocationName(location) }}
-              </h3>
-              <div
-                v-if="isLocationVisited(location)"
-                class="mb-2 inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800"
-              >
-                ✓ {{ $t('map.visited') }}
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h3 class="font-medium">
+                    {{ getLocationName(location) }}
+                  </h3>
+                  <p
+                    v-if="getLocationDescription(location)"
+                    class="mt-1 text-sm text-gray-600"
+                  >
+                    {{ getLocationDescription(location) }}
+                  </p>
+                </div>
+                <div
+                  v-if="isLocationVisited(location)"
+                  class="ml-2 text-lg text-green-600"
+                >
+                  ✓
+                </div>
               </div>
-              <p
-                v-if="getLocationDescription(location)"
-                class="mt-1 text-sm text-gray-600"
-              >
-                {{ getLocationDescription(location) }}
-              </p>
               <p class="mt-2 text-xs text-gray-500">
-                <span v-if="location.distanceText">
-                  📏 {{ location.distanceText }}
-                </span>
-                <br>
                 {{ formatCoordinates(location.coordinates) }}
               </p>
             </div>
@@ -123,8 +122,6 @@ import 'leaflet/dist/leaflet.css'
 
 // Import location utility
 const { formatCoordinates, getLocationName, getLocationDescription } = useLocation()
-
-// Import Leaflet CSS
 
 // Fix Leaflet icon issues in bundlers
 delete L.Icon.Default.prototype._getIconUrl
@@ -150,18 +147,12 @@ const props = defineProps({
     default: null
   },
   /**
-   * Maximum number of locations to display
+   * Maximum number of closest unvisited locations to use for map viewport centering
+   * All locations (visited + unvisited) are displayed as markers
    */
   maxLocations: {
     type: Number,
     default: 5
-  },
-  /**
-   * Array of completed task IDs to filter out
-   */
-  completedTasks: {
-    type: Array,
-    default: () => []
   },
   /**
    * Set of visited location references for green markers
@@ -179,11 +170,10 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['location-click', 'map-ready'])
+const emit = defineEmits(['map-ready'])
 
 // Component state
 const map = ref(null)
-const mapContainer = ref(null)
 const error = ref(null)
 const zoom = ref(13)
 const center = ref([59.4370, 24.7536]) // Default to Tallinn
@@ -239,39 +229,37 @@ const getLocationIcon = (location) => {
 
 // Filter and process locations
 const displayedLocations = computed(() => {
-  console.log('InteractiveMap - Completed tasks:', props.completedTasks)
-
   if (!props.locations?.length) {
     console.log('InteractiveMap - No locations provided')
     return []
   }
 
-  // Filter out completed tasks
-  const unvisitedLocations = props.locations.filter((location) => {
-    const taskId = location._id || location.id
-    return !props.completedTasks.includes(taskId)
-  })
-
   // Filter locations that have valid coordinates
-  const locationsWithCoords = unvisitedLocations.filter((location) => {
+  const locationsWithCoords = props.locations.filter((location) => {
     const hasCoords = location.coordinates
       && location.coordinates.lat
       && location.coordinates.lng
     return hasCoords
   })
 
+  return locationsWithCoords
+})
+
+// Calculate the closest unvisited locations for viewport centering
+const closestUnvisitedLocations = computed(() => {
+  const unvisitedLocations = displayedLocations.value.filter((location) => {
+    return !isLocationVisited(location)
+  })
+
   // Sort by distance if user position is available
-  let sortedLocations = locationsWithCoords
+  let sortedUnvisited = unvisitedLocations
   if (props.userPosition) {
-    sortedLocations = locationsWithCoords.sort((a, b) => {
+    sortedUnvisited = unvisitedLocations.sort((a, b) => {
       return (a.distance || 0) - (b.distance || 0)
     })
   }
 
-  // Limit to max locations
-  const finalLocations = sortedLocations.slice(0, props.maxLocations)
-  console.log('InteractiveMap - Final displayed locations:', finalLocations)
-  return finalLocations
+  return sortedUnvisited.slice(0, props.maxLocations)
 })
 
 // Calculate map bounds and center
@@ -285,8 +273,8 @@ const calculateMapBounds = async () => {
     bounds.push([props.userPosition.lat, props.userPosition.lng])
   }
 
-  // Add displayed locations
-  displayedLocations.value.forEach((location) => {
+  // Add closest unvisited locations for viewport centering
+  closestUnvisitedLocations.value.forEach((location) => {
     if (location.coordinates) {
       bounds.push([location.coordinates.lat, location.coordinates.lng])
     }

@@ -3,7 +3,7 @@
 @account=esmuuseum
 
 ### Entity GET sample response
-GET {{api_hostname}}/{{account}}/entity/68c7225a85a9d472cca35cdf HTTP/1.1
+GET {{api_hostname}}/{{account}}/entity/68c7492785a9d472cca35d04 HTTP/1.1
 Accept-Encoding: deflate
 Authorization: Bearer {{esm_token}}
 

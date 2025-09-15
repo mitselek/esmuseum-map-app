@@ -27,7 +27,6 @@
     <InteractiveMap
       :locations="taskLocations"
       :user-position="effectiveUserPosition"
-      :completed-tasks="completedTasks"
       :visited-locations="scoringData.visitedLocations.value"
       :loading="loadingLocations"
       :max-locations="5"
@@ -146,13 +145,6 @@ const props = defineProps({
   userPosition: {
     type: Object,
     default: null
-  },
-  /**
-   * Array of completed task IDs
-   */
-  completedTasks: {
-    type: Array,
-    default: () => []
   },
   /**
    * Loading state for locations

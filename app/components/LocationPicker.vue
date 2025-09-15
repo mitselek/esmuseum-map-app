@@ -114,14 +114,25 @@
               {{ getLocationDescription(location) }}
             </p>
           </div>
-          <div class="ml-3 text-right">
-            <span
+          <div class="ml-3 flex items-center text-right">
+            <div
               v-if="location.distanceText"
-              class="text-xs text-gray-500"
+              class="mr-2"
             >
-              {{ location.distanceText }}
-            </span>
-            <div class="text-blue-600">
+              <span class="text-xs text-gray-500">
+                {{ location.distanceText }}
+              </span>
+            </div>
+            <div
+              v-if="isLocationVisited(location)"
+              class="text-lg text-green-600"
+            >
+              ✓
+            </div>
+            <div
+              v-else
+              class="text-blue-600"
+            >
               →
             </div>
           </div>
@@ -166,6 +177,10 @@ const props = defineProps({
   error: {
     type: String,
     default: null
+  },
+  visitedLocations: {
+    type: Set,
+    default: () => new Set()
   }
 })
 
@@ -215,6 +230,13 @@ watch([() => props.locations, userPosition], ([newLocations, newPosition]) => {
 
 // Computed
 const selectedLocation = computed(() => props.selected)
+
+// Check if a location is visited
+const isLocationVisited = (location) => {
+  const locationRef = location._id || location.id
+  if (!locationRef || !props.visitedLocations) return false
+  return props.visitedLocations.has(locationRef)
+}
 
 const sortedLocations = computed(() => sortedLocationsCache.value)
 
