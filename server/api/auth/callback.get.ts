@@ -62,6 +62,7 @@ export default defineEventHandler(async (event) => {
     // Use our existing auth utility to validate the token
     // But first, we need to exchange the temporary token for a full token
     let user: any
+    let authData: any
     try {
       // Exchange the temporary token for a full authentication token
       const config = useRuntimeConfig()
@@ -82,7 +83,7 @@ export default defineEventHandler(async (event) => {
         throw new Error(`Token exchange failed: ${authResponse.status} ${authResponse.statusText}`)
       }
       
-      const authData = await authResponse.json()
+      authData = await authResponse.json()
       logger.info('Token exchange successful', { 
         hasUser: !!authData.user,
         hasToken: !!authData.token,
@@ -90,7 +91,7 @@ export default defineEventHandler(async (event) => {
       })
       
       // Debug: Log the structure of the auth response
-      logger.debug('Token exchange response structure', {
+      logger.info('Token exchange response structure', {
         responseKeys: Object.keys(authData),
         userKeys: authData.user ? Object.keys(authData.user) : [],
         accountsStructure: authData.accounts ? authData.accounts.map((acc: any) => Object.keys(acc)) : [],
@@ -124,8 +125,8 @@ export default defineEventHandler(async (event) => {
     logger.info('Authentication successful', { userId: user._id })
     
     // Create a server-side session
-    // For now, we'll use a simple approach with httpOnly cookies
-    const sessionToken = await generateSessionToken(user)
+    // Store both user data and the JWT token for API calls
+    const sessionToken = await generateSessionToken(user, authData.token)
     
     // Set httpOnly cookie for session
     setCookie(event, 'auth-session', sessionToken, {
@@ -158,13 +159,14 @@ export default defineEventHandler(async (event) => {
  * This is a simple implementation - in production you might want to use
  * a proper session store or JWT signing
  */
-async function generateSessionToken(user: any): Promise<string> {
+async function generateSessionToken(user: any, jwtToken: string): Promise<string> {
   // For now, we'll use a simple base64 encoded user info
   // In production, you should sign this or store it in a secure session store
   const sessionData = {
     userId: user._id,
     email: user.email,
     name: user.name,
+    jwtToken: jwtToken, // Store the JWT token for API calls
     created: Date.now(),
     expires: Date.now() + (60 * 60 * 24 * 7 * 1000) // 7 days
   }
