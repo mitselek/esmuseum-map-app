@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     
     // Build callback URL - this will be our server endpoint
     const baseUrl = getRequestURL(event)
-    const callbackUrl = `${baseUrl.protocol}//${baseUrl.host}/api/auth/callback`
+    const callbackUrl = `${baseUrl.protocol}//${baseUrl.host}/api/auth/callback?jwt=`
     
     // Store the original client URL for redirect after successful auth
     const clientRedirectUrl = body.redirectUrl || '/'
