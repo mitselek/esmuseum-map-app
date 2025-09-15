@@ -148,7 +148,8 @@ function getEntityTypeReference (entityType: string): string {
   const entityTypeMap: Record<string, string> = {
     'vastus': '686917401749f351b9c82f58', // Standard response entity type
     'ulesanne': '686917231749f351b9c82f4c', // Task entity type
-    'asukoht': '686917581749f351b9c82f5a' // Location entity type
+    'asukoht': '686917581749f351b9c82f5a', // Location entity type
+    'photo': '686917681749f351b9c82f5c' // Photo entity type (placeholder - needs actual ID)
   }
   
   return entityTypeMap[entityType] || entityType
@@ -196,4 +197,54 @@ export function getEntuApiConfig (token: string): EntuApiOptions {
   })
 
   return apiConfig
+}
+
+/**
+ * Get file upload URL for an entity
+ */
+export async function getFileUploadUrl (entityId: string, fileInfo: { type: string, filename: string, filesize: number, filetype: string }, apiConfig: EntuApiOptions) {
+  logger.debug(`Getting file upload URL for entity: ${entityId}`, { fileInfo })
+  
+  const properties = [fileInfo]
+  
+  return callEntuApi(`/entity/${entityId}`, {
+    method: 'POST',
+    body: JSON.stringify(properties)
+  }, apiConfig)
+}
+
+/**
+ * Upload file to provided URL
+ */
+export async function uploadFileToUrl (uploadUrl: string, file: Buffer | Uint8Array, headers: Record<string, string> = {}) {
+  logger.debug('Uploading file to external URL', { 
+    url: uploadUrl,
+    fileSize: file.length,
+    headers: Object.keys(headers)
+  })
+
+  try {
+    const response = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers,
+      body: file as BodyInit
+    })
+
+    if (!response.ok) {
+      logger.warn(`File upload failed: ${response.status} ${response.statusText}`)
+      throw createError({
+        statusCode: response.status,
+        statusMessage: `File upload failed: ${response.status} ${response.statusText}`
+      })
+    }
+
+    logger.debug('File upload successful')
+    return response
+  } catch (error) {
+    logger.error('File upload failed', error)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to upload file'
+    })
+  }
 }

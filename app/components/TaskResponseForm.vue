@@ -44,7 +44,11 @@
       />
 
       <!-- File Upload -->
-      <TaskFileUpload />
+      <TaskFileUpload
+        ref="fileUploadRef"
+        @upload-complete="onFileUploadComplete"
+        @upload-error="onFileUploadError"
+      />
 
       <!-- Submit Button -->
       <div class="flex flex-col space-y-2">
@@ -116,6 +120,8 @@ const responseForm = ref({
 })
 
 const submitting = ref(false)
+const fileUploadRef = ref(null)
+const uploadedFiles = ref([])
 
 // Computed properties
 const canSubmit = computed(() => {
@@ -135,6 +141,16 @@ const loadTaskLocations = () => {
   emit('loadTaskLocations')
 }
 
+// File upload handlers
+const onFileUploadComplete = (results) => {
+  console.log('File upload completed:', results)
+  uploadedFiles.value = results.filter((result) => result.success)
+}
+
+const onFileUploadError = (error) => {
+  console.error('File upload error:', error)
+}
+
 // Form submission
 const submitResponse = async () => {
   if (!canSubmit.value || !props.selectedTask) return
@@ -149,7 +165,7 @@ const submitResponse = async () => {
       return
     }
 
-    // Prepare the API request data matching the server validation
+    // Step 1: Create the response entity first
     const requestData = {
       taskId: props.selectedTask._id,
       responses: [
@@ -175,7 +191,7 @@ const submitResponse = async () => {
       ]
     }
 
-    // Call the API endpoint
+    // Create the response entity
     const response = await $fetch('/api/responses', {
       method: 'POST',
       headers: {
@@ -185,17 +201,42 @@ const submitResponse = async () => {
       body: requestData
     })
 
+    console.log('Response created:', response)
+
+    // Step 2: Upload files to the newly created response entity
+    let fileReferences = []
+    if (fileUploadRef.value && fileUploadRef.value.files.length > 0 && response.data?.id) {
+      try {
+        const uploadResults = await fileUploadRef.value.uploadFiles(response.data.id)
+        fileReferences = uploadResults
+          .filter((result) => result.success)
+          .map((result) => result.entityId)
+        console.log('Files uploaded, entity IDs:', fileReferences)
+      }
+      catch (uploadError) {
+        console.error('File upload failed:', uploadError)
+        // Continue with form submission even if file upload fails
+      }
+    }
+
     // Emit response submitted event for optimistic updates
     emit('response-submitted', {
       responseData: requestData,
       apiResponse: response,
-      locationReference: props.selectedLocation?.reference
+      locationReference: props.selectedLocation?.reference,
+      uploadedFiles: fileReferences
     })
 
     // Reset form after successful submission
     responseForm.value.text = ''
     responseForm.value.geopunkt = null
     responseForm.value.file = null
+    uploadedFiles.value = []
+
+    // Clear file upload component
+    if (fileUploadRef.value) {
+      fileUploadRef.value.clearFiles()
+    }
   }
   catch (error) {
     console.error('Failed to submit response:', error)
