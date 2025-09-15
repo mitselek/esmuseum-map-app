@@ -5,59 +5,50 @@
 The application requires proper JWT audience configuration for production deployments due to Entu's authentication requirements.
 
 ### Problem
-Entu validates JWT tokens against the exact callback URL origin. When deployed behind proxies or load balancers, the domain (`esmuseum.entu.ee`) may differ from the server IP that Entu expects for JWT audience validation.
+Entu validates JWT tokens against the exact callback URL origin. The current issue is that Entu's OAuth configuration expects a server IP address (`209.38.213.121`) but the application runs on a domain (`https://esmuseum.entu.ee`).
 
-### Solution
+### Correct Solution: Update Entu OAuth Configuration
 
-#### Option 1: Environment Variable (Recommended)
-Set the callback origin explicitly using environment variables:
+**The proper fix is to configure Entu to accept domain-based callbacks:**
+
+1. **Access your Entu account settings** or contact Entu support
+2. **Update OAuth application callback URLs** to include:
+   - `https://esmuseum.entu.ee/auth/callback`
+3. **Ensure JWT audience validation** accepts the domain instead of IP
+
+### Current Workaround (Temporary)
+
+If you cannot update Entu configuration immediately, you can use the IP address:
 
 ```bash
-# For current production server
+# Set environment variable to use IP address
 export NUXT_PUBLIC_CALLBACK_ORIGIN=https://209.38.213.121
-
-# Or set in your deployment platform
-NUXT_PUBLIC_CALLBACK_ORIGIN=https://209.38.213.121
 ```
 
-#### Option 2: Runtime Configuration
-Update `.config/nuxt.config.ts` with production values:
+But this is **not recommended** because:
+- IP addresses may change with infrastructure updates
+- Users see IP addresses in browser during OAuth flow
+- It's not a scalable solution
 
-```typescript
-runtimeConfig: {
-  public: {
-    callbackOrigin: process.env.NUXT_PUBLIC_CALLBACK_ORIGIN || ''
-  }
-}
+### How to Verify the Configuration
+
+#### Check Current Callback URL
+When starting OAuth flow, look for logs showing:
+```
+Full Auth URL: https://entu.app/api/auth/google?account=esmuuseum&next=https%3A//esmuseum.entu.ee/auth/callback%3Fjwt%3D
 ```
 
-#### Option 3: Automatic Detection (Current Fallback)
-The code automatically detects `esmuseum.entu.ee` and uses `https://209.38.213.121`. This works but requires code updates when infrastructure changes.
-
-### How to Find the Correct IP
-
-If you encounter JWT audience validation errors like:
-```
-jwt audience invalid. expected: XXX.XXX.XXX.XXX
-```
-
-1. Check the production logs for the expected IP address
-2. Update the environment variable or hardcoded fallback
-3. Redeploy the application
-
-### Testing the Fix
-
-After deployment, monitor logs for:
-- ✅ Successful profile API calls
+#### Expected Behavior After Fix
+- ✅ Users authenticate on `https://esmuseum.entu.ee`
+- ✅ OAuth redirects back to `https://esmuseum.entu.ee/auth/callback`
+- ✅ JWT validation succeeds with domain-based audience
 - ✅ No "jwt audience invalid" errors
-- ✅ Users can log in and access tasks
 
 ### Infrastructure Notes
 
-- The IP address may change when servers are redeployed or scaled
-- Using environment variables prevents code changes for infrastructure updates
-- Consider asking your hosting provider about stable IP addresses or proper proxy configuration
+The mismatch suggests either:
+1. **Entu OAuth app configuration** needs updating to accept domain callbacks
+2. **Reverse proxy/load balancer** isn't properly forwarding domain information
+3. **SSL certificate configuration** issues
 
-### Recent IP Changes
-- `64.226.65.17` (Previous)
-- `209.38.213.121` (Current as of Sep 15, 2025)
+Contact your Entu account administrator or support to resolve OAuth callback URL configuration.
