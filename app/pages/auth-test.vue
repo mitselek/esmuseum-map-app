@@ -3,30 +3,47 @@
  * This page allows testing the new authentication flow
  */
 <template>
-  <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">
+  <div class="min-h-screen bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-md rounded-lg bg-white p-6 shadow-md">
+      <h2 class="mb-6 text-center text-2xl font-bold text-gray-900">
         Server-Side Authentication Test
       </h2>
 
       <!-- Authentication Status -->
-      <div class="mb-6 p-4 rounded-lg" :class="authStatusClass">
-        <h3 class="font-semibold mb-2">Authentication Status</h3>
+      <div
+        class="mb-6 rounded-lg p-4"
+        :class="authStatusClass"
+      >
+        <h3 class="mb-2 font-semibold">
+          Authentication Status
+        </h3>
         <p><strong>Authenticated:</strong> {{ isAuthenticated ? 'Yes' : 'No' }}</p>
-        <p v-if="user"><strong>User:</strong> {{ user.name || user.email || user._id }}</p>
-        <p v-if="error" class="text-red-600"><strong>Error:</strong> {{ error }}</p>
+        <p v-if="user">
+          <strong>User:</strong> {{ user.name || user.email || user._id }}
+        </p>
+        <p
+          v-if="error"
+          class="text-red-600"
+        >
+          <strong>Error:</strong> {{ error }}
+        </p>
       </div>
 
       <!-- Login Section -->
-      <div v-if="!isAuthenticated" class="space-y-4">
-        <h3 class="text-lg font-semibold text-gray-700">Login with:</h3>
-        
+      <div
+        v-if="!isAuthenticated"
+        class="space-y-4"
+      >
+        <h3 class="text-lg font-semibold text-gray-700">
+          Login with:
+        </h3>
+
         <button
           v-for="(providerKey, providerName) in providers"
           :key="providerKey"
-          @click="handleLogin(providerKey)"
           :disabled="isLoading"
-          class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+          class="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
+          @click="handleLogin(providerKey)"
         >
           <span v-if="isLoading">Authenticating...</span>
           <span v-else>{{ providerName }}</span>
@@ -34,15 +51,20 @@
       </div>
 
       <!-- Logout Section -->
-      <div v-if="isAuthenticated" class="space-y-4">
-        <div class="bg-green-50 p-4 rounded-lg">
-          <p class="text-green-800">You are successfully authenticated!</p>
+      <div
+        v-if="isAuthenticated"
+        class="space-y-4"
+      >
+        <div class="rounded-lg bg-green-50 p-4">
+          <p class="text-green-800">
+            You are successfully authenticated!
+          </p>
         </div>
-        
+
         <button
-          @click="handleLogout"
           :disabled="isLoading"
-          class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+          class="flex w-full justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
+          @click="handleLogout"
         >
           <span v-if="isLoading">Logging out...</span>
           <span v-else>Logout</span>
@@ -50,18 +72,26 @@
       </div>
 
       <!-- Test API Calls -->
-      <div v-if="isAuthenticated" class="mt-6 pt-6 border-t">
-        <h3 class="text-lg font-semibold text-gray-700 mb-4">Test API Calls</h3>
-        
+      <div
+        v-if="isAuthenticated"
+        class="mt-6 border-t pt-6"
+      >
+        <h3 class="mb-4 text-lg font-semibold text-gray-700">
+          Test API Calls
+        </h3>
+
         <button
-          @click="testProfileAPI"
           :disabled="isLoading"
-          class="w-full mb-2 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+          class="mb-2 flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
+          @click="testProfileAPI"
         >
           Test Profile API
         </button>
-        
-        <div v-if="apiTestResult" class="mt-2 p-3 bg-gray-50 rounded text-sm">
+
+        <div
+          v-if="apiTestResult"
+          class="mt-2 rounded bg-gray-50 p-3 text-sm"
+        >
           <pre>{{ JSON.stringify(apiTestResult, null, 2) }}</pre>
         </div>
       </div>
@@ -73,15 +103,15 @@
 import { useServerAuth } from '~/composables/useServerAuth'
 
 // Use the new server-side auth composable
-const { 
-  isAuthenticated, 
-  user, 
-  isLoading, 
-  error, 
-  startAuthFlow, 
-  logout, 
+const {
+  isAuthenticated,
+  user,
+  isLoading,
+  error,
+  startAuthFlow,
+  logout,
   checkAuthStatus,
-  providers 
+  providers
 } = useServerAuth()
 
 // State for API testing
@@ -113,7 +143,8 @@ const testProfileAPI = async () => {
     apiTestResult.value = { loading: true }
     const result = await $fetch('/api/user/profile')
     apiTestResult.value = result
-  } catch (err) {
+  }
+  catch (err) {
     apiTestResult.value = { error: err.message || 'API call failed' }
   }
 }
