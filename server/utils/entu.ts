@@ -47,22 +47,38 @@ export async function callEntuApi (endpoint: string, options: Partial<RequestIni
   try {
     const response = await fetch(url, requestOptions)
 
+    // Log response status - more concise for successful calls
+    if (!response.ok) {
+      logger.warn('Entu API call failed', {
+        endpoint,
+        method: options.method || 'GET',
+        status: response.status,
+        statusText: response.statusText,
+        url
+      })
+    } else {
+      logger.debug('Entu API call successful', {
+        endpoint,
+        status: response.status,
+        contentLength: response.headers.get('content-length')
+      })
+    }
+
     if (!response.ok) {
       // Try to get the response body for more detailed error info
       let errorDetails = ''
       try {
         const errorBody = await response.text()
         errorDetails = errorBody
+        logger.error('Entu API error response body', {
+          endpoint,
+          status: response.status,
+          body: errorDetails,
+          url
+        })
       } catch (e) {
-        // Ignore if we can't read the response body
+        logger.warn('Could not read error response body', e)
       }
-
-      logger.warn(`API call failed: ${response.status} ${response.statusText}`, {
-        endpoint,
-        status: response.status,
-        statusText: response.statusText,
-        errorDetails
-      })
 
       throw createError({
         statusCode: response.status,
@@ -71,12 +87,6 @@ export async function callEntuApi (endpoint: string, options: Partial<RequestIni
     }
 
     const data = await response.json()
-    logger.debug(`API call successful: ${endpoint}`, {
-      status: response.status,
-      hasData: !!data,
-      dataKeys: data ? Object.keys(data) : []
-    })
-
     return data
   }
   catch (error) {

@@ -129,7 +129,27 @@ async function authenticateUserViaAPI (event: any, token: string): Promise<Authe
     }
   })
 
+  // Log response details regardless of success/failure
+  logger.info('Entu auth API response', {
+    status: response.status,
+    statusText: response.statusText,
+    url: `${apiUrl}/api/${accountName}`
+  })
+
   if (!response.ok) {
+    // Try to get response body for error details
+    let errorBody = ''
+    try {
+      errorBody = await response.text()
+      logger.error('Auth API error response body', { 
+        status: response.status,
+        body: errorBody,
+        url: `${apiUrl}/api/${accountName}`
+      })
+    } catch (e) {
+      logger.warn('Could not read error response body', e)
+    }
+
     logger.warn(`Authentication failed: ${response.status} ${response.statusText}`)
     throw createError({
       statusCode: 401,
@@ -138,6 +158,14 @@ async function authenticateUserViaAPI (event: any, token: string): Promise<Authe
   }
 
   const data = await response.json()
+  
+  // Log successful response structure
+  logger.debug('Entu auth API success response', {
+    status: response.status,
+    hasUser: !!data.user,
+    hasAccounts: !!data.accounts,
+    accountsLength: Array.isArray(data.accounts) ? data.accounts.length : 0
+  })
 
   // Debug: Log the actual response structure to understand what we're getting
   logger.debug('Entu auth response structure', {
