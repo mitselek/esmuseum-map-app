@@ -125,7 +125,7 @@ const onMapLocationClick = (location) => {
 }
 
 const onMapReady = () => {
-  console.log('Map is ready')
+  // Map is ready for interactions
 }
 
 // Load locations for current task

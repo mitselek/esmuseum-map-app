@@ -285,6 +285,5 @@ const getLocationDescription = (location) => {
 onMounted(() => {
   // GPS is automatically requested by the centralized useLocation service
   // No need for manual request - locations will auto-sort when GPS becomes available
-  console.log('LocationPicker mounted - GPS auto-sort enabled')
 })
 </script>

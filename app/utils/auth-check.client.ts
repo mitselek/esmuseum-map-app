@@ -23,7 +23,6 @@ export const REDIRECT_KEY = 'auth_redirect'
 export function rememberRedirect (path: string) {
   try {
     localStorage.setItem(REDIRECT_KEY, path)
-    console.log('auth-check: Stored redirect path:', path)
   }
   catch { /* no-op */ }
 }
@@ -31,7 +30,6 @@ export function rememberRedirect (path: string) {
 export function getAndClearRedirect (): string | null {
   try {
     const path = localStorage.getItem(REDIRECT_KEY)
-    console.log('auth-check: Retrieved redirect path:', path)
     if (path) localStorage.removeItem(REDIRECT_KEY)
     return path
   }
@@ -44,12 +42,15 @@ export function getAndClearRedirect (): string | null {
 export function logAuthStorage () {
   if (typeof localStorage === 'undefined') return
 
-  console.log('Current auth storage state:')
   const allKeys = []
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i)
     if (key && (key.includes('auth') || key.includes('redirect') || key.includes('esm_'))) {
-      console.log(`- ${key}: ${localStorage.getItem(key)}`)
+      allKeys.push(`${key}: ${localStorage.getItem(key)}`)
     }
+  }
+  
+  if (allKeys.length > 0) {
+    console.log('Auth storage:', allKeys.join(', '))
   }
 }

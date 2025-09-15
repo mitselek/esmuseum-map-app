@@ -8,8 +8,11 @@ import { validateEntityId, createSuccessResponse } from '../../utils/validation'
 import { withAuth, checkTaskPermission, extractBearerToken } from '../../utils/auth'
 import type { AuthenticatedUser } from '../../utils/auth'
 import { getEntuEntity, getEntuApiConfig } from '../../utils/entu'
+import { createLogger } from '../../utils/logger'
 
 export default defineEventHandler(async (event) => {
+  const logger = createLogger('api:tasks:get')
+  
   return withAuth(event, async (event: any, user: AuthenticatedUser) => {
     // Only allow GET method
     assertMethod(event, 'GET')
@@ -43,9 +46,8 @@ export default defineEventHandler(async (event) => {
       // Return the result directly since getEntuEntity already returns {entity: ...}
       // Client expects: taskResponse.entity
       return taskResult
-    }
-    catch (error: any) {
-      console.error('Failed to get task data:', error)
+    } catch (error: any) {
+      logger.error('Failed to get task data', error)
 
       // Re-throw known errors
       if (error?.statusCode) {

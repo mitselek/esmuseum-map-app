@@ -100,11 +100,9 @@ export const useEntuApi = () => {
     if (!query.limit) {
       query.limit = 1000
     }
-    console.log('Searching entities with query:', query)
     const queryString = Object.entries(query)
       .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
       .join('&')
-    console.log('Searching entities with query:', queryString)
     return callApi(`/entity?${queryString}`)
   }
 

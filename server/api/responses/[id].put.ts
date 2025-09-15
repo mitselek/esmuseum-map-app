@@ -7,8 +7,11 @@ import { validateUpdateResponseRequest, validateEntityId, createSuccessResponse 
 import { withAuth, checkResponsePermission } from '../../utils/auth'
 import type { AuthenticatedUser } from '../../utils/auth'
 import { updateEntuEntity, getEntuApiConfig } from '../../utils/entu'
+import { createLogger } from '../../utils/logger'
 
 export default defineEventHandler(async (event) => {
+  const logger = createLogger('api:responses:put')
+  
   return withAuth(event, async (event: any, user: AuthenticatedUser) => {
     // Only allow PUT method
     assertMethod(event, 'PUT')
@@ -55,7 +58,7 @@ export default defineEventHandler(async (event) => {
       })
     }
     catch (error: any) {
-      console.error('Failed to update response:', error)
+      logger.error('Failed to update response', error)
 
       // Re-throw known errors
       if (error?.statusCode) {

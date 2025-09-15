@@ -9,6 +9,7 @@
  */
 
 import { withAuth } from '../utils/auth'
+import { createLogger } from '../utils/logger'
 import type { AuthenticatedUser } from '../utils/auth'
 import { createEntuEntity, getFileUploadUrl, uploadFileToUrl, getEntuApiConfig } from '../utils/entu'
 import { createSuccessResponse } from '../utils/validation'
@@ -20,6 +21,8 @@ const ALLOWED_MIME_TYPES = [
 ]
 
 export default defineEventHandler(async (event) => {
+  const logger = createLogger('api:upload')
+  
   return withAuth(event, async (event: any, user: AuthenticatedUser) => {
     // Only allow POST method
     assertMethod(event, 'POST')
@@ -94,7 +97,7 @@ export default defineEventHandler(async (event) => {
             })
 
           } catch (error: any) {
-            console.error(`Failed to upload file ${field.filename}:`, error)
+            logger.error(`Failed to upload file ${field.filename}`, error)
             uploadResults.push({
               filename: field.filename,
               success: false,
@@ -113,7 +116,7 @@ export default defineEventHandler(async (event) => {
       })
 
     } catch (error: any) {
-      console.error('File upload failed:', error)
+      logger.error('File upload failed', error)
 
       // Re-throw known errors
       if (error?.statusCode) {
