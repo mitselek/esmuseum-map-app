@@ -4,7 +4,7 @@
  * Compatible with current client-side implementation
  */
 
-import { withAuth, extractBearerToken } from '../../utils/auth'
+import { withAuth, extractJwtToken } from '../../utils/auth'
 import type { AuthenticatedUser } from '../../utils/auth'
 import { getEntuEntity, getEntuApiConfig } from '../../utils/entu'
 import { createLogger } from '../../utils/logger'
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     assertMethod(event, 'GET')
 
     try {
-      const apiConfig = getEntuApiConfig(extractBearerToken(event))
+      const apiConfig = getEntuApiConfig(extractJwtToken(event))
 
       logger.info('Getting user profile', {
         userId: user._id,

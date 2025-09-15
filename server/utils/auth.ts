@@ -18,6 +18,29 @@ export interface AuthenticatedUser {
 }
 
 /**
+ * Extract JWT token from either Bearer header or session
+ * This supports both direct JWT authentication and session-based authentication
+ */
+export function extractJwtToken (event: any): string {
+  // First try to get token from Authorization header
+  try {
+    return extractBearerToken(event)
+  } catch (error) {
+    // If no Bearer token, try to get it from session
+    if (event.context?.sessionJwtToken) {
+      logger.debug('Using JWT token from session')
+      return event.context.sessionJwtToken
+    }
+    
+    logger.warn('No JWT token found in Bearer header or session')
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'JWT token is required (either via Bearer header or session)'
+    })
+  }
+}
+
+/**
  * Extract and validate Bearer token from Authorization header
  */
 export function extractBearerToken (event: any): string {
@@ -77,6 +100,11 @@ async function authenticateUserViaSession (event: any): Promise<AuthenticatedUse
     }
     
     logger.debug('Session authentication successful', { userId: sessionData.userId })
+    
+    // Store the JWT token in the event context for later use
+    if (sessionData.jwtToken) {
+      event.context.sessionJwtToken = sessionData.jwtToken
+    }
     
     return {
       _id: sessionData.userId,
