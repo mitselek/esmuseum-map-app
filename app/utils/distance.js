@@ -80,7 +80,12 @@ const coordinateCache = new WeakMap()
  * @param {string} coordinateField - Field name containing coordinates
  * @returns {object|null} Coordinates object or null
  */
-function getLocationCoordinates (location, coordinateField = 'geopunkt') {
+/**
+ * Extract coordinates from a location object
+ * @param {object} location - Location object
+ * @returns {object|null} Coordinates object or null
+ */
+function getLocationCoordinates (location) {
   // Check cache first
   if (coordinateCache.has(location)) {
     return coordinateCache.get(location)
@@ -88,26 +93,12 @@ function getLocationCoordinates (location, coordinateField = 'geopunkt') {
 
   let coordinates = null
 
-  // Try to extract coordinates from geopunkt field (string format)
-  const coordString = location.properties?.[coordinateField]?.[0]?.value
-    || location.properties?.[coordinateField]
-    || location[coordinateField]
+  // Try to extract from separate lat/long fields (locations use these)
+  const lat = location.lat?.[0]?.number || location.properties?.lat?.[0]?.value || location.properties?.lat?.[0]?.number
+  const lng = location.long?.[0]?.number || location.properties?.long?.[0]?.value || location.properties?.long?.[0]?.number
 
-  if (coordString) {
-    coordinates = parseCoordinates(coordString)
-  }
-
-  // If no geopunkt, try to extract from separate lat/long fields
-  if (!coordinates) {
-    const lat = location.lat?.[0]?.number || location.properties?.lat?.[0]?.value || location.properties?.lat?.[0]?.number
-    const lng = location.long?.[0]?.number || location.properties?.long?.[0]?.value || location.properties?.long?.[0]?.number
-
-    if (lat != null && lng != null) {
-      coordinates = {
-        lat: parseFloat(lat),
-        lng: parseFloat(lng)
-      }
-    }
+  if (lat != null && lng != null) {
+    coordinates = { lat: parseFloat(lat), lng: parseFloat(lng) }
   }
 
   // Cache the result
@@ -119,17 +110,16 @@ function getLocationCoordinates (location, coordinateField = 'geopunkt') {
  * Sort locations by distance from a reference point
  * @param {Array} locations - Array of location objects with coordinates
  * @param {object} userPosition - User's position with lat/lng properties
- * @param {string} coordinateField - Field name containing coordinates (default: 'geopunkt')
  * @returns {Array} Sorted array of locations with distance property added
  */
-export function sortLocationsByDistance (locations, userPosition, coordinateField = 'geopunkt') {
+export function sortLocationsByDistance (locations, userPosition) {
   if (!userPosition || !userPosition.lat || !userPosition.lng) {
     return locations
   }
 
   // Create array of [location, distance] pairs for sorting
   const locationsWithDistance = locations.map((location) => {
-    const coordinates = getLocationCoordinates(location, coordinateField)
+    const coordinates = getLocationCoordinates(location)
 
     if (!coordinates) {
       return [location, Infinity, 'Asukoht teadmata', null]

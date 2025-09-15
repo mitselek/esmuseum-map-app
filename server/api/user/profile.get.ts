@@ -19,10 +19,23 @@ export default defineEventHandler(async (event) => {
     try {
       const apiConfig = getEntuApiConfig(extractBearerToken(event))
 
-      // Get user's full profile using their ID
-      const userProfileResult = await getEntuEntity(user._id, apiConfig)
+      logger.info('Getting user profile', {
+        userId: user._id,
+        hasToken: !!apiConfig.token
+      })
+
+      // Only request the specific properties we need for group membership
+      // This reduces response size and improves performance
+      const requiredProperties = '_parent,_owner,_viewer,_editor,_expander,name,surname,forename,email'
+      
+      // Get user's profile with only the properties we need
+      const userProfileResult = await getEntuEntity(user._id, apiConfig, requiredProperties)
 
       if (!userProfileResult) {
+        logger.error('User profile not found', {
+          userId: user._id,
+          result: userProfileResult
+        })
         throw createError({
           statusCode: 404,
           statusMessage: 'User profile not found'
@@ -33,6 +46,12 @@ export default defineEventHandler(async (event) => {
       // Entu API returns { entity: { ... } } format
       const userEntity = userProfileResult.entity || userProfileResult
 
+      logger.info('User profile retrieved successfully', {
+        userId: user._id,
+        hasEntity: !!userEntity,
+        entityId: userEntity?._id
+      })
+
       // Return in the exact same format as client getEntity call
       // Client expects: userProfileResponse.entity
       return {
@@ -40,7 +59,14 @@ export default defineEventHandler(async (event) => {
       }
     }
     catch (error: any) {
-      logger.error('Failed to get user profile', error)
+      logger.error('Failed to get user profile', {
+        userId: user._id,
+        error: error.message,
+        stack: error.stack,
+        statusCode: error.statusCode,
+        data: error.data,
+        cause: error.cause
+      })
 
       // Re-throw known errors
       if (error?.statusCode) {

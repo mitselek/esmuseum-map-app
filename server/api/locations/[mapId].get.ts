@@ -36,10 +36,12 @@ export default defineEventHandler(async (event) => {
       }
 
       // Search for locations that belong to this map
+      // Only request the specific property types needed for map display to reduce response size
       const searchResult = await searchEntuEntities({
         '_type.string': 'asukoht',
         '_parent.reference': mapId,
-        'limit': 10000
+        'limit': 10000,
+        'props': 'name.string,lat.number,long.number,kirjeldus.string'
       }, apiConfig)
 
       const locations = searchResult?.entities || []
@@ -47,7 +49,8 @@ export default defineEventHandler(async (event) => {
       logger.info(`Loaded ${locations.length} locations for map ${mapId}`, {
         requestedLimit: 10000,
         actualCount: locations.length,
-        searchResultCount: searchResult?.count
+        searchResultCount: searchResult?.count,
+        optimizedWithProps: true
       })
 
       // Return in the same format as the client-side searchEntities call

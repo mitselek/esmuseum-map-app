@@ -302,16 +302,6 @@ export const useLocation = () => {
       return `${location.coordinates.lat},${location.coordinates.lng}`
     }
 
-    // Try to extract from geopunkt field (various formats)
-    const geopunkt = location.geopunkt?.[0]?.string
-      || location.geopunkt?.[0]?.value
-      || location.geopunkt
-      || location.properties?.geopunkt?.[0]?.value
-      || location.properties?.geopunkt?.[0]?.string
-    if (geopunkt) {
-      return geopunkt
-    }
-
     // Try to extract from separate lat/long fields (various formats)
     const lat = location.lat?.[0]?.number
       || location.lat?.[0]?.value

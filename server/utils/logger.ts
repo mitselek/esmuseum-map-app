@@ -4,30 +4,35 @@
  */
 
 enum LogLevel {
-  DEBUG = 'DEBUG',
-  INFO = 'INFO',
-  WARN = 'WARN',
-  ERROR = 'ERROR'
+  DEBUG = 0,
+  INFO = 1,
+  WARN = 2,
+  ERROR = 3
+}
+
+/**
+ * Get the current log level from environment or default
+ */
+function getCurrentLogLevel(): LogLevel {
+  const envLogLevel = process.env.LOG_LEVEL?.toUpperCase()
+  const isDev = process.env.NODE_ENV === 'development'
+  
+  switch (envLogLevel) {
+    case 'DEBUG': return LogLevel.DEBUG
+    case 'INFO': return LogLevel.INFO
+    case 'WARN': return LogLevel.WARN
+    case 'ERROR': return LogLevel.ERROR
+    default:
+      // Default: INFO in production for API debugging, DEBUG in development
+      return isDev ? LogLevel.DEBUG : LogLevel.INFO
+  }
 }
 
 /**
  * Check if we should log at this level
  */
 function shouldLog(level: LogLevel): boolean {
-  const isDev = process.env.NODE_ENV === 'development'
-  
-  // Always log WARN and ERROR in any environment
-  if (level === LogLevel.WARN || level === LogLevel.ERROR) {
-    return true
-  }
-  
-  // In development, also log INFO
-  if (isDev && level === LogLevel.INFO) {
-    return true
-  }
-  
-  // Never log DEBUG
-  return false
+  return level >= getCurrentLogLevel()
 }
 
 /**
@@ -35,7 +40,26 @@ function shouldLog(level: LogLevel): boolean {
  */
 function formatLogMessage (level: LogLevel, module: string, message: string): string {
   const timestamp = new Date().toISOString().substring(11, 19) // Just time, not full date
-  return `[${timestamp}] [${module}] ${message}`
+  const levelName = LogLevel[level]
+  return `[${timestamp}] [${levelName}] [${module}] ${message}`
+}
+
+/**
+ * Format data object for logging
+ */
+function formatData(data?: any): string {
+  if (!data) return ''
+  
+  try {
+    if (typeof data === 'string') return ` - ${data}`
+    if (typeof data === 'object') {
+      const jsonStr = JSON.stringify(data, null, 2)
+      return ` - ${jsonStr}`
+    }
+    return ` - ${String(data)}`
+  } catch (e) {
+    return ` - [Object could not be serialized]`
+  }
 }
 
 /**
@@ -44,25 +68,27 @@ function formatLogMessage (level: LogLevel, module: string, message: string): st
 export function createLogger (moduleName: string) {
   return {
     debug: (message: string, data?: any) => {
-      // Debug logs are completely disabled
+      if (shouldLog(LogLevel.DEBUG)) {
+        console.log(formatLogMessage(LogLevel.DEBUG, moduleName, message) + formatData(data))
+      }
     },
 
     info: (message: string, data?: any) => {
       if (shouldLog(LogLevel.INFO)) {
-        console.log(formatLogMessage(LogLevel.INFO, moduleName, message))
+        console.log(formatLogMessage(LogLevel.INFO, moduleName, message) + formatData(data))
       }
     },
 
     warn: (message: string, data?: any) => {
       if (shouldLog(LogLevel.WARN)) {
-        console.warn(formatLogMessage(LogLevel.WARN, moduleName, message))
+        console.warn(formatLogMessage(LogLevel.WARN, moduleName, message) + formatData(data))
       }
     },
 
     error: (message: string, error?: any) => {
       if (shouldLog(LogLevel.ERROR)) {
         const errorMsg = error?.message || error?.statusMessage || String(error || '')
-        console.error(formatLogMessage(LogLevel.ERROR, moduleName, `${message}: ${errorMsg}`))
+        console.error(formatLogMessage(LogLevel.ERROR, moduleName, `${message}: ${errorMsg}`) + formatData(error))
       }
     }
   }
