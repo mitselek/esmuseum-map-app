@@ -230,7 +230,6 @@ const getLocationIcon = (location) => {
 // Filter and process locations
 const displayedLocations = computed(() => {
   if (!props.locations?.length) {
-    console.log('InteractiveMap - No locations provided')
     return []
   }
 
@@ -251,15 +250,9 @@ const closestUnvisitedLocations = computed(() => {
     return !isLocationVisited(location)
   })
 
-  // Sort by distance if user position is available
-  let sortedUnvisited = unvisitedLocations
-  if (props.userPosition) {
-    sortedUnvisited = unvisitedLocations.sort((a, b) => {
-      return (a.distance || 0) - (b.distance || 0)
-    })
-  }
-
-  return sortedUnvisited.slice(0, props.maxLocations)
+  // Just take the first few unvisited locations for viewport centering
+  // (Distance sorting happens in LocationPicker where it's actually used)
+  return unvisitedLocations.slice(0, props.maxLocations)
 })
 
 // Calculate map bounds and center
@@ -349,6 +342,11 @@ onMounted(() => {
 }
 
 :deep(.custom-location-icon) {
+  background: transparent !important;
+  border: none !important;
+}
+
+:deep(.custom-visited-icon) {
   background: transparent !important;
   border: none !important;
 }
