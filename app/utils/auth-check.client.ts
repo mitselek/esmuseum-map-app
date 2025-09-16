@@ -38,9 +38,9 @@ export function getAndClearRedirect (): string | null {
   }
 }
 
-// Debugging helper - logs all auth-related localStorage items
+// Debugging helper - logs auth-related localStorage items (only in development)
 export function logAuthStorage () {
-  if (typeof localStorage === 'undefined') return
+  if (typeof localStorage === 'undefined' || !import.meta.dev) return
 
   const allKeys = []
   for (let i = 0; i < localStorage.length; i++) {

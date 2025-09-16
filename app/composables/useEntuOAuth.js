@@ -75,16 +75,9 @@ export const useEntuOAuth = () => {
       // Use the /api/auth/{provider} endpoint as per documentation
       const authUrl = `${apiUrl}/api/auth/${provider}?account=${accountName}&next=${callback}`
 
-      // In client context, show the URL and ask for confirmation before redirecting
+      // In client context, redirect to OAuth
       if (import.meta.client) {
-        // Log OAuth URL information for debugging purposes
-        console.log('=== OAUTH AUTHENTICATION URL ===')
-        console.log(`Provider: ${provider}`)
-        console.log(`Full Auth URL: ${authUrl}`)
-        console.log(`Callback URL (decoded): ${callbackUrl.value}`)
-        console.log('===============================')
-
-        // Redirect directly to the OAuth authentication URL
+        console.log(`Starting OAuth flow with ${provider}`)
         window.location.href = authUrl
       }
 
@@ -122,12 +115,9 @@ export const useEntuOAuth = () => {
       // First, try to get the token from the jwt query parameter (our new approach)
       if (searchParams.has('jwt')) {
         tempKey = searchParams.get('jwt')
-        console.log('Found token in jwt query parameter')
       }
       // Fallback: try the old method of token in the path
       else if (fullPath.includes('/auth/callback')) {
-        console.log('No jwt parameter found, trying path extraction')
-
         // Extract from path as a fallback
         const callbackBasePath = '/auth/callback'
         tempKey = fullPath.substring(fullPath.indexOf(callbackBasePath) + callbackBasePath.length)
@@ -136,48 +126,37 @@ export const useEntuOAuth = () => {
         if (tempKey.startsWith('/') || tempKey.startsWith('?')) {
           tempKey = tempKey.substring(1)
         }
-
-        console.log('Extracted token from URL path as fallback')
       }
 
       if (!tempKey || tempKey.length < 10) { // Basic validation to ensure we have something that looks like a token
         throw new Error('No valid temporary key found in OAuth callback')
       }
 
-      console.log('Extracted temporary key from callback URL', tempKey)
-
       // Get the Entu Auth composable to store the token
       const { getToken } = useEntuAuth()
 
       // Use the temporary key to authenticate with Entu
-      console.log('Using temporary key to authenticate with Entu')
       const authData = await getToken(tempKey)
-      console.log('Authentication successful, received token data')
 
       // Redirect to the original page or home
       if (import.meta.client) {
         // Use the centralized auth utility
-        import('~/utils/auth-check.client').then(({ REDIRECT_KEY, logAuthStorage }) => {
-          // Log all auth storage for debugging
-          logAuthStorage()
-
+        import('~/utils/auth-check.client').then(({ REDIRECT_KEY }) => {
           // Get the original path stored BEFORE starting the OAuth flow
           const originalRedirect = localStorage.getItem(REDIRECT_KEY)
 
-          if (originalRedirect && originalRedirect !== '/login') {
-            console.log('Found original redirect path:', originalRedirect)
+          if (originalRedirect && originalRedirect !== '/login' && originalRedirect !== '/auth/callback') {
             localStorage.removeItem(REDIRECT_KEY)
-
-            // Skip login page entirely and go directly to the target page
             router.push(originalRedirect)
           }
           else {
-            // Fallback
-            console.log('No valid redirect path found, redirecting to home')
+            // Clean up any remaining redirect paths that aren't useful
+            if (originalRedirect === '/login' || originalRedirect === '/auth/callback') {
+              localStorage.removeItem(REDIRECT_KEY)
+            }
             router.push('/')
           }
-        }).catch((err) => {
-          console.error('Failed to import auth-check utility:', err)
+        }).catch(() => {
           router.push('/')
         })
       }
