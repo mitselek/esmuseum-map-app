@@ -10,7 +10,7 @@ export const useCompletedTasks = () => {
   const error = ref(null)
 
   /**
-   * Load user's completed tasks from server
+   * Load user's completed tasks from Entu API
    */
   const loadCompletedTasks = async () => {
     if (!token.value) {
@@ -18,30 +18,43 @@ export const useCompletedTasks = () => {
       return []
     }
 
+    const { user } = useEntuAuth()
+    const { searchEntities } = useEntuApi()
+
+    if (!user.value?._id) {
+      console.warn('No user ID available for loading completed tasks')
+      return []
+    }
+
     try {
       loading.value = true
       error.value = null
 
-      const response = await $fetch('/api/responses/user', {
-        headers: {
-          Authorization: `Bearer ${token.value}`
-        }
+      // Search for user's responses using direct Entu API call
+      const responsesResult = await searchEntities({
+        '_type.string': 'vastus',
+        'kasutaja._id': user.value._id,
+        limit: 100,
+        props: 'ulesanne,vastused,esitamisaeg,muutmisaeg,staatus'
       })
 
-      if (response.success && response.data.responses) {
-        // Extract task IDs from user responses
-        const taskIds = response.data.responses
-          .filter((resp) => resp.taskId)
-          .map((resp) => resp.taskId)
+      const responses = responsesResult.entities || []
 
-        completedTaskIds.value = new Set(taskIds)
-        return Array.from(completedTaskIds.value)
-      }
+      // Extract task IDs from user responses
+      const taskIds = responses
+        .filter((response) => response.ulesanne?._id)
+        .map((response) => response.ulesanne._id)
 
-      return []
+      completedTaskIds.value = new Set(taskIds)
+      
+      console.log(`[CLIENT] Loaded ${responses.length} completed tasks for user ${user.value._id}`, {
+        taskIds: Array.from(completedTaskIds.value)
+      })
+
+      return Array.from(completedTaskIds.value)
     }
     catch (err) {
-      console.error('Failed to load completed tasks:', err)
+      console.error('Failed to load completed tasks (client-side):', err)
       error.value = 'Lõpetatud ülesannete laadimine ebaõnnestus'
       return []
     }
