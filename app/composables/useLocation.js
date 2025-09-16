@@ -237,11 +237,8 @@ export const useLocation = () => {
 
     // Get map reference from task - check multiple possible locations
     let mapReference = task.kaart?.[0]?.reference
-      || task.kaart?.[0]?._id
       || task.entity?.properties?.kaart?.[0]?.reference
-      || task.entity?.properties?.kaart?.[0]?._id
       || task.entity?.kaart?.[0]?.reference
-      || task.entity?.kaart?.[0]?._id
       || task.kaart
 
     // If mapReference is an object, extract the ID

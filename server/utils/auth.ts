@@ -304,7 +304,7 @@ export async function checkTaskPermission (user: AuthenticatedUser, taskId: stri
     for (const permissionArray of permissionArrays) {
       if (Array.isArray(permissionArray)) {
         const hasPermission = permissionArray.some((permission: any) => 
-          permission.reference === user._id || permission._id === user._id
+          permission.reference === user._id
         )
         if (hasPermission) {
           logger.debug('User has permission on task', { userId: user._id, taskId })
