@@ -199,20 +199,35 @@ export const useLocation = () => {
       throw new Error('Map ID is required')
     }
 
-    const { token } = useEntuAuth()
+    // Validate map ID format (MongoDB ObjectId)
+    if (!/^[0-9a-fA-F]{24}$/.test(mapId)) {
+      throw new Error('Invalid map ID format')
+    }
+
+    const { searchEntities } = useEntuApi()
 
     try {
-      // Query locations that belong to this map via server API
-      const response = await $fetch(`/api/locations/${mapId}`, {
-        headers: {
-          Authorization: `Bearer ${token.value}`
-        }
+      // Search for locations that belong to this map using direct Entu API call
+      const searchResult = await searchEntities({
+        '_type.string': 'asukoht',
+        '_parent.reference': mapId,
+        limit: 10000,
+        props: 'name.string,lat.number,long.number,kirjeldus.string'
       })
 
-      return response?.entities || []
+      const locations = searchResult?.entities || []
+      
+      console.log(`[CLIENT] Loaded ${locations.length} locations for map ${mapId}`, {
+        requestedLimit: 10000,
+        actualCount: locations.length,
+        searchResultCount: searchResult?.count,
+        optimizedWithProps: true
+      })
+
+      return locations
     }
     catch (error) {
-      console.error('Error loading map locations:', error)
+      console.error('Error loading map locations (client-side):', error)
       throw new Error('Asukohtade laadimine ebaõnnestus')
     }
   }
