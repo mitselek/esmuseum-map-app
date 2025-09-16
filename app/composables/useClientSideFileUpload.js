@@ -122,7 +122,7 @@ export const useClientSideFileUpload = () => {
     }
 
     const result = await response.json()
-    
+
     if (!result.success) {
       throw new Error(`File upload failed: ${result.error || result.message}`)
     }
