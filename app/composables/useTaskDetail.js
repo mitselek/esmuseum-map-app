@@ -62,7 +62,7 @@ export const useTaskDetail = () => {
       for (const permissionArray of permissionArrays) {
         if (Array.isArray(permissionArray)) {
           const hasPermission = permissionArray.some((permission) =>
-            permission.reference === user.value._id || permission._id === user.value._id
+            permission.reference === user.value._id
           )
           if (hasPermission) {
             return { hasPermission: true, error: null }
@@ -171,10 +171,10 @@ export const useTaskDetail = () => {
 
       // Extract map ID from task - use reference field for actual map entity
       // 'kaart' is Estonian for 'map' and is typically an array in Entu
-      const mapId = task.kaart?.[0]?.reference || task.kaart?.[0]?._id || task.kaart?.[0]?.id
-        || task.kaart?._id || task.kaart?.id || task.kaart
-        || task.map?.[0]?.reference || task.map?.[0]?._id || task.map?.[0]?.id
-        || task.map?._id || task.map?.id || task.mapId || task.map
+      const mapId = task.kaart?.[0]?.reference || task.kaart?.[0]?.id
+        || task.kaart?.id || task.kaart
+        || task.map?.[0]?.reference || task.map?.[0]?.id
+        || task.map?.id || task.mapId || task.map
 
       console.log('Extracted mapId:', mapId)
 
