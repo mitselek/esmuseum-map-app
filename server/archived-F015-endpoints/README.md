@@ -5,9 +5,11 @@ This directory contains server API endpoints that have been migrated to client-s
 ## ✅ F015 PHASES COMPLETED
 
 ### Phase 3.1: Client-Side Response Creation ✅
+
 - ✅ `responses.post.ts` - ARCHIVED (replaced by client-side useEntuApi)
 
-### Phase 3.2: Hybrid File Upload ✅  
+### Phase 3.2: Hybrid File Upload ✅
+
 - ✅ `upload.post.ts` - ARCHIVED (replaced by upload-proxy.post.ts hybrid approach)
 
 ## Current Active Architecture

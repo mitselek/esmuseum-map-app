@@ -54,7 +54,7 @@ export default defineNuxtConfig({
       F015_CLIENT_SIDE_RESPONSE_CREATION: 'true', // Phase 3.1 - COMPLETED
       // Phase 3.2b: Client-side upload with server proxy (CORS-free)
       F015_CLIENT_SIDE_FILE_UPLOAD: 'true',
-      F015_CLIENT_SIDE_AUTH: 'false' // Phase 3.3 - PLANNED
+      F015_CLIENT_SIDE_AUTH: 'true' // Phase 3.3 - TESTING NOW!
     }
   },
   future: {
