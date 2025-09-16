@@ -58,7 +58,7 @@ const { isAuthenticated, user, logout: authLogout } = useEntuAuth()
 // Language configuration
 const allLanguages = [
   { code: 'et', name: 'Eesti', flag: '🇪🇪' },
-  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'en', name: 'English', flag: '🇬🇧' },
   { code: 'uk', name: 'Українська', flag: '🇺🇦' }
 ]
 
