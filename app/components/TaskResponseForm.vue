@@ -194,9 +194,24 @@ const submitResponse = async () => {
 
     // Step 2: Upload files to the newly created response entity
     let fileReferences = []
-    if (fileUploadRef.value && fileUploadRef.value.files.length > 0 && response.data?.id) {
+
+    // Debug: Check response structure and extract correct ID
+    console.log('F015: Full response structure:', JSON.stringify(response, null, 2))
+    const responseId = response.data?.id || response.id || response._id || response.data?._id
+    console.log('F015: Extracted response ID:', responseId)
+
+    // Debug: Check file upload component state
+    console.log('F015: Checking file upload state:', {
+      hasFileUploadRef: !!fileUploadRef.value,
+      filesLength: fileUploadRef.value?.files?.length || 0,
+      files: fileUploadRef.value?.files || 'undefined',
+      responseId: responseId
+    })
+
+    if (fileUploadRef.value && fileUploadRef.value.files.length > 0 && responseId) {
+      console.log('F015: Starting file upload process...')
       try {
-        const uploadResults = await fileUploadRef.value.uploadFiles(response.data.id)
+        const uploadResults = await fileUploadRef.value.uploadFiles(responseId)
         fileReferences = uploadResults
           .filter((result) => result.success)
           .map((result) => result.entityId)
