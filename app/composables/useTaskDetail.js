@@ -232,7 +232,8 @@ export const useTaskDetail = () => {
     }
 
     try {
-      const { token } = useEntuAuth()
+      const { token, user } = useEntuAuth()
+      const { searchEntities } = useEntuApi()
 
       // Check permissions first
       if (checkPermissions) {
@@ -261,12 +262,18 @@ export const useTaskDetail = () => {
       // Handle authentication and response loading
       if (token.value) {
         try {
-          // Try to fetch existing response
-          const responseData = await $fetch(`/api/responses/${taskId}`, {
-            headers: {
-              Authorization: `Bearer ${token.value}`
-            }
+          // Client-side version (F015 migration) - ACTIVE
+          const userResponse = await searchEntities({
+            '_type.string': 'vastus',
+            '_parent._id': taskId,
+            '_owner._id': user.value._id,
+            limit: 1
           })
+
+          const responseData = {
+            success: true,
+            response: userResponse.entities && userResponse.entities.length > 0 ? userResponse.entities[0] : null
+          }
 
           if (responseData.success && responseData.response) {
             // Existing response found
