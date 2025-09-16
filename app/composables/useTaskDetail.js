@@ -166,8 +166,8 @@ export const useTaskDetail = () => {
 
       // Debug: Log the task structure to understand the data format
       console.log('Loading locations for task:', task)
-      console.log('Task keys:', Object.keys(task))
-      console.log('Task kaart field:', task.kaart)
+      // console.log('Task keys:', Object.keys(task))
+      // console.log('Task kaart field:', task.kaart)
 
       // Extract map ID from task - use reference field for actual map entity
       // 'kaart' is Estonian for 'map' and is typically an array in Entu
