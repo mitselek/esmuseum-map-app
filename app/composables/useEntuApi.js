@@ -3,6 +3,10 @@
  *
  * Provides methods for interacting with the Entu API
  * Uses the useEntuAuth composable for authentication
+ *
+ * CRITICAL FIX (Phase 3.1): Object spread order in callApi was overwriting
+ * Authorization headers for POST requests. Fixed by spreading options first,
+ * then constructing headers object to ensure Authorization header is preserved.
  */
 
 import { ref } from 'vue'
@@ -40,13 +44,14 @@ export const useEntuApi = () => {
       }
 
       // Build request options with authentication
+      // CRITICAL: Spread options first, then override headers to preserve Authorization header
       const requestOptions = {
+        ...options,
         headers: {
           Authorization: `Bearer ${token.value}`,
           'Accept-Encoding': 'deflate',
           ...options.headers
-        },
-        ...options
+        }
       }
 
       // Make the API request
@@ -113,7 +118,8 @@ export const useEntuApi = () => {
     return callApi('/entity', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept-Encoding': 'deflate'
       },
       body: JSON.stringify(entityData)
     })

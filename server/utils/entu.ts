@@ -144,6 +144,12 @@ export async function createEntuEntity (entityType: string, entityData: any, api
 
   logger.debug(`Creating entity of type: ${entityType}`, { properties })
   
+  // COMPARISON DEBUG: Log exact properties array being sent
+  console.log('🔍 SERVER-SIDE PROPERTIES ARRAY:')
+  console.log('Entity Type:', entityType)
+  console.log('Properties Array:', JSON.stringify(properties, null, 2))
+  console.log('Properties Stringified:', JSON.stringify(properties))
+  
   return callEntuApi('/entity', {
     method: 'POST',
     body: JSON.stringify(properties)
