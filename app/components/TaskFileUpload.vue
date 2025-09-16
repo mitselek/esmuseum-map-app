@@ -118,9 +118,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineEmits, defineExpose } from 'vue'
+import { ref } from 'vue'
 
 const { t } = useI18n()
+
+// F015: Client-side file upload composable
+const { upload: uploadWithFeatureFlag } = useClientSideFileUpload()
 
 // Component state
 const files = ref<File[]>([])
@@ -244,7 +247,7 @@ const formatFileSize = (bytes: number): string => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
-// File upload using our API endpoint
+// File upload using F015 client-side implementation with server fallback
 const uploadFiles = async (parentEntityId: string): Promise<UploadResult[]> => {
   if (!files.value.length) return []
 
@@ -255,50 +258,44 @@ const uploadFiles = async (parentEntityId: string): Promise<UploadResult[]> => {
   }))
 
   try {
-    // Get authentication token
-    const { token } = useEntuAuth()
+    console.log('F015: Starting file upload with feature flag routing')
 
-    if (!token.value) {
-      throw new Error('Not authenticated')
+    // Progress callback for client-side uploads
+    const progressCallback = (fileIndex: number, status: string, percent: number) => {
+      if (uploadProgress.value[fileIndex]) {
+        uploadProgress.value[fileIndex].percent = percent
+        uploadProgress.value[fileIndex].status = status
+      }
     }
 
-    // Create FormData
-    const formData = new FormData()
-    formData.append('parentEntityId', parentEntityId)
+    // Use feature-flag controlled upload (client-side or server fallback)
+    const uploadResults = await uploadWithFeatureFlag(
+      parentEntityId,
+      files.value,
+      progressCallback
+    )
 
-    files.value.forEach((file) => {
-      formData.append('file', file)
+    console.log('F015: Upload completed:', uploadResults)
+
+    // Update progress to complete for successful uploads
+    uploadProgress.value.forEach((progress, index) => {
+      const result = uploadResults[index]
+      if (result && result.success) {
+        progress.percent = 100
+        progress.status = t('taskDetail.uploadComplete')
+      }
+      else {
+        progress.percent = 0
+        progress.status = t('taskDetail.uploadFailed')
+      }
     })
 
-    // Update progress
-    uploadProgress.value.forEach((progress) => {
-      progress.percent = 25
-      progress.status = t('taskDetail.uploading')
-    })
-
-    // Upload via our API with authentication
-    const { data } = await $fetch<{ data: { uploads: UploadResult[] } }>('/api/upload', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      },
-      body: formData
-    })
-
-    // Update progress to complete
-    uploadProgress.value.forEach((progress) => {
-      progress.percent = 100
-      progress.status = t('taskDetail.uploadComplete')
-    })
-
-    console.log('File upload completed successfully:', data)
-
-    emit('upload-complete', data.uploads)
-    return data.uploads
+    emit('upload-complete', uploadResults)
+    return uploadResults
   }
-  catch (err: unknown) {
-    const error = err instanceof Error ? err : new Error('Upload failed')
-    console.error('Upload process failed:', error)
+  catch (error: unknown) {
+    const uploadError = error instanceof Error ? error : new Error('Upload failed')
+    console.error('F015: Upload process failed:', uploadError)
 
     // Update progress to show error
     uploadProgress.value.forEach((progress) => {
@@ -306,8 +303,8 @@ const uploadFiles = async (parentEntityId: string): Promise<UploadResult[]> => {
       progress.status = t('taskDetail.uploadFailed')
     })
 
-    emit('upload-error', error)
-    throw error
+    emit('upload-error', uploadError)
+    throw uploadError
   }
 }
 
