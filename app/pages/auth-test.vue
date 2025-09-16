@@ -108,7 +108,6 @@ const {
   error,
   startAuthFlow,
   logout,
-  checkAuthStatus,
   providers
 } = useServerAuth()
 
