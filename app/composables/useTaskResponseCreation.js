@@ -1,5 +1,5 @@
 export const useTaskResponseCreation = () => {
-  const { token, user } = useEntuAuth()
+  const { token } = useEntuAuth()
   const { searchEntities } = useEntuApi()
 
   const useClientSideCreation = ref(true)
@@ -23,18 +23,6 @@ export const useTaskResponseCreation = () => {
 
   const createResponseClientSide = async (requestData) => {
     const { taskId, responses } = requestData
-
-    // Check for duplicate response first
-    const result = await searchEntities({
-      '_type.string': 'vastus',
-      '_parent.reference': taskId,
-      '_owner.reference': user.value?._id,
-      limit: 1
-    })
-
-    if (result.entities && result.entities.length > 0) {
-      throw new Error('You have already submitted a response for this task.')
-    }
 
     const responseData = {
       _parent: taskId,
