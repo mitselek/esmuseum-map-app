@@ -158,12 +158,8 @@ const submitResponse = async () => {
   submitting.value = true
 
   try {
-    const { token } = useEntuAuth()
-
-    if (!token.value) {
-      console.error('Not authenticated')
-      return
-    }
+    // F015: Use feature-flagged response creation
+    const { createTaskResponse } = useTaskResponseCreation()
 
     // Step 1: Create the response entity first
     const requestData = {
@@ -191,15 +187,8 @@ const submitResponse = async () => {
       ]
     }
 
-    // Create the response entity
-    const response = await $fetch('/api/responses', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token.value}`,
-        'Content-Type': 'application/json'
-      },
-      body: requestData
-    })
+    // Create the response entity using feature-flagged approach
+    const response = await createTaskResponse(requestData)
 
     console.log('Response created:', response)
 
