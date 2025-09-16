@@ -131,8 +131,8 @@ const loginWithOAuth = async () => {
 
 <i18n lang="yaml">
 en:
-  title: Login to ESMuseum
-  description: Select your authentication method and click the button below to log in.
+  title: Welcome to Estonian War Museum
+  description: Explore Estonia's military history through interactive location-based missions and historical discoveries. Authenticate to begin your journey.
   loginWithOAuth: Login with OAuth
   loggingIn: Logging in...
   alreadyLoggedIn: You are already logged in
@@ -142,8 +142,8 @@ en:
   oauthMethod: OAuth Authentication
   selectProvider: Select Authentication Provider
 et:
-  title: Logi sisse ESMuseum
-  description: Vali autentimise meetod ja vajuta allolevat nuppu, et sisse logida.
+  title: Tere tulemast Eesti Sõjamuuseumi
+  description: Avasta Eesti sõjaajalugu interaktiivsete asukohal põhinevate missioonide ja ajalooliste avastuste kaudu. Autentimiseks alusta oma teekonda.
   loginWithOAuth: Logi sisse OAuth-ga
   loggingIn: Sisselogimine...
   alreadyLoggedIn: Sa oled juba sisse logitud
