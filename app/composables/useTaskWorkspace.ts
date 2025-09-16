@@ -16,7 +16,7 @@ export const useTaskWorkspace = () => {
   
   // Authentication
   const { user, token } = useEntuAuth()
-  const { searchEntities } = useEntuApi()
+  const { searchEntities, getEntity } = useEntuApi()
   
   // Use global state
   const tasks = globalTasks
@@ -53,12 +53,13 @@ export const useTaskWorkspace = () => {
       loading.value = true
       error.value = null
 
-      // Get user groups using existing API pattern
-      const userProfileResponse = await $fetch('/api/user/profile', {
-        headers: {
-          Authorization: `Bearer ${token.value}`
-        }
-      }) as any
+      // Get user groups using client-side API (F015 migration) - ACTIVE
+      if (!(user.value as any)?._id) {
+        console.warn('No user ID available for profile lookup')
+        tasks.value = []
+        return
+      }
+      const userProfileResponse = await getEntity((user.value as any)._id)
 
       const userProfile = userProfileResponse.entity
       const groupParents = userProfile._parent?.filter((parent: any) => parent.entity_type === 'grupp') || []
