@@ -3,6 +3,7 @@
  */
 export const useTaskResponseStats = () => {
   const { token } = useEntuAuth()
+  const { searchEntities } = useEntuApi()
 
   /**
    * Get the count of actual submitted responses for a task
@@ -13,18 +14,27 @@ export const useTaskResponseStats = () => {
     }
 
     try {
-      const response = await $fetch<{
-        success: boolean
-        taskId: string
-        responseCount: number
-        message: string
-      }>(`/api/tasks/${taskId}/responses/count`, {
-        headers: {
-          Authorization: `Bearer ${token.value}`
-        }
+      // F015: Client-side implementation using direct Entu API
+      const responsesResult = await searchEntities({
+        '_type.string': 'vastus',
+        '_parent._id': taskId,
+        'limit': 1000  // Set a high limit to get all responses
       })
 
-      return response.responseCount || 0
+      return responsesResult.entities?.length || 0
+
+      // Original server API call (deprecated, will be removed)
+      // const response = await $fetch<{
+      //   success: boolean
+      //   taskId: string
+      //   responseCount: number
+      //   message: string
+      // }>(`/api/tasks/${taskId}/responses/count`, {
+      //   headers: {
+      //     Authorization: `Bearer ${token.value}`
+      //   }
+      // })
+      // return response.responseCount || 0
     } catch (error) {
       console.warn(`Failed to get response count for task ${taskId}:`, error)
       return 0
