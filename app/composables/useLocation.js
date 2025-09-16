@@ -216,7 +216,7 @@ export const useLocation = () => {
       })
 
       const locations = searchResult?.entities || []
-      
+
       console.log(`[CLIENT] Loaded ${locations.length} locations for map ${mapId}`, {
         requestedLimit: 10000,
         actualCount: locations.length,

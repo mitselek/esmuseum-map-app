@@ -11,9 +11,9 @@ import { ref } from 'vue'
 export const useServerAuth = () => {
   // State
   const isAuthenticated = ref(false)
-  const user = ref(null)
+  const user = ref<any>(null)
   const isLoading = ref(false)
-  const error = ref(null)
+  const error = ref<string | null>(null)
 
   // Available OAuth providers
   const providers = {
@@ -48,7 +48,7 @@ export const useServerAuth = () => {
    * @param {string} provider - The OAuth provider to use
    * @param {string} redirectUrl - URL to redirect to after successful auth
    */
-  const startAuthFlow = async (provider, redirectUrl = '/') => {
+  const startAuthFlow = async (provider: string, redirectUrl = '/') => {
     isLoading.value = true
     error.value = null
 

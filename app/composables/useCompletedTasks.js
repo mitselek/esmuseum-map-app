@@ -46,7 +46,7 @@ export const useCompletedTasks = () => {
         .map((response) => response.ulesanne._id)
 
       completedTaskIds.value = new Set(taskIds)
-      
+
       console.log(`[CLIENT] Loaded ${responses.length} completed tasks for user ${user.value._id}`, {
         taskIds: Array.from(completedTaskIds.value)
       })
