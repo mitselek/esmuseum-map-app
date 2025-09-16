@@ -27,7 +27,7 @@ export const useServerAuth = () => {
    */
   const checkAuthStatus = async () => {
     try {
-      const response = await $fetch('/api/auth/status')
+      const response = await $fetch('/api/auth/status') as { authenticated: boolean; user: any }
       
       isAuthenticated.value = response.authenticated
       user.value = response.user
@@ -63,7 +63,7 @@ export const useServerAuth = () => {
           provider,
           redirectUrl
         }
-      })
+      }) as { success: boolean; authUrl?: string }
 
       if (!response.success || !response.authUrl) {
         throw new Error('Failed to start authentication flow')
