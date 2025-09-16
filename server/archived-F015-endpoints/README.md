@@ -2,6 +2,20 @@
 
 This directory contains server API endpoints that have been migrated to client-side implementations as part of Feature F015 (Client-Side Architecture Migration).
 
+## ✅ F015 PHASES COMPLETED
+
+### Phase 3.1: Client-Side Response Creation ✅
+- ✅ `responses.post.ts` - ARCHIVED (replaced by client-side useEntuApi)
+
+### Phase 3.2: Hybrid File Upload ✅  
+- ✅ `upload.post.ts` - ARCHIVED (replaced by upload-proxy.post.ts hybrid approach)
+
+## Current Active Architecture
+
+**Client-Side**: Direct Entu API calls for response creation
+**Hybrid Upload**: Client gets upload URL → Server proxy uploads (CORS-free)
+**Active Endpoints**: `upload-proxy.post.ts`, `auth/*` only
+
 ## Migration Process
 
 Each endpoint follows this workflow:
@@ -20,7 +34,8 @@ Each endpoint follows this workflow:
 - `responses/` - Response management endpoints (CRUD operations)
 - `user/` - User profile and data endpoints
 - `locations/` - Map and location data endpoints
-- Root level files for standalone endpoints (upload.post.ts, etc.)
+- `responses.post.ts` - **NEWLY ARCHIVED** (Phase 3.1 complete)
+- `upload.post.ts` - **NEWLY ARCHIVED** (Phase 3.2 complete)
 
 ## Deletion Timeline
 
