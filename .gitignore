@@ -6,6 +6,11 @@ dist
 node_modules
 coverage
 
+# SSL certificates for local development
+*.pem
+*.key
+localhost+*
+
 # Translation analysis reports (generated files)
 translation-analysis-report.json
 *.backup.*
