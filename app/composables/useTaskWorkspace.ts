@@ -16,6 +16,7 @@ export const useTaskWorkspace = () => {
   
   // Authentication
   const { user, token } = useEntuAuth()
+  const { searchEntities } = useEntuApi()
   
   // Use global state
   const tasks = globalTasks
@@ -73,15 +74,11 @@ export const useTaskWorkspace = () => {
       // Load tasks from each group
       for (const parentGroup of groupParents) {
         try {
-          const groupTasks = await $fetch('/api/tasks/search', {
-            headers: {
-              Authorization: `Bearer ${token.value}`
-            },
-            query: {
-              '_type.string': 'ulesanne',
-              'grupp.reference': parentGroup.reference,  // Filter tasks assigned to this specific group
-              'limit': 1000
-            }
+          // Client-side version (F015 migration) - ACTIVE
+          const groupTasks = await searchEntities({
+            '_type.string': 'ulesanne',
+            'grupp.reference': parentGroup.reference,  // Filter tasks assigned to this specific group
+            'limit': 1000
           })
 
           if (groupTasks.entities && groupTasks.entities.length > 0) {            allTasks.push(...groupTasks.entities.map((task: any) => ({
