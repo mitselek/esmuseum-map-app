@@ -156,8 +156,6 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue'
-
 const { t } = useI18n()
 const { userPosition, gettingLocation, sortByDistance } = useLocation()
 

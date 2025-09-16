@@ -140,25 +140,20 @@ export const useEntuOAuth = () => {
 
       // Redirect to the original page or home
       if (import.meta.client) {
-        // Use the centralized auth utility
-        import('~/utils/auth-check.client').then(({ REDIRECT_KEY }) => {
-          // Get the original path stored BEFORE starting the OAuth flow
-          const originalRedirect = localStorage.getItem(REDIRECT_KEY)
+        // Get the original path stored BEFORE starting the OAuth flow
+        const originalRedirect = localStorage.getItem(REDIRECT_KEY)
 
-          if (originalRedirect && originalRedirect !== '/login' && originalRedirect !== '/auth/callback') {
+        if (originalRedirect && originalRedirect !== '/login' && originalRedirect !== '/auth/callback') {
+          localStorage.removeItem(REDIRECT_KEY)
+          router.push(originalRedirect)
+        }
+        else {
+          // Clean up any remaining redirect paths that aren't useful
+          if (originalRedirect === '/login' || originalRedirect === '/auth/callback') {
             localStorage.removeItem(REDIRECT_KEY)
-            router.push(originalRedirect)
           }
-          else {
-            // Clean up any remaining redirect paths that aren't useful
-            if (originalRedirect === '/login' || originalRedirect === '/auth/callback') {
-              localStorage.removeItem(REDIRECT_KEY)
-            }
-            router.push('/')
-          }
-        }).catch(() => {
           router.push('/')
-        })
+        }
       }
       else {
         router.push('/')

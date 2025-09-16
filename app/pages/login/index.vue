@@ -33,14 +33,8 @@ onMounted(() => {
 const handleSuccessfulLogin = () => {
   if (import.meta.client) {
     // Use utility to get and clear the stored redirect path
-    import('~/utils/auth-check.client').then(({ getAndClearRedirect }) => {
-      const path = getAndClearRedirect() || '/'
-      router.push(path)
-    }).catch(() => {
-      // Fallback if module import fails
-      const path = redirectPath.value || '/'
-      router.push(path)
-    })
+    const path = getAndClearRedirect() || '/'
+    router.push(path)
   }
 }
 

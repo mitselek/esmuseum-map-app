@@ -110,7 +110,6 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import {
   LMap,
   LTileLayer,

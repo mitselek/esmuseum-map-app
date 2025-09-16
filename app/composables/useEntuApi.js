@@ -9,8 +9,6 @@
  * then constructing headers object to ensure Authorization header is preserved.
  */
 
-import { ref } from 'vue'
-
 export const useEntuApi = () => {
   const { token, isAuthenticated, refreshToken } = useEntuAuth()
 
