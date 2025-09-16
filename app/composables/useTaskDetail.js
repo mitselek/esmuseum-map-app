@@ -29,23 +29,48 @@ export const useTaskDetail = () => {
 
   // Permission checking
   const checkTaskPermissions = async (taskId) => {
-    const { token } = useEntuAuth()
+    const { token, user } = useEntuAuth()
+    const { getEntity } = useEntuApi()
 
     if (!token.value) {
       return { hasPermission: false, error: 'Not authenticated' }
     }
 
     try {
-      const permissionData = await $fetch(`/api/tasks/${taskId}/permissions`, {
-        headers: {
-          Authorization: `Bearer ${token.value}`
-        }
-      })
+      // Client-side permission check (F015 migration) - ACTIVE
+      const taskResponse = await getEntity(taskId)
 
-      return {
-        hasPermission: permissionData.success && permissionData.hasPermission,
-        error: null
+      if (!taskResponse) {
+        return { hasPermission: false, error: 'Task not found' }
       }
+
+      // Entu returns entities wrapped in an 'entity' property
+      const task = taskResponse.entity || taskResponse
+
+      // Additional check: if entity exists but has no data, it might not be a valid task
+      if (!task || !task._id) {
+        return { hasPermission: false, error: 'Invalid task entity' }
+      }
+
+      // Check if user is in any of the permission arrays
+      const permissionArrays = [
+        task._owner || [],
+        task._editor || [],
+        task._expander || []
+      ]
+
+      for (const permissionArray of permissionArrays) {
+        if (Array.isArray(permissionArray)) {
+          const hasPermission = permissionArray.some((permission) =>
+            permission.reference === user.value._id || permission._id === user.value._id
+          )
+          if (hasPermission) {
+            return { hasPermission: true, error: null }
+          }
+        }
+      }
+
+      return { hasPermission: false, error: null }
     }
     catch (error) {
       return {
@@ -233,7 +258,7 @@ export const useTaskDetail = () => {
 
     try {
       const { token, user } = useEntuAuth()
-      const { searchEntities } = useEntuApi()
+      const { searchEntities, getEntity } = useEntuApi()
 
       // Check permissions first
       if (checkPermissions) {
