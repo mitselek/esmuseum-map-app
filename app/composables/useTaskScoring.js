@@ -2,9 +2,6 @@
  * Composable for task scoring mechanism - tracks user progress
  * Provides "X of Y" scoring where X = unique locations visited, Y = expected responses
  */
-import { ref, computed, watch, readonly } from 'vue'
-import { useEntuApi } from './useEntuApi.js'
-import { useEntuAuth } from './useEntuAuth.js'
 
 export function useTaskScoring (taskData) {
   const { searchEntities } = useEntuApi()

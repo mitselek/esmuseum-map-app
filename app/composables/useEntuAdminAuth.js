@@ -5,9 +5,6 @@
  * Provides authentication services for backend maintenance tasks via API key
  */
 
-import { ref } from 'vue'
-import { useEntuAuth } from './useEntuAuth'
-
 export const useEntuAdminAuth = () => {
   // State
   const isLoading = ref(false)

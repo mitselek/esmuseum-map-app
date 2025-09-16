@@ -1,5 +1,4 @@
 // Leaflet Vue plugin for client-side only
-import { defineNuxtPlugin } from '#app'
 
 export default defineNuxtPlugin(() => {
   // Leaflet is client-side only, so we don't need to do anything here

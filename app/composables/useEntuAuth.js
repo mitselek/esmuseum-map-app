@@ -8,8 +8,6 @@
  * - Maintaining authentication state
  */
 
-import { ref, computed, watch } from 'vue'
-
 // State
 const token = ref(null)
 const tokenExpiry = ref(null)

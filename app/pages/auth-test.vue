@@ -100,8 +100,6 @@
 </template>
 
 <script setup>
-import { useServerAuth } from '~/composables/useServerAuth'
-
 // Use the new server-side auth composable
 const {
   isAuthenticated,

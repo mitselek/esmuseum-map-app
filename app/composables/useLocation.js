@@ -3,9 +3,6 @@
  * Handles GPS location requests with caching, deduplication, and automatic updates
  */
 
-import { ref, computed } from 'vue'
-import { sortLocationsByDistance, getCurrentPosition } from '~/utils/distance'
-
 // Global state shared across all component instances
 const globalUserPosition = ref(null)
 const globalGettingLocation = ref(false)

@@ -1,12 +1,10 @@
 /**
- * Server-side OAuth Authentication Composable
+ * Server-side Authentication Composable
  *
- * This composable handles authentication through server-side OAuth flow,
- * which ensures that JWT tokens have the correct audience (server IP)
- * instead of client IP addresses.
+ * This composable is designed to work with the server-side authentication
+ * It provides methods to check authentication status and get user info
+ * from the server side API endpoints
  */
-
-import { ref } from 'vue'
 
 export const useServerAuth = () => {
   // State
