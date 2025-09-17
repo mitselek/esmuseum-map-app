@@ -74,8 +74,10 @@
         <LMarker
           v-for="location in displayedLocations"
           :key="location._id || location.id"
+          :ref="(el) => setMarkerRef(el, location)"
           :lat-lng="[location.coordinates.lat, location.coordinates.lng]"
           :icon="getLocationIcon(location)"
+          @click="onLocationClick(location)"
         >
           <LPopup>
             <div>
@@ -118,6 +120,7 @@ import {
 } from '@vue-leaflet/vue-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { isSameLocation } from '~/utils/location-sync'
 
 // Import location utility
 const { formatCoordinates, getLocationName, getLocationDescription } = useLocation()
@@ -166,16 +169,34 @@ const props = defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  /**
+   * Currently selected location for highlighting
+   */
+  selectedLocation: {
+    type: Object,
+    default: null
   }
 })
 
-const emit = defineEmits(['map-ready'])
+const emit = defineEmits(['map-ready', 'location-click'])
 
 // Component state
 const map = ref(null)
 const error = ref(null)
 const zoom = ref(13)
 const center = ref([59.4370, 24.7536]) // Default to Tallinn
+
+// Marker refs for popup control
+const markerRefs = ref(new Map())
+
+// Set marker reference for popup control
+const setMarkerRef = (el, location) => {
+  if (el) {
+    const locationKey = location._id || location.id || `${location.coordinates.lat}-${location.coordinates.lng}`
+    markerRefs.value.set(locationKey, el)
+  }
+}
 
 // Map configuration
 const mapOptions = {
@@ -215,14 +236,32 @@ const visitedLocationIcon = L.divIcon({
   iconAnchor: [8, 8]
 })
 
+const selectedLocationIcon = L.divIcon({
+  html: '<div style="background: #3b82f6; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 3px solid #1d4ed8; box-shadow: 0 4px 8px rgba(0,0,0,0.4); animation: pulse 2s infinite;">📍</div>',
+  className: 'custom-selected-icon',
+  iconSize: [20, 20],
+  iconAnchor: [10, 10]
+})
+
 // Check if a location has been visited
 const isLocationVisited = (location) => {
   const locationRef = location.reference || location._id
   if (!locationRef || !props.visitedLocations) return false
 
   return props.visitedLocations.has(locationRef)
-}// Get appropriate icon for location
+}
+
+// Check if a location is currently selected
+const isLocationSelected = (location) => {
+  if (!props.selectedLocation || !location) return false
+  return isSameLocation(location, props.selectedLocation)
+}
+
+// Get appropriate icon for location
 const getLocationIcon = (location) => {
+  if (isLocationSelected(location)) {
+    return selectedLocationIcon
+  }
   return isLocationVisited(location) ? visitedLocationIcon : locationIcon
 }
 
@@ -305,6 +344,42 @@ const calculateMapBounds = async () => {
   }
 }
 
+// Location click handler
+const onLocationClick = (location) => {
+  console.log('[InteractiveMap] Location clicked:', location.nimi || location.name || 'unnamed')
+  // The popup will open automatically due to the click event
+  // We'll emit this to parent for synchronization
+  emit('location-click', location)
+}
+
+// Programmatically open popup for a location
+const openLocationPopup = (location) => {
+  if (!location) return
+  
+  const locationKey = location._id || location.id || `${location.coordinates?.lat}-${location.coordinates?.lng}`
+  const markerRef = markerRefs.value.get(locationKey)
+  
+  if (markerRef && markerRef.leafletObject) {
+    // Open the popup
+    markerRef.leafletObject.openPopup()
+    
+    // Center the map on this location with a slight zoom
+    if (map.value && map.value.leafletObject) {
+      map.value.leafletObject.setView([location.coordinates.lat, location.coordinates.lng], Math.max(zoom.value, 15))
+    }
+  }
+}
+
+// Watch for selectedLocation changes to open popup
+watch(() => props.selectedLocation, (newLocation, oldLocation) => {
+  if (newLocation && !isSameLocation(newLocation, oldLocation)) {
+    console.log('[InteractiveMap] Selected location changed, opening popup:', newLocation.nimi || newLocation.name || 'unnamed')
+    nextTick(() => {
+      openLocationPopup(newLocation)
+    })
+  }
+}, { deep: true })
+
 // Map ready handler
 const onMapReady = async () => {
   await nextTick()
@@ -348,6 +423,27 @@ onMounted(() => {
 :deep(.custom-visited-icon) {
   background: transparent !important;
   border: none !important;
+}
+
+:deep(.custom-selected-icon) {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Pulse animation for selected markers */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* Popup styling */

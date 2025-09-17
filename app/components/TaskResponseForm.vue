@@ -128,6 +128,14 @@ const canSubmit = computed(() => {
   return responseForm.value.text.trim().length > 0
 })
 
+// Debug: Watch selectedLocation changes
+watch(() => props.selectedLocation, (newLocation, oldLocation) => {
+  console.log('[TaskResponseForm] selectedLocation changed:', {
+    from: oldLocation?.nimi || oldLocation?.name || 'null',
+    to: newLocation?.nimi || newLocation?.name || 'null'
+  })
+}, { deep: true })
+
 // Event handlers
 const onLocationSelect = (location) => {
   emit('locationSelect', location)

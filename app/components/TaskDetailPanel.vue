@@ -30,6 +30,7 @@
             :task-locations="taskLocations"
             :user-position="userPosition"
             :loading-locations="loadingTaskLocations"
+            :selected-location="selectedLocation"
             @location-click="onMapLocationClick"
             @map-ready="onMapReady"
             @location-change="handleLocationOverride"
@@ -59,6 +60,8 @@
 </template>
 
 <script setup>
+import { getLocationIdentifier, isSameLocation } from '~/utils/location-sync'
+
 const { selectedTask, clearSelection } = useTaskWorkspace()
 const {
   getLocationCoordinates,
@@ -118,6 +121,8 @@ const selectedLocation = ref(null)
 // Map event handlers
 const onMapLocationClick = (location) => {
   // Handle location click from map
+  console.log('[TaskDetailPanel] Map location clicked:', getLocationIdentifier(location))
+  console.log('[TaskDetailPanel] Setting selectedLocation to:', location)
   selectedLocation.value = location
   if (responseFormRef.value) {
     responseFormRef.value.setLocation(getLocationCoordinates(location))
@@ -152,6 +157,7 @@ const loadTaskLocations = async () => {
 
 // Handle location selection from LocationPicker
 const onLocationSelect = (location) => {
+  console.log('[TaskDetailPanel] List location selected:', getLocationIdentifier(location))
   selectedLocation.value = location
   if (location) {
     if (responseFormRef.value) {

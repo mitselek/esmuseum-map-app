@@ -30,6 +30,7 @@
       :visited-locations="scoringData.visitedLocations.value"
       :loading="loadingLocations"
       :max-locations="5"
+      :selected-location="selectedLocation"
       @location-click="onLocationClick"
       @map-ready="onMapReady"
     />
@@ -152,6 +153,13 @@ const props = defineProps({
   loadingLocations: {
     type: Boolean,
     default: false
+  },
+  /**
+   * Currently selected location for highlighting
+   */
+  selectedLocation: {
+    type: Object,
+    default: null
   }
 })
 
