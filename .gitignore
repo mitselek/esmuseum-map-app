@@ -15,9 +15,5 @@ localhost+*
 translation-analysis-report.json
 *.backup.*
 
-# Copilot private workspace - working documents and planning
-.copilot-workspace/*
-!.copilot-workspace/.keep
-!.copilot-workspace/README.md
-!.copilot-workspace/progress.md
-!.copilot-workspace/project-context.md
+# Copilot workspace is now part of the knowledge base
+# (previously ignored, now included for documentation)
