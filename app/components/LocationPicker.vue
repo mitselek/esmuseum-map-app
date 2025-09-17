@@ -100,7 +100,12 @@
           v-for="location in filteredLocations"
           :key="location._id || location.id"
           type="button"
-          class="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-white p-3 text-left transition-colors hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+          :class="[
+            'flex w-full items-center justify-between rounded-lg border p-3 text-left transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1',
+            isLocationSelected(location)
+              ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500 hover:bg-blue-100'
+              : 'border-gray-200 bg-white hover:bg-gray-50 focus:border-blue-500 focus:ring-blue-500',
+          ]"
           @click="selectLocation(location)"
         >
           <div class="flex-1">
@@ -156,6 +161,8 @@
 </template>
 
 <script setup>
+import { isSameLocation } from '~/utils/location-sync'
+
 const { t } = useI18n()
 const { userPosition, gettingLocation, sortByDistance } = useLocation()
 
@@ -228,6 +235,20 @@ watch([() => props.locations, userPosition], ([newLocations, newPosition]) => {
 
 // Computed
 const selectedLocation = computed(() => props.selected)
+
+// Debug: Watch selected prop changes
+watch(() => props.selected, (newSelected, oldSelected) => {
+  console.log('[LocationPicker] selected prop changed:', {
+    from: oldSelected?.nimi || oldSelected?.name || 'null',
+    to: newSelected?.nimi || newSelected?.name || 'null'
+  })
+}, { deep: true })
+
+// Check if a location is currently selected
+const isLocationSelected = (location) => {
+  if (!selectedLocation.value || !location) return false
+  return isSameLocation(location, selectedLocation.value)
+}
 
 // Check if a location is visited
 const isLocationVisited = (location) => {
