@@ -18,7 +18,7 @@ export const useTaskResponseStats = () => {
       const responsesResult = await searchEntities({
         '_type.string': 'vastus',
         '_parent._id': taskId,
-        'limit': 1000  // Set a high limit to get all responses
+        limit: 1000 // Set a high limit to get all responses
       })
 
       return responsesResult.entities?.length || 0
@@ -35,7 +35,8 @@ export const useTaskResponseStats = () => {
       //   }
       // })
       // return response.responseCount || 0
-    } catch (error) {
+    }
+    catch (error) {
       console.warn(`Failed to get response count for task ${taskId}:`, error)
       return 0
     }
@@ -62,7 +63,7 @@ export const useTaskResponseStats = () => {
   const getTaskResponseStats = async (task: any) => {
     const expected = getExpectedResponseCount(task)
     const actual = await getActualResponseCount(task._id || task.id)
-    
+
     return {
       actual,
       expected,

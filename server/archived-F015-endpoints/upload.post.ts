@@ -1,7 +1,7 @@
 /**
  * POST /api/upload
  * Handle file upload for task responses
- * 
+ *
  * This endpoint:
  * 1. Requests upload URL from Entu by adding photo property to existing response entity
  * 2. Uploads the file to the provided URL
@@ -22,7 +22,7 @@ const ALLOWED_MIME_TYPES = [
 
 export default defineEventHandler(async (event) => {
   const logger = createLogger('api:upload')
-  
+
   return withAuth(event, async (event: any, user: AuthenticatedUser) => {
     // Only allow POST method
     assertMethod(event, 'POST')
@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
     try {
       // Parse multipart form data
       const formData = await readMultipartFormData(event)
-      
+
       if (!formData || formData.length === 0) {
         throw createError({
           statusCode: 400,
@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
       }
 
       // Get parent entity ID from form data
-      const parentEntityIdField = formData.find(field => field.name === 'parentEntityId')
+      const parentEntityIdField = formData.find((field) => field.name === 'parentEntityId')
       if (!parentEntityIdField) {
         throw createError({
           statusCode: 400,
@@ -50,10 +50,10 @@ export default defineEventHandler(async (event) => {
 
       // Get API config
       const apiConfig = getEntuApiConfig(extractBearerToken(event))
-      
+
       // Process files
       const uploadResults = []
-      
+
       for (const field of formData) {
         if (field.name === 'file' && field.filename && field.data) {
           try {
@@ -95,8 +95,8 @@ export default defineEventHandler(async (event) => {
               size: field.data.length,
               type: field.type
             })
-
-          } catch (error: any) {
+          }
+          catch (error: any) {
             logger.error(`Failed to upload file ${field.filename}`, error)
             uploadResults.push({
               filename: field.filename,
@@ -111,11 +111,11 @@ export default defineEventHandler(async (event) => {
       return createSuccessResponse({
         uploads: uploadResults,
         message: `Processed ${uploadResults.length} file(s)`,
-        successCount: uploadResults.filter(r => r.success).length,
-        errorCount: uploadResults.filter(r => !r.success).length
+        successCount: uploadResults.filter((r) => r.success).length,
+        errorCount: uploadResults.filter((r) => !r.success).length
       })
-
-    } catch (error: any) {
+    }
+    catch (error: any) {
       logger.error('File upload failed', error)
 
       // Re-throw known errors
@@ -134,7 +134,7 @@ export default defineEventHandler(async (event) => {
 /**
  * Validate uploaded file
  */
-function validateFile(field: any): { isValid: boolean, error?: string } {
+function validateFile (field: any): { isValid: boolean, error?: string } {
   if (!field.filename) {
     return { isValid: false, error: 'Filename is required' }
   }
@@ -144,15 +144,15 @@ function validateFile(field: any): { isValid: boolean, error?: string } {
   }
 
   if (field.data.length > MAX_FILE_SIZE) {
-    return { 
-      isValid: false, 
+    return {
+      isValid: false,
       error: `File too large: ${field.filename} (${Math.round(field.data.length / 1024 / 1024)}MB). Maximum size is 10MB.`
     }
   }
 
   if (field.type && !ALLOWED_MIME_TYPES.includes(field.type)) {
-    return { 
-      isValid: false, 
+    return {
+      isValid: false,
       error: `File type not allowed: ${field.filename} (${field.type}). Allowed types: images, PDF, Word documents.`
     }
   }
@@ -163,7 +163,7 @@ function validateFile(field: any): { isValid: boolean, error?: string } {
 /**
  * Helper function to extract Bearer token
  */
-function extractBearerToken(event: any): string {
+function extractBearerToken (event: any): string {
   const authHeader = getHeader(event, 'authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     throw createError({

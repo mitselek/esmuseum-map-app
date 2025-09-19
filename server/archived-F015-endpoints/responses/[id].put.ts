@@ -11,7 +11,7 @@ import { createLogger } from '../../utils/logger'
 
 export default defineEventHandler(async (event) => {
   const logger = createLogger('api:responses:put')
-  
+
   return withAuth(event, async (event: any, user: AuthenticatedUser) => {
     // Only allow PUT method
     assertMethod(event, 'PUT')

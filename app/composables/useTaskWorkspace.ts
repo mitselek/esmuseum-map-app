@@ -13,18 +13,18 @@ const globalError = ref<string | null>(null)
 export const useTaskWorkspace = () => {
   const router = useRouter()
   const route = useRoute()
-  
+
   // Authentication
   const { user, token } = useEntuAuth()
   const { searchEntities, getEntity } = useEntuApi()
-  
+
   // Use global state
   const tasks = globalTasks
   const selectedTaskId = globalSelectedTaskId
   const userResponses = globalUserResponses
   const loading = globalLoading
   const error = globalError
-  
+
   // Computed properties
   const selectedTask = computed(() => {
     return tasks.value.find((task: any) => task._id === selectedTaskId.value)
@@ -78,27 +78,30 @@ export const useTaskWorkspace = () => {
           // Client-side version (F015 migration) - ACTIVE
           const groupTasks = await searchEntities({
             '_type.string': 'ulesanne',
-            'grupp.reference': parentGroup.reference,  // Filter tasks assigned to this specific group
-            'limit': 1000
+            'grupp.reference': parentGroup.reference, // Filter tasks assigned to this specific group
+            limit: 1000
           })
 
-          if (groupTasks.entities && groupTasks.entities.length > 0) {            allTasks.push(...groupTasks.entities.map((task: any) => ({
+          if (groupTasks.entities && groupTasks.entities.length > 0) {
+            allTasks.push(...groupTasks.entities.map((task: any) => ({
               ...task,
               groupId: parentGroup.reference,
               groupName: parentGroup.string || 'Unknown Group'
             })))
           }
-        } catch (err) {
+        }
+        catch (err) {
           console.error(`Failed to load tasks for group ${parentGroup.reference}:`, err)
         }
       }
 
       tasks.value = allTasks
-
-    } catch (err: unknown) {
+    }
+    catch (err: unknown) {
       console.error('Failed to load tasks:', err)
       error.value = err instanceof Error ? err.message : 'Failed to load tasks'
-    } finally {
+    }
+    finally {
       loading.value = false
     }
   }
@@ -106,7 +109,7 @@ export const useTaskWorkspace = () => {
   // Task selection
   const selectTask = (taskId: string) => {
     selectedTaskId.value = taskId
-    
+
     // Update URL without navigation
     router.push({
       path: '/',
@@ -122,7 +125,7 @@ export const useTaskWorkspace = () => {
   // User response persistence
   const saveUserResponse = (taskId: string, response: any) => {
     userResponses.value.set(taskId, response)
-    
+
     // Persist to localStorage
     const stored = JSON.parse(localStorage.getItem('taskResponses') || '{}')
     stored[taskId] = response
@@ -149,12 +152,13 @@ export const useTaskWorkspace = () => {
           Authorization: `Bearer ${token.value}`
         }
       })
-      
+
       if (response) {
         userResponses.value.set(taskId, response)
         return response
       }
-    } catch (err) {
+    }
+    catch (err) {
       console.log('No saved response found for task:', taskId)
     }
 
@@ -173,7 +177,8 @@ export const useTaskWorkspace = () => {
   watch(() => route.query.task, (taskId) => {
     if (typeof taskId === 'string' && tasks.value.some((task: any) => task._id === taskId)) {
       selectedTaskId.value = taskId
-    } else if (!taskId) {
+    }
+    else if (!taskId) {
       selectedTaskId.value = null
     }
   })
@@ -186,7 +191,7 @@ export const useTaskWorkspace = () => {
     isTaskSelected,
     loading: readonly(loading),
     error: readonly(error),
-    
+
     // Actions
     loadTasks,
     selectTask,

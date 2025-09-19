@@ -13,10 +13,10 @@ enum LogLevel {
 /**
  * Get the current log level from environment or default
  */
-function getCurrentLogLevel(): LogLevel {
+function getCurrentLogLevel (): LogLevel {
   const envLogLevel = process.env.LOG_LEVEL?.toUpperCase()
   const isDev = process.env.NODE_ENV === 'development'
-  
+
   switch (envLogLevel) {
     case 'DEBUG': return LogLevel.DEBUG
     case 'INFO': return LogLevel.INFO
@@ -31,7 +31,7 @@ function getCurrentLogLevel(): LogLevel {
 /**
  * Check if we should log at this level
  */
-function shouldLog(level: LogLevel): boolean {
+function shouldLog (level: LogLevel): boolean {
   return level >= getCurrentLogLevel()
 }
 
@@ -47,9 +47,9 @@ function formatLogMessage (level: LogLevel, module: string, message: string): st
 /**
  * Format data object for logging
  */
-function formatData(data?: any): string {
+function formatData (data?: any): string {
   if (!data) return ''
-  
+
   try {
     if (typeof data === 'string') return ` - ${data}`
     if (typeof data === 'object') {
@@ -57,7 +57,8 @@ function formatData(data?: any): string {
       return ` - ${jsonStr}`
     }
     return ` - ${String(data)}`
-  } catch (e) {
+  }
+  catch (e) {
     return ` - [Object could not be serialized]`
   }
 }

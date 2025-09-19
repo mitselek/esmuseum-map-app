@@ -355,14 +355,14 @@ const onLocationClick = (location) => {
 // Programmatically open popup for a location
 const openLocationPopup = (location) => {
   if (!location) return
-  
+
   const locationKey = location._id || location.id || `${location.coordinates?.lat}-${location.coordinates?.lng}`
   const markerRef = markerRefs.value.get(locationKey)
-  
+
   if (markerRef && markerRef.leafletObject) {
     // Open the popup
     markerRef.leafletObject.openPopup()
-    
+
     // Center the map on this location with a slight zoom
     if (map.value && map.value.leafletObject) {
       map.value.leafletObject.setView([location.coordinates.lat, location.coordinates.lng], Math.max(zoom.value, 15))

@@ -1,6 +1,6 @@
 /**
  * Logout endpoint for server-side auth
- * 
+ *
  * Clears the server-side session cookie
  */
 
@@ -10,7 +10,7 @@ const logger = createLogger('auth-logout')
 
 export default defineEventHandler(async (event) => {
   logger.info('User logout requested')
-  
+
   try {
     // Clear the session cookie
     deleteCookie(event, 'auth-session', {
@@ -19,17 +19,17 @@ export default defineEventHandler(async (event) => {
       sameSite: 'lax',
       path: '/'
     })
-    
+
     logger.info('Session cleared successfully')
-    
+
     return {
       success: true,
       message: 'Logged out successfully'
     }
-    
-  } catch (error: any) {
+  }
+  catch (error: any) {
     logger.error('Logout failed', error)
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to logout'

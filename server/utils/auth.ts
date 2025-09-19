@@ -25,13 +25,14 @@ export function extractJwtToken (event: any): string {
   // First try to get token from Authorization header
   try {
     return extractBearerToken(event)
-  } catch (error) {
+  }
+  catch (error) {
     // If no Bearer token, try to get it from session
     if (event.context?.sessionJwtToken) {
       logger.debug('Using JWT token from session')
       return event.context.sessionJwtToken
     }
-    
+
     logger.warn('No JWT token found in Bearer header or session')
     throw createError({
       statusCode: 401,
@@ -84,35 +85,35 @@ export function extractBearerToken (event: any): string {
 async function authenticateUserViaSession (event: any): Promise<AuthenticatedUser | null> {
   try {
     const sessionToken = getCookie(event, 'auth-session')
-    
+
     if (!sessionToken) {
       return null
     }
-    
+
     // Decode the session token
     const sessionData = JSON.parse(Buffer.from(sessionToken, 'base64').toString())
-    
+
     // Check if session has expired
     if (sessionData.expires < Date.now()) {
       logger.debug('Session expired, clearing cookie')
       deleteCookie(event, 'auth-session')
       return null
     }
-    
+
     logger.debug('Session authentication successful', { userId: sessionData.userId })
-    
+
     // Store the JWT token in the event context for later use
     if (sessionData.jwtToken) {
       event.context.sessionJwtToken = sessionData.jwtToken
     }
-    
+
     return {
       _id: sessionData.userId,
       email: sessionData.email,
       name: sessionData.name
     }
-    
-  } catch (error: any) {
+  }
+  catch (error: any) {
     logger.debug('Session authentication failed', error)
     return null
   }
@@ -129,7 +130,7 @@ export async function authenticateUser (event: any): Promise<AuthenticatedUser> 
   if (sessionUser) {
     return sessionUser
   }
-  
+
   // Fall back to JWT token authentication
   const token = extractBearerToken(event)
 
@@ -143,7 +144,7 @@ export async function authenticateUser (event: any): Promise<AuthenticatedUser> 
     // Decode the payload (base64)
     const payloadBase64 = tokenParts[1]
     const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString())
-    
+
     logger.debug('JWT token payload', {
       payload: payload,
       hasUser: !!payload.user,
@@ -212,12 +213,13 @@ async function authenticateUserViaAPI (event: any, token: string): Promise<Authe
     let errorBody = ''
     try {
       errorBody = await response.text()
-      logger.error('Auth API error response body', { 
+      logger.error('Auth API error response body', {
         status: response.status,
         body: errorBody,
         url: `${apiUrl}/api/${accountName}`
       })
-    } catch (e) {
+    }
+    catch (e) {
       logger.warn('Could not read error response body', e)
     }
 
@@ -229,7 +231,7 @@ async function authenticateUserViaAPI (event: any, token: string): Promise<Authe
   }
 
   const data = await response.json()
-  
+
   // Log successful response structure
   logger.debug('Entu auth API success response', {
     status: response.status,
@@ -279,7 +281,7 @@ export async function checkTaskPermission (user: AuthenticatedUser, taskId: stri
   try {
     // Get the task entity to check permissions
     const taskResponse = await getEntuEntity(taskId, apiConfig)
-    
+
     if (!taskResponse) {
       logger.warn(`Task not found: ${taskId}`)
       return false
@@ -303,7 +305,7 @@ export async function checkTaskPermission (user: AuthenticatedUser, taskId: stri
 
     for (const permissionArray of permissionArrays) {
       if (Array.isArray(permissionArray)) {
-        const hasPermission = permissionArray.some((permission: any) => 
+        const hasPermission = permissionArray.some((permission: any) =>
           permission.reference === user._id
         )
         if (hasPermission) {
@@ -315,7 +317,8 @@ export async function checkTaskPermission (user: AuthenticatedUser, taskId: stri
 
     logger.warn('User does not have permission on task', { userId: user._id, taskId })
     return false
-  } catch (error) {
+  }
+  catch (error) {
     logger.error('Error checking task permission', { error, userId: user._id, taskId })
     return false
   }

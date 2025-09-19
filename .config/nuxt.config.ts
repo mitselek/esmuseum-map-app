@@ -1,11 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  devServer: {
-    https: {
-      key: './localhost+3-key.pem',
-      cert: './localhost+3.pem'
-    }
-  },
   modules: [
     '@nuxt/eslint',
     '@nuxtjs/i18n',
@@ -15,13 +9,6 @@ export default defineNuxtConfig({
   ],
   ssr: false,
   devtools: { enabled: false },
-  spaLoadingTemplate: false,
-  // Fix mobile hydration issues
-  vue: {
-    compilerOptions: {
-      isCustomElement: (tag) => false
-    }
-  },
   app: {
     head: {
       meta: [
@@ -29,21 +16,13 @@ export default defineNuxtConfig({
       ]
     }
   },
-  // Disable development features that cause mobile issues
-  experimental: {
-    payloadExtraction: false
-  },
-  build: {
-    analyze: false
-  },
-  // Configure Vite to prevent devtools issues
-  vite: {
-    define: {
-      __VUE_PROD_DEVTOOLS__: false,
-      __VUE_OPTIONS_API__: true,
-      __VUE_DEVTOOLS__: false
+  // Fix mobile hydration issues
+  vue: {
+    compilerOptions: {
+      isCustomElement: (tag) => false
     }
   },
+  spaLoadingTemplate: false,
   runtimeConfig: {
     entuKey: '',
     public: {
@@ -57,10 +36,31 @@ export default defineNuxtConfig({
       F015_CLIENT_SIDE_AUTH: 'true' // Phase 3.3 - TESTING NOW!
     }
   },
+  build: {
+    analyze: false
+  },
+  devServer: {
+    https: {
+      key: './localhost+3-key.pem',
+      cert: './localhost+3.pem'
+    }
+  },
   future: {
     compatibilityVersion: 4
   },
+  // Disable development features that cause mobile issues
+  experimental: {
+    payloadExtraction: false
+  },
   compatibilityDate: '2024-09-04',
+  // Configure Vite to prevent devtools issues
+  vite: {
+    define: {
+      __VUE_PROD_DEVTOOLS__: false,
+      __VUE_OPTIONS_API__: true,
+      __VUE_DEVTOOLS__: false
+    }
+  },
   eslint: {
     config: {
       autoInit: false,

@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     assertMethod(event, 'GET')
 
     const taskId = getRouterParam(event, 'taskId')
-    
+
     if (!taskId) {
       throw createError({
         statusCode: 400,
@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
       const responsesResult = await searchEntuEntities({
         '_type.string': 'vastus',
         '_parent._id': taskId,
-        'limit': 1000  // Set a high limit to get all responses
+        limit: 1000 // Set a high limit to get all responses
       }, apiConfig)
 
       const actualCount = responsesResult.entities?.length || 0

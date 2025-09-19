@@ -1,6 +1,66 @@
 {
   "recommendations": [
+    // Constitutional Article I: Vue 3 Composition API Support
+    "Vue.volar",
+    "Vue.vscode-typescript-vue-plugin",
+
+    // Constitutional Article II: TypeScript-First Development
+    "ms-vscode.vscode-typescript-next",
+    "usernamehw.errorlens",
     "bradlc.vscode-tailwindcss",
-    "dbaeumer.vscode-eslint"
+
+    // Constitutional Article III: Test-Driven Feature Development
+    "vitest.explorer",
+    "ms-vscode.test-adapter-converter",
+    "ryanluker.vscode-coverage-gutters",
+
+    // Constitutional Article IV: i18n-First User Interface
+    "lokalise.i18n-ally",
+    "antfu.i18n-ally",
+
+    // Constitutional Article V: Entu API Integration Standards
+    "humao.rest-client",
+    "ms-vscode.vscode-json",
+
+    // Constitutional Article VI: Performance-First SPA Architecture
+    "ms-vscode.vscode-js-profile-flame",
+    "wix.vscode-import-cost",
+    "formulahendry.auto-rename-tag",
+
+    // Constitutional Article VII: Component Modularity Principle
+    "aaron-bond.better-comments",
+    "wayou.vscode-todo-highlight",
+    "gruntfuggly.todo-tree",
+
+    // Constitutional Article VIII: Documentation-Driven Development
+    "yzhang.markdown-all-in-one",
+    "davidanson.vscode-markdownlint",
+    "bierner.markdown-mermaid",
+
+    // Constitutional Article IX: Responsive Design Requirements
+    "ms-vscode.live-server",
+    "ritwickdey.liveserver",
+    "formulahendry.auto-close-tag",
+
+    // General Development Quality
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-json",
+    "redhat.vscode-yaml",
+
+    // Git and Version Control
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    "donjayamanne.githistory",
+
+    // Copilot and AI-Assisted Development
+    "github.copilot",
+    "github.copilot-chat",
+
+    // Spec-Driven Development Workflow
+    "ms-vscode.vscode-json",
+    "ms-vscode.powershell",
+    "ms-vscode.references-view"
   ]
 }

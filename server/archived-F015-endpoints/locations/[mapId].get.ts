@@ -40,12 +40,12 @@ export default defineEventHandler(async (event) => {
       const searchResult = await searchEntuEntities({
         '_type.string': 'asukoht',
         '_parent.reference': mapId,
-        'limit': 10000,
-        'props': 'name.string,lat.number,long.number,kirjeldus.string'
+        limit: 10000,
+        props: 'name.string,lat.number,long.number,kirjeldus.string'
       }, apiConfig)
 
       const locations = searchResult?.entities || []
-      
+
       logger.info(`Loaded ${locations.length} locations for map ${mapId}`, {
         requestedLimit: 10000,
         actualCount: locations.length,

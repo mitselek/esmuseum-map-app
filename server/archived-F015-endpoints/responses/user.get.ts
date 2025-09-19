@@ -11,7 +11,7 @@ import { createLogger } from '../../utils/logger'
 
 export default defineEventHandler(async (event) => {
   const logger = createLogger('api:responses:user')
-  
+
   return withAuth(event, async (event: any, user: AuthenticatedUser) => {
     // Only allow GET method
     assertMethod(event, 'GET')
@@ -66,7 +66,8 @@ export default defineEventHandler(async (event) => {
         })),
         count: responses.length
       })
-    } catch (error: any) {
+    }
+    catch (error: any) {
       logger.error('Failed to get user responses', error)
 
       // Re-throw known errors
