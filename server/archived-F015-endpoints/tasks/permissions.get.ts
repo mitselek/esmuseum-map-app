@@ -1,17 +1,18 @@
 /**
- * GET /api/tasks/[taskId]/permissions
- * Check if current user has permission to respond to a task
+ * GET /api/tasks/permissions
+ * Check user permissions for task operations
  */
 
-import { withAuth, checkTaskPermission } from '../../../utils/auth'
-import type { AuthenticatedUser } from '../../../utils/auth'
-import { getEntuApiConfig } from '../../../utils/entu'
-import { createLogger } from '../../../utils/logger'
+import type { H3Event } from 'h3'
+import type { AuthenticatedUser } from '../../utils/auth'
+import { checkTaskPermission, withAuth } from '../../utils/auth'
+import { getEntuApiConfig } from '../../utils/entu'
+import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('task-permissions')
 
 export default defineEventHandler(async (event) => {
-  return withAuth(event, async (event: any, user: AuthenticatedUser) => {
+  return withAuth(event, async (event: H3Event, user: AuthenticatedUser) => {
     // Only allow GET method
     assertMethod(event, 'GET')
 
@@ -47,30 +48,41 @@ export default defineEventHandler(async (event) => {
         userId: user._id
       }
     }
-    catch (error: any) {
-      logger.error('Task permission check failed', error)
+    catch (error: unknown) {
+      logger.error('Error checking task permissions:', error)
 
-      // Re-throw known errors
-      if (error?.statusCode) {
-        throw error
+      if (error && typeof error === 'object' && 'statusCode' in error) {
+        const statusError = error as {
+          statusCode: number
+          statusMessage?: string
+        }
+        if (statusError.statusCode) {
+          throw createError({
+            statusCode: statusError.statusCode,
+            statusMessage:
+              statusError.statusMessage || 'Error checking task permissions'
+          })
+        }
       }
 
       throw createError({
         statusCode: 500,
-        statusMessage: 'Failed to check task permissions'
+        statusMessage: 'Internal server error checking task permissions'
       })
     }
   })
 })
 
 // Helper function to extract Bearer token (avoiding circular import)
-function extractBearerToken (event: any): string {
+function extractBearerToken (event: H3Event): string {
   const authHeader = getHeader(event, 'authorization')
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     throw createError({
       statusCode: 401,
-      statusMessage: 'Invalid authorization header'
+      statusMessage: 'Missing or invalid authorization header'
     })
   }
-  return authHeader.substring(7).trim()
+
+  return authHeader.substring(7) // Remove 'Bearer ' prefix
 }

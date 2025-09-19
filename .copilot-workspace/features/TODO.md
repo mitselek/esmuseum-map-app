@@ -10,7 +10,7 @@
   - Complete i18n translations and comprehensive F017 documentation
   - Status: ON HOLD - UX feasibility needs evaluation, compact popup design may not be optimal
   - Alternative approaches to consider: modal overlay, sidebar integration, or expandable popup views
-- [x] Find all places, where we are checking for ._id but actually should only look for .reference (e.g. in useTaskDetail.ts)
+- [x] Find all places, where we are checking for .\_id but actually should only look for .reference (e.g. in useTaskDetail.ts)
 - [x] find out, why was expanding options after headers in callApi critical for POST requests - was it just a timing issue or something else?
 - [x] remove the certs from the repo!
 - [x] **F017: GitHub Spec Kit Selective Adoption** - Research and formalize transition to Spec-Driven Development
@@ -23,3 +23,5 @@
   - Status: DEFERRED until after Spec-Driven Development migration is complete
   - Rationale: Focus on process enhancement first, then apply new methodology to TypeScript interfaces
   - Will be implemented as F018+ using new constitutional framework and enhanced workflow
+- [ ] "The issue is that useTaskScoring.js is importing useEntuApi() and useEntuAuth() without explicit imports. This works in Nuxt auto-import but not in tests. "
+      can we address this in a way, that nuxt autoimports still do the job in Nuxt, but tests are doing required imports independently?

@@ -3,8 +3,9 @@
  * Handles token validation and user authentication
  */
 
-import { callEntuApi, getEntuEntity, getEntuApiConfig } from './entu'
+import type { H3Event } from 'h3'
 import type { EntuApiOptions } from './entu'
+import { getEntuEntity } from './entu'
 import { createLogger } from './logger'
 
 // Create a logger for this module
@@ -21,7 +22,7 @@ export interface AuthenticatedUser {
  * Extract JWT token from either Bearer header or session
  * This supports both direct JWT authentication and session-based authentication
  */
-export function extractJwtToken (event: any): string {
+export function extractJwtToken (event: H3Event): string {
   // First try to get token from Authorization header
   try {
     return extractBearerToken(event)
@@ -36,7 +37,8 @@ export function extractJwtToken (event: any): string {
     logger.warn('No JWT token found in Bearer header or session')
     throw createError({
       statusCode: 401,
-      statusMessage: 'JWT token is required (either via Bearer header or session)'
+      statusMessage:
+        'JWT token is required (either via Bearer header or session)'
     })
   }
 }
@@ -44,7 +46,7 @@ export function extractJwtToken (event: any): string {
 /**
  * Extract and validate Bearer token from Authorization header
  */
-export function extractBearerToken (event: any): string {
+export function extractBearerToken (event: H3Event): string {
   logger.debug('Extracting bearer token from request')
 
   const authHeader = getHeader(event, 'authorization')
@@ -82,7 +84,9 @@ export function extractBearerToken (event: any): string {
 /**
  * Authenticate user via server-side session cookie
  */
-async function authenticateUserViaSession (event: any): Promise<AuthenticatedUser | null> {
+async function authenticateUserViaSession (
+  event: any
+): Promise<AuthenticatedUser | null> {
   try {
     const sessionToken = getCookie(event, 'auth-session')
 
@@ -91,7 +95,9 @@ async function authenticateUserViaSession (event: any): Promise<AuthenticatedUse
     }
 
     // Decode the session token
-    const sessionData = JSON.parse(Buffer.from(sessionToken, 'base64').toString())
+    const sessionData = JSON.parse(
+      Buffer.from(sessionToken, 'base64').toString()
+    )
 
     // Check if session has expired
     if (sessionData.expires < Date.now()) {
@@ -100,7 +106,9 @@ async function authenticateUserViaSession (event: any): Promise<AuthenticatedUse
       return null
     }
 
-    logger.debug('Session authentication successful', { userId: sessionData.userId })
+    logger.debug('Session authentication successful', {
+      userId: sessionData.userId
+    })
 
     // Store the JWT token in the event context for later use
     if (sessionData.jwtToken) {
@@ -185,12 +193,17 @@ export async function authenticateUser (event: any): Promise<AuthenticatedUser> 
 /**
  * Fallback: Authenticate via Entu API (slower)
  */
-async function authenticateUserViaAPI (event: any, token: string): Promise<AuthenticatedUser> {
+async function authenticateUserViaAPI (
+  event: any,
+  token: string
+): Promise<AuthenticatedUser> {
   const config = useRuntimeConfig()
   const apiUrl = config.public.entuUrl || 'https://entu.app'
   const accountName = config.public.entuAccount || 'esmuuseum'
 
-  logger.debug('Calling Entu auth endpoint', { url: `${apiUrl}/api/${accountName}` })
+  logger.debug('Calling Entu auth endpoint', {
+    url: `${apiUrl}/api/${accountName}`
+  })
 
   // Call the same endpoint that client uses for auth verification
   const response = await fetch(`${apiUrl}/api/${accountName}`, {
@@ -223,7 +236,9 @@ async function authenticateUserViaAPI (event: any, token: string): Promise<Authe
       logger.warn('Could not read error response body', e)
     }
 
-    logger.warn(`Authentication failed: ${response.status} ${response.statusText}`)
+    logger.warn(
+      `Authentication failed: ${response.status} ${response.statusText}`
+    )
     throw createError({
       statusCode: 401,
       statusMessage: 'Authentication failed'
@@ -264,7 +279,12 @@ async function authenticateUserViaAPI (event: any, token: string): Promise<Authe
   const user = { ...data.user }
 
   // Add user ID from the accounts array if available - same as client
-  if (data.accounts && data.accounts.length > 0 && data.accounts[0].user && data.accounts[0].user._id) {
+  if (
+    data.accounts
+    && data.accounts.length > 0
+    && data.accounts[0].user
+    && data.accounts[0].user._id
+  ) {
     user._id = data.accounts[0].user._id
   }
 
@@ -275,7 +295,11 @@ async function authenticateUserViaAPI (event: any, token: string): Promise<Authe
  * Check if user has permission to access a task
  * User must be in task's _owner, _editor, or _expander properties to create responses
  */
-export async function checkTaskPermission (user: AuthenticatedUser, taskId: string, apiConfig: EntuApiOptions): Promise<boolean> {
+export async function checkTaskPermission (
+  user: AuthenticatedUser,
+  taskId: string,
+  apiConfig: EntuApiOptions
+): Promise<boolean> {
   logger.debug('Checking task permission', { userId: user._id, taskId })
 
   try {
@@ -305,21 +329,31 @@ export async function checkTaskPermission (user: AuthenticatedUser, taskId: stri
 
     for (const permissionArray of permissionArrays) {
       if (Array.isArray(permissionArray)) {
-        const hasPermission = permissionArray.some((permission: any) =>
-          permission.reference === user._id
+        const hasPermission = permissionArray.some(
+          (permission: any) => permission.reference === user._id
         )
         if (hasPermission) {
-          logger.debug('User has permission on task', { userId: user._id, taskId })
+          logger.debug('User has permission on task', {
+            userId: user._id,
+            taskId
+          })
           return true
         }
       }
     }
 
-    logger.warn('User does not have permission on task', { userId: user._id, taskId })
+    logger.warn('User does not have permission on task', {
+      userId: user._id,
+      taskId
+    })
     return false
   }
   catch (error) {
-    logger.error('Error checking task permission', { error, userId: user._id, taskId })
+    logger.error('Error checking task permission', {
+      error,
+      userId: user._id,
+      taskId
+    })
     return false
   }
 }
@@ -327,8 +361,15 @@ export async function checkTaskPermission (user: AuthenticatedUser, taskId: stri
 /**
  * Check if user has permission to modify a response
  */
-export async function checkResponsePermission (user: AuthenticatedUser, responseId: string, apiConfig: EntuApiOptions): Promise<boolean> {
-  logger.debug('Checking response permission', { userId: user._id, responseId })
+export async function checkResponsePermission (
+  user: AuthenticatedUser,
+  responseId: string,
+  apiConfig: EntuApiOptions
+): Promise<boolean> {
+  logger.debug('Checking response permission', {
+    userId: user._id,
+    responseId
+  })
 
   try {
     // Get response entity to check ownership
@@ -341,7 +382,8 @@ export async function checkResponsePermission (user: AuthenticatedUser, response
 
     // Check if user owns this response
     // This assumes the response has a user field with the user ID
-    const responseUserId = response.user?._id || response.userId || response._creator
+    const responseUserId
+      = response.user?._id || response.userId || response._creator
 
     const hasPermission = responseUserId === user._id
     logger.debug('Response permission check result', {
@@ -354,7 +396,11 @@ export async function checkResponsePermission (user: AuthenticatedUser, response
     return hasPermission
   }
   catch (error) {
-    logger.error('Response permission check failed', { userId: user._id, responseId, error })
+    logger.error('Response permission check failed', {
+      userId: user._id,
+      responseId,
+      error
+    })
     return false
   }
 }
@@ -363,14 +409,18 @@ export async function checkResponsePermission (user: AuthenticatedUser, response
  * Middleware wrapper for authenticated routes
  */
 export async function withAuth<T> (
-  event: any,
-  handler: (event: any, user: AuthenticatedUser) => Promise<T>
+  event: H3Event,
+  handler: (event: H3Event, user: AuthenticatedUser) => Promise<T>
 ): Promise<T> {
-  logger.debug('Processing authenticated request', { path: getRouterParam(event, 'id') || 'unknown' })
+  logger.debug('Processing authenticated request', {
+    path: getRouterParam(event, 'id') || 'unknown'
+  })
 
   try {
     const user = await authenticateUser(event)
-    logger.debug('Authentication successful, executing handler', { userId: user._id })
+    logger.debug('Authentication successful, executing handler', {
+      userId: user._id
+    })
 
     const result = await handler(event, user)
     logger.debug('Handler executed successfully')

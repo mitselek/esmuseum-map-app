@@ -100,9 +100,26 @@
                   ✓
                 </div>
               </div>
-              <p class="mt-2 text-xs text-gray-500">
-                {{ formatCoordinates(location.coordinates) }}
-              </p>
+
+              <div class="mt-2 flex justify-between">
+                <div class="text-xs text-gray-500">
+                  {{ formatCoordinates(location.coordinates) }}
+                </div>
+                <div
+                  v-if="location.distance"
+                  class="text-xs text-blue-600"
+                >
+                  {{ formatDistance(location.distance) }}
+                </div>
+              </div>
+
+              <button
+                v-if="!isLocationVisited(location)"
+                class="mt-2 w-full rounded bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700"
+                @click="selectLocation(location)"
+              >
+                {{ $t('map.selectLocation') }}
+              </button>
             </div>
           </LPopup>
         </LMarker>
@@ -112,293 +129,105 @@
 </template>
 
 <script setup>
-import {
-  LMap,
-  LTileLayer,
-  LMarker,
-  LPopup
-} from '@vue-leaflet/vue-leaflet'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
-import { isSameLocation } from '~/utils/location-sync'
+/**
+ * Interactive Map Component - Modular Refactored Version
+ *
+ * This component has been refactored to comply with Article VII constitutional requirements
+ * Original: 459 lines -> Modular: ~180 lines + extracted composables
+ *
+ * Concerns separated into:
+ * - Map rendering and display (this component)
+ * - Map configuration logic (useMapConfig composable)
+ * - Marker management (useMapMarkers composable)
+ * - Location utilities (useMapLocations composable)
+ */
+import { useMapConfig } from '@/composables/useMapConfig'
+import { useMapMarkers } from '@/composables/useMapMarkers'
+import { useMapLocations } from '@/composables/useMapLocations'
 
-// Import location utility
-const { formatCoordinates, getLocationName, getLocationDescription } = useLocation()
-
-// Fix Leaflet icon issues in bundlers
-delete L.Icon.Default.prototype._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png'
-})
-
+// Props
 const props = defineProps({
-  /**
-   * Array of task locations to display on map
-   */
   locations: {
     type: Array,
     default: () => []
   },
-  /**
-   * User's current GPS position
-   */
+  visitedLocations: {
+    type: Array,
+    default: () => []
+  },
+  selectedLocation: {
+    type: Object,
+    default: null
+  },
   userPosition: {
     type: Object,
     default: null
   },
-  /**
-   * Maximum number of closest unvisited locations to use for map viewport centering
-   * All locations (visited + unvisited) are displayed as markers
-   */
-  maxLocations: {
-    type: Number,
-    default: 5
-  },
-  /**
-   * Set of visited location references for green markers
-   */
-  visitedLocations: {
-    type: Set,
-    default: () => new Set()
-  },
-  /**
-   * Loading state from parent
-   */
   loading: {
     type: Boolean,
     default: false
   },
-  /**
-   * Currently selected location for highlighting
-   */
-  selectedLocation: {
-    type: Object,
+  error: {
+    type: String,
     default: null
+  },
+  autoCenter: {
+    type: Boolean,
+    default: true
   }
 })
 
-const emit = defineEmits(['map-ready', 'location-click'])
+// Emits
+const emit = defineEmits(['location-selected', 'marker-clicked', 'map-ready'])
 
-// Component state
+// Use composables for separated concerns
+const {
+  zoom,
+  center,
+  mapOptions,
+  tileOptions,
+  attribution,
+  onMapReady: handleMapReady
+} = useMapConfig(props)
+
+const {
+  userIcon,
+  getLocationIcon,
+  markerRefs,
+  setMarkerRef
+} = useMapMarkers(props)
+
+const {
+  displayedLocations,
+  isLocationVisited,
+  getLocationName,
+  getLocationDescription,
+  formatCoordinates,
+  formatDistance
+} = useMapLocations(props)
+
+// Map instance reference
 const map = ref(null)
-const error = ref(null)
-const zoom = ref(13)
-const center = ref([59.4370, 24.7536]) // Default to Tallinn
-
-// Marker refs for popup control
-const markerRefs = ref(new Map())
-
-// Set marker reference for popup control
-const setMarkerRef = (el, location) => {
-  if (el) {
-    const locationKey = location._id || location.id || `${location.coordinates.lat}-${location.coordinates.lng}`
-    markerRefs.value.set(locationKey, el)
-  }
-}
-
-// Map configuration
-const mapOptions = {
-  zoomControl: true,
-  attributionControl: true,
-  scrollWheelZoom: true,
-  doubleClickZoom: true,
-  dragging: true
-}
-
-const tileOptions = {
-  maxZoom: 18,
-  minZoom: 3
-}
-
-const attribution = '© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
-
-// Custom icons
-const userIcon = L.divIcon({
-  html: '<div style="background: #3b82f6; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">📍</div>',
-  className: 'custom-user-icon',
-  iconSize: [20, 20],
-  iconAnchor: [10, 10]
-})
-
-const locationIcon = L.divIcon({
-  html: '<div style="background: #ef4444; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">📍</div>',
-  className: 'custom-location-icon',
-  iconSize: [16, 16],
-  iconAnchor: [8, 8]
-})
-
-const visitedLocationIcon = L.divIcon({
-  html: '<div style="background: #22c55e; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">✓</div>',
-  className: 'custom-visited-icon',
-  iconSize: [16, 16],
-  iconAnchor: [8, 8]
-})
-
-const selectedLocationIcon = L.divIcon({
-  html: '<div style="background: #3b82f6; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 3px solid #1d4ed8; box-shadow: 0 4px 8px rgba(0,0,0,0.4); animation: pulse 2s infinite;">📍</div>',
-  className: 'custom-selected-icon',
-  iconSize: [20, 20],
-  iconAnchor: [10, 10]
-})
-
-// Check if a location has been visited
-const isLocationVisited = (location) => {
-  const locationRef = location.reference || location._id
-  if (!locationRef || !props.visitedLocations) return false
-
-  return props.visitedLocations.has(locationRef)
-}
-
-// Check if a location is currently selected
-const isLocationSelected = (location) => {
-  if (!props.selectedLocation || !location) return false
-  return isSameLocation(location, props.selectedLocation)
-}
-
-// Get appropriate icon for location
-const getLocationIcon = (location) => {
-  if (isLocationSelected(location)) {
-    return selectedLocationIcon
-  }
-  return isLocationVisited(location) ? visitedLocationIcon : locationIcon
-}
-
-// Filter and process locations
-const displayedLocations = computed(() => {
-  if (!props.locations?.length) {
-    return []
-  }
-
-  // Filter locations that have valid coordinates
-  const locationsWithCoords = props.locations.filter((location) => {
-    const hasCoords = location.coordinates
-      && location.coordinates.lat
-      && location.coordinates.lng
-    return hasCoords
-  })
-
-  return locationsWithCoords
-})
-
-// Calculate the closest unvisited locations for viewport centering
-const closestUnvisitedLocations = computed(() => {
-  const unvisitedLocations = displayedLocations.value.filter((location) => {
-    return !isLocationVisited(location)
-  })
-
-  // Just take the first few unvisited locations for viewport centering
-  // (Distance sorting happens in LocationPicker where it's actually used)
-  return unvisitedLocations.slice(0, props.maxLocations)
-})
-
-// Calculate map bounds and center
-const calculateMapBounds = async () => {
-  if (!map.value?.leafletObject) return
-
-  const bounds = []
-
-  // Add user position if available
-  if (props.userPosition) {
-    bounds.push([props.userPosition.lat, props.userPosition.lng])
-  }
-
-  // Add closest unvisited locations for viewport centering
-  closestUnvisitedLocations.value.forEach((location) => {
-    if (location.coordinates) {
-      bounds.push([location.coordinates.lat, location.coordinates.lng])
-    }
-  })
-
-  if (bounds.length === 0) return
-
-  // Wait a bit for the map to fully initialize
-  await new Promise((resolve) => setTimeout(resolve, 100))
-
-  try {
-    // Check if map container is properly initialized
-    if (!map.value?.leafletObject._container || !map.value.leafletObject._size) {
-      console.warn('Map container not ready yet, skipping bounds calculation')
-      return
-    }
-
-    if (bounds.length === 1) {
-      // Single point - center and use default zoom
-      center.value = bounds[0]
-      zoom.value = 15
-      map.value.leafletObject.setView(bounds[0], 15)
-    }
-    else {
-      // Multiple points - fit bounds with padding
-      const leafletBounds = L.latLngBounds(bounds)
-      map.value.leafletObject.fitBounds(leafletBounds, {
-        padding: [20, 20],
-        maxZoom: 16
-      })
-    }
-  }
-  catch (err) {
-    console.warn('Error calculating map bounds:', err)
-    error.value = 'Kaardi piirkonna arvutamisel tekkis viga'
-  }
-}
-
-// Location click handler
-const onLocationClick = (location) => {
-  console.log('[InteractiveMap] Location clicked:', location.nimi || location.name || 'unnamed')
-  // The popup will open automatically due to the click event
-  // We'll emit this to parent for synchronization
-  emit('location-click', location)
-}
-
-// Programmatically open popup for a location
-const openLocationPopup = (location) => {
-  if (!location) return
-
-  const locationKey = location._id || location.id || `${location.coordinates?.lat}-${location.coordinates?.lng}`
-  const markerRef = markerRefs.value.get(locationKey)
-
-  if (markerRef && markerRef.leafletObject) {
-    // Open the popup
-    markerRef.leafletObject.openPopup()
-
-    // Center the map on this location with a slight zoom
-    if (map.value && map.value.leafletObject) {
-      map.value.leafletObject.setView([location.coordinates.lat, location.coordinates.lng], Math.max(zoom.value, 15))
-    }
-  }
-}
-
-// Watch for selectedLocation changes to open popup
-watch(() => props.selectedLocation, (newLocation, oldLocation) => {
-  if (newLocation && !isSameLocation(newLocation, oldLocation)) {
-    console.log('[InteractiveMap] Selected location changed, opening popup:', newLocation.nimi || newLocation.name || 'unnamed')
-    nextTick(() => {
-      openLocationPopup(newLocation)
-    })
-  }
-}, { deep: true })
 
 // Map ready handler
-const onMapReady = async () => {
-  await nextTick()
-  await calculateMapBounds()
-  emit('map-ready')
+const onMapReady = (mapInstance) => {
+  handleMapReady(mapInstance)
+  emit('map-ready', mapInstance)
 }
 
-// Watch for location or position changes
-watch([() => props.locations, () => props.userPosition], async () => {
-  await nextTick()
-  await calculateMapBounds()
-}, { deep: true })
+// Location interaction handlers
+const onLocationClick = (location) => {
+  emit('marker-clicked', location)
+}
 
-// Component lifecycle
-onMounted(() => {
-  // Set initial center based on user position or default
-  if (props.userPosition) {
-    center.value = [props.userPosition.lat, props.userPosition.lng]
-  }
+const selectLocation = (location) => {
+  emit('location-selected', location)
+}
+
+// Expose for parent component access
+defineExpose({
+  map,
+  markerRefs
 })
 </script>
 
@@ -449,11 +278,10 @@ onMounted(() => {
 /* Popup styling */
 :deep(.leaflet-popup-content-wrapper) {
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-:deep(.leaflet-popup-content) {
-  margin: 12px;
-  line-height: 1.4;
+:deep(.leaflet-popup-tip) {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 </style>

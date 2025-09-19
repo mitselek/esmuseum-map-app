@@ -3,15 +3,16 @@
  * Get the total count of actual responses for a specific task
  */
 
-import { withAuth } from '../../../../utils/auth'
-import type { AuthenticatedUser } from '../../../../utils/auth'
-import { getEntuApiConfig, searchEntuEntities } from '../../../../utils/entu'
-import { createLogger } from '../../../../utils/logger'
+import type { H3Event } from 'h3'
+import type { AuthenticatedUser } from '../../utils/auth'
+import { withAuth } from '../../utils/auth'
+import { getEntuApiConfig, searchEntuEntities } from '../../utils/entu'
+import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('task-responses-count')
 
 export default defineEventHandler(async (event) => {
-  return withAuth(event, async (event: any, user: AuthenticatedUser) => {
+  return withAuth(event, async (event: H3Event, _user: AuthenticatedUser) => {
     // Only allow GET method
     assertMethod(event, 'GET')
 
@@ -38,11 +39,14 @@ export default defineEventHandler(async (event) => {
       const apiConfig = getEntuApiConfig(extractBearerToken(event))
 
       // Search for all responses to this task
-      const responsesResult = await searchEntuEntities({
-        '_type.string': 'vastus',
-        '_parent._id': taskId,
-        limit: 1000 // Set a high limit to get all responses
-      }, apiConfig)
+      const responsesResult = await searchEntuEntities(
+        {
+          '_type.string': 'vastus',
+          '_parent._id': taskId,
+          limit: 1000 // Set a high limit to get all responses
+        },
+        apiConfig
+      )
 
       const actualCount = responsesResult.entities?.length || 0
 
@@ -53,25 +57,34 @@ export default defineEventHandler(async (event) => {
         message: `Found ${actualCount} actual responses for task ${taskId}`
       }
     }
-    catch (error: any) {
-      logger.error('Failed to count task responses', error)
+    catch (error: unknown) {
+      logger.error('Error getting task response count:', error)
 
-      // Re-throw known errors
-      if (error?.statusCode) {
-        throw error
+      if (error && typeof error === 'object' && 'statusCode' in error) {
+        const statusError = error as {
+          statusCode: number
+          statusMessage?: string
+        }
+        if (statusError.statusCode) {
+          throw createError({
+            statusCode: statusError.statusCode,
+            statusMessage:
+              statusError.statusMessage || 'Error getting task response count'
+          })
+        }
       }
 
       throw createError({
         statusCode: 500,
-        statusMessage: 'Failed to count task responses'
+        statusMessage: 'Internal server error getting task response count'
       })
     }
   })
 })
 
 // Helper function to extract Bearer token (avoiding circular import)
-function extractBearerToken (event: any): string {
-  const authHeader = event.node?.req?.headers?.authorization || event.request?.headers?.get?.('authorization')
+function extractBearerToken (event: H3Event): string {
+  const authHeader = getHeader(event, 'authorization')
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     throw createError({

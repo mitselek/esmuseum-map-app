@@ -2,25 +2,25 @@
  * Test suite for F012 scoring mechanism
  * Tests the useTaskScoring composable functionality
  */
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { ref, nextTick } from 'vue'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick, ref } from 'vue'
 // Mock the composables first
 const mockApiGet = vi.fn()
 const mockUser = ref({ _id: 'test-user-id' })
 
-vi.mock('~/composables/useEntuApi', () => ({
+vi.mock('../../app/composables/useEntuApi', () => ({
   useEntuApi: () => ({
-    apiGet: mockApiGet
+    searchEntities: mockApiGet
   })
 }))
 
-vi.mock('~/composables/useEntuAuth', () => ({
+vi.mock('../../app/composables/useEntuAuth', () => ({
   useEntuAuth: () => ({
     user: mockUser
   })
 }))
 
-const { useTaskScoring } = await import('~/composables/useTaskScoring')
+const { useTaskScoring } = await import('../../app/composables/useTaskScoring')
 
 describe('useTaskScoring', () => {
   const mockTask = ref({
@@ -143,6 +143,7 @@ describe('useTaskScoring', () => {
 
   it('should fetch responses when task changes', async () => {
     const newTask = ref(null)
+    // eslint-disable-next-line no-unused-vars
     const scoring = useTaskScoring(newTask)
 
     // Initially should not call API
