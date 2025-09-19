@@ -54,7 +54,9 @@ Interactive educational tasks MUST support offline capability for field usage. G
 
 Application MUST load core content within 3 seconds on 3G connections. Map rendering MUST respond to user interactions within 200ms. Educational tasks MUST save progress automatically every 30 seconds. Mobile-first responsive design mandatory with touch-optimized interactions for all age groups.
 
-**Rationale**: Museum visitors use mobile devices extensively and expect immediate responsiveness. Educational applications must accommodate various age groups and technical skill levels while maintaining engagement through smooth interactions.
+Icons MUST serve functional purposes only, never decorative. Acceptable functional uses include status indicators (green checkmark for success, red X for failure) and single attention markers for critical information. All icons MUST include accessible text labels or alternatives.
+
+**Rationale**: Museum visitors use mobile devices extensively and expect immediate responsiveness. Educational applications must accommodate various age groups and technical skill levels while maintaining engagement through smooth interactions. Functional-only iconography reduces cognitive load and improves accessibility for diverse learners.
 
 ## Governance
 
@@ -62,4 +64,4 @@ Constitution supersedes all other development practices and technical decisions.
 
 Development guidance and runtime support documented in `.specify/templates/agent-file-template.md` for GitHub Copilot integration. Regular constitutional compliance reviews conducted during feature planning and implementation phases.
 
-**Version**: 1.0.0 | **Ratified**: 2025-09-19 | **Last Amended**: 2025-09-19
+**Version**: 1.1.0 | **Ratified**: 2025-09-19 | **Last Amended**: 2025-09-19

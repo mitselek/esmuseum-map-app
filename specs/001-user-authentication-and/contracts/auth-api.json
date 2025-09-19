@@ -1,0 +1,216 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Estonian War Museum User Profile API",
+    "description": "Minimal API for Estonian War Museum educational programs using direct Entu frontend authentication",
+    "version": "1.0.0",
+    "contact": {
+      "name": "ESMuseum Development Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "Educational program API endpoints"
+    }
+  ],
+  "paths": {
+    "/user/profile": {
+      "get": {
+        "summary": "Validate cached user profile",
+        "description": "Validate that cached localStorage profile is still valid and user has program access",
+        "operationId": "validateUserProfile",
+        "tags": ["Profile"],
+        "security": [
+          {
+            "EntuAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile is valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileValidationResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Profile invalid or expired",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/educational/events": {
+      "post": {
+        "summary": "Log educational activity event",
+        "description": "Log educational activity events for audit and progress tracking",
+        "operationId": "logEducationalEvent",
+        "tags": ["Educational"],
+        "security": [
+          {
+            "EntuAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EducationalEventRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Event logged successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EducationalEventResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid event data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "EntuAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Entu JWT token obtained from frontend authentication flow"
+      }
+    },
+    "schemas": {
+      "ProfileValidationResponse": {
+        "type": "object",
+        "required": ["valid", "entu_person_id"],
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "description": "Whether the profile is still valid"
+          },
+          "entu_person_id": {
+            "type": "string",
+            "description": "Entu person ID from JWT token"
+          },
+          "programs_access": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of program IDs user has access to"
+          }
+        }
+      },
+      "EducationalEventRequest": {
+        "type": "object",
+        "required": ["event_type", "entu_person_id"],
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "ACTIVITY_STARTED",
+              "ACTIVITY_COMPLETED", 
+              "PROGRAM_ACCESS",
+              "TASK_SUBMISSION",
+              "LOCATION_CAPTURED"
+            ],
+            "description": "Type of educational event"
+          },
+          "entu_person_id": {
+            "type": "string",
+            "description": "Entu person ID from localStorage profile"
+          },
+          "entu_group_id": {
+            "type": "string",
+            "description": "Entu group ID for program context"
+          },
+          "activity_data": {
+            "type": "object",
+            "description": "Activity-specific data (JSON)",
+            "additionalProperties": true
+          },
+          "location_data": {
+            "type": "object",
+            "properties": {
+              "latitude": {
+                "type": "number"
+              },
+              "longitude": {
+                "type": "number"
+              },
+              "accuracy": {
+                "type": "number"
+              }
+            },
+            "description": "GPS location data if applicable"
+          }
+        }
+      },
+      "EducationalEventResponse": {
+        "type": "object",
+        "required": ["event_id", "status"],
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Generated event ID"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["LOGGED", "VALIDATED"],
+            "description": "Event processing status"
+          },
+          "message": {
+            "type": "string",
+            "description": "Event processing message"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error", "message"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error message"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional error details",
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  }
+}
