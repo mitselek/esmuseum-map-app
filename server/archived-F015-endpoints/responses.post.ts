@@ -67,7 +67,7 @@ export default defineEventHandler(async (event) => {
 
       // Create the response in Entu
       const createdResponse = await createEntuEntity('vastus', responseData, apiConfig)
-      
+
       // COMPARISON DEBUG: Log what we actually sent to Entu
       console.log('🔍 SERVER-SIDE API CALL DEBUG:')
       console.log('URL:', `${apiConfig.apiUrl}/api/${apiConfig.accountName}/entity`)
@@ -79,7 +79,7 @@ export default defineEventHandler(async (event) => {
       })
       console.log('Original responseData:', JSON.stringify(responseData, null, 2))
       // Note: The actual properties array is built inside createEntuEntity function
-      
+
       logger.debug('Created response from Entu', createdResponse)
 
       // Return success response

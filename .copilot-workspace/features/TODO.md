@@ -4,7 +4,7 @@
   - if location selected on map, select the same location in list
   - if location selected in list, highlight the same location on map
 - [x] If location with responses is selected, show responses in detail view (can we show it in leaflet popup?)
-  - ✅ EXPERIMENTAL IMPLEMENTATION COMPLETED - See `feature/popup-responses` branch (commit 65ff57c)
+  - EXPERIMENTAL IMPLEMENTATION COMPLETED - See `feature/popup-responses` branch (commit 65ff57c)
   - Full ResponseCard component with compact layout for popups
   - Navigation controls for multiple responses per location
   - Complete i18n translations and comprehensive F017 documentation
@@ -13,4 +13,13 @@
 - [x] Find all places, where we are checking for ._id but actually should only look for .reference (e.g. in useTaskDetail.ts)
 - [x] find out, why was expanding options after headers in callApi critical for POST requests - was it just a timing issue or something else?
 - [x] remove the certs from the repo!
-- [ ] could we use typescript interfaces to define the shape of Entu entities (e.g. Task, Response, Location) and use them across the app for better type safety and autocompletion?
+- [x] **F017: GitHub Spec Kit Selective Adoption** - Research and formalize transition to Spec-Driven Development
+  - ✅ PHASE 1 COMPLETE - September 19, 2025
+  - Constitutional framework established with 9 ESMuseum-specific articles
+  - Enhanced feature templates and quality gates implemented
+  - Compliance checklists and workflow documentation created
+  - Status: Ready for F018+ features using new Spec-Driven Development methodology
+- [ ] **TypeScript Interfaces for Entu Entities** - Define comprehensive interfaces for better type safety
+  - Status: DEFERRED until after Spec-Driven Development migration is complete
+  - Rationale: Focus on process enhancement first, then apply new methodology to TypeScript interfaces
+  - Will be implemented as F018+ using new constitutional framework and enhanced workflow

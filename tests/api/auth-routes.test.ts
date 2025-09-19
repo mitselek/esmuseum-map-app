@@ -16,7 +16,7 @@ describe('API Authentication', () => {
     it('should accept valid bearer token', async () => {
       const response = await fetch('http://localhost:3000/api/tasks/68bab85d43e4daafab199988', {
         headers: {
-          'Authorization': `Bearer ${mockTokens.valid}`,
+          Authorization: `Bearer ${mockTokens.valid}`,
           'Content-Type': 'application/json'
         }
       })
@@ -30,7 +30,7 @@ describe('API Authentication', () => {
     it('should reject expired token', async () => {
       const response = await fetch('http://localhost:3000/api/tasks/68bab85d43e4daafab199988', {
         headers: {
-          'Authorization': `Bearer ${mockTokens.expired}`,
+          Authorization: `Bearer ${mockTokens.expired}`,
           'Content-Type': 'application/json'
         }
       })
@@ -44,7 +44,7 @@ describe('API Authentication', () => {
     it('should reject malformed token', async () => {
       const response = await fetch('http://localhost:3000/api/tasks/68bab85d43e4daafab199988', {
         headers: {
-          'Authorization': `Bearer ${mockTokens.malformed}`,
+          Authorization: `Bearer ${mockTokens.malformed}`,
           'Content-Type': 'application/json'
         }
       })
@@ -71,7 +71,7 @@ describe('API Authentication', () => {
     it('should reject invalid authorization format', async () => {
       const response = await fetch('http://localhost:3000/api/tasks/68bab85d43e4daafab199988', {
         headers: {
-          'Authorization': `Basic ${mockTokens.valid}`, // Wrong format
+          Authorization: `Basic ${mockTokens.valid}`, // Wrong format
           'Content-Type': 'application/json'
         }
       })
@@ -87,7 +87,7 @@ describe('API Authentication', () => {
     it('should return user profile for valid token', async () => {
       const response = await fetch('http://localhost:3000/api/user/profile', {
         headers: {
-          'Authorization': `Bearer ${mockTokens.valid}`,
+          Authorization: `Bearer ${mockTokens.valid}`,
           'Content-Type': 'application/json'
         }
       })
@@ -119,22 +119,22 @@ describe('API Authentication', () => {
     it('should return user with complete profile data', async () => {
       const response = await fetch('http://localhost:3000/api/user/profile', {
         headers: {
-          'Authorization': `Bearer ${mockTokens.valid}`,
+          Authorization: `Bearer ${mockTokens.valid}`,
           'Content-Type': 'application/json'
         }
       })
 
       expect(response.status).toBe(200)
       const data = await response.json()
-      
+
       // Should have personal information
       expect(data.entity).toHaveProperty('forename')
       expect(data.entity).toHaveProperty('surname')
       expect(data.entity).toHaveProperty('email')
-      
+
       // Should have authentication data
       expect(data.entity).toHaveProperty('entu_user')
-      
+
       // Should have permissions
       expect(data.entity).toHaveProperty('_owner')
       expect(data.entity).toHaveProperty('_viewer')
@@ -145,7 +145,7 @@ describe('API Authentication', () => {
     it('should return search results for authenticated user', async () => {
       const response = await fetch('http://localhost:3000/api/tasks/search?_type.string=ulesanne', {
         headers: {
-          'Authorization': `Bearer ${mockTokens.valid}`,
+          Authorization: `Bearer ${mockTokens.valid}`,
           'Content-Type': 'application/json'
         }
       })
@@ -171,13 +171,13 @@ describe('API Authentication', () => {
     it('should preserve search parameters with authentication', async () => {
       const searchParams = new URLSearchParams({
         '_type.string': 'ulesanne',
-        'name': 'proovikas',
-        'limit': '10'
+        name: 'proovikas',
+        limit: '10'
       })
 
       const response = await fetch(`http://localhost:3000/api/tasks/search?${searchParams}`, {
         headers: {
-          'Authorization': `Bearer ${mockTokens.valid}`,
+          Authorization: `Bearer ${mockTokens.valid}`,
           'Content-Type': 'application/json'
         }
       })
@@ -186,13 +186,13 @@ describe('API Authentication', () => {
       const data = await response.json()
       expect(data).toHaveProperty('entities')
       expect(data).toHaveProperty('count')
-      
+
       // Should respect search filters
       if (data.entities.length > 0) {
         expect(data.entities[0]).toHaveProperty('name')
         expect(data.entities[0].name).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ 
+            expect.objectContaining({
               string: expect.stringContaining('proovikas')
             })
           ])
@@ -214,9 +214,9 @@ describe('API Authentication', () => {
 
       // Test invalid format
       response = await fetch('http://localhost:3000/api/tasks/search', {
-        headers: { 
-          'Authorization': 'Basic invalid',
-          'Content-Type': 'application/json' 
+        headers: {
+          Authorization: 'Basic invalid',
+          'Content-Type': 'application/json'
         }
       })
       expect(response.status).toBe(401)
@@ -226,9 +226,9 @@ describe('API Authentication', () => {
 
       // Test expired token
       response = await fetch('http://localhost:3000/api/tasks/search', {
-        headers: { 
-          'Authorization': `Bearer ${mockTokens.expired}`,
-          'Content-Type': 'application/json' 
+        headers: {
+          Authorization: `Bearer ${mockTokens.expired}`,
+          'Content-Type': 'application/json'
         }
       })
       expect(response.status).toBe(401)
@@ -238,9 +238,9 @@ describe('API Authentication', () => {
 
       // Test malformed token
       response = await fetch('http://localhost:3000/api/tasks/search', {
-        headers: { 
-          'Authorization': `Bearer ${mockTokens.malformed}`,
-          'Content-Type': 'application/json' 
+        headers: {
+          Authorization: `Bearer ${mockTokens.malformed}`,
+          'Content-Type': 'application/json'
         }
       })
       expect(response.status).toBe(401)
@@ -252,14 +252,14 @@ describe('API Authentication', () => {
     it('should not leak sensitive information in error messages', async () => {
       const response = await fetch('http://localhost:3000/api/tasks/68bab85d43e4daafab199988', {
         headers: {
-          'Authorization': `Bearer ${mockTokens.malformed}`,
+          Authorization: `Bearer ${mockTokens.malformed}`,
           'Content-Type': 'application/json'
         }
       })
 
       expect(response.status).toBe(401)
       const data = await response.json()
-      
+
       // Error message should not contain the actual token
       expect(data.error).not.toContain(mockTokens.malformed)
       expect(data.error).not.toContain('secret')
@@ -278,7 +278,7 @@ describe('API Authentication', () => {
       for (const endpoint of endpoints) {
         const response = await fetch(`http://localhost:3000${endpoint}`, {
           headers: {
-            'Authorization': `Bearer ${mockTokens.valid}`,
+            Authorization: `Bearer ${mockTokens.valid}`,
             'Content-Type': 'application/json'
           }
         })

@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     assertMethod(event, 'GET')
 
     const taskId = getRouterParam(event, 'taskId')
-    
+
     if (!taskId) {
       throw createError({
         statusCode: 400,

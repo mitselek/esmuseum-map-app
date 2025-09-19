@@ -18,7 +18,7 @@ export interface CreateResponseRequest {
     metadata?: {
       fileName?: string
       fileSize?: number
-      locationId?: string  // Add location reference
+      locationId?: string // Add location reference
       coordinates?: {
         lat: number
         lng: number
@@ -35,7 +35,7 @@ export interface UpdateResponseRequest {
     metadata?: {
       fileName?: string
       fileSize?: number
-      locationId?: string  // Add location reference
+      locationId?: string // Add location reference
       coordinates?: {
         lat: number
         lng: number

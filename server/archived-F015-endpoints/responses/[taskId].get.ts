@@ -16,14 +16,14 @@ export default defineEventHandler(async (event) => {
     assertMethod(event, 'GET')
 
     const taskId = getRouterParam(event, 'taskId')
-    
+
     // Try alternative methods to get the task ID
-    const alternativeTaskId = event.context?.params?.taskId 
+    const alternativeTaskId = event.context?.params?.taskId
       || event.context?.params?.id
       || event.node?.req?.params?.taskId
-    
+
     const finalTaskId = taskId || alternativeTaskId
-    
+
     if (!finalTaskId) {
       throw createError({
         statusCode: 400,
@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
         '_type.string': 'vastus',
         '_parent._id': finalTaskId,
         '_owner._id': user._id,
-        'limit': 1
+        limit: 1
       }, apiConfig)
 
       const hasResponse = userResponse.entities && userResponse.entities.length > 0

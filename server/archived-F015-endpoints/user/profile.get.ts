@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
       // Only request the specific properties we need for group membership
       // This reduces response size and improves performance
       const requiredProperties = '_parent,_owner,_viewer,_editor,_expander,name,surname,forename,email'
-      
+
       // Get user's profile with only the properties we need
       const userProfileResult = await getEntuEntity(user._id, apiConfig, requiredProperties)
 

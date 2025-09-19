@@ -56,7 +56,8 @@ export async function callEntuApi (endpoint: string, options: Partial<RequestIni
         statusText: response.statusText,
         url
       })
-    } else {
+    }
+    else {
       logger.debug('Entu API call successful', {
         endpoint,
         status: response.status,
@@ -76,7 +77,8 @@ export async function callEntuApi (endpoint: string, options: Partial<RequestIni
           body: errorDetails,
           url
         })
-      } catch (e) {
+      }
+      catch (e) {
         logger.warn('Could not read error response body', e)
       }
 
@@ -119,23 +121,27 @@ export async function createEntuEntity (entityType: string, entityData: any, api
     { type: '_type', reference: getEntityTypeReference(entityType) }, // Use proper reference
     { type: '_inheritrights', boolean: true } // Always add inheritrights for new entities
   ]
-  
+
   // Add each property from entityData
   for (const [key, value] of Object.entries(entityData)) {
     if (value !== null && value !== undefined) {
       if (key === 'ulesanne' || key === '_parent') {
         // Reference properties
         properties.push({ type: key, reference: value as string })
-      } else if (key === 'asukoht') {
+      }
+      else if (key === 'asukoht') {
         // Location reference - special handling to include proper structure
         properties.push({ type: key, reference: value as string })
-      } else if (typeof value === 'string') {
-        // String properties  
+      }
+      else if (typeof value === 'string') {
+        // String properties
         properties.push({ type: key, string: value })
-      } else if (typeof value === 'number') {
+      }
+      else if (typeof value === 'number') {
         // Number properties
         properties.push({ type: key, number: value })
-      } else if (typeof value === 'boolean') {
+      }
+      else if (typeof value === 'boolean') {
         // Boolean properties (including _inheritrights, etc.)
         properties.push({ type: key, boolean: value })
       }
@@ -143,13 +149,13 @@ export async function createEntuEntity (entityType: string, entityData: any, api
   }
 
   logger.debug(`Creating entity of type: ${entityType}`, { properties })
-  
+
   // COMPARISON DEBUG: Log exact properties array being sent
   console.log('🔍 SERVER-SIDE PROPERTIES ARRAY:')
   console.log('Entity Type:', entityType)
   console.log('Properties Array:', JSON.stringify(properties, null, 2))
   console.log('Properties Stringified:', JSON.stringify(properties))
-  
+
   return callEntuApi('/entity', {
     method: 'POST',
     body: JSON.stringify(properties)
@@ -162,12 +168,12 @@ export async function createEntuEntity (entityType: string, entityData: any, api
  */
 function getEntityTypeReference (entityType: string): string {
   const entityTypeMap: Record<string, string> = {
-    'vastus': '686917401749f351b9c82f58', // Standard response entity type
-    'ulesanne': '686917231749f351b9c82f4c', // Task entity type
-    'asukoht': '686917581749f351b9c82f5a', // Location entity type
-    'photo': '686917681749f351b9c82f5c' // Photo entity type (placeholder - needs actual ID)
+    vastus: '686917401749f351b9c82f58', // Standard response entity type
+    ulesanne: '686917231749f351b9c82f4c', // Task entity type
+    asukoht: '686917581749f351b9c82f5a', // Location entity type
+    photo: '686917681749f351b9c82f5c' // Photo entity type (placeholder - needs actual ID)
   }
-  
+
   return entityTypeMap[entityType] || entityType
 }
 
@@ -220,9 +226,9 @@ export function getEntuApiConfig (token: string): EntuApiOptions {
  */
 export async function getFileUploadUrl (entityId: string, fileInfo: { type: string, filename: string, filesize: number, filetype: string }, apiConfig: EntuApiOptions) {
   logger.debug(`Getting file upload URL for entity: ${entityId}`, { fileInfo })
-  
+
   const properties = [fileInfo]
-  
+
   return callEntuApi(`/entity/${entityId}`, {
     method: 'POST',
     body: JSON.stringify(properties)
@@ -233,7 +239,7 @@ export async function getFileUploadUrl (entityId: string, fileInfo: { type: stri
  * Upload file to provided URL
  */
 export async function uploadFileToUrl (uploadUrl: string, file: Buffer | Uint8Array, headers: Record<string, string> = {}) {
-  logger.debug('Uploading file to external URL', { 
+  logger.debug('Uploading file to external URL', {
     url: uploadUrl,
     fileSize: file.length,
     headers: Object.keys(headers)
@@ -256,7 +262,8 @@ export async function uploadFileToUrl (uploadUrl: string, file: Buffer | Uint8Ar
 
     logger.debug('File upload successful')
     return response
-  } catch (error) {
+  }
+  catch (error) {
     logger.error('File upload failed', error)
     throw createError({
       statusCode: 500,
