@@ -1,0 +1,113 @@
+# Entu API HTTP Request Examples
+#
+# Use with VS Code REST Client extension or similar tools.
+# Replace {{esm_key}} and {{esm_token}} with your own credentials or use environment variables.
+
+# All endpoints are in /api/...
+@api_hostname=entu.app/api
+@account=esmuuseum
+@callback=https://example.com/auth/callback
+
+### Auth with API key
+GET {{api_hostname}}/auth?account={{account}} HTTP/1.1
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_key}}
+
+### Auth with Google provider
+GET {{api_hostname}}/auth/google?account={{account}}&next={{callback}} HTTP/1.1
+Accept-Encoding: deflate
+
+### Auth with Apple provider
+GET {{api_hostname}}/auth/apple?account={{account}}&next={{callback}} HTTP/1.1
+Accept-Encoding: deflate
+
+### Auth with Smart-ID provider
+GET {{api_hostname}}/auth/smartid?account={{account}}&next={{callback}} HTTP/1.1
+Accept-Encoding: deflate
+
+### Auth with Mobile-ID provider
+GET {{api_hostname}}/auth/mobileid?account={{account}}&next={{callback}} HTTP/1.1
+Accept-Encoding: deflate
+
+### Auth with ID-Card provider
+GET {{api_hostname}}/auth/esteid?account={{account}}&next={{callback}} HTTP/1.1
+Accept-Encoding: deflate
+
+### Account
+GET {{api_hostname}}/{{account}} HTTP/1.1
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_token}}
+
+### Entity entities GET
+GET {{api_hostname}}/{{account}}/entity?_type.string=entity&props=name.string HTTP/1.1
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_token}}
+
+### List all entity types
+GET {{api_hostname}}/{{account}}/entity?_type.string=entity HTTP/1.1
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_token}}
+
+### Entity GET
+GET {{api_hostname}}/{{account}}/entity/68c5680e85a9d472cca35b3e HTTP/1.1
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_token}}
+
+### Entity GET folder
+GET {{api_hostname}}/{{account}}/entity?_type.string=folder HTTP/1.1
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_token}}
+
+### Aggregate entity
+GET {{api_hostname}}/{{account}}/entity/66d87895f2daf46b3144cc4c/aggregate HTTP/1.1
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_token}}
+
+### POST inheritrights
+POST {{api_hostname}}/{{account}}/entity/66d87895f2daf46b3144cc4c HTTP/1.1
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_token}}
+Content-Type: application/json; charset=utf-8
+
+[
+    {"type": "_inheritrights", "boolean": true}
+]
+
+### DELETE entity
+DELETE {{api_hostname}}/{{account}}/entity/6868f53c1749f351b9c82e98
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_token}}
+Content-Type: application/json; charset=utf-8
+
+### Entity GET kaart id's
+GET {{api_hostname}}/{{account}}/entity?_type.string=kaart&props=_id&limit=10000 HTTP/1.1
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_token}}
+
+### Entity get locations with filtered props
+GET {{api_hostname}}/{{account}}/entity?_type.string=asukoht&props=name.string,lat.number,long.number,kirjeldus.string&limit=2 HTTP/1.1
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_token}}
+
+### DELETE entities
+@type_to_delete=kaart
+###
+DELETE {{api_hostname}}/{{account}}/entity?_type.string={{type_to_delete}}
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_token}}
+Content-Type: application/json; charset=utf-8
+
+### File upload (get upload url)
+POST {{api_hostname}}/{{account}}/entity/66eabbe42e92de098dfc8125 HTTP/1.1
+Accept-Encoding: deflate
+Authorization: Bearer {{esm_token}}
+Content-Type: application/json; charset=utf-8
+
+[
+    {
+        "type": "photo", 
+        "filename": "0003, aalberg, viktor.png", 
+        "filesize": 231269, 
+        "filetype": "image/png"
+    }
+]

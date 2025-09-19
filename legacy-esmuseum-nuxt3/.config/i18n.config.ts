@@ -1,0 +1,383 @@
+// @ts-ignore - defineI18nConfig is auto-imported by Nuxt i18n
+export default defineI18nConfig(() => ({
+  legacy: false,
+  strategy: 'no_prefix',
+  fallbackWarn: false,
+  missingWarn: false,
+  messages: {
+    et: {
+      // Authentication
+      alreadyLoggedIn: 'Sa oled juba sisse logitud',
+      loggingIn: 'Logi sisse...',
+      loginWithOAuth: 'Logi sisse',
+      selectProvider: 'Vali teenusepakkuja',
+      continue: 'Jätka',
+      user: 'Kasutaja',
+      // Common
+      common: {
+        noData: 'Andmed puuduvad',
+        reload: 'Laadi uuesti',
+        error: 'Viga',
+        retry: 'Proovi uuesti'
+      },
+      login: 'Logi sisse',
+      logout: 'Logi välja',
+      appName: 'ESMuseum Kaardid',
+      description: 'Avasta Eesti sõjaajalugu interaktiivsete asukohal põhinevate missioonide ja ajalooliste avastuste kaudu. Autentimiseks alusta oma teekonda.',
+      loading: 'Laadimine...',
+      title: 'Tere tulemast Eesti Sõjamuuseumi',
+      redirecting: 'Suunamine...',
+      hello: 'Tere',
+      student: 'õpilane',
+      tasks: {
+        loading: 'Ülesannete laadimine...',
+        selectTask: 'Vali ülesanne',
+        selectTaskDescription: 'Palun vali ülesanne alustamiseks',
+        title: 'Ülesanded',
+        noTasks: 'Hetkel pole ühtegi ülesannet määratud',
+        searchTasks: 'Otsi ülesandeid...',
+        tasksFound: 'ülesannet leitud',
+        noTasksMatchSearch: 'Otsingu järgi ülesandeid ei leitud',
+        tryDifferentSearch: 'Proovi teistsugust otsingut',
+        noTasksDescription: 'Ülesanded ilmuvad siia, kui need on määratud',
+        responses: 'vastust',
+        group: 'Grupp'
+      },
+      gps: {
+        enableLocationTitle: 'Luba asukoht parema kasutuskogemuse jaoks',
+        enableLocationDescription: 'Aitab sortida asukohti kauguse järgi ja täita asukohaväljad automaatselt',
+        allowLocation: 'Luba asukoht',
+        notNow: 'Mitte praegu',
+        requesting: 'Küsin asukohta'
+      },
+      taskDetail: {
+        map: 'Kaart',
+        responsesProgress: '{actual} / {expected} vastust',
+        totalResponses: '{count} vastust kokku',
+        geolocationError: 'Asukoha määramisel tekkis viga: {error}',
+        noTitle: 'Nimetu ülesanne',
+        selectLocation: 'Vali asukoht ({count} saadaval)',
+
+        yourResponse: 'Sinu vastus',
+        addFile: 'Lisa fail (valikuline)',
+        allowedFiles: 'Lubatud: pildid, PDF, Word dokumendid',
+        dragDropFiles: 'Lohista failid siia või klõpsa valimiseks',
+        maxFileSize: 'Maksimaalne failisuurus: 10MB',
+        clickToAddMore: 'Klõpsa veel failide lisamiseks',
+        fileTooLarge: 'Fail {name} on liiga suur. Maksimaalne suurus on {maxSize}.',
+        fileTypeNotAllowed: 'Failitüüp pole lubatud: {name}',
+        preparing: 'Valmistan ette...',
+        creating: 'Loon entiteeti...',
+        uploading: 'Laadin üles...',
+        uploadComplete: '✅ Üleslaaditud',
+        uploadFailed: '❌ Ebaõnnestus',
+        location: 'Asukoht',
+        manualCoordinates: 'Käsitsi koordinaadid',
+        close: '✕ Sulge',
+        coordinatesFormat: 'Koordinaadid (lat,lng formaat)',
+        coordinatesExample: 'näiteks: 59.4370, 24.7536',
+        searchingLocation: 'Otsin asukohta...',
+        useCurrentLocation: 'Kasuta praegust asukohta',
+        useTheseCoordinates: 'Kasuta neid koordinaate',
+        response: 'Vastus',
+        responsePlaceholder: 'Kirjuta oma vastus siia...',
+        submitting: 'Esitan...',
+        submitResponseBtn: 'Esita vastus',
+        canUpdateUntilDeadline: 'Saad oma vastust muuta kuni tähtaja lõpuni',
+        responseAlreadySubmitted: '✅ Sinu vastus on esitatud',
+        geolocationNotSupported: 'Geolokatsioon pole selles brauseris toetatud',
+        checkingPermissions: 'Kontrollin õigusi...',
+        noPermission: 'Juurdepääs keelatud',
+        noPermissionDescription: 'Sul pole õigust sellele ülesandele vastata. Võta ühendust õpetajaga, kui arvad, et see on viga.',
+        // LocationPicker translations
+        selectedLocation: 'Valitud asukoht',
+        changeLocation: 'Muuda',
+        loadingLocationsList: 'Laen asukohti...',
+        searchingLocationGPS: '🔍 Otsin asukohta...',
+        searchLocations: 'Otsi asukohti...',
+        noLocationsForTask: 'Selle ülesande jaoks pole asukohti määratud',
+        unnamedLocation: 'Nimetu asukoht',
+        // User location override translations
+
+        manualLocationOverride: 'Käsitsi asukoha määramine',
+        enterManually: 'Sisesta käsitsi',
+        cancel: 'Tühista',
+        manualLocationHelp: 'See muudab sinu asukohta kaardi sorteerimiseks',
+        applyLocation: 'Rakenda asukoht',
+        clearOverride: 'Eemalda käsitsi määramine',
+        manualLocationActive: 'Käsitsi määratud asukoht aktiivne',
+        remove: 'Eemalda'
+      },
+      map: {
+        loading: 'Kaardi laadimine...',
+        yourLocation: 'Sinu asukoht',
+        visited: 'Külastatud'
+      }
+    },
+    en: {
+      // Authentication
+      alreadyLoggedIn: 'You are already logged in',
+      loggingIn: 'Logging in...',
+      loginWithOAuth: 'Login',
+      selectProvider: 'Select provider',
+      continue: 'Continue',
+      user: 'User',
+      // Common
+      common: {
+        noData: 'No data',
+        reload: 'Reload',
+        error: 'Error',
+        retry: 'Retry'
+      },
+      login: 'Login',
+      logout: 'Logout',
+      appName: 'ESMuseum Maps',
+      description: 'Explore Estonia\'s military history through interactive location-based missions and historical discoveries. Authenticate to begin your journey.',
+      loading: 'Loading...',
+      title: 'Welcome to Estonian War Museum',
+      redirecting: 'Redirecting...',
+      hello: 'Hello',
+      student: 'student',
+      tasks: {
+        loading: 'Loading tasks...',
+        selectTask: 'Select task',
+        selectTaskDescription: 'Please select a task to begin',
+        title: 'Tasks',
+        noTasks: 'No tasks currently assigned',
+        searchTasks: 'Search tasks...',
+        tasksFound: 'tasks found',
+        noTasksMatchSearch: 'No tasks match your search',
+        tryDifferentSearch: 'Try a different search term',
+        noTasksDescription: 'Tasks will appear here when they are assigned',
+        responses: 'responses',
+        group: 'Group',
+        backToList: 'Back to list',
+        hideSidebar: 'Hide sidebar',
+        showSidebar: 'Show sidebar',
+        taskDetails: 'Task details'
+      },
+      gps: {
+        enableLocationTitle: 'Enable location for better experience',
+        enableLocationDescription: 'Helps sort locations by distance and auto-fill location fields',
+        allowLocation: 'Allow location',
+        notNow: 'Not now',
+        requesting: 'Requesting location'
+      },
+      taskDetail: {
+        map: 'Map',
+        responsesProgress: '{actual} / {expected} responses',
+        totalResponses: '{count} total responses',
+        geolocationError: 'Geolocation error: {error}',
+        noTitle: 'Untitled Task',
+        selectLocation: 'Select location ({count} available)',
+
+        yourResponse: 'Your Response',
+        addFile: 'Add file (optional)',
+        allowedFiles: 'Allowed: images, PDF, Word documents',
+        dragDropFiles: 'Drag & drop files here or click to select',
+        maxFileSize: 'Maximum file size: 10MB',
+        clickToAddMore: 'Click to add more files',
+        fileTooLarge: 'File {name} is too large. Maximum size is {maxSize}.',
+        fileTypeNotAllowed: 'File type not allowed: {name}',
+        preparing: 'Preparing...',
+        creating: 'Creating entity...',
+        uploading: 'Uploading...',
+        uploadComplete: '✅ Uploaded',
+        uploadFailed: '❌ Failed',
+        location: 'Location',
+        manualCoordinates: 'Manual coordinates',
+        close: '✕ Close',
+        coordinatesFormat: 'Coordinates (lat,lng format)',
+        coordinatesExample: 'e.g.: 59.4370, 24.7536',
+        searchingLocation: 'Searching for location...',
+        useCurrentLocation: 'Use current location',
+        useTheseCoordinates: 'Use these coordinates',
+        response: 'Response',
+        responsePlaceholder: 'Write your response here...',
+        submitting: 'Submitting...',
+        submitResponseBtn: 'Submit response',
+        canUpdateUntilDeadline:
+          'You can update your response until the deadline',
+        responseAlreadySubmitted: '✅ Your response has been submitted',
+        loadingLocations: 'Loading locations for this task\'s map',
+        geolocationNotSupported: 'Geolocation is not supported in this browser',
+        checkingPermissions: 'Checking permissions...',
+        noPermission: 'Access denied',
+        noPermissionDescription: 'You don\'t have permission to respond to this task. Contact your teacher if you think this is an error.',
+        // LocationPicker translations
+        selectedLocation: 'Selected location',
+        changeLocation: 'Change',
+        loadingLocationsList: 'Loading locations...',
+        searchingLocationGPS: '🔍 Searching for location...',
+        searchLocations: 'Search locations...',
+        noLocationsForTask: 'No locations defined for this task',
+        unnamedLocation: 'Unnamed location',
+        // User location override translations
+
+        manualLocationOverride: 'Manual location override',
+        enterManually: 'Enter manually',
+        cancel: 'Cancel',
+        manualLocationHelp: 'This will override your location for map sorting',
+        applyLocation: 'Apply location',
+        clearOverride: 'Clear override',
+        manualLocationActive: 'Manual location override active',
+        remove: 'Remove'
+      },
+      map: {
+        loading: 'Loading map...',
+        yourLocation: 'Your location',
+        visited: 'Visited'
+      }
+    },
+    uk: {
+      // Authentication
+      alreadyLoggedIn: 'Ви вже увійшли в систему',
+      loggingIn: 'Вхід...',
+      loginWithOAuth: 'Увійти',
+      selectProvider: 'Оберіть провайдера',
+      continue: 'Продовжити',
+      user: 'Користувач',
+      // Common
+      common: {
+        noData: 'Немає даних',
+        reload: 'Перезавантажити',
+        error: 'Помилка',
+        retry: 'Спробувати ще раз'
+      },
+      login: 'Увійти',
+      logout: 'Вийти',
+      appName: 'ESMuseum Карти',
+      description: 'Досліджуйте військову історію Естонії через інтерактивні місцеві місії та історичні відкриття. Автентифікуйтеся, щоб розпочати свою подорож.',
+      loading: 'Завантаження...',
+      title: 'Ласкаво просимо до Естонського військового музею',
+      redirecting: 'Перенаправлення...',
+      hello: 'Привіт',
+      student: 'студент',
+      tasks: {
+        loading: 'Завантаження завдань...',
+        selectTask: 'Вибрати завдання',
+        selectTaskDescription: 'Будь ласка, виберіть завдання для початку',
+        title: 'Завдання',
+        noTasks: 'Наразі завдання не призначені',
+        searchTasks: 'Пошук завдань...',
+        tasksFound: 'завдань знайдено',
+        noTasksMatchSearch: 'Жодного завдання не відповідає вашому пошуку',
+        tryDifferentSearch: 'Спробуйте інший пошуковий запит',
+        noTasksDescription: 'Завдання з\'являться тут після призначення',
+        responses: 'відповідей',
+        group: 'Група'
+      },
+      gps: {
+        enableLocationTitle: 'Увімкнути геолокацію для кращого досвіду',
+        enableLocationDescription: 'Допомагає сортувати місця за відстанню та автоматично заповнювати поля місцезнаходження',
+        allowLocation: 'Дозволити геолокацію',
+        notNow: 'Не зараз',
+        requesting: 'Запит геолокації'
+      },
+      taskDetail: {
+        map: 'Карта',
+        responsesProgress: '{actual} / {expected} відповідей',
+        totalResponses: '{count} всього відповідей',
+        geolocationError: 'Помилка геолокації: {error}',
+        noTitle: 'Завдання без назви',
+        selectLocation: 'Оберіть місце ({count} доступно)',
+
+        yourResponse: 'Ваша відповідь',
+        addFile: 'Додати файл (необов\'язково)',
+        allowedFiles: 'Дозволено: зображення, PDF, документи Word',
+        dragDropFiles: 'Перетягніть файли сюди або клацніть для вибору',
+        maxFileSize: 'Максимальний розмір файлу: 10МБ',
+        clickToAddMore: 'Клацніть, щоб додати більше файлів',
+        fileTooLarge: 'Файл {name} занадто великий. Максимальний розмір {maxSize}.',
+        fileTypeNotAllowed: 'Тип файлу не дозволений: {name}',
+        preparing: 'Підготовка...',
+        creating: 'Створення сутності...',
+        uploading: 'Завантаження...',
+        uploadComplete: '✅ Завантажено',
+        uploadFailed: '❌ Помилка',
+        location: 'Розташування',
+        manualCoordinates: 'Ручні координати',
+        close: '✕ Закрити',
+        coordinatesFormat: 'Координати (формат lat,lng)',
+        coordinatesExample: 'наприклад: 59.4370, 24.7536',
+        searchingLocation: 'Пошук місцезнаходження...',
+        useCurrentLocation: 'Використати поточне місцезнаходження',
+        useTheseCoordinates: 'Використати ці координати',
+        response: 'Відповідь',
+        responsePlaceholder: 'Напишіть вашу відповідь тут...',
+        submitting: 'Подання...',
+        submitResponseBtn: 'Подати відповідь',
+        canUpdateUntilDeadline:
+          'Ви можете оновлювати відповідь до кінцевого терміну',
+        responseAlreadySubmitted: '✅ Ваша відповідь подана',
+        geolocationNotSupported: 'Геолокація не підтримується в цьому браузері',
+        checkingPermissions: 'Перевірка дозволів...',
+        noPermission: 'Доступ заборонено',
+        noPermissionDescription: 'У вас немає дозволу відповідати на це завдання. Зверніться до вчителя, якщо ви вважаєте, що це помилка.',
+        // LocationPicker translations
+        selectedLocation: 'Вибране місце',
+        changeLocation: 'Змінити',
+        loadingLocationsList: 'Завантаження місць...',
+        searchingLocationGPS: '🔍 Пошук місцезнаходження...',
+        searchLocations: 'Пошук місць...',
+        noLocationsForTask: 'Для цього завдання не визначено місць',
+        unnamedLocation: 'Місце без назви',
+        // User location override translations
+
+        manualLocationOverride: 'Ручне перевизначення місцезнаходження',
+        enterManually: 'Ввести вручну',
+        cancel: 'Скасувати',
+        manualLocationHelp:
+          'Це перевизначить ваше місцезнаходження для сортування карти',
+        applyLocation: 'Застосувати місцезнаходження',
+        clearOverride: 'Очистити перевизначення',
+        manualLocationActive: 'Ручне перевизначення місцезнаходження активне',
+        remove: 'Видалити'
+      },
+      map: {
+        loading: 'Завантаження карти...',
+        yourLocation: 'Ваше місцезнаходження',
+        visited: 'Відвідано'
+      }
+    }
+  },
+  datetimeFormats: {
+    en: {
+      date: { year: 'numeric', month: '2-digit', day: '2-digit' },
+      datetime: {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      }
+    },
+    et: {
+      date: { year: 'numeric', month: '2-digit', day: '2-digit' },
+      datetime: {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }
+    },
+    uk: {
+      date: { year: 'numeric', month: '2-digit', day: '2-digit' },
+      datetime: {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }
+    }
+  },
+  detectBrowserLanguage: {
+    useCookie: true,
+    cookieKey: 'i18n_redirected',
+    fallbackLocale: 'et',
+    alwaysRedirect: true
+  }
+}))
