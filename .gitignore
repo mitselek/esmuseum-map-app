@@ -1,0 +1,152 @@
+# Nuxt.js build / generate output
+.nuxt
+.nitro
+.output
+.env
+dist
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Nuxt.js specific
+.nuxt/
+.output/
+.nitro/
+
+# Vite build tool
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# TypeScript
+*.tsbuildinfo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.metadata
+.tmp
+
+# Log files
+logs
+*.log
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Vitest
+coverage/
+
+# Certificate files (development SSL)
+*.pem
+*.key
+*.crt
+localhost+*
+
+# Museum app specific
+debug-auth.js
+
+# Build artifacts
+dist/
+build/
+
+# Cache directories
+.cache/
+.parcel-cache/
+
+# Temporary folders
+tmp/
+temp/
+
+# Local development database
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment specific
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Package manager lock files (keep only one)
+# yarn.lock
+# pnpm-lock.yaml
+
+# Backup files
+*.bak
+*.backup
+
+# Documentation build
+docs/.vitepress/dist
+docs/.vitepress/cache
+
+# Sentry
+.sentryclirc
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# Local Netlify folder
+.netlify
+
+# Vercel
+.vercel
+
+# Capacitor
+android/
+ios/

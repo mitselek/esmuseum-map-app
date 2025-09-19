@@ -42,7 +42,7 @@ Estonian War Museum student authentication system for Museum School and National
 **Storage**: Entu database system (existing), session storage  
 **Testing**: Vitest, @nuxt/test-utils, Playwright for E2E  
 **Target Platform**: Web application (responsive mobile-first)
-**Project Type**: web (frontend + backend integration)  
+**Project Type**: frontend-only (Nuxt 3 application with direct Entu integration)  
 **Performance Goals**: <3s load time, <200ms authentication response  
 **Constraints**: GDPR compliance, Estonian digital identity standards, WCAG 2.1 AA  
 **Scale/Scope**: Estonian War Museum educational programs, ~1000 concurrent student users
@@ -135,7 +135,7 @@ ios/ or android/
 └── [platform-specific structure]
 ```
 
-**Structure Decision**: Option 2 (Web application) - Frontend/backend separation detected in existing Nuxt 3 application structure
+**Structure Decision**: Frontend-only Nuxt 3 application - Direct Entu API integration without local backend endpoints
 
 ## Phase 0: Outline & Research
 
@@ -178,28 +178,28 @@ ios/ or android/
 - Security Event: Login attempts, access monitoring, educational activity logs
 - Educational Program Enrollment: Student-program relationships, access permissions
 
-### API Contract Generation Plan
+### API Integration Plan
 
-**Authentication Endpoints**:
+**Direct Entu Integration**:
 
-- `POST /api/auth/login` - Student authentication with multiple identity providers
-- `POST /api/auth/refresh` - Token refresh for session persistence
-- `GET /api/auth/profile` - Student profile and enrollment data
-- `POST /api/auth/logout` - Secure session termination
+- Frontend OAuth2 flow with Entu API
+- Client-side profile caching in localStorage
+- Composables for authentication state management
+- No local API endpoints required
 
 **Integration with existing Entu patterns**:
 
 - Extend current OAuth flows for educational context
 - Maintain compatibility with existing session management
-- Add educational program authorization layer
+- Add educational program authorization layer through composables
 
-### Contract Test Strategy
+### Integration Test Strategy
 
-**Test coverage for each endpoint**:
+**Test coverage for frontend composables**:
 
-- Request/response schema validation
-- Authentication flow edge cases
-- Educational program access control
+- Authentication flow integration testing
+- localStorage profile management validation
+- Educational program access control verification
 - Estonian digital identity integration scenarios
 
 ### Progressive Enhancement Design
@@ -210,7 +210,7 @@ ios/ or android/
 - Traditional form submissions for core flows
 - Progressive enhancement for improved UX
 
-**Output Plan**: data-model.md, /contracts/*.json, failing test suites, quickstart.md, .github/copilot-instructions.md
+**Output Plan**: data-model.md, failing integration test suites, quickstart.md, .github/copilot-instructions.md
 
 ## Phase 2: Task Planning Approach
 

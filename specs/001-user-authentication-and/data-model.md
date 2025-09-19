@@ -6,12 +6,12 @@
 
 ## Entities Overview
 
-The authentication system works exclusively with existing Entu entities, adding no modifications to the Entu data structure:
+The authentication system works exclusively with existing Entu entities through direct API integration:
 
-1. **Entu Person Entity**: Existing user profiles (read-only, no changes)
-2. **Entu Group Entity**: Existing group structure (read-only, no changes)
-3. **Educational Session**: Temporary session state (separate ESMuseum database)
-4. **Security Event**: Audit logging (separate ESMuseum database)
+1. **Entu Person Entity**: Existing user profiles (read-only, accessed via API)
+2. **Entu Group Entity**: Existing group structure (read-only, accessed via API)
+3. **Frontend Cache**: Temporary localStorage for profile data (client-side only)
+4. **Authentication State**: Client-side composable state management
 
 ## Existing Entu Entity Structure
 
@@ -238,21 +238,21 @@ Entu Person ←→ Entu Group (via _parent relationships, managed by Entu)
 
 ### Data Access Pattern
 
-1. **Read Entu Data**: Query existing person/group entities (read-only)
-2. **Store Session Data**: Educational activities in separate ESMuseum database
-3. **Audit Everything**: Security events for all educational access
-4. **No Entu Modifications**: Never attempt to write to Entu entities
+1. **Read Entu Data**: Query existing person/group entities via API (read-only)
+2. **Cache Profile Data**: Store essential profile info in localStorage for offline access
+3. **Manage Auth State**: Handle authentication flow through frontend composables
+4. **No Database Required**: All data sourced from Entu API, cached locally only
 
 ### Validation Rules
 
-- **Entu Entity References**: Always validate Entu IDs exist before creating sessions
+- **Entu Entity References**: Always validate Entu IDs exist before caching
 - **Program Enrollment**: Check person `_parent` array for group membership
-- **Session Limits**: Prevent multiple active sessions per person/program
-- **Data Privacy**: Store minimal data, reference Entu IDs only
+- **Cache Management**: Implement expiration and refresh policies
+- **Data Privacy**: Store minimal data in localStorage, reference Entu IDs only
 
 ---
 
 **Design Status**: ✅ COMPLETE  
-**Next Artifact**: API Contracts (`/contracts/`)  
+**Next Artifact**: Integration Tests (`tests/integration/`)  
 **Constitutional Compliance**: Modular entities with clear interfaces (Principle III)  
-**Integration Approach**: Read-only Entu integration with minimal separate state
+**Integration Approach**: Direct Entu API integration with client-side caching only

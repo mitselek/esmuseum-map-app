@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noEmit": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "types": [
+      "node",
+      "vitest/globals"
+    ],
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "~~/*": ["./*"],
+      "@@/*": ["./*"],
+      "~/*": ["./*"],
+      "@/*": ["./*"],
+      "assets/*": ["assets/*"],
+      "public/*": ["public/*"],
+      "#imports": ["./.nuxt/imports.d.ts"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx", 
+    "**/*.vue",
+    "**/*.js",
+    "**/*.jsx",
+    ".nuxt/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "legacy-esmuseum-nuxt3"
+  ]
+}
