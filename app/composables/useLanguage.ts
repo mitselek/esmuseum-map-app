@@ -4,17 +4,110 @@ import { SUPPORTED_LANGUAGES, STORAGE_KEY } from '../types/language'
 
 // Global state for language management
 const isLoading = ref(false)
+const hasLocalStorageError = ref(false)
+const localStorageErrorMessage = ref('')
 let isInitialized = false
 
+// Check localStorage availability on load
+const checkLocalStorageAvailability = (): void => {
+  if (typeof localStorage === 'undefined') {
+    hasLocalStorageError.value = true
+    localStorageErrorMessage.value = 'localStorage is not available. This application requires localStorage to function.'
+    return
+  }
+  
+  try {
+    // Test localStorage read/write capability
+    const testKey = '__esmuseum_test__'
+    localStorage.setItem(testKey, 'test')
+    localStorage.removeItem(testKey)
+  } catch (error) {
+    hasLocalStorageError.value = true
+    localStorageErrorMessage.value = `localStorage is not accessible: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
+// Browser language detection
+const detectBrowserLanguage = (): LanguageCode => {
+  if (typeof navigator === 'undefined') return 'et'
+  
+  const browserLang = navigator.language.toLowerCase()
+  
+  // Ukrainian detection
+  if (browserLang === 'uk' || browserLang.startsWith('uk-')) {
+    return 'uk'
+  }
+  
+  // English variants (map to British English)
+  if (browserLang === 'en-gb' || browserLang.startsWith('en-')) {
+    return 'en-GB'
+  }
+  
+  // Default to Estonian for unsupported languages
+  return 'et'
+}
+
+// Storage helpers - FAIL FAST if localStorage unavailable
+const savePreference = (langCode: LanguageCode, autoDetected: boolean = false): void => {
+  if (hasLocalStorageError.value) {
+    throw new Error('Cannot save language preference: localStorage unavailable')
+  }
+  
+  try {
+    const preference: UserPreference = {
+      preferredLanguage: langCode,
+      autoDetected,
+      timestamp: Date.now()
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(preference))
+  } catch (error) {
+    hasLocalStorageError.value = true
+    localStorageErrorMessage.value = `Failed to save language preference: ${error instanceof Error ? error.message : 'Unknown error'}`
+    throw error
+  }
+}
+
+const loadPreference = (): UserPreference | null => {
+  if (hasLocalStorageError.value) {
+    throw new Error('Cannot load language preference: localStorage unavailable')
+  }
+  
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (!stored) return null
+    
+    const preference = JSON.parse(stored) as UserPreference
+    
+    // Validate stored preference
+    if (SUPPORTED_LANGUAGES.some((lang: Language) => lang.code === preference.preferredLanguage)) {
+      return preference
+    }
+  } catch (error) {
+    hasLocalStorageError.value = true
+    localStorageErrorMessage.value = `Failed to load language preference: ${error instanceof Error ? error.message : 'Unknown error'}`
+    throw error
+  }
+  
+  return null
+}
+
 /**
- * Language management composable for multi-language greeting feature
- * Integrates with Nuxt i18n routing and handles localStorage persistence
+ * Language management composable - localStorage as single source of truth
+ * No URL routing, no page reloads, fail fast on localStorage issues
  */
-export const useLanguage = (): LanguageComposable => {
+export const useLanguage = (): LanguageComposable & { 
+  hasLocalStorageError: Ref<boolean>, 
+  localStorageErrorMessage: Ref<string> 
+} => {
   const { locale, setLocale, t } = useI18n()
   
-  // Use Nuxt i18n's locale as the source of truth
-  const currentLanguageCode = computed(() => locale.value as LanguageCode)
+  // Check localStorage on first use
+  if (!isInitialized) {
+    checkLocalStorageAvailability()
+  }
+  
+  // Use localStorage as the source of truth
+  const currentLanguageCode = ref<LanguageCode>('et')
   
   // Computed properties
   const currentLanguage = computed(() => 
@@ -43,9 +136,11 @@ export const useLanguage = (): LanguageComposable => {
     return 'et'
   }
   
-  // Storage helpers
+  // Storage helpers - FAIL FAST if localStorage unavailable
   const savePreference = (langCode: LanguageCode, autoDetected: boolean = false): void => {
-    if (typeof localStorage === 'undefined') return
+    if (hasLocalStorageError.value) {
+      throw new Error('Cannot save language preference: localStorage unavailable')
+    }
     
     try {
       const preference: UserPreference = {
@@ -55,13 +150,16 @@ export const useLanguage = (): LanguageComposable => {
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(preference))
     } catch (error) {
-      // Graceful degradation if localStorage fails
-      console.warn('Failed to save language preference:', error)
+      hasLocalStorageError.value = true
+      localStorageErrorMessage.value = `Failed to save language preference: ${error instanceof Error ? error.message : 'Unknown error'}`
+      throw error
     }
   }
   
   const loadPreference = (): UserPreference | null => {
-    if (typeof localStorage === 'undefined') return null
+    if (hasLocalStorageError.value) {
+      throw new Error('Cannot load language preference: localStorage unavailable')
+    }
     
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
@@ -74,109 +172,109 @@ export const useLanguage = (): LanguageComposable => {
         return preference
       }
     } catch (error) {
-      console.warn('Failed to load language preference:', error)
+      hasLocalStorageError.value = true
+      localStorageErrorMessage.value = `Failed to load language preference: ${error instanceof Error ? error.message : 'Unknown error'}`
+      throw error
     }
     
     return null
   }
   
-  // Language switching with Nuxt i18n routing
+  // Language switching - NO URL changes, NO page reloads
   const switchLanguage = async (code: LanguageCode): Promise<void> => {
-    console.log(`switchLanguage called with code: ${code}, current locale: ${locale.value}`)
+    if (process.env.NODE_ENV !== 'test') {
+      console.log(`switchLanguage called with code: ${code}, current: ${currentLanguageCode.value}`)
+    }
     
     if (!SUPPORTED_LANGUAGES.some((lang: Language) => lang.code === code)) {
-      console.warn(`Unsupported language code: ${code}`)
+      if (process.env.NODE_ENV !== 'test') {
+        console.warn(`Unsupported language code: ${code}`)
+      }
       return
     }
     
-    if (code === locale.value) {
-      console.log(`Already on requested language: ${code}`)
+    if (code === currentLanguageCode.value) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.log(`Already on requested language: ${code}`)
+      }
       return
     }
     
     isLoading.value = true
     
     try {
-      // Save preference before switching (manual selection)
+      // Save preference FIRST - fail fast if localStorage unavailable
       savePreference(code, false)
-      console.log(`Saved preference for: ${code}`)
+      if (process.env.NODE_ENV !== 'test') {
+        console.log(`Saved preference for: ${code}`)
+      }
       
-      // Use Nuxt i18n's setLocale which handles routing
-      console.log(`Calling setLocale with: ${code}`)
+      // Update local state (single source of truth)
+      currentLanguageCode.value = code
+      
+      // Update Nuxt i18n locale for translations (NO routing)
       await setLocale(code)
-      console.log(`setLocale completed, new locale: ${locale.value}`)
+      if (process.env.NODE_ENV !== 'test') {
+        console.log(`Updated i18n locale to: ${code}, no URL change`)
+      }
       
     } catch (error) {
-      console.error('Failed to switch language:', error)
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Failed to switch language:', error)
+      }
+      throw error // Re-throw to let components handle the error
     } finally {
       isLoading.value = false
     }
   }
   
-  // Initialize language (works both client and server side)
+  // Initialize language from localStorage ONLY
   const initializeLanguage = async (): Promise<void> => {
-    if (isInitialized) return
+    if (isInitialized || hasLocalStorageError.value) return
     
-    // Check for saved preference first
-    const savedPreference = loadPreference()
-    
-    if (savedPreference) {
-      // If we have a saved preference and it's different from current locale
-      if (savedPreference.preferredLanguage !== locale.value) {
+    try {
+      // Check for saved preference first
+      const savedPreference = loadPreference()
+      
+      if (savedPreference) {
+        currentLanguageCode.value = savedPreference.preferredLanguage
         await setLocale(savedPreference.preferredLanguage)
-      }
-      isInitialized = true
-      return
-    }
-    
-    // No saved preference - detect browser language
-    const detectedLanguage = detectBrowserLanguage()
-    
-    // Only switch if detected language is different from current and default
-    if (detectedLanguage !== 'et' && detectedLanguage !== locale.value) {
-      await setLocale(detectedLanguage)
-      savePreference(detectedLanguage, true)
-    }
-    
-    isInitialized = true
-  }
-  
-  // Initialize on client mount (browser only)
-  onMounted(() => {
-    if (typeof window !== 'undefined') {
-      initializeLanguage()
-    }
-  })
-  
-  // Also initialize immediately for testing (or if called during SSR)
-  if (!isInitialized) {
-    // For testing/SSR, run initialization synchronously if possible
-    const savedPreference = loadPreference()
-    
-    if (savedPreference && savedPreference.preferredLanguage !== locale.value) {
-      setLocale(savedPreference.preferredLanguage)
-      isInitialized = true
-    } else if (!savedPreference) {
-      // Auto-detect browser language for new users
-      const detectedLanguage = detectBrowserLanguage()
-      if (detectedLanguage !== 'et' && detectedLanguage !== locale.value) {
-        setLocale(detectedLanguage)
+        if (process.env.NODE_ENV !== 'test') {
+          console.log(`Loaded saved preference: ${savedPreference.preferredLanguage}`)
+        }
+      } else {
+        // No saved preference - detect browser language and save it
+        const detectedLanguage = detectBrowserLanguage()
+        currentLanguageCode.value = detectedLanguage
+        await setLocale(detectedLanguage)
         savePreference(detectedLanguage, true)
+        if (process.env.NODE_ENV !== 'test') {
+          console.log(`Auto-detected and saved: ${detectedLanguage}`)
+        }
       }
+      
       isInitialized = true
-    } else {
-      isInitialized = true
+    } catch (error) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Failed to initialize language:', error)
+      }
+      throw error
     }
   }
   
-  // Watch for locale changes from Nuxt i18n and save preferences
-  watch(locale, (newLocale) => {
-    // Save preference when locale changes (after initialization)
-    if (isInitialized && typeof window !== 'undefined') {
-      const currentPreference = loadPreference()
-      if (!currentPreference || currentPreference.preferredLanguage !== newLocale) {
-        savePreference(newLocale as LanguageCode, false)
+  // Initialize on client mount (browser only, skip in test environment)
+  if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+    onMounted(() => {
+      if (typeof window !== 'undefined' && !hasLocalStorageError.value) {
+        initializeLanguage()
       }
+    })
+  }
+  
+  // Sync currentLanguageCode changes to i18n locale (one-way binding)
+  watch(currentLanguageCode, async (newCode) => {
+    if (isInitialized && newCode !== locale.value) {
+      await setLocale(newCode)
     }
   })
   
@@ -185,12 +283,24 @@ export const useLanguage = (): LanguageComposable => {
     availableLanguages,
     switchLanguage,
     t,
-    isLoading
+    isLoading,
+    hasLocalStorageError,
+    localStorageErrorMessage
   }
 }
 
-// Test utility function to reset state (only for testing)
+// Test utility functions (only for testing)
 export const resetLanguageState = (): void => {
   isLoading.value = false
   isInitialized = false
+  hasLocalStorageError.value = false
+  localStorageErrorMessage.value = ''
+}
+
+// Export internal functions for testing
+export const testUtils = {
+  detectBrowserLanguage,
+  loadPreference,
+  savePreference,
+  checkLocalStorageAvailability
 }

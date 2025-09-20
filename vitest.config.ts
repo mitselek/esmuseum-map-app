@@ -48,7 +48,8 @@ export default defineConfig({
         '**/node_modules/**',
         'tests/**',
         'scripts/**',
-        'specs/**'
+        'specs/**',
+        'app/app.vue'  // Exclude Nuxt root component - mainly boilerplate
       ],
       thresholds: {
         global: {

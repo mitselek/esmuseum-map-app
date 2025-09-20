@@ -18,8 +18,8 @@ export default defineNuxtConfig({
       ],
       lazy: true,
       langDir: '../locales/',
-      strategy: 'prefix_except_default',
-      detectBrowserLanguage: false // We handle detection in our composable
+      strategy: 'no_prefix', // No URL-based routing - localStorage only
+      detectBrowserLanguage: false // All language detection handled in composable
     }]
   ],
   
