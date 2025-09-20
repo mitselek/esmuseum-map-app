@@ -18,8 +18,12 @@ export default defineNuxtConfig({
       ],
       lazy: true,
       langDir: '../locales/',
-      strategy: 'no_prefix', // No URL-based routing - localStorage only
-      detectBrowserLanguage: false // All language detection handled in composable
+      strategy: 'no_prefix', // No URL-based routing - cookie-based only
+      detectBrowserLanguage: {
+        useCookie: true,
+        cookieKey: 'esmuseum-language',
+        redirectOn: 'root'
+      }
     }]
   ],
   
@@ -45,7 +49,7 @@ export default defineNuxtConfig({
   // TypeScript configuration
   typescript: {
     strict: true,
-    typeCheck: true
+    typeCheck: true // Re-enabled now that tests are working
   },
 
   // CSS framework (Tailwind CSS)

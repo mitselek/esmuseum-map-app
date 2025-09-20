@@ -9,27 +9,21 @@
       <Link rel="alternate" :hreflang="locale" :href="currentUrl" />
     </Head>
     <Body>
-      <!-- Show error overlay if localStorage is unavailable -->
-      <LocalStorageError 
-        v-if="hasLocalStorageError"
-        :error-message="localStorageErrorMessage"
-      />
-      
-      <!-- Normal app content (blocked if localStorage error) -->
-      <NuxtPage v-else />
+      <!-- App content -->
+      <NuxtPage />
     </Body>
   </Html>
 </template>
 
 <script setup lang="ts">
-// Root app component with i18n-enabled SEO meta tags and localStorage error handling
+// Root app component with i18n-enabled SEO meta tags
 // TypeScript strict mode compliance
 
 const { locale } = useI18n()
 const route = useRoute()
 
-// Check localStorage availability - fail fast if unavailable
-const { hasLocalStorageError, localStorageErrorMessage } = useLanguage()
+// Initialize language management
+useLanguage()
 
 // Generate current URL for hreflang
 const currentUrl = computed(() => {

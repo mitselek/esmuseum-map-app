@@ -44,12 +44,40 @@ const mockUseI18n = () => ({
   t: mockT
 })
 
-// Make useI18n available globally for auto-imports
+// Mock useCookie composable for testing
+const cookieStore = new Map<string, string | null>()
+
+const mockUseCookie = <T = string | null>(name: string, options?: any) => {
+  const cookieRef = ref<T>(cookieStore.get(name) as T || options?.default?.() || null)
+  
+  // Watch for changes and store in mock cookie store
+  const originalValue = cookieRef.value
+  Object.defineProperty(cookieRef, 'value', {
+    get() {
+      return cookieStore.get(name) as T || options?.default?.() || null
+    },
+    set(newValue: T) {
+      if (newValue === null || newValue === undefined) {
+        cookieStore.delete(name)
+      } else {
+        cookieStore.set(name, newValue as string)
+      }
+    },
+    enumerable: true,
+    configurable: true
+  })
+  
+  return cookieRef
+}
+
+// Make composables available globally for auto-imports
 ;(globalThis as any).useI18n = mockUseI18n
+;(globalThis as any).useCookie = mockUseCookie
 
 // Mock the #app module for Nuxt
 vi.mock('#app', () => ({
-  useI18n: mockUseI18n
+  useI18n: mockUseI18n,
+  useCookie: mockUseCookie
 }))
 
 // Reset function for tests
@@ -57,8 +85,9 @@ const resetMocks = () => {
   mockLocale.value = 'et'
   mockT.mockImplementation((key: string) => defaultTranslations[key] || key)
   mockSetLocale.mockClear()
+  cookieStore.clear()
   vi.clearAllMocks()
 }
 
 // Export mocks for test files to use
-export { mockLocale, mockSetLocale, mockT, mockUseI18n, resetMocks }
+export { mockLocale, mockSetLocale, mockT, mockUseI18n, mockUseCookie, cookieStore, resetMocks }
