@@ -47,25 +47,25 @@ describe('useLanguage composable (cookie-based)', () => {
     expect(codes).toEqual(['et', 'uk', 'en-GB'])
   })
 
-  it('switches language and saves to cookie', async () => {
-    const { switchLanguage } = useLanguage()
+  it('switches language through i18n', async () => {
+    const { switchLanguage, currentLanguage } = useLanguage()
     
     await switchLanguage('uk')
     
-    expect(cookieStore.get('esmuseum-language')).toBe('uk')
     expect(mockSetLocale).toHaveBeenCalledWith('uk')
+    expect(currentLanguage.value.code).toBe('uk')
   })
 
-  it('loads saved language from cookie', () => {
-    cookieStore.set('esmuseum-language', 'en-GB')
+  it('reads current language from i18n locale', () => {
+    mockLocale.value = 'en-GB'
     
     const { currentLanguage } = useLanguage()
     
     expect(currentLanguage.value.code).toBe('en-GB')
   })
 
-  it('falls back to Estonian for invalid cookie values', () => {
-    cookieStore.set('esmuseum-language', 'invalid-lang')
+  it('falls back to Estonian for invalid i18n locale', () => {
+    mockLocale.value = 'invalid-lang' as any
     
     const { currentLanguage } = useLanguage()
     
@@ -94,20 +94,5 @@ describe('testUtils functions', () => {
   it('detectBrowserLanguage falls back to Estonian', () => {
     navigatorMock.language = 'fr-FR'
     expect(testUtils.detectBrowserLanguage()).toBe('et')
-  })
-
-  it('loadPreference returns null when no cookie set', () => {
-    cookieStore.clear()
-    expect(testUtils.loadPreference()).toBeNull()
-  })
-
-  it('loadPreference returns valid language code from cookie', () => {
-    cookieStore.set('esmuseum-language', 'uk')
-    expect(testUtils.loadPreference()).toBe('uk')
-  })
-
-  it('savePreference stores language code in cookie', () => {
-    testUtils.savePreference('en-GB')
-    expect(cookieStore.get('esmuseum-language')).toBe('en-GB')
   })
 })

@@ -1,10 +1,9 @@
-import { ref, computed, watch, onMounted } from 'vue'
-import type { LanguageCode, Language, UserPreference, LanguageComposable } from '../types/language'
+import { ref, computed } from 'vue'
+import type { LanguageCode, Language, LanguageComposable } from '../types/language'
 import { SUPPORTED_LANGUAGES } from '../types/language'
 
 // Global state for language management
 const isLoading = ref(false)
-let isInitialized = false
 
 // Browser language detection
 const detectBrowserLanguage = (): LanguageCode => {
@@ -26,47 +25,15 @@ const detectBrowserLanguage = (): LanguageCode => {
   return 'et'
 }
 
-// Cookie-based language storage for SSR compatibility
-const COOKIE_NAME = 'esmuseum-language'
-
-// Storage helpers - Simple language code for i18n compatibility
-const savePreference = (langCode: LanguageCode): void => {
-  // Save simple language code to cookie for i18n compatibility
-  const languageCookie = useCookie<string>(COOKIE_NAME, {
-    default: () => 'et',
-    maxAge: 60 * 60 * 24 * 365, // 1 year
-    sameSite: 'lax'
-  })
-  
-  languageCookie.value = langCode
-}
-
-const loadPreference = (): LanguageCode | null => {
-  // Load from cookie using Nuxt's useCookie without default to check if actually set
-  const languageCookie = useCookie<string | null>(COOKIE_NAME, {
-    default: () => null
-  })
-  
-  if (!languageCookie.value) return null
-  
-  // Validate stored language code
-  if (SUPPORTED_LANGUAGES.some((lang: Language) => lang.code === languageCookie.value)) {
-    return languageCookie.value as LanguageCode
-  }
-  
-  return null
-}
-
 /**
- * Language management composable - Cookie-based for SSR compatibility
- * No URL routing, no page reloads, seamless hydration
+ * Language management composable - Relies on i18n module for cookie handling
+ * Provides reactive interface to i18n's locale management
  */
 export const useLanguage = (): LanguageComposable => {
   const { locale, setLocale, t } = useI18n()
   
-  // Initialize currentLanguageCode from cookie or default to Estonian
-  const savedPreference = loadPreference()
-  const currentLanguageCode = ref<LanguageCode>(savedPreference || 'et')
+  // Read current language from i18n locale (server/client consistent)
+  const currentLanguageCode = computed(() => locale.value as LanguageCode)
   
   // Computed properties
   const currentLanguage = computed(() => 
@@ -75,7 +42,7 @@ export const useLanguage = (): LanguageComposable => {
   
   const availableLanguages = computed(() => SUPPORTED_LANGUAGES)
   
-  // Language switching - NO URL changes, NO page reloads
+  // Language switching - Let i18n handle cookie persistence
   const switchLanguage = async (code: LanguageCode): Promise<void> => {
     if (!SUPPORTED_LANGUAGES.some((lang: Language) => lang.code === code)) {
       return
@@ -88,60 +55,14 @@ export const useLanguage = (): LanguageComposable => {
     isLoading.value = true
     
     try {
-      // Save preference to cookie
-      savePreference(code)
-      
-      // Update local state (single source of truth)
-      currentLanguageCode.value = code
-      
-      // Update Nuxt i18n locale for translations (NO routing)
+      // Set locale - i18n module handles cookie persistence automatically
       await setLocale(code)
-      
     } catch (error) {
       throw error // Re-throw to let components handle the error
     } finally {
       isLoading.value = false
     }
   }
-  
-  // Initialize language from cookie or browser detection
-  const initializeLanguage = async (): Promise<void> => {
-    if (isInitialized) return
-    
-    try {
-      // Check if we already have a saved preference (loaded during initialization)
-      const savedPreference = loadPreference()
-      
-      if (!savedPreference) {
-        // No saved preference - detect browser language and save it
-        const detectedLanguage = detectBrowserLanguage()
-        currentLanguageCode.value = detectedLanguage
-        savePreference(detectedLanguage)
-      }
-      
-      // Set the i18n locale to match our current language
-      await setLocale(currentLanguageCode.value)
-      isInitialized = true
-    } catch (error) {
-      throw error
-    }
-  }
-  
-  // Initialize on client mount (browser only, skip in test environment)
-  if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
-    onMounted(() => {
-      if (typeof window !== 'undefined') {
-        initializeLanguage()
-      }
-    })
-  }
-  
-  // Sync currentLanguageCode changes to i18n locale (one-way binding)
-  watch(currentLanguageCode, async (newCode) => {
-    if (isInitialized && newCode !== locale.value) {
-      await setLocale(newCode)
-    }
-  })
   
   return {
     currentLanguage,
@@ -155,12 +76,9 @@ export const useLanguage = (): LanguageComposable => {
 // Test utility functions (only for testing)
 export const resetLanguageState = (): void => {
   isLoading.value = false
-  isInitialized = false
 }
 
 // Export internal functions for testing
 export const testUtils = {
-  detectBrowserLanguage,
-  loadPreference,
-  savePreference
+  detectBrowserLanguage
 }
