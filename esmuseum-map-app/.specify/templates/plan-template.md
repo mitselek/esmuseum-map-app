@@ -51,7 +51,15 @@
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-[Gates determined based on constitution file]
+**Code Quality**: TypeScript strict mode enabled? ESLint/Prettier configured? No `any` types planned? Component architecture follows single responsibility principle?
+
+**Test-First Development**: Tests written before implementation? TDD cycle planned? Coverage target ≥80% achievable? Unit tests for business logic? Integration tests for APIs? Component tests for UI interactions? E2E tests for critical user journeys?
+
+**User Experience Consistency**: Design system patterns defined? Loading states/feedback planned? Performance budgets within limits (LCP < 2.5s, FID < 100ms, CLS < 0.1)? Accessibility (WCAG 2.1 AA) considered? Cross-browser compatibility tested?
+
+**Performance Standards**: Core Web Vitals targets met? Bundle size within limits (JS < 250KB, CSS < 50KB)? API response times < 500ms for 95th percentile? Image optimization planned? Memory leak prevention considered?
+
+**Security & Data Protection**: OAuth 2.0 flow secure? Client/server validation planned? HTTPS enforced? XSS/CSRF protection implemented? Error messages sanitized? Dependency audit planned?
 
 ## Project Structure
 
@@ -70,42 +78,21 @@ specs/[###-feature]/
 ### Source Code (repository root)
 
 ```text
-# Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+# Nuxt.js full-stack structure (frontend-heavy with minimal backend API)
+app/
+├── components/
+├── pages/
+├── composables/
+├── plugins/
+└── server/
+    └── api/
 
 tests/
-├── contract/
+├── components/
 ├── integration/
+├── e2e/
 └── unit/
-
-# Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure]
 ```
-
-**Structure Decision**: [DEFAULT to Option 1 unless Technical Context indicates web/mobile app]
 
 ## Phase 0: Outline & Research
 

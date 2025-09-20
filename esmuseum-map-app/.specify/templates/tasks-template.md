@@ -40,66 +40,77 @@
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- **Nuxt.js full-stack**: `app/`, `tests/` at repository root
+- Frontend code in `app/components/`, `app/pages/`, `app/composables/`
+- API endpoints in `app/server/api/`
+- Tests organized by type: `tests/components/`, `tests/integration/`, `tests/e2e/`, `tests/unit/`
 
 ## Phase 3.1: Setup
 
 - [ ] T001 Create project structure per implementation plan
 - [ ] T002 Initialize [language] project with [framework] dependencies
-- [ ] T003 [P] Configure linting and formatting tools
+- [ ] T003 [P] Configure linting and formatting tools (ESLint, Prettier)
+- [ ] T004 [P] Configure TypeScript strict mode
+- [ ] T005 [P] Set up pre-commit hooks for quality gates
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**  
 
-- [ ] T004 [P] Contract test POST /api/users in tests/contract/test_users_post.py
-- [ ] T005 [P] Contract test GET /api/users/{id} in tests/contract/test_users_get.py
-- [ ] T006 [P] Integration test user registration in tests/integration/test_registration.py
-- [ ] T007 [P] Integration test auth flow in tests/integration/test_auth.py
+- [ ] T006 [P] Contract test POST /api/[endpoint] in tests/integration/test_[endpoint]_post.spec.ts
+- [ ] T007 [P] Contract test GET /api/[endpoint]/{id} in tests/integration/test_[endpoint]_get.spec.ts
+- [ ] T008 [P] Integration test [feature workflow] in tests/integration/test_[feature].spec.ts
+- [ ] T009 [P] Integration test auth flow in tests/integration/test_auth.spec.ts
+- [ ] T010 [P] Component tests for Vue components in tests/components/
+- [ ] T011 [P] E2E tests for critical user journeys in tests/e2e/
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
 
-- [ ] T008 [P] User model in src/models/user.py
-- [ ] T009 [P] UserService CRUD in src/services/user_service.py
-- [ ] T010 [P] CLI --create-user in src/cli/user_commands.py
-- [ ] T011 POST /api/users endpoint
-- [ ] T012 GET /api/users/{id} endpoint
-- [ ] T013 Input validation
-- [ ] T014 Error handling and logging
+- [ ] T012 [P] [Entity] model in app/composables/use[Entity].ts
+- [ ] T013 [P] [Entity]Service CRUD in app/composables/use[Entity]Service.ts
+- [ ] T014 [P] [Feature] management composable in app/composables/use[Feature]Management.ts
+- [ ] T015 POST /api/[endpoint] endpoint in app/server/api/[endpoint]/index.post.ts
+- [ ] T016 GET /api/[endpoint]/{id} endpoint in app/server/api/[endpoint]/[id].get.ts
+- [ ] T017 Input validation (client and server-side)
+- [ ] T018 Error handling and logging
+- [ ] T019 OAuth 2.0 secure token handling
 
 ## Phase 3.4: Integration
 
-- [ ] T015 Connect UserService to DB
-- [ ] T016 Auth middleware
-- [ ] T017 Request/response logging
-- [ ] T018 CORS and security headers
+- [ ] T020 Connect [Entity]Service to database/storage
+- [ ] T021 Auth middleware with secure OAuth flow in app/middleware/
+- [ ] T022 Request/response logging
+- [ ] T023 CORS and security headers (HTTPS enforcement, XSS/CSRF protection)
+- [ ] T024 Dependency vulnerability audit
 
 ## Phase 3.5: Polish
 
-- [ ] T019 [P] Unit tests for validation in tests/unit/test_validation.py
-- [ ] T020 Performance tests (<200ms)
-- [ ] T021 [P] Update docs/api.md
-- [ ] T022 Remove duplication
-- [ ] T023 Run manual-testing.md
+- [ ] T025 [P] Unit tests for validation in tests/unit/validation.spec.ts
+- [ ] T026 Performance tests (Core Web Vitals, API < 500ms, bundle size limits)
+- [ ] T027 Accessibility tests (WCAG 2.1 AA compliance)
+- [ ] T028 Cross-browser compatibility testing
+- [ ] T029 [P] Update docs/api.md
+- [ ] T030 Remove duplication and code review
+- [ ] T031 Coverage verification (≥80% target)
+- [ ] T032 Run manual-testing.md
 
 ## Dependencies
 
-- Tests (T004-T007) before implementation (T008-T014)
-- T008 blocks T009, T015
-- T016 blocks T018
-- Implementation before polish (T019-T023)
+- Tests (T006-T011) before implementation (T012-T019)
+- T012 blocks T013, T020
+- T021 blocks T023
+- Implementation before polish (T025-T032)
 
 ## Parallel Example
 
 ```text
-# Launch T004-T007 together:
-Task: "Contract test POST /api/users in tests/contract/test_users_post.py"
-Task: "Contract test GET /api/users/{id} in tests/contract/test_users_get.py"
-Task: "Integration test registration in tests/integration/test_registration.py"
-Task: "Integration test auth in tests/integration/test_auth.py"
+# Launch T006-T011 together:
+Task: "Contract test POST /api/[endpoint] in tests/integration/test_[endpoint]_post.spec.ts"
+Task: "Contract test GET /api/[endpoint]/{id} in tests/integration/test_[endpoint]_get.spec.ts"
+Task: "Integration test [feature] in tests/integration/test_[feature].spec.ts"
+Task: "Integration test auth in tests/integration/test_auth.spec.ts"
+Task: "Component tests for Vue components in tests/components/"
+Task: "E2E tests for critical user journeys in tests/e2e/"
 ```
 
 ## Notes
