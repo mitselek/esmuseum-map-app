@@ -9,13 +9,6 @@ export interface Language {
   code: LanguageCode
   name: string
   displayName: string
-  isDefault: boolean
-}
-
-export interface Translation {
-  key: string
-  value: string
-  locale: string
 }
 
 export interface UserPreference {
@@ -32,20 +25,10 @@ export interface LanguageComposable {
   isLoading: Ref<boolean>
 }
 
-export interface I18nConfig {
-  defaultLocale: LanguageCode
-  fallbackLocale: LanguageCode
-  availableLocales: LanguageCode[]
-  detectBrowserLanguage: boolean
-  persistLanguage: boolean
-}
-
-export type TranslationKey = 'greeting.welcome' // Extensible for future keys
-
 export const SUPPORTED_LANGUAGES: Language[] = [
-  { code: 'et', name: 'Eesti', displayName: 'Estonian', isDefault: true },
-  { code: 'uk', name: 'Українська', displayName: 'Ukrainian', isDefault: false },
-  { code: 'en-GB', name: 'English', displayName: 'British English', isDefault: false }
+  { code: 'et', name: 'Eesti', displayName: 'Estonian' },
+  { code: 'uk', name: 'Українська', displayName: 'Ukrainian' },
+  { code: 'en-GB', name: 'English', displayName: 'British English' }
 ]
 
 export const STORAGE_KEY = 'esmuseum-language-preference'

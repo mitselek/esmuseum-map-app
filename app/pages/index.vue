@@ -21,7 +21,6 @@ import type { LanguageCode } from '../types/language'
 // TypeScript strict mode compliance
 
 const onLanguageChanged = (languageCode: LanguageCode) => {
-  console.log('Language changed to:', languageCode)
   // Additional language change handling can be added here if needed
 }
 </script>

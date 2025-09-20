@@ -91,8 +91,6 @@ describe('Index Page', () => {
   })
 
   it('handles language change events', async () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    
     const wrapper = mount(IndexPage, {
       global: {
         plugins: [i18n],
@@ -105,11 +103,13 @@ describe('Index Page', () => {
 
     // Manually call the handler function (simulates language change)
     const vm = wrapper.vm as any
-    await vm.onLanguageChanged('uk')
-
-    expect(consoleSpy).toHaveBeenCalledWith('Language changed to:', 'uk')
     
-    consoleSpy.mockRestore()
+    // Test that the handler doesn't throw any errors
+    expect(() => vm.onLanguageChanged('uk')).not.toThrow()
+    
+    // The function should complete successfully (no console.log per constitution)
+    await vm.onLanguageChanged('uk')
+    expect(vm).toBeDefined() // Function executed without error
   })
 
   it('has proper responsive container classes', () => {
