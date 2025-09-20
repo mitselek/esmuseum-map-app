@@ -1,7 +1,9 @@
 import { defineConfig } from 'vitest/config'
 import { fileURLToPath } from 'node:url'
+import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
+  plugins: [vue()],
   test: {
     // Explicitly include only our new authentication tests
     include: [
@@ -9,10 +11,11 @@ export default defineConfig({
       'tests/**/*.{test,spec}.{jsx,tsx}'
     ],
     
-    // Explicitly exclude legacy tests to maintain TDD constitutional compliance
+    // Explicitly exclude legacy tests and E2E tests to maintain TDD constitutional compliance
     exclude: [
       'node_modules/**',
       'legacy-esmuseum-nuxt3/**',
+      'tests/e2e/**',  // Exclude E2E tests - these run with Playwright
       'dist/**',
       '.nuxt/**',
       'coverage/**'
