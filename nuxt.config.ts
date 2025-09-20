@@ -6,6 +6,23 @@ export default defineNuxtConfig({
   // Set custom source directory
   srcDir: 'app/',
   
+  // Modules
+  modules: [
+    '@nuxtjs/tailwindcss',
+    ['@nuxtjs/i18n', {
+      defaultLocale: 'et',
+      locales: [
+        { code: 'et', name: 'Eesti', file: 'et.json' },
+        { code: 'uk', name: 'Українська', file: 'uk.json' },
+        { code: 'en-GB', name: 'English', file: 'en-GB.json' }
+      ],
+      lazy: true,
+      langDir: '../locales/',
+      strategy: 'prefix_except_default',
+      detectBrowserLanguage: false // We handle detection in our composable
+    }]
+  ],
+  
   // HTTPS development server configuration
   devServer: {
     https: {

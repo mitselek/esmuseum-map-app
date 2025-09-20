@@ -23,6 +23,7 @@ export default defineConfig({
     
     // Test environment setup
     environment: 'happy-dom',
+    setupFiles: ['./tests/setup.ts'],
     
     // Add globals for Vue composables
     globals: true,
@@ -31,6 +32,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
+      include: [
+        'app/**/*.{ts,vue}',
+        'composables/**/*.{ts,vue}',
+        'components/**/*.{ts,vue}',
+        'pages/**/*.{ts,vue}'
+      ],
       exclude: [
         'legacy-esmuseum-nuxt3/**',
         'coverage/**',
@@ -38,8 +45,19 @@ export default defineConfig({
         '.nuxt/**',
         '**/*.d.ts',
         '**/*.config.*',
-        '**/node_modules/**'
-      ]
+        '**/node_modules/**',
+        'tests/**',
+        'scripts/**',
+        'specs/**'
+      ],
+      thresholds: {
+        global: {
+          branches: 80,
+          functions: 80,
+          lines: 80,
+          statements: 80
+        }
+      }
     }
   },
   

@@ -9,8 +9,10 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test": "vitest",
-    "test:coverage": "vitest --coverage"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui"
   },
   "keywords": [
     "nuxt",
@@ -23,6 +25,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@nuxtjs/i18n": "^10.1.0",
     "nuxt": "^3.17.7",
     "vue": "^3.5.21"
   },

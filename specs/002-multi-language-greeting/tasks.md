@@ -47,35 +47,35 @@
 
 ## Phase 3.1: Setup
 
-- [ ] T001 Install @nuxtjs/i18n module and configure in nuxt.config.ts
-- [ ] T002 [P] Create Estonian locale file locales/et.json with greeting translation
-- [ ] T003 [P] Create Ukrainian locale file locales/uk.json with greeting translation
-- [ ] T004 [P] Create British English locale file locales/en-GB.json with greeting translation
-- [ ] T005 [P] Configure Nuxt i18n module with lazy loading and browser detection in nuxt.config.ts
+- [x] T001 Install @nuxtjs/i18n module and configure in nuxt.config.ts
+- [x] T002 [P] Create Estonian locale file locales/et.json with greeting translation
+- [x] T003 [P] Create Ukrainian locale file locales/uk.json with greeting translation
+- [x] T004 [P] Create British English locale file locales/en-GB.json with greeting translation
+- [x] T005 [P] Configure Nuxt i18n module with lazy loading and browser detection in nuxt.config.ts
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**  
 
-- [ ] T006 [P] Component test for LanguageSwitcher in tests/components/LanguageSwitcher.test.ts
-- [ ] T007 [P] Component test for enhanced HelloWorld with i18n in tests/components/HelloWorld.test.ts
-- [ ] T008 [P] Unit test for useLanguage composable in tests/unit/useLanguage.test.ts
-- [ ] T009 [P] E2E test for default language display in tests/e2e/language-default.spec.ts
-- [ ] T010 [P] E2E test for language switching flow in tests/e2e/language-switching.spec.ts
-- [ ] T011 [P] E2E test for preference persistence in tests/e2e/language-persistence.spec.ts
-- [ ] T012 [P] E2E test for browser locale auto-detection in tests/e2e/language-detection.spec.ts
+- [x] T006 [P] Component test for LanguageSwitcher in tests/components/LanguageSwitcher.test.ts
+- [x] T007 [P] Component test for enhanced HelloWorld with i18n in tests/components/HelloWorld.test.ts
+- [x] T008 [P] Unit test for useLanguage composable in tests/unit/useLanguage.test.ts
+- [x] T009 [P] E2E test for default language display in tests/e2e/language-default.spec.ts
+- [x] T010 [P] E2E test for language switching flow in tests/e2e/language-switching.spec.ts
+- [x] T011 [P] E2E test for preference persistence in tests/e2e/language-persistence.spec.ts
+- [x] T012 [P] E2E test for browser locale auto-detection in tests/e2e/language-detection.spec.ts
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
 
-- [ ] T013 [P] Language entity types in app/types/language.ts
-- [ ] T014 useLanguage composable with browser detection and persistence in app/composables/useLanguage.ts
-- [ ] T015 LanguageSwitcher component with accessibility features in app/components/LanguageSwitcher.vue
-- [ ] T016 Enhance HelloWorld component with i18n support in app/components/HelloWorld.vue
+- [x] T013 [P] Language entity types in app/types/language.ts
+- [x] T014 useLanguage composable with browser detection and persistence in app/composables/useLanguage.ts
+- [x] T015 LanguageSwitcher component with accessibility features in app/components/LanguageSwitcher.vue
+- [x] T016 Enhance HelloWorld component with i18n support in app/components/HelloWorld.vue
 
 ## Phase 3.4: Integration
 
-- [ ] T017 Integrate LanguageSwitcher into main layout or homepage in app/pages/index.vue
-- [ ] T018 Add language attributes and meta tags for SEO in app.vue
+- [x] T017 Integrate LanguageSwitcher into main layout or homepage in app/pages/index.vue
+- [x] T018 Add language attributes and meta tags for SEO in app.vue
 
 ## Phase 3.5: Polish
 
