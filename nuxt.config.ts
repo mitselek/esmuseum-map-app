@@ -3,6 +3,9 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-09-20',
   devtools: { enabled: true },
   
+  // Set custom source directory
+  srcDir: 'app/',
+  
   // HTTPS development server configuration
   devServer: {
     https: {
@@ -12,7 +15,7 @@ export default defineNuxtConfig({
   },
 
   // Watch configuration - exclude legacy directory and reduce file watching
-  watch: ['~/components/**', '~/composables/**', '~/pages/**', '~/layouts/**', '~/app/**'],
+  watch: ['~/components/**', '~/composables/**', '~/pages/**', '~/layouts/**'],
   ignore: [
     'legacy-esmuseum-nuxt3/**', 
     'legacy-esmuseum-nuxt3',
@@ -59,7 +62,7 @@ export default defineNuxtConfig({
     // Suppress rollup warnings for known issues
     build: {
       rollupOptions: {
-        external: (id) => {
+        external: (id: string) => {
           // Treat Nuxt internal modules as external
           if (id.includes('@nuxt/vite-builder')) return true
           return false
