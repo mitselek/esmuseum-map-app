@@ -53,49 +53,38 @@
 - [ ] T004 [P] Configure TypeScript strict mode in nuxt.config.ts
 - [ ] T005 [P] Configure Tailwind CSS in tailwind.config.js and app/assets/css/main.css
 - [ ] T006 [P] Set up Vitest configuration in vitest.config.ts
-- [ ] T007 [P] Set up Playwright for E2E testing in playwright.config.ts
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**  
 
-- [ ] T008 [P] Component test for HelloWorld.vue in tests/components/HelloWorld.test.ts
-- [ ] T009 [P] E2E test for home page greeting display in tests/e2e/hello-world.spec.ts
-- [ ] T010 [P] Integration test for mobile responsive behavior in tests/e2e/mobile-responsive.spec.ts
-- [ ] T011 [P] Accessibility test for heading structure in tests/e2e/accessibility.spec.ts
+- [ ] T007 [P] Component test for HelloWorld.vue in tests/components/HelloWorld.test.ts
+- [ ] T008 [P] Basic E2E test for home page greeting display in tests/e2e/hello-world.spec.ts
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
 
-- [ ] T012 HelloWorld.vue component in app/components/HelloWorld.vue
-- [ ] T013 Home page integration in app/pages/index.vue
-- [ ] T014 Mobile-first responsive styling with Tailwind CSS classes
-- [ ] T015 TypeScript component props and interface definitions
+- [ ] T009 HelloWorld.vue component in app/components/HelloWorld.vue
+- [ ] T010 Home page integration in app/pages/index.vue
+- [ ] T011 Mobile-first responsive styling with Tailwind CSS classes
 
 ## Phase 3.4: Integration
 
-- [ ] T016 HTTPS configuration in nuxt.config.ts
-- [ ] T017 Security headers and CORS configuration
-- [ ] T018 Performance optimization settings in Nuxt.js config
-- [ ] T019 Build and deployment configuration
+- [ ] T012 HTTPS configuration in nuxt.config.ts
 
 ## Phase 3.5: Polish
 
-- [ ] T020 [P] Accessibility validation (WCAG 2.1 AA compliance)
-- [ ] T021 [P] Performance testing (Core Web Vitals, bundle size)
-- [ ] T022 [P] Cross-browser compatibility testing
-- [ ] T023 [P] Mobile device testing across screen sizes
-- [ ] T024 [P] Manual quickstart.md validation
-- [ ] T025 Code review and cleanup
-- [ ] T026 Coverage verification (≥80% target)
+- [ ] T013 [P] Manual quickstart.md validation
+- [ ] T014 [P] Basic accessibility check (heading structure)
+- [ ] T015 Code review and cleanup
 
 ## Dependencies
 
-- Setup (T001-T007) before tests (T008-T011)
-- Tests (T008-T011) before implementation (T012-T015)
-- Core implementation (T012-T015) before integration (T016-T019)
-- Integration (T016-T019) before polish (T020-T026)
-- T012 blocks T013 (component before page)
-- T013 blocks T014 (page before styling)
+- Setup (T001-T006) before tests (T007-T008)
+- Tests (T007-T008) before implementation (T009-T011)
+- Core implementation (T009-T011) before integration (T012)
+- Integration (T012) before polish (T013-T015)
+- T009 blocks T010 (component before page)
+- T010 blocks T011 (page before styling)
 
 ## Parallel Example
 
@@ -105,20 +94,14 @@ Task: "Configure ESLint and Prettier in .eslintrc.js and .prettierrc"
 Task: "Configure TypeScript strict mode in nuxt.config.ts" 
 Task: "Configure Tailwind CSS in tailwind.config.js and app/assets/css/main.css"
 Task: "Set up Vitest configuration in vitest.config.ts"
-Task: "Set up Playwright for E2E testing in playwright.config.ts"
 
 # Phase 3.2 - Test tasks that can run together:
 Task: "Component test for HelloWorld.vue in tests/components/HelloWorld.test.ts"
-Task: "E2E test for home page greeting display in tests/e2e/hello-world.spec.ts"
-Task: "Integration test for mobile responsive behavior in tests/e2e/mobile-responsive.spec.ts"
-Task: "Accessibility test for heading structure in tests/e2e/accessibility.spec.ts"
+Task: "Basic E2E test for home page greeting display in tests/e2e/hello-world.spec.ts"
 
 # Phase 3.5 - Polish tasks that can run together:
-Task: "Accessibility validation (WCAG 2.1 AA compliance)"
-Task: "Performance testing (Core Web Vitals, bundle size)"
-Task: "Cross-browser compatibility testing"
-Task: "Mobile device testing across screen sizes"
 Task: "Manual quickstart.md validation"
+Task: "Basic accessibility check (heading structure)"
 ```
 
 ## Notes
@@ -126,6 +109,21 @@ Task: "Manual quickstart.md validation"
 - [P] tasks = different files, no dependencies
 - Verify tests fail before implementing (TDD principle)
 - Commit after each task
+- Streamlined for Hello World scope - focus on essentials
+- Constitutional compliance: mobile-first, TypeScript strict, HTTPS
+
+## Removed Bloat
+
+**Removed tasks that were overkill for Hello World:**
+- Playwright setup (too heavy for simple greeting)
+- Complex E2E testing (mobile responsive, accessibility automation)
+- TypeScript interfaces (no props needed for static component)
+- Security headers/CORS (unnecessary for hello world)
+- Performance optimization (premature for simple component)
+- Build/deployment config (can be addressed later)
+- Extensive validation testing (manual checks sufficient)
+
+**Result**: 15 focused tasks instead of 26 bloated ones.
 - This is a foundational feature - sets up entire Nuxt.js workspace
 - Focus on constitutional compliance: mobile-first, TypeScript strict, HTTPS
 
@@ -150,11 +148,12 @@ _Applied during main() execution_
 
 _GATE: Checked by main() before returning_  
 
-- [x] HelloWorld contract has corresponding test (T008)
+- [x] HelloWorld contract has corresponding test (T007)
 - [x] No entities require model tasks (static component)
-- [x] All tests come before implementation (T008-T011 before T012-T015)
+- [x] All tests come before implementation (T007-T008 before T009-T011)
 - [x] Parallel tasks truly independent (different files)
 - [x] Each task specifies exact file path
 - [x] No task modifies same file as another [P] task
 - [x] Setup tasks establish complete Nuxt.js workspace
 - [x] Constitutional requirements covered (mobile-first, TypeScript, HTTPS)
+- [x] Streamlined to essential 15 tasks for Hello World scope
