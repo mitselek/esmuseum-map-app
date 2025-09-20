@@ -32,11 +32,15 @@
     "**/*.vue",
     "**/*.js",
     "**/*.jsx",
-    ".nuxt/**/*"
+    ".nuxt/imports.d.ts",
+    ".nuxt/nuxt.d.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "legacy-esmuseum-nuxt3"
+    "legacy-esmuseum-nuxt3",
+    ".nuxt/dev/**/*",
+    ".nuxt/dist/**/*",
+    ".output/**/*"
   ]
 }

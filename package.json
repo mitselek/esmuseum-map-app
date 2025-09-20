@@ -1,6 +1,7 @@
 {
   "name": "esmuseum-map-app",
   "version": "1.0.0",
+  "type": "module",
   "description": "Estonian War Museum Authentication System - Frontend-only Nuxt 3 app with direct Entu OAuth integration",
   "scripts": {
     "build": "nuxt build",

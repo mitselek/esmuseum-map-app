@@ -97,6 +97,7 @@ localhost+*
 
 # Museum app specific
 debug-auth.js
+legacy-esmuseum-nuxt3/
 
 # Build artifacts
 dist/
