@@ -1,33 +1,9 @@
 <template>
-  <div class="rounded-lg border bg-white p-6 shadow-sm">
-    <!-- Progress indicator -->
-    <div class="mb-4 flex items-center justify-between">
-      <h3 class="text-lg font-medium text-gray-900">
-        {{ $t('taskDetail.map') }}
-      </h3>
-      <div
-        v-if="scoringData.totalExpected > 0"
-        class="flex items-center space-x-2"
-      >
-        <div class="text-sm text-gray-600">
-          Progress:
-        </div>
-        <div class="flex items-center space-x-1">
-          <span class="font-semibold text-green-600">{{ scoringData.uniqueLocationsCount }}</span>
-          <span class="text-gray-400">/</span>
-          <span class="font-semibold text-gray-800">{{ scoringData.totalExpected }}</span>
-        </div>
-        <div class="text-xs text-gray-500">
-          ({{ scoringData.progressPercent }}%)
-        </div>
-      </div>
-    </div>
-
-    <!-- Interactive Map -->
+  <div class="overflow-hidden rounded-lg border bg-white shadow-sm">
     <InteractiveMap
       :locations="taskLocations"
       :user-position="effectiveUserPosition"
-      :visited-locations="scoringData.visitedLocations.value"
+      :visited-locations="visitedLocations"
       :loading="loadingLocations"
       :max-locations="5"
       :selected-location="selectedLocation"
@@ -36,7 +12,7 @@
     />
 
     <!-- Manual Location Override -->
-    <div class="mt-4 border-t pt-4">
+    <div class="border-t p-6">
       <div class="mb-3 flex items-center justify-between">
         <h4 class="text-sm font-medium text-gray-700">
           ✏️ {{ $t('taskDetail.manualLocationOverride') }}
@@ -127,13 +103,6 @@
 <script setup>
 const props = defineProps({
   /**
-   * Task data for scoring
-   */
-  task: {
-    type: Object,
-    default: null
-  },
-  /**
    * Array of task locations to display
    */
   taskLocations: {
@@ -160,6 +129,13 @@ const props = defineProps({
   selectedLocation: {
     type: Object,
     default: null
+  },
+  /**
+   * Visited location references for marker styling
+   */
+  visitedLocations: {
+    type: Object,
+    default: () => new Set()
   }
 })
 
@@ -169,9 +145,6 @@ const emit = defineEmits(['location-click', 'map-ready', 'location-change'])
 const {
   setManualOverride
 } = useLocation()
-
-// Task scoring composable
-const scoringData = useTaskScoring(computed(() => props.task))
 
 // Local state for manual override functionality
 const showManualCoordinates = ref(false)

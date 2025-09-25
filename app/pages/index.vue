@@ -3,9 +3,6 @@
     <!-- GPS Permission Prompt -->
     <GPSPermissionPrompt />
 
-    <!-- Header -->
-    <AppHeader />
-
     <!-- Task Workspace SPA -->
     <TaskWorkspace />
   </div>
