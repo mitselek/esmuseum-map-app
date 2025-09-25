@@ -26,7 +26,7 @@ const apiBase = `https://${HOST}/api/${ACCOUNT}`
 function apiGet (endpoint, token) {
   return new Promise((resolve, reject) => {
     const url = `${apiBase}${endpoint}`
-    console.log(`Fetching from: ${url}`)
+    console.log(`API: ${endpoint}`)
     const options = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -37,12 +37,18 @@ function apiGet (endpoint, token) {
       let data = ''
       res.on('data', (chunk) => data += chunk)
       res.on('end', () => {
+        console.log(`${res.statusCode} (${data.length} bytes)`)
         if (res.statusCode >= 400) {
+          console.error(`❌ HTTP Error ${res.statusCode}:`, data.substring(0, 500))
           reject(new Error(`HTTP ${res.statusCode}: ${data}`))
         }
         else {
           try {
-            resolve(JSON.parse(data))
+            const parsed = JSON.parse(data)
+            if (parsed.entities) {
+              console.log(`Found ${parsed.entities.length} entities`)
+            }
+            resolve(parsed)
           }
           catch (e) {
             reject(e)
@@ -53,10 +59,40 @@ function apiGet (endpoint, token) {
   })
 }
 
+// Function to get all entities with pagination
+async function getAllEntities (endpoint, token) {
+  const allEntities = []
+  let skip = 0
+  const limit = 100 // Entu's default limit
+
+  console.log(`Paginating ${endpoint}...`)
+
+  while (true) {
+    const paginatedEndpoint = `${endpoint}&skip=${skip}&limit=${limit}`
+    const response = await apiGet(paginatedEndpoint, token)
+
+    if (!response.entities || response.entities.length === 0) {
+      break // No more entities
+    }
+
+    allEntities.push(...response.entities)
+
+    // If we got fewer entities than the limit, we've reached the end
+    if (response.entities.length < limit) {
+      break
+    }
+
+    skip += limit
+  }
+
+  console.log(`Total entities collected: ${allEntities.length}`)
+  return { entities: allEntities }
+}
+
 async function getToken () {
   // Authenticate to get a token
   const url = `https://${HOST}/api/auth?account=${ACCOUNT}`
-  console.log(`Getting auth token from: ${url}`)
+  console.log(`Auth: ${ACCOUNT}`)
   return new Promise((resolve, reject) => {
     const options = {
       headers: {
@@ -69,6 +105,7 @@ async function getToken () {
       res.on('data', (chunk) => data += chunk)
       res.on('end', () => {
         if (res.statusCode >= 400) {
+          console.error(`❌ Auth failed:`, data.substring(0, 200))
           reject(new Error(`Auth HTTP ${res.statusCode}: ${data}`))
         }
         else {
@@ -92,15 +129,42 @@ async function getToken () {
 
 async function fetchModel () {
   const token = await getToken()
+
+  // Fetch entity type definitions
   const typesResp = await apiGet('/entity?_type.string=entity', token)
-  // Save intermediate API response for inspection
+
+  // Fetch property definitions with pagination
+  const propertiesResp = await getAllEntities('/entity?_type.string=property', token)
+
+  // Save intermediate API responses for inspection
   fs.writeFileSync(
     path.join(__dirname, '../docs/model/raw-entity-definitions.json'),
     JSON.stringify(typesResp, null, 2),
     'utf8'
   )
+  fs.writeFileSync(
+    path.join(__dirname, '../docs/model/raw-property-definitions.json'),
+    JSON.stringify(propertiesResp, null, 2),
+    'utf8'
+  )
+
   const types = typesResp.entities || []
+  const properties = propertiesResp.entities || []
   const model = {}
+
+  // First, build a map of properties by their parent entity type
+  const propertiesByType = {}
+  for (const propEntity of properties) {
+    // Find the parent entity type reference
+    const parentRef = propEntity._parent?.find((p) => p.entity_type === 'entity')
+    if (parentRef && parentRef.reference) {
+      const parentId = parentRef.reference
+      if (!propertiesByType[parentId]) {
+        propertiesByType[parentId] = []
+      }
+      propertiesByType[parentId].push(propEntity)
+    }
+  }
 
   for (const typeEntity of types) {
     let typeName = typeEntity.properties?.name?.[0]?.value
@@ -109,13 +173,14 @@ async function fetchModel () {
     }
     if (!typeName) continue
 
-    // Extract properties with simplified structure
-    model[typeName] = Object.entries(typeEntity)
+    // Start with entity type metadata properties
+    const metadataProperties = Object.entries(typeEntity)
       .filter(([key, values]) => Array.isArray(values) && !key.startsWith('_'))
       .map(([propName, arr]) => {
         // Initialize property descriptor with simplified structure
         const descriptor = {
-          name: propName
+          name: propName,
+          source: 'metadata'
         }
 
         // Determine property type first
@@ -184,7 +249,30 @@ async function fetchModel () {
 
         return descriptor
       })
-    console.log(`Extracted ${model[typeName].length} properties for type ${typeName}`)
+
+    // Add data properties for this entity type
+    const entityId = typeEntity._id
+    const dataProperties = propertiesByType[entityId] || []
+    const processedDataProperties = dataProperties.map((propEntity) => {
+      const propName = propEntity.name?.[0]?.string || 'unnamed'
+      return {
+        name: propName,
+        source: 'property',
+        type: propEntity.datatype?.[0]?.string || 'string',
+        multilingual: propEntity.multilingual?.[0]?.boolean || false,
+        mandatory: propEntity.mandatory?.[0]?.boolean || false,
+        readonly: propEntity.readonly?.[0]?.boolean || false,
+        ordinal: propEntity.ordinal?.[0]?.number || 0,
+        label: propEntity.label?.find((l) => l.language === 'et')?.string
+          || propEntity.label?.[0]?.string
+          || propName
+      }
+    })
+
+    // Combine metadata and data properties
+    model[typeName] = [...metadataProperties, ...processedDataProperties]
+
+    console.log(`Extracted ${metadataProperties.length} metadata + ${processedDataProperties.length} data properties for type ${typeName}`)
   }
   return model
 }
