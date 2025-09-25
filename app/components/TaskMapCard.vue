@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-hidden rounded-lg border bg-white shadow-sm">
+  <div class="w-full bg-white shadow-sm">
     <InteractiveMap
       :locations="taskLocations"
       :user-position="effectiveUserPosition"
@@ -12,88 +12,90 @@
     />
 
     <!-- Manual Location Override -->
-    <div class="border-t p-6">
-      <div class="mb-3 flex items-center justify-between">
-        <h4 class="text-sm font-medium text-gray-700">
-          ✏️ {{ $t('taskDetail.manualLocationOverride') }}
-        </h4>
-        <button
-          v-if="!showManualCoordinates"
-          type="button"
-          class="text-sm text-blue-600 hover:text-blue-800"
-          @click="startManualEntry"
-        >
-          {{ $t('taskDetail.enterManually') }}
-        </button>
-        <button
-          v-else
-          type="button"
-          class="text-sm text-gray-600 hover:text-gray-800"
-          @click="cancelManualEntry"
-        >
-          {{ $t('taskDetail.cancel') }}
-        </button>
-      </div>
-
-      <div
-        v-if="showManualCoordinates"
-        class="space-y-3"
-      >
-        <div>
-          <label class="mb-2 block text-xs text-gray-600">
-            {{ $t('taskDetail.coordinatesFormat') }}
-          </label>
-          <input
-            v-model="manualCoordinates"
-            type="text"
-            :placeholder="$t('taskDetail.coordinatesExample')"
-            class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            @keyup.enter="applyManualLocation"
-          >
-          <p class="mt-1 text-xs text-gray-500">
-            {{ $t('taskDetail.manualLocationHelp') }}
-          </p>
-        </div>
-
-        <div class="flex space-x-2">
+    <div class="border-t">
+      <div class="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
+        <div class="mb-3 flex items-center justify-between">
+          <h4 class="text-sm font-medium text-gray-700">
+            ✏️ {{ $t('taskDetail.manualLocationOverride') }}
+          </h4>
           <button
+            v-if="!showManualCoordinates"
             type="button"
-            :disabled="!isValidCoordinates(manualCoordinates)"
-            class="rounded bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-            @click="applyManualLocation"
+            class="text-sm text-blue-600 hover:text-blue-800"
+            @click="startManualEntry"
           >
-            {{ $t('taskDetail.applyLocation') }}
+            {{ $t('taskDetail.enterManually') }}
           </button>
           <button
+            v-else
             type="button"
-            class="rounded bg-gray-600 px-3 py-2 text-sm text-white hover:bg-gray-700"
-            @click="clearManualLocation"
+            class="text-sm text-gray-600 hover:text-gray-800"
+            @click="cancelManualEntry"
           >
-            {{ $t('taskDetail.clearOverride') }}
+            {{ $t('taskDetail.cancel') }}
           </button>
         </div>
-      </div>
 
-      <div
-        v-if="hasManualOverride && !showManualCoordinates"
-        class="rounded-lg border border-amber-200 bg-amber-50 p-3"
-      >
-        <div class="flex items-center justify-between">
+        <div
+          v-if="showManualCoordinates"
+          class="space-y-3"
+        >
           <div>
-            <p class="text-sm font-medium text-amber-800">
-              ✏️ {{ $t('taskDetail.manualLocationActive') }}
-            </p>
-            <p class="mt-1 text-xs text-amber-600">
-              {{ manualCoordinates }}
+            <label class="mb-2 block text-xs text-gray-600">
+              {{ $t('taskDetail.coordinatesFormat') }}
+            </label>
+            <input
+              v-model="manualCoordinates"
+              type="text"
+              :placeholder="$t('taskDetail.coordinatesExample')"
+              class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              @keyup.enter="applyManualLocation"
+            >
+            <p class="mt-1 text-xs text-gray-500">
+              {{ $t('taskDetail.manualLocationHelp') }}
             </p>
           </div>
-          <button
-            type="button"
-            class="text-sm text-amber-600 underline hover:text-amber-800"
-            @click="clearManualLocation"
-          >
-            {{ $t('taskDetail.remove') }}
-          </button>
+
+          <div class="flex space-x-2">
+            <button
+              type="button"
+              :disabled="!isValidCoordinates(manualCoordinates)"
+              class="rounded bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              @click="applyManualLocation"
+            >
+              {{ $t('taskDetail.applyLocation') }}
+            </button>
+            <button
+              type="button"
+              class="rounded bg-gray-600 px-3 py-2 text-sm text-white hover:bg-gray-700"
+              @click="clearManualLocation"
+            >
+              {{ $t('taskDetail.clearOverride') }}
+            </button>
+          </div>
+        </div>
+
+        <div
+          v-if="hasManualOverride && !showManualCoordinates"
+          class="rounded-lg border border-amber-200 bg-amber-50 p-3"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-amber-800">
+                ✏️ {{ $t('taskDetail.manualLocationActive') }}
+              </p>
+              <p class="mt-1 text-xs text-amber-600">
+                {{ manualCoordinates }}
+              </p>
+            </div>
+            <button
+              type="button"
+              class="text-sm text-amber-600 underline hover:text-amber-800"
+              @click="clearManualLocation"
+            >
+              {{ $t('taskDetail.remove') }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
