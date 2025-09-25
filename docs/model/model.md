@@ -1,339 +1,389 @@
 # Entu Data Model
 
-This document contains the comprehensive Entu data model for the ESMuseum application, compiled from live data using the data explorer tool.
+This document contains the Entu data model for the ESMuseum application.
 
 ## Table of Contents
 
-- [asukoht](#asukoht) - Location entities
-- [department](#department) - Department management
-- [folder](#folder) - Folder organization
-- [grupp](#grupp) - Group management
-- [kaart](#kaart) - Map entities
-- [person](#person) - Person management
-- [ulesanne](#ulesanne) - Task/assignment system
-- [vastus](#vastus) - Response/answer system
-- [vr_aum2rk](#vr_aum2rk) - Freedom Cross awards
-- [vr_kavaler](#vr_kavaler) - Freedom Cross recipients
+- [asukoht](#asukoht)
+- [database](#database)
+- [department](#department)
+- [entity](#entity)
+- [folder](#folder)
+- [grupp](#grupp)
+- [kaart](#kaart)
+- [menu](#menu)
+- [person](#person)
+- [plugin](#plugin)
+- [property](#property)
+- [ulesanne](#ulesanne)
+- [vastus](#vastus)
+- [vr_aum2rk](#vr_aum2rk)
+- [vr_kavaler](#vr_kavaler)
 
 ## asukoht
 
-### Description
-
-Location entities for geographical points and places
-
-### Labels
+**Labels:**
 
 - Singular: "Asukoht"
 - Plural: "Asukohad"
 
-### Entity Attributes
+### Properties
 
-- **name**: string = "asukoht"
-- **add_from**: reference → kaart entity (ID: 687d27c8259fc48ba59cf71a)
-- **plugin**: reference → KML import plugin (ID: 687a1404259fc48ba59cdffa)
+| Property | Type | Value | References |
+|---|---|---|---|
+| name | string | asukoht |  |
+| add_from | reference | kaart | entity (ID: 687d27c8259fc48ba59cf71a) |
+| plugin | reference | KML import | plugin (ID: 687a1404259fc48ba59cdffa) |
+| name | string |  |  |
+| kirjeldus | string |  |  |
+| long | string |  |  |
+| lat | string |  |  |
+| photo | string |  |  |
+| link | string |  |  |
+| pildilingid | string |  |  |
+
+### References
+
+- **add_from** references the **entity** entity type with value "kaart" (ID: 687d27c8259fc48ba59cf71a)
+- **plugin** references the **plugin** entity type with value "KML import" (ID: 687a1404259fc48ba59cdffa)
+
+## database
+
+**Labels:**
+
+- Singular: "Andmebaas"
+- Plural: "Andmebaasid"
 
 ### Properties
 
-- **name**: string - Location name (searchable)
-- **kirjeldus**: text - Location description (supports markdown)
-- **long**: number - Longitude coordinate (7 decimal places)
-- **lat**: number - Latitude coordinate (7 decimal places)
-- **photo**: file - Location photo
-- **link**: string - External link or URL
-- **pildilingid**: string (list) - Photo URLs (supports markdown)
-
-### Usage
-
-Geographical locations that can be imported via KML and are associated with maps. Supports precise coordinates, photos, and external links.
+| Property | Type | Value | References |
+|---|---|---|---|
+| name | string | database |  |
+| address | string |  |  |
+| add_user | string |  |  |
+| email | string |  |  |
+| name | string |  |  |
+| organization | string |  |  |
+| photo | string |  |  |
+| price | string |  |  |
+| billing_data_limit | string |  |  |
+| billing_entities_limit | string |  |  |
+| billing_requests_limit | string |  |  |
 
 ## department
 
-### Description
+**Labels:**
 
-Department management for organizational structure
-
-### Labels
-
-- Singular: "Department"
-- Plural: "Departments"
-
-### Entity Attributes
-
-- **name**: string = "department"
+- Singular: "Osakond"
+- Plural: "Osakonnad"
 
 ### Properties
 
-- **description**: string - Department description
-- **name**: string - Department name
+| Property | Type | Value | References |
+|---|---|---|---|
+| name | string | department |  |
+| description | string |  |  |
+| name | string |  |  |
 
-### Usage
+## entity
 
-Organizational units within the museum structure.
+**Labels:**
+
+- Singular: "Objekt"
+- Plural: "Objektid"
+
+### Properties
+
+| Property | Type | Value | References |
+|---|---|---|---|
+| add_from | reference | Entities | menu (ID: 66b6245a7efc9ac06a437b4c) |
+| name | string | entity |  |
+| plugin | reference | Objekti mall | plugin (ID: 6864fe56d21b6a4025802de9) |
+| add_from | string |  |  |
+| default_parent | string |  |  |
+| description | string |  |  |
+| name | string |  |  |
+| plugin | string |  |  |
+
+### References
+
+- **add_from** references the **menu** entity type with value "Entities" (ID: 66b6245a7efc9ac06a437b4c)
+- **plugin** references the **plugin** entity type with value "Objekti mall" (ID: 6864fe56d21b6a4025802de9)
 
 ## folder
 
-### Description
+**Labels:**
 
-Folder organization for content management
-
-### Labels
-
-- Singular: "Folder"
-- Plural: "Folders"
-
-### Entity Attributes
-
-- **name**: string = "folder"
-- **add_from**: reference → entity (ID: 66b624597efc9ac06a4378a6)
+- Singular: "Kaust"
+- Plural: "Kaustad"
 
 ### Properties
 
-- **name**: string - Folder name
-- **notes**: string - Additional notes
+| Property | Type | Value | References |
+|---|---|---|---|
+| add_from | reference | folder | entity (ID: 66b624597efc9ac06a4378a6) |
+| name | string | folder |  |
+| name | string |  |  |
+| notes | string |  |  |
 
-### Usage
+### References
 
-Hierarchical organization of content and entities.
+- **add_from** references the **entity** entity type with value "folder" (ID: 66b624597efc9ac06a4378a6)
 
 ## grupp
 
-### Description
-
-Group management for organizing users and activities
-
-### Labels
+**Labels:**
 
 - Singular: "Grupp"
 - Plural: "Grupid"
 
-### Entity Attributes
-
-- **name**: string = "grupp"
-- **add_from**: reference → esmuuseum database (ID: 66b6245c7efc9ac06a437ba0)
-
 ### Properties
 
-- **name**: string - Group name
-- **kirjeldus**: string - Group description
-- **grupijuht**: reference - Group leader reference
+| Property | Type | Value | References |
+|---|---|---|---|
+| name | string | grupp |  |
+| add_from | reference | esmuuseum | database (ID: 66b6245c7efc9ac06a437ba0) |
+| name | string |  |  |
+| kirjeldus | text |  |  |
+| grupijuht | string |  |  |
 
-### Usage
+### References
 
-Organizing participants into groups for activities and assignments.
+- **add_from** references the **database** entity type with value "esmuuseum" (ID: 66b6245c7efc9ac06a437ba0)
 
 ## kaart
 
-### Description
-
-Map entities for geographical and location-based content
-
-### Labels
+**Labels:**
 
 - Singular: "Kaart"
 - Plural: "Kaardid"
 
-### Entity Attributes
+### Properties
 
-- **name**: string = "kaart"
-- **add_from**: reference → Kaardid menu (ID: 687c9fd8259fc48ba59cf2e4)
+| Property | Type | Value | References |
+|---|---|---|---|
+| name | string | kaart |  |
+| add_from | reference | Kaardid | menu (ID: 687c9fd8259fc48ba59cf2e4) |
+| default_parent | reference | Kaardid | folder (ID: 688227005d95233e69c28cf4) |
+| name | string |  |  |
+| kirjeldus | string |  |  |
+| url | string |  |  |
+
+### References
+
+- **add_from** references the **menu** entity type with value "Kaardid" (ID: 687c9fd8259fc48ba59cf2e4)
+- **default_parent** references the **folder** entity type with value "Kaardid" (ID: 688227005d95233e69c28cf4)
+
+## menu
+
+**Labels:**
+
+- Singular: "Menüü"
+- Plural: "Menüüd"
 
 ### Properties
 
-- **name**: string - Map name
-- **kirjeldus**: text - Map description (supports markdown)
-- **url**: string - Map URL or external link
+| Property | Type | Value | References |
+|---|---|---|---|
+| add_from | reference | Menu | menu (ID: 66b6245a7efc9ac06a437b56) |
+| name | string | menu |  |
+| text | string |  |  |
+| group | string |  |  |
+| name | string |  |  |
+| ordinal | string |  |  |
+| query | string |  |  |
 
-### Usage
+### References
 
-Maps that can contain multiple locations (asukoht) and are used in assignments. Support external URLs and detailed descriptions.
+- **add_from** references the **menu** entity type with value "Menu" (ID: 66b6245a7efc9ac06a437b56)
 
 ## person
 
-### Description
+**Labels:**
 
-Person management for users and participants
-
-### Labels
-
-- Singular: "Person"
-- Plural: "Persons"
-
-### Entity Attributes
-
-- **name**: string = "person"
-- **add_from**: reference → Persons menu (ID: 66b6245a7efc9ac06a437b73)
-- **plugin**: reference → CSV file plugin (ID: 66b6245a7efc9ac06a437b87)
+- Singular: "Persoon"
+- Plural: "Persoonid"
 
 ### Properties
 
-- **address**: string - Physical address
-- **birthdate**: date - Date of birth
-- **city**: string - City of residence
-- **county**: string - County/region
-- **email**: string - Email address
-- **entu_api_key**: string - API access key
-- **entu_user**: string - Entu username
-- **forename**: string - First name
-- **gender**: string - Gender
-- **idcode**: string - Personal identification code
-- **name**: string - Full name
-- **notes**: string - Additional notes
-- **phone**: string - Phone number
-- **photo**: file - Profile photo
-- **postalcode**: string - Postal/ZIP code
-- **surname**: string - Last name
+| Property | Type | Value | References |
+|---|---|---|---|
+| name | string | person |  |
+| plugin | reference | CSV file | plugin (ID: 66b6245a7efc9ac06a437b87) |
+| add_from | reference | Persons | menu (ID: 66b6245a7efc9ac06a437b73) |
+| default_parent | reference | Persons | menu (ID: 66b6245a7efc9ac06a437b73) |
+| address | string |  |  |
+| birthdate | string |  |  |
+| city | string |  |  |
+| county | string |  |  |
+| email | string |  |  |
+| entu_api_key | string |  |  |
+| entu_user | string |  |  |
+| forename | string |  |  |
+| gender | string |  |  |
+| idcode | string |  |  |
+| name | string |  |  |
+| notes | string |  |  |
+| phone | string |  |  |
+| photo | string |  |  |
+| postalcode | string |  |  |
+| surname | string |  |  |
 
-### Usage
+### References
 
-Comprehensive person management with contact information and authentication.
+- **plugin** references the **plugin** entity type with value "CSV file" (ID: 66b6245a7efc9ac06a437b87)
+- **add_from** references the **menu** entity type with value "Persons" (ID: 66b6245a7efc9ac06a437b73)
+- **default_parent** references the **menu** entity type with value "Persons" (ID: 66b6245a7efc9ac06a437b73)
+
+## plugin
+
+**Labels:**
+
+- Singular: "Pistikprogramm"
+- Plural: "Pistikprogrammid"
+
+### Properties
+
+| Property | Type | Value | References |
+|---|---|---|---|
+| add_from | reference | Plugins | menu (ID: 66b6245a7efc9ac06a437b60) |
+| name | string | plugin |  |
+| name | string |  |  |
+| new_window | string |  |  |
+| type | string |  |  |
+| url | string |  |  |
+
+### References
+
+- **add_from** references the **menu** entity type with value "Plugins" (ID: 66b6245a7efc9ac06a437b60)
+
+## property
+
+**Labels:**
+
+- Singular: "Parameeter"
+- Plural: "Parameetrid"
+
+### Properties
+
+| Property | Type | Value | References |
+|---|---|---|---|
+| add_from | reference | entity | entity (ID: 66b624597efc9ac06a437840) |
+| name | string | property |  |
+| decimals | string |  |  |
+| description | string |  |  |
+| formula | string |  |  |
+| group | string |  |  |
+| list | string |  |  |
+| mandatory | string |  |  |
+| markdown | string |  |  |
+| multilingual | string |  |  |
+| name | string |  |  |
+| ordinal | string |  |  |
+| plugin | string |  |  |
+| readonly | string |  |  |
+| reference_query | string |  |  |
+| search | string |  |  |
+| set | string |  |  |
+| table | string |  |  |
+| type | string |  |  |
+
+### References
+
+- **add_from** references the **entity** entity type with value "entity" (ID: 66b624597efc9ac06a437840)
 
 ## ulesanne
 
-### Description
-
-Task/assignment system for educational activities
-
-### Labels
+**Labels:**
 
 - Singular: "Ülesanne"
 - Plural: "Ülesanded"
 
-### Entity Attributes
-
-- **name**: string = "ulesanne"
-- **add_from**: reference → Ülesanded folder (ID: 68691eb91749f351b9c82f68)
-
 ### Properties
 
-- **name**: string - Task name
-- **kirjeldus**: string - Task description
-- **tahtaeg**: datetime - Deadline
-- **kaart**: reference - Associated map
-- **grupp**: reference - Assigned group
-- **vastuseid**: number - Number of expected answers
+| Property | Type | Value | References |
+|---|---|---|---|
+| name | string | ulesanne |  |
+| add_from | reference | Ülesanded | folder (ID: 68691eb91749f351b9c82f68) |
+| default_parent | reference | Ülesanded | folder (ID: 68691eb91749f351b9c82f68) |
+| name | string |  |  |
+| kirjeldus | text |  |  |
+| tahtaeg | string |  |  |
+| kaart | string |  |  |
+| grupp | string |  |  |
+| vastuseid | string |  |  |
 
-### Usage
+### References
 
-Educational assignments that can be assigned to groups with deadlines and map associations. Includes tracking of expected response count.
+- **add_from** references the **folder** entity type with value "Ülesanded" (ID: 68691eb91749f351b9c82f68)
+- **default_parent** references the **folder** entity type with value "Ülesanded" (ID: 68691eb91749f351b9c82f68)
 
 ## vastus
 
-### Description
-
-Response/answer system for task submissions
-
-### Labels
+**Labels:**
 
 - Singular: "Vastus"
 - Plural: "Vastused"
 
-### Entity Attributes
-
-- **name**: string = "vastus"
-- **add_from**: reference → ulesanne entity (ID: 686917231749f351b9c82f4c)
-
 ### Properties
 
-- **asukoht**: reference - Location reference
-- **kirjeldus**: string - Response description
-- **photo**: file - Response photo
-- **geopunkt**: string - Geolocation coordinates
+| Property | Type | Value | References |
+|---|---|---|---|
+| name | string | vastus |  |
+| add_from | reference | ulesanne | entity (ID: 686917231749f351b9c82f4c) |
+| default_parent | reference | ulesanne | entity (ID: 686917231749f351b9c82f4c) |
+| asukoht | string |  |  |
+| kirjeldus | text |  |  |
+| photo | image |  |  |
+| geopunkt | string |  |  |
+| vastaja | string |  |  |
 
-### Usage
+### References
 
-Submissions and responses to assignments, can include location data, photos, and precise coordinates.
+- **add_from** references the **entity** entity type with value "ulesanne" (ID: 686917231749f351b9c82f4c)
+- **default_parent** references the **entity** entity type with value "ulesanne" (ID: 686917231749f351b9c82f4c)
 
 ## vr_aum2rk
 
-### Description
-
-Freedom Cross awards management
-
-### Labels
+**Labels:**
 
 - Singular: "Vabaduse rist"
 - Plural: "Vabaduse ristid"
 
-### Entity Attributes
-
-- **name**: string = "vr_aum2rk"
-
 ### Properties
 
-- **kavaler**: reference - Award recipient
-- **liik_ja_j2rk**: string - Type and rank
-- **vr_nr**: string - Award number
-- **otsuse_kp**: string - Decision date
-- **name**: string - Award name
-- **otsuse_tekst**: text - Decision text
-- **vr_id**: string - Award ID
-- **kavaler_vr_id**: string - Recipient award ID
-- **t2psustus**: string - Specification
-
-### Usage
-
-Management of Estonian Freedom Cross awards and their details.
+| Property | Type | Value | References |
+|---|---|---|---|
+| name | string | vr_aum2rk |  |
+| kavaler | string |  |  |
+| liik_ja_j2rk | string |  |  |
+| vr_nr | string |  |  |
+| otsuse_kp | string |  |  |
+| name | string |  |  |
+| otsuse_tekst | string |  |  |
+| vr_id | string |  |  |
+| kavaler_vr_id | string |  |  |
+| t2psustus | string |  |  |
 
 ## vr_kavaler
 
-### Description
-
-Freedom Cross recipients management
-
-### Labels
+**Labels:**
 
 - Singular: "Vabaduse Risti Kavaler"
 - Plural: "Vabaduse Risti Kavalerid"
 
-### Entity Attributes
-
-- **name**: string = "vr_kavaler"
-
 ### Properties
 
-- **name**: string - Full name
-- **eesnimi**: string - First name
-- **perenimi**: string - Last name
-- **biograafia**: text - Biography
-- **emaisa**: string - Mother's name
-- **amet**: string - Profession/position
-- **vr_id**: string - Recipient ID
-- **synd**: string - Birth information
-- **photo**: file - Portrait photo
-
-### Usage
-
-Biographical information about Freedom Cross recipients.
-
-## Data Relationships
-
-### Key Entity Relationships
-
-- **kaart** → **asukoht**: Maps contain multiple locations
-- **ulesanne** → **kaart**: Tasks are associated with specific maps
-- **ulesanne** → **grupp**: Tasks are assigned to groups
-- **vastus** → **ulesanne**: Responses are submitted for tasks
-- **vastus** → **asukoht**: Responses can reference specific locations
-- **vr_aum2rk** → **vr_kavaler**: Awards are given to recipients
-
-### Property Types Used
-
-- **string**: Text data
-- **text**: Longer text content
-- **date**: Date values
-- **datetime**: Date and time values
-- **reference**: Links to other entities
-- **file**: File uploads (photos, documents)
-- **boolean**: True/false values
-
-## System Architecture
-
-The data model supports:
-
-1. **Educational activities**: Tasks assigned to groups with map-based content
-2. **Geographical data**: Locations that can be imported and referenced
-3. **User management**: Comprehensive person profiles with authentication
-4. **Content organization**: Folders and hierarchical structure
-5. **Historical records**: Freedom Cross awards and recipients
-6. **File management**: Photo and document uploads
+| Property | Type | Value | References |
+|---|---|---|---|
+| name | string | vr_kavaler |  |
+| name | string |  |  |
+| eesnimi | string |  |  |
+| perenimi | string |  |  |
+| biograafia | string |  |  |
+| emaisa | string |  |  |
+| amet | string |  |  |
+| vr_id | string |  |  |
+| synd | string |  |  |
+| photo | string |  |  |
 
