@@ -25,6 +25,7 @@ export interface CreateResponseRequest {
       }
     }
   }>
+  respondentName?: string
 }
 
 export interface UpdateResponseRequest {
@@ -227,8 +228,18 @@ export function validateCreateResponseRequest (body: any): CreateResponseRequest
   logger.debug('Validating response items', { responseCount: responsesArray.length })
   const responses = responsesArray.map((item, index) => validateResponseItem(item, index))
 
+  let respondentName: string | undefined
+  if (body.respondentName !== undefined && body.respondentName !== null) {
+    respondentName = validateRequiredString(body.respondentName, 'respondentName')
+  }
+
   logger.debug('Create response request validated successfully', { taskId, responseCount: responses.length })
-  return { taskId, responses }
+  const result: CreateResponseRequest = { taskId, responses }
+  if (respondentName) {
+    result.respondentName = respondentName
+  }
+
+  return result
 }
 
 /**

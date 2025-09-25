@@ -112,6 +112,8 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['locationSelect', 'requestLocation', 'loadTaskLocations', 'response-submitted'])
 
+const { user: entuUser } = useEntuAuth()
+
 // Form state
 const responseForm = ref({
   text: '',
@@ -122,6 +124,18 @@ const responseForm = ref({
 const submitting = ref(false)
 const fileUploadRef = ref(null)
 const uploadedFiles = ref([])
+
+const respondentName = computed(() => {
+  const entu = entuUser.value
+
+  const normalize = (value) => {
+    if (typeof value !== 'string') return null
+    const trimmed = value.trim()
+    return trimmed.length > 0 ? trimmed : null
+  }
+
+  return normalize(entu?.name)
+})
 
 // Computed properties
 const canSubmit = computed(() => {
@@ -192,7 +206,8 @@ const submitResponse = async () => {
               : undefined
           }
         }
-      ]
+      ],
+      respondentName: respondentName.value || undefined
     }
 
     // Create the response entity using feature-flagged approach

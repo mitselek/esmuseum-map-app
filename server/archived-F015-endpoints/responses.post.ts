@@ -53,6 +53,10 @@ export default defineEventHandler(async (event) => {
         kirjeldus: validatedData.responses[0]?.value || ''
       }
 
+      if (validatedData.respondentName) {
+        responseData.vastaja = validatedData.respondentName
+      }
+
       // Add location reference if provided
       const locationId = validatedData.responses[0]?.metadata?.locationId
       if (locationId) {

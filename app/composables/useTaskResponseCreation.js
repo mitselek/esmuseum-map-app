@@ -22,11 +22,15 @@ export const useTaskResponseCreation = () => {
   }
 
   const createResponseClientSide = async (requestData) => {
-    const { taskId, responses } = requestData
+    const { taskId, responses, respondentName } = requestData
 
     const responseData = {
       _parent: taskId,
       kirjeldus: responses[0]?.value || ''
+    }
+
+    if (respondentName) {
+      responseData.vastaja = respondentName
     }
 
     if (responses[0]?.metadata?.locationId) {

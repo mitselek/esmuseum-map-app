@@ -9,28 +9,22 @@
       v-else
       class="flex h-full flex-col"
     >
-      <!-- Task header -->
-      <TaskHeader
-        :selected-task="selectedTask"
-        :task-title="getTaskTitle(selectedTask)"
-        :task-description="getTaskDescription(selectedTask)"
-        :response-count="getResponseCount(selectedTask)"
-        :task-response-stats="taskResponseStats"
-        @clear-selection="clearSelection"
+      <TaskWorkspaceHeader
+        :progress="progress"
+        @close="clearSelection"
       />
 
       <!-- Task content -->
-      <div class="flex-1 overflow-y-auto bg-gray-50 p-6">
-        <div class="mx-auto max-w-4xl space-y-6">
+      <div class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6">
           <!-- Map Card (if task has location data) -->
           <TaskMapCard
             v-if="hasMapData"
-            ref="taskMapCardRef"
-            :task="selectedTask"
             :task-locations="taskLocations"
             :user-position="userPosition"
             :loading-locations="loadingTaskLocations"
             :selected-location="selectedLocation"
+            :visited-locations="visitedLocations"
             @location-click="onMapLocationClick"
             @map-ready="onMapReady"
             @location-change="handleLocationOverride"
@@ -47,7 +41,7 @@
             :selected-location="selectedLocation"
             :loading-task-locations="loadingTaskLocations"
             :geolocation-error="geolocationError"
-            :visited-locations="scoringData.visitedLocations.value"
+            :visited-locations="visitedLocations"
             @location-select="onLocationSelect"
             @request-location="handleLocationRequest"
             @load-task-locations="loadTaskLocations"
@@ -60,7 +54,7 @@
 </template>
 
 <script setup>
-import { getLocationIdentifier, isSameLocation } from '~/utils/location-sync'
+import { getLocationIdentifier } from '~/utils/location-sync'
 
 const { selectedTask, clearSelection } = useTaskWorkspace()
 const {
@@ -70,9 +64,6 @@ const {
 
 // Use task detail composable
 const {
-  getTaskTitle,
-  getTaskDescription,
-  getResponseCount,
   checkTaskPermissions,
   loadTaskLocations: loadLocations,
   initializeTask
@@ -90,24 +81,31 @@ const {
 const {
   loadCompletedTasks
 } = useCompletedTasks()
-
-// Use task scoring
+// Task scoring
 const scoringData = useTaskScoring(computed(() => selectedTask.value))
+const visitedLocations = computed(() => scoringData.visitedLocations.value)
 
-// Response stats state - computed from scoring data
-const taskResponseStats = computed(() => {
-  if (!scoringData.totalExpected.value || scoringData.totalExpected.value === 0) {
-    return null
+const progress = computed(() => {
+  const expected = scoringData.totalExpected.value
+  const actual = scoringData.uniqueLocationsCount.value
+
+  if (expected > 0) {
+    return { actual, expected }
   }
+
+  const fallbackExpected
+    = selectedTask.value?.vastuseid?.[0]?.number
+      || selectedTask.value?.responseStats?.expected
+      || actual
+
   return {
-    actual: scoringData.uniqueLocationsCount.value,
-    expected: scoringData.totalExpected.value
+    actual,
+    expected: fallbackExpected || 0
   }
 })
 
 // Response form reference
 const responseFormRef = ref(null)
-const taskMapCardRef = ref(null)
 
 // Form permissions state
 const checkingPermissions = ref(false)
@@ -185,8 +183,8 @@ const handleLocationOverride = (coordinates) => {
 // Handle response submission for optimistic scoring updates
 const handleResponseSubmitted = (responseData) => {
   // Update scoring optimistically
-  if (taskMapCardRef.value?.scoringData && selectedLocation.value?.reference) {
-    taskMapCardRef.value.scoringData.addResponseOptimistically(
+  if (selectedLocation.value?.reference) {
+    scoringData.addResponseOptimistically(
       selectedLocation.value.reference,
       responseData
     )
