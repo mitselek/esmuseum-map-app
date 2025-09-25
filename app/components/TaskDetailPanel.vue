@@ -16,10 +16,12 @@
 
       <!-- Task content -->
       <div class="flex-1 overflow-y-auto bg-gray-50">
-        <div class="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6">
-          <!-- Map Card (if task has location data) -->
+        <!-- Full-width map section -->
+        <div
+          v-if="hasMapData"
+          class="pb-6"
+        >
           <TaskMapCard
-            v-if="hasMapData"
             :task-locations="taskLocations"
             :user-position="userPosition"
             :loading-locations="loadingTaskLocations"
@@ -29,8 +31,10 @@
             @map-ready="onMapReady"
             @location-change="handleLocationOverride"
           />
+        </div>
 
-          <!-- Response Form -->
+        <!-- Response Form -->
+        <div class="mx-auto max-w-5xl px-4 pb-6 sm:px-6">
           <TaskResponseForm
             ref="responseFormRef"
             :selected-task="selectedTask"
