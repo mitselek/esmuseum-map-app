@@ -1,0 +1,183 @@
+#!/bin/bash
+
+# Pre-commit hook for Constitutional Compliance
+# F017 Phase 2: Enhanced Workflow Implementation
+#
+# This hook runs constitutional validation before allowing commits
+# to ensure all code changes maintain constitutional compliance.
+
+set -e
+
+echo "🏛️  Constitutional Compliance Pre-Commit Check"
+echo "=============================================="
+
+# Check if we're in a git repository
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "❌ Not in a git repository"
+    exit 1
+fi
+
+# Get list of staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(vue|ts|js|md|mdx)$' || true)
+
+if [ -z "$STAGED_FILES" ]; then
+    echo "ℹ️  No relevant files staged for commit"
+    echo "✅ Constitutional compliance check skipped"
+    exit 0
+fi
+
+echo "📁 Checking staged files..."
+
+# Separate code files from documentation files
+CODE_FILES=$(echo "$STAGED_FILES" | grep -E '\.(vue|ts|js)$' || true)
+DOC_FILES=$(echo "$STAGED_FILES" | grep -E '\.(md|mdx)$' || true)
+echo ""
+
+# Function to check if npm is available
+check_npm() {
+    if ! command -v npm &> /dev/null; then
+        echo "❌ npm not found. Please install Node.js and npm."
+        exit 1
+    fi
+}
+
+# Function to check if dependencies are installed
+check_dependencies() {
+    if [ ! -d "node_modules" ]; then
+        echo "📦 Installing dependencies..."
+        npm install
+    fi
+}
+
+# Initialize checks
+check_npm
+check_dependencies
+
+# Track overall status
+OVERALL_STATUS=0
+
+echo "🔧 Running ESLint Constitutional Rules..."
+if npm run lint > /dev/null 2>&1; then
+    echo "✅ ESLint validation passed"
+else
+    echo "❌ ESLint constitutional violations found"
+    echo "   Run 'npm run lint' to see details"
+    OVERALL_STATUS=1
+fi
+
+echo ""
+echo "📋 Running TypeScript Constitutional Compliance..."
+if npm run validate:typescript > /dev/null 2>&1; then
+    echo "✅ TypeScript validation passed"
+else
+    echo "❌ TypeScript compliance issues found"
+    echo "   Run 'npm run validate:typescript' to see details"
+    OVERALL_STATUS=1
+fi
+
+echo ""
+echo "🏛️  Running Constitutional Pattern Validation..."
+if npm run validate:constitutional > /dev/null 2>&1; then
+    echo "✅ Constitutional patterns validated"
+else
+    echo "⚠️  Constitutional pattern issues found"
+    echo "   Run 'npm run validate:constitutional' for details"
+    # Don't fail on constitutional patterns, just warn
+fi
+
+# Article X: Professional Documentation Standards Check
+if [ ! -z "$DOC_FILES" ]; then
+    echo ""
+    echo "📝 Article X: Professional Documentation Standards..."
+    DOC_VIOLATIONS=0
+    
+    for DOC_FILE in $DOC_FILES; do
+        if [ -f "$DOC_FILE" ]; then
+            # Check for emoji in headings
+            if grep -q '^#.*[🚀🎯🏛️💡📊🔧⚡🎉🛠️🔄✨🌟📋🛡️]' "$DOC_FILE"; then
+                echo "❌ Article X violation in $DOC_FILE: Excessive emoji in headings"
+                DOC_VIOLATIONS=1
+            fi
+            
+            # Check for missing alt text in images
+            if grep -qE '!\[\s*\]' "$DOC_FILE"; then
+                echo "⚠️  Article X warning in $DOC_FILE: Images missing alt text"
+            fi
+        fi
+    done
+    
+    if [ $DOC_VIOLATIONS -eq 0 ]; then
+        echo "✅ Article X: Professional documentation standards met"
+    else
+        echo "❌ Article X: Documentation standards violations found"
+        echo "   Please remove excessive emoji from headings"
+        echo "   Refer to Article X in constitution for guidelines"
+        OVERALL_STATUS=1
+    fi
+fi
+
+echo ""
+echo "🧪 Running Test Suite..."
+if npm run test > /dev/null 2>&1; then
+    echo "✅ All tests passing"
+else
+    echo "❌ Test failures found"
+    echo "   Run 'npm run test' to see details"
+    OVERALL_STATUS=1
+fi
+
+# Check for feature specification changes
+SPEC_FILES=$(echo "$STAGED_FILES" | grep -E '\.copilot-workspace/features/.*\.md$' || true)
+if [ ! -z "$SPEC_FILES" ]; then
+    echo ""
+    echo "📋 Feature specification changes detected..."
+    
+    # Extract feature numbers from changed specs
+    for SPEC_FILE in $SPEC_FILES; do
+        if [[ $SPEC_FILE =~ F([0-9]+)- ]]; then
+            FEATURE_NUM="${BASH_REMATCH[1]}"
+            echo "🔍 Validating feature F$FEATURE_NUM specification..."
+            
+            # Run quality gates for the feature
+            if node scripts/quality-gates.js specify "$FEATURE_NUM" > /dev/null 2>&1; then
+                echo "✅ Feature F$FEATURE_NUM specification quality gates passed"
+            else
+                echo "⚠️  Feature F$FEATURE_NUM specification has quality gate issues"
+                echo "   Run 'npm run gate:specify $FEATURE_NUM' for details"
+                # Don't fail on specification quality gates in pre-commit
+            fi
+        fi
+    done
+fi
+
+echo ""
+echo "📊 Constitutional Compliance Summary:"
+
+if [ $OVERALL_STATUS -eq 0 ]; then
+    echo "✅ All critical constitutional compliance checks passed"
+    echo "🚀 Commit approved - code meets constitutional standards"
+    echo ""
+    echo "Constitutional Articles Validated:"
+    echo "  ✅ Article I: Vue 3 Composition API (ESLint)"
+    echo "  ✅ Article II: TypeScript-First Development (tsc)"
+    echo "  ✅ Article III: Test-Driven Feature Development (tests)"
+    echo "  ✅ Article X: Professional Documentation Standards (docs)"
+    echo "  🔍 Article IV-IX: Pattern validation (see full report)"
+    echo ""
+    exit 0
+else
+    echo "❌ Constitutional compliance violations found"
+    echo "🚫 Commit rejected - please fix violations before committing"
+    echo ""
+    echo "To fix violations:"
+    echo "  1. Run 'npm run lint' to fix ESLint issues"
+    echo "  2. Run 'npm run validate:typescript' for TypeScript issues"
+    echo "  3. Run 'npm run test' to fix test failures"
+    echo "  4. Run 'npm run validate:all' for comprehensive validation"
+    echo ""
+    echo "For detailed constitutional compliance:"
+    echo "  - Run 'npm run validate:constitutional' for pattern analysis"
+    echo "  - Review constitutional framework: memory/esmuseum-constitution.md"
+    echo ""
+    exit 1
+fi

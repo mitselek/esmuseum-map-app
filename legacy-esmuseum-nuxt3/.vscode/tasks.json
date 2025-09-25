@@ -1,0 +1,208 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Specify: Create Feature Specification",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "specify", "${input:featureName}"],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": [],
+      "detail": "Create new feature specification following constitutional compliance"
+    },
+    {
+      "label": "Plan: Generate Technical Implementation Plan",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "plan", "${input:featureNumber}"],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": [],
+      "detail": "Generate technical implementation plan with architecture review"
+    },
+    {
+      "label": "Tasks: Break Down Implementation Tasks",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "tasks", "${input:featureNumber}"],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": [],
+      "detail": "Transform technical plan into actionable development tasks"
+    },
+    {
+      "label": "Workflow: Show Available Commands",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "workflow"],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": [],
+      "detail": "Display Spec-Driven Development workflow commands and usage"
+    },
+    {
+      "label": "Constitutional Compliance Check",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "lint"],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": ["$eslint-stylish"],
+      "detail": "Run ESLint with constitutional compliance rules"
+    },
+    {
+      "label": "Test: All Constitutional Compliance",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test"],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": [],
+      "detail": "Run all tests following test-driven development principles"
+    },
+    {
+      "label": "Test: Coverage Report",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:coverage"],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": [],
+      "detail": "Generate test coverage report for constitutional compliance validation"
+    },
+    {
+      "label": "Development: Start with Constitutional Monitoring",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "nuxt",
+        "pattern": {
+          "regexp": ".*"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": "Local:.*"
+        }
+      },
+      "detail": "Start development server with constitutional compliance monitoring"
+    },
+    {
+      "label": "Build: Production with Constitutional Validation",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "build"],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": [],
+      "detail": "Build production application with constitutional compliance validation"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "featureName",
+      "type": "promptString",
+      "description": "Enter the feature name (e.g., 'Enhanced Task Scoring')"
+    },
+    {
+      "id": "featureNumber",
+      "type": "promptString",
+      "description": "Enter the feature number (e.g., '18' for F018)"
+    }
+  ]
+}

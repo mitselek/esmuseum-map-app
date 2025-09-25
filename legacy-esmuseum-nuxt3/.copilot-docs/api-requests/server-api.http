@@ -1,0 +1,82 @@
+### ESMuseum Server API - HTTP Requests
+### Use with VS Code REST Client extension
+
+### Variables
+@baseUrl = http://localhost:3000/api
+@token = {{esm_token}}
+
+### Locations API
+
+#### Get locations for a map
+GET {{baseUrl}}/locations/68823f8b5d95233e69c29a07
+Authorization: Bearer {{token}}
+
+### Tasks API
+
+#### Get specific task
+GET {{baseUrl}}/tasks/68bab8c843e4daafab199988
+Authorization: Bearer {{token}}
+
+#### Search tasks
+GET {{baseUrl}}/tasks/search?_type.string=ulesanne&limit=10
+Authorization: Bearer {{token}}
+
+#### Get task permissions
+GET {{baseUrl}}/tasks/68bab8c843e4daafab199988/permissions
+Authorization: Bearer {{token}}
+
+### Responses API
+
+#### Create new response
+POST {{baseUrl}}/responses
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "taskId": "68bab8c843e4daafab199988",
+  "responses": [
+    {
+      "questionId": "text-response",
+      "value": "My task response",
+      "type": "text"
+    },
+    {
+      "questionId": "location-response",
+      "value": "59.4370,24.7536",
+      "type": "location"
+    }
+  ]
+}
+
+#### Update existing response
+PUT {{baseUrl}}/responses/response_id_here
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "taskId": "68bab8c843e4daafab199988",
+  "responses": [
+    {
+      "questionId": "text-response",
+      "value": "Updated response text",
+      "type": "text"
+    }
+  ]
+}
+
+#### Get user's response for task
+GET {{baseUrl}}/responses/68bab8c843e4daafab199988
+Authorization: Bearer {{token}}
+
+#### Get all user responses
+GET {{baseUrl}}/responses/user
+Authorization: Bearer {{token}}
+
+### User API
+
+#### Get user profile
+GET {{baseUrl}}/user/profile
+Authorization: Bearer {{token}}
+
+### Health Check (no auth required)
+GET {{baseUrl}}/health

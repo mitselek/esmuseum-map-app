@@ -1,0 +1,43 @@
+---
+name: Constitutional Feature Request
+about: Request a new feature following constitutional guidelines
+title: 'F### - [Feature Title]'
+labels: 'feature, constitutional-review'
+assignees: ''
+---
+
+## 🏛️ Constitutional Feature Request
+
+### Article Alignment
+Which constitutional articles does this feature address?
+- [ ] Article I: Vue 3 Composition API Mandate
+- [ ] Article II: TypeScript-First Development
+- [ ] Article III: Test-Driven Feature Development
+- [ ] Article IV: i18n-First User Interface
+- [ ] Article V: Entu API Integration Standards
+- [ ] Article VI: Performance-First SPA Architecture
+- [ ] Article VII: Component Modularity Principle
+- [ ] Article VIII: Documentation-Driven Development
+- [ ] Article IX: Responsive Design Requirements
+- [ ] Article X: Professional Documentation Standards
+
+### Feature Specification
+**Feature Number**: F###
+**Priority**: High/Medium/Low
+**Constitutional Compliance Level**: ###%
+
+### Description
+Clear description of the requested feature...
+
+### Acceptance Criteria
+- [ ] Constitutional compliance validated
+- [ ] Test coverage ≥ 80%
+- [ ] TypeScript implementation
+- [ ] i18n support included
+- [ ] Performance budget respected
+- [ ] Documentation complete
+
+### Constitutional Validation
+- [ ] Feature specification created in `.copilot-workspace/features/`
+- [ ] Constitutional impact assessment completed
+- [ ] Quality gates identified

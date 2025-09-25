@@ -1,0 +1,55 @@
+{
+  "compliance": {
+    "overall": 55,
+    "articles": {},
+    "timestamp": "2025-09-19T12:29:11.896Z",
+    "trend": "stable"
+  },
+  "quality": {
+    "overall": 25,
+    "checks": {
+      "eslint": {
+        "score": 0,
+        "details": "Command failed: npm run lint\n",
+        "weight": 25,
+        "status": "error"
+      },
+      "typescript": {
+        "score": 100,
+        "details": "No type errors",
+        "weight": 25,
+        "status": "pass"
+      },
+      "tests": {
+        "score": 0,
+        "details": "Command failed: npm run test\n\n⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  tests/composables/useTaskScoring.test.js [ tests/composables/useTaskScoring.test.js ]\nError: Cannot find module '~/composables/useTaskScoring' imported from '/home/michelek/Documents/github/esmuseum-map-app/tests/composables/useTaskScoring.test.js'.\n\n- If you rely on tsconfig.json's \"paths\" to resolve modules, please install \"vite-tsconfig-paths\" plugin to handle module resolution.\n- Make sure you don't have relative aliases in your Vitest config. Use absolute paths instead. Read more: https://vitest.dev/guide/common-errors\n ❯ tests/composables/useTaskScoring.test.js:23:28\n     21| }))\n     22| \n     23| const { useTaskScoring } = await import('~/composables/useTaskScoring')\n       |                            ^\n     24| \n     25| describe('useTaskScoring', () => {\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n",
+        "weight": 30,
+        "status": "error"
+      },
+      "coverage": {
+        "score": 0,
+        "details": "0% coverage",
+        "weight": 20,
+        "status": "fail"
+      }
+    },
+    "timestamp": "2025-09-19T12:29:25.020Z"
+  },
+  "performance": {
+    "codebase": {
+      "files": 49,
+      "lines": 6933,
+      "bundleSize": "2,9M"
+    },
+    "development": {
+      "commits": 153,
+      "lastCommit": "2 days ago",
+      "velocity": {
+        "commitsPerWeek": 81,
+        "featuresPerMonth": 9
+      }
+    },
+    "timestamp": "2025-09-19T12:29:25.121Z"
+  },
+  "trends": {}
+}
