@@ -6,7 +6,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between border-b border-gray-700 bg-gray-800 px-3 py-2">
       <span class="font-semibold text-green-300">🔍 Event Debug Panel</span>
-      <div class="flex gap-2">
+      <div class="flex gap-1">
         <button
           class="rounded px-2 py-1 text-xs text-gray-400 hover:text-white"
           @click="clearLogs"
@@ -18,6 +18,13 @@
           @click="copyLogs"
         >
           Copy
+        </button>
+        <button
+          class="rounded px-2 py-1 text-xs text-red-400 hover:text-red-300"
+          title="Disable debug mode permanently"
+          @click="disableDebug"
+        >
+          🚫
         </button>
         <button
           class="text-gray-400 hover:text-white"
@@ -258,14 +265,33 @@ const copyLogs = async () => {
   }
 }
 
+// Disable debug mode permanently
+const disableDebug = () => {
+  localStorage.removeItem('esm_debug_enabled')
+  debugEnabled.value = false
+  showDebugPanel.value = false
+  console.log('Debug mode disabled and removed from localStorage')
+}
+
 // Check if we should show debug panel based on URL params
 onMounted(() => {
   // Check URL parameters to enable debug functionality
   const urlParams = new URLSearchParams(window.location.search)
-  if (urlParams.has('debug') || urlParams.has('eventlog')) {
+  const hasUrlDebug = urlParams.has('debug') || urlParams.has('eventlog')
+  
+  // Also check localStorage for persistent debug mode
+  const hasPersistentDebug = localStorage.getItem('esm_debug_enabled') === 'true'
+  
+  if (hasUrlDebug || hasPersistentDebug) {
     debugEnabled.value = true
     showDebugPanel.value = true
-    console.log('Debug panel enabled via URL parameter')
+    console.log('Debug panel enabled via:', hasUrlDebug ? 'URL parameter' : 'localStorage')
+    
+    // If enabled via URL, also persist to localStorage for future visits
+    if (hasUrlDebug) {
+      localStorage.setItem('esm_debug_enabled', 'true')
+      console.log('Debug mode persisted to localStorage')
+    }
   }
 
   interceptConsole()
