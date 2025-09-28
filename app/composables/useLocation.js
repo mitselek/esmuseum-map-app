@@ -49,31 +49,84 @@ export const useLocation = () => {
   const checkGeolocationPermission = async () => {
     try {
       if (!navigator.permissions) {
+        console.log('🔍 [EVENT] useLocation - navigator.permissions not available')
         return 'unknown'
       }
 
       const permission = await navigator.permissions.query({ name: 'geolocation' })
+      console.log('🔍 [EVENT] useLocation - Permission query result:', {
+        state: permission.state,
+        userAgent: navigator.userAgent.includes('iPhone') ? 'iOS' : 'Other'
+      })
+
+      // MOBILE BROWSER FIX: Permission API can be unreliable on mobile
+      // If it says "prompt" but we suspect permission was actually denied,
+      // let's do a quick test of the actual geolocation API
+      if (permission.state === 'prompt' && navigator.userAgent.includes('iPhone')) {
+        console.log('🔍 [EVENT] useLocation - iOS detected, testing actual geolocation behavior...')
+
+        try {
+          // Quick test - try to get position with very short timeout
+          await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+              resolve,
+              reject,
+              { timeout: 100, maximumAge: Infinity } // Use any cached position
+            )
+          })
+          console.log('🔍 [EVENT] useLocation - Geolocation test: appears to be granted')
+          return 'granted'
+        }
+        catch (testError) {
+          if (testError.code === 1) { // PERMISSION_DENIED
+            console.log('🔍 [EVENT] useLocation - Geolocation test: actually denied (permission API lied)')
+            return 'denied'
+          }
+          console.log('🔍 [EVENT] useLocation - Geolocation test: other error, treating as prompt')
+          return 'prompt'
+        }
+      }
+
       return permission.state // 'granted', 'denied', or 'prompt'
     }
     catch (error) {
       console.warn('Could not check geolocation permission:', error)
+      // On mobile browsers, especially iOS, permission API might fail
+      // Default to 'unknown' which will show the prompt
       return 'unknown'
     }
   }
 
   // Initialize GPS based on current permission state
   const initializeGPSWithPermissionCheck = async () => {
+    // 🔍 EVENT TRACKING: GPS initialization start
+    const startTime = performance.now()
+    console.log('🌍 [EVENT] useLocation - GPS initialization started', new Date().toISOString())
+    console.log('🌍 [EVENT] useLocation - User agent:', navigator.userAgent)
+    console.log('🌍 [EVENT] useLocation - Geolocation available:', !!navigator.geolocation)
+    console.log('🌍 [EVENT] useLocation - HTTPS check:', location.protocol === 'https:')
+    console.log('🌍 [EVENT] useLocation - Current host:', location.hostname)
+
     const permissionState = await checkGeolocationPermission()
+    console.log('🔍 [EVENT] useLocation - Permission state:', permissionState)
+    console.log('🔍 [EVENT] useLocation - Current GPS states:', {
+      showGPSPrompt: globalShowGPSPrompt.value,
+      permissionDenied: globalPermissionDenied.value,
+      userPosition: !!globalUserPosition.value
+    })
 
     switch (permissionState) {
       case 'granted':
+        console.log('🌍 [EVENT] useLocation - Permission granted, getting position...')
         globalShowGPSPrompt.value = false
         globalPermissionDenied.value = false
         await getUserPosition()
         startGPSUpdates()
+        console.log('🌍 [EVENT] useLocation - GPS initialization completed (granted)', `${(performance.now() - startTime).toFixed(2)}ms`)
         break
 
       case 'denied':
+        console.log('🌍 [EVENT] useLocation - Permission denied by user')
         globalShowGPSPrompt.value = false
         globalPermissionDenied.value = true
         break
@@ -81,8 +134,14 @@ export const useLocation = () => {
       case 'prompt':
       case 'unknown':
       default:
+        console.log('🌍 [EVENT] useLocation - Permission prompt required')
         globalShowGPSPrompt.value = true
         globalPermissionDenied.value = false
+        console.log('🔍 [EVENT] useLocation - GPS prompt state after setting:', {
+          showGPSPrompt: globalShowGPSPrompt.value,
+          permissionState,
+          userAgent: navigator.userAgent.includes('iPhone') ? 'iOS' : 'Other'
+        })
         break
     }
 
@@ -99,6 +158,22 @@ export const useLocation = () => {
     catch (error) {
       console.warn('Could not monitor permission changes:', error)
     }
+
+    // 🔍 SAFETY CHECK: Ensure GPS prompt shows if no location and not denied
+    setTimeout(() => {
+      console.log('🔍 [EVENT] useLocation - Safety check after initialization:', {
+        hasUserPosition: !!globalUserPosition.value,
+        showGPSPrompt: globalShowGPSPrompt.value,
+        permissionDenied: globalPermissionDenied.value,
+        permissionState
+      })
+
+      // If we don't have a position, permission isn't denied, and prompt isn't showing, force it
+      if (!globalUserPosition.value && !globalPermissionDenied.value && !globalShowGPSPrompt.value) {
+        console.log('🌍 [EVENT] useLocation - SAFETY: Forcing GPS prompt to show')
+        globalShowGPSPrompt.value = true
+      }
+    }, 500) // Small delay to allow permission state to settle
   }
 
   // Set manual override state (pauses automatic updates)
@@ -108,18 +183,73 @@ export const useLocation = () => {
 
   // Request GPS permission (triggered by user action)
   const requestGPSPermission = () => {
+    console.log('🌍 [EVENT] useLocation - requestGPSPermission called', {
+      currentShowPrompt: globalShowGPSPrompt.value,
+      currentPermissionDenied: globalPermissionDenied.value,
+      currentUserPosition: globalUserPosition.value,
+      userAgent: navigator.userAgent.includes('iPhone') ? 'iOS' : 'Other'
+    })
+
     globalShowGPSPrompt.value = false
 
-    // Call GPS immediately while still in user gesture context
-    getUserPosition(true).then(() => {
-      globalPermissionDenied.value = false
-    }).catch(() => {
+    // For mobile, we need to call geolocation API DIRECTLY in user gesture context
+    // Don't delegate to getUserPosition which might lose gesture context
+    if (!navigator.geolocation) {
+      console.log('🌍 [EVENT] useLocation - Geolocation not available')
       globalPermissionDenied.value = true
-    })
+      return
+    }
+
+    console.log('🌍 [EVENT] useLocation - Calling navigator.geolocation.getCurrentPosition directly')
+
+    // Call native API directly within user gesture
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log('🌍 [EVENT] useLocation - Native GPS success', {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          accuracy: position.coords.accuracy
+        })
+
+        // Update global state
+        globalUserPosition.value = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          accuracy: position.coords.accuracy
+        }
+        globalLastRequestTime.value = Date.now()
+        globalPermissionDenied.value = false
+        globalGettingLocation.value = false
+
+        // Start continuous updates
+        startGPSUpdates()
+      },
+      (error) => {
+        console.log('🌍 [EVENT] useLocation - Native GPS failed', {
+          error: error.message,
+          code: error.code,
+          PERMISSION_DENIED: error.PERMISSION_DENIED,
+          POSITION_UNAVAILABLE: error.POSITION_UNAVAILABLE,
+          TIMEOUT: error.TIMEOUT
+        })
+
+        globalPermissionDenied.value = true
+        globalGettingLocation.value = false
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000, // Longer timeout for mobile
+        maximumAge: 0 // Always get fresh position
+      }
+    )
+
+    // Set loading state
+    globalGettingLocation.value = true
   }
 
   // Dismiss GPS prompt without requesting
   const dismissGPSPrompt = () => {
+    console.log('🌍 [EVENT] useLocation - GPS prompt dismissed by user')
     globalShowGPSPrompt.value = false
     globalPermissionDenied.value = true
   }
@@ -212,13 +342,29 @@ export const useLocation = () => {
         props: 'name.string,lat.number,long.number,kirjeldus.string'
       })
 
-      const locations = searchResult?.entities || []
+      const rawLocations = searchResult?.entities || []
+
+      // Normalize coordinates at API boundary - convert from Entu's nested format to simple {lat, lng}
+      const locations = rawLocations.map((location) => {
+        const normalizedLocation = { ...location }
+
+        // Extract coordinates from Entu's nested format and create normalized coordinates
+        if (location.lat && location.lat[0] && location.long && location.long[0]) {
+          normalizedLocation.coordinates = {
+            lat: location.lat[0].number,
+            lng: location.long[0].number
+          }
+        }
+
+        return normalizedLocation
+      })
 
       console.log(`[CLIENT] Loaded ${locations.length} locations for map ${mapId}`, {
         requestedLimit: 10000,
         actualCount: locations.length,
         searchResultCount: searchResult?.count,
-        optimizedWithProps: true
+        optimizedWithProps: true,
+        normalizedCoordinates: true
       })
 
       return locations
@@ -256,7 +402,20 @@ export const useLocation = () => {
   // Sort locations by distance from user
   const sortByDistance = (locations, position = null) => {
     const pos = position || userPosition.value
-    return sortLocationsByDistance(locations, pos)
+    console.log('📍 [EVENT] useLocation - sortByDistance called', {
+      locationsCount: locations?.length || 0,
+      hasPosition: !!pos,
+      position: pos,
+      userPositionGlobal: userPosition.value,
+      permissionDenied: globalPermissionDenied.value
+    })
+
+    const result = sortLocationsByDistance(locations, pos)
+    console.log('📍 [EVENT] useLocation - sortByDistance result', {
+      resultCount: result?.length || 0,
+      sorted: !!pos
+    })
+    return result
   }
 
   // Get sorted locations with distance info

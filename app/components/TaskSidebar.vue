@@ -33,21 +33,29 @@
         </div>
       </div>
 
-      <!-- Task count -->
+      <!-- Task count - Show count or loading indicator -->
       <div class="mt-2 text-xs text-gray-500">
-        {{ filteredTasks.length }} {{ $t('tasks.tasksFound') }}
+        <span v-if="initialized">
+          {{ filteredTasks.length }} {{ $t('tasks.tasksFound') }}
+        </span>
+        <span
+          v-else
+          class="italic"
+        >
+          {{ $t('tasks.loadingTasks') }}...
+        </span>
       </div>
     </div>
 
-    <!-- Loading state -->
+    <!-- Loading state - Show when loading OR when not initialized -->
     <div
-      v-if="loading"
+      v-if="loading || !initialized"
       class="flex flex-1 items-center justify-center"
     >
       <div class="text-center">
         <div class="mx-auto size-8 animate-spin rounded-full border-b-2 border-blue-600" />
         <p class="mt-2 text-sm text-gray-500">
-          {{ $t('tasks.loading') }}
+          {{ loading ? $t('tasks.loading') : $t('tasks.initializing') }}
         </p>
       </div>
     </div>
@@ -72,7 +80,7 @@
 
     <!-- Task list -->
     <div
-      v-else
+      v-else-if="initialized || filteredTasks.length > 0"
       class="flex-1 overflow-y-auto bg-gray-50"
     >
       <div
@@ -215,6 +223,7 @@ const {
   selectedTaskId,
   loading,
   error,
+  initialized, // 🚀 PHASE 1: Track initialization state
   loadTasks,
   selectTask
 } = useTaskWorkspace()
@@ -333,8 +342,10 @@ watch(tasks, async (newTasks) => {
   }
 }, { immediate: false })
 
-// Load tasks when component mounts
-onMounted(async () => {
-  await loadTasks()
+// 🚀 PHASE 1: Non-blocking initialization
+onMounted(() => {
+  console.log('🏢 [EVENT] TaskSidebar - Component mounted, UI ready immediately', new Date().toISOString())
+  // Tasks will auto-load when accessed via computed property
+  // No blocking loadTasks() call here - UI shows immediately!
 })
 </script>

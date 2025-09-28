@@ -24,7 +24,11 @@
 <script setup>
 // TaskWorkspace is a component, not a page - no definePageMeta needed
 
+// 🔍 EVENT TRACKING: TaskWorkspace initialization
+console.log('🏢 [EVENT] TaskWorkspace - Component setup started', new Date().toISOString())
+
 const { isTaskSelected } = useTaskWorkspace()
+console.log('🔍 [EVENT] TaskWorkspace - useTaskWorkspace loaded', new Date().toISOString())
 
 // Watch for route changes to handle deep linking
 const route = useRoute()

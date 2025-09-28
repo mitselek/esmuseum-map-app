@@ -135,7 +135,7 @@ const onMapReady = () => {
   // Map is ready for interactions
 }
 
-// Load locations for current task
+// Load locations for current task (optimized for parallel execution)
 const loadTaskLocations = async () => {
   if (!selectedTask.value) {
     taskLocations.value = []
@@ -144,9 +144,14 @@ const loadTaskLocations = async () => {
 
   try {
     loadingTaskLocations.value = true
-    // Don't pass userPosition here - let LocationPicker handle GPS-based sorting
+
+    // OPTIMIZATION: Start location loading immediately without waiting for GPS
+    // This allows locations to be displayed while GPS detection happens in parallel
     const locations = await loadLocations(selectedTask.value)
     taskLocations.value = locations
+
+    // Note: GPS-based sorting will happen automatically in LocationPicker
+    // when GPS position becomes available, providing progressive enhancement
   }
   catch (err) {
     console.error('Error loading task locations:', err)
@@ -229,6 +234,14 @@ const checkPermissions = async (taskId) => {
 
 // Load existing response when task changes
 watch(selectedTask, async (newTask) => {
+  // 🔍 EVENT TRACKING: Task selection change
+  const startTime = performance.now()
+  console.log('🎯 [EVENT] TaskDetailPanel - Task selection changed', {
+    timestamp: new Date().toISOString(),
+    taskId: newTask?._id || 'null',
+    taskName: newTask?.name || 'null'
+  })
+
   // Use the task initialization function
   await initializeTask(newTask, {
     responseFormRef,
@@ -247,6 +260,12 @@ watch(selectedTask, async (newTask) => {
   if (newTask) {
     await loadCompletedTasks()
   }
+
+  // 🔍 EVENT TRACKING: Task initialization complete
+  console.log('🎯 [EVENT] TaskDetailPanel - Task initialization completed', {
+    timestamp: new Date().toISOString(),
+    duration: `${(performance.now() - startTime).toFixed(2)}ms`
+  })
 }, { immediate: true })
 
 // Note: Location sorting is now handled automatically in LocationPicker component

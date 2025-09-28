@@ -24,7 +24,7 @@
             type="button"
             :disabled="gettingLocation"
             class="rounded bg-white px-3 py-1 text-xs font-medium text-blue-600 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
-            @click="handleAllowLocation"
+            @click="handleAccept"
           >
             <span v-if="gettingLocation">
               {{ $t('gps.requesting') }}...
@@ -37,7 +37,7 @@
           <button
             type="button"
             class="rounded border border-blue-400 px-3 py-1 text-xs text-blue-100 hover:bg-blue-500"
-            @click="handleDismiss"
+            @click="handleReject"
           >
             {{ $t('gps.notNow') }}
           </button>
@@ -50,11 +50,15 @@
 <script setup>
 const { showGPSPrompt, permissionDenied, gettingLocation, requestGPSPermission, dismissGPSPrompt } = useLocation()
 
-const handleAllowLocation = async () => {
+const handleAccept = async () => {
+  console.log('🌍 [EVENT] GPSPermissionPrompt - User accepted GPS request')
   await requestGPSPermission()
+  console.log('🌍 [EVENT] GPSPermissionPrompt - GPS request completed')
 }
 
-const handleDismiss = () => {
+const handleReject = () => {
+  console.log('🌍 [EVENT] GPSPermissionPrompt - User rejected GPS request')
   dismissGPSPrompt()
+  console.log('🌍 [EVENT] GPSPermissionPrompt - GPS prompt dismissed')
 }
 </script>
