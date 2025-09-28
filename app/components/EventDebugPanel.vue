@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="showDebugPanel"
+    v-if="debugEnabled && showDebugPanel"
     class="fixed bottom-4 right-4 z-50 max-h-96 w-80 overflow-hidden rounded-lg border border-gray-700 bg-gray-900 font-mono text-xs text-green-400 shadow-2xl"
   >
     <!-- Header -->
@@ -69,7 +69,7 @@
 
   <!-- Toggle Button (when panel is hidden) -->
   <button
-    v-if="!showDebugPanel"
+    v-if="debugEnabled && !showDebugPanel"
     class="fixed bottom-4 right-4 z-50 rounded-full border border-gray-700 bg-gray-900 p-3 text-green-400 shadow-lg transition-colors hover:bg-gray-800"
     @click="showDebugPanel = true"
   >
@@ -80,13 +80,10 @@
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 
-// Check URL for debug parameter to control panel visibility
-const showDebugPanel = ref(
-  import.meta.client && (() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    return urlParams.has('debug') || urlParams.has('eventlog')
-  })()
-)
+// Simple boolean to control entire debug functionality
+const debugEnabled = ref(false)
+// Control panel visibility
+const showDebugPanel = ref(false)
 const autoScroll = ref(true)
 const eventLogs = ref([])
 const logContainer = ref(null)
@@ -263,6 +260,14 @@ const copyLogs = async () => {
 
 // Check if we should show debug panel based on URL params
 onMounted(() => {
+  // Check URL parameters to enable debug functionality
+  const urlParams = new URLSearchParams(window.location.search)
+  if (urlParams.has('debug') || urlParams.has('eventlog')) {
+    debugEnabled.value = true
+    showDebugPanel.value = true
+    console.log('Debug panel enabled via URL parameter')
+  }
+
   interceptConsole()
 
   // Add initial log only if debug panel is shown
