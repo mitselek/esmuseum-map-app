@@ -1,11 +1,13 @@
 // Middleware for authentication using Entu OAuth
-export default defineNuxtRouteMiddleware((to) => {
+export default defineNuxtRouteMiddleware((to, from) => {
   // 🔍 EVENT TRACKING: Auth middleware start
   console.log('🔒 [EVENT] auth middleware - Started', {
     timestamp: new Date().toISOString(),
     route: to.fullPath,
     query: to.query,
-    hasDebugParam: to.query.debug !== undefined
+    hasDebugParam: to.query.debug !== undefined,
+    fromRoute: from?.fullPath || 'initial',
+    navigationTrigger: from ? 'navigation' : 'initial-load'
   })
 
   // Skip auth check in SSR since we can't access localStorage there
