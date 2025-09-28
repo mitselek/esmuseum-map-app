@@ -80,7 +80,13 @@
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 
-const showDebugPanel = ref(false)
+// Check URL for debug parameter to control panel visibility
+const showDebugPanel = ref(
+  import.meta.client && (() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    return urlParams.has('debug') || urlParams.has('eventlog')
+  })()
+)
 const autoScroll = ref(true)
 const eventLogs = ref([])
 const logContainer = ref(null)
@@ -257,15 +263,12 @@ const copyLogs = async () => {
 
 // Check if we should show debug panel based on URL params
 onMounted(() => {
-  const urlParams = new URLSearchParams(window.location.search)
-  if (urlParams.has('debug') || urlParams.has('eventlog')) {
-    showDebugPanel.value = true
-  }
-
   interceptConsole()
 
-  // Add initial log
-  addLog('log', ['🔍 [EVENT] Debug Panel - Initialized and capturing events'])
+  // Add initial log only if debug panel is shown
+  if (showDebugPanel.value) {
+    addLog('log', ['🔍 [EVENT] Debug Panel - Initialized and capturing events'])
+  }
 })
 
 onUnmounted(() => {

@@ -16,6 +16,9 @@ definePageMeta({
   middleware: 'auth'
 })
 
+// Import debug panel explicitly (auto-import fix)
+const EventDebugPanel = defineAsyncComponent(() => import('~/components/EventDebugPanel.vue'))
+
 // 🔍 EVENT TRACKING: Page initialization
 console.log('🚀 [EVENT] index.vue - Script setup started', new Date().toISOString())
 

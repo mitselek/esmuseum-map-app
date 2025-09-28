@@ -1,8 +1,8 @@
 <template>
   <div class="h-64 w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
-    <!-- Loading state -->
+    <!-- Loading state - don't show map until locations are ready -->
     <div
-      v-if="loading"
+      v-if="loading || !locationsReady"
       class="flex h-full items-center justify-center"
     >
       <div class="text-center">
@@ -10,7 +10,7 @@
           🗺️
         </div>
         <p class="mt-2 text-sm text-gray-600">
-          {{ $t('map.loading') }}
+          {{ loadingMessage }}
         </p>
       </div>
     </div>
@@ -33,8 +33,23 @@
     <!-- Map container -->
     <div
       v-else
-      class="size-full"
+      class="relative size-full"
     >
+      <!-- GPS transition overlay -->
+      <div
+        v-if="isTransitioning || (mapInitializationPhase === 'all-locations' && props.userPosition)"
+        class="absolute inset-0 z-50 flex items-center justify-center bg-blue-50/90 transition-opacity duration-500"
+      >
+        <div class="text-center">
+          <div class="animate-pulse text-2xl">
+            🎯
+          </div>
+          <p class="mt-2 text-sm font-medium text-blue-700">
+            Keskendume teie asukohale...
+          </p>
+        </div>
+      </div>
+
       <LMap
         ref="map"
         :zoom="zoom"
@@ -187,6 +202,25 @@ const error = ref(null)
 const zoom = ref(13)
 const center = ref([59.4370, 24.7536]) // Default to Tallinn
 
+// Map initialization phases: 'waiting' | 'all-locations' | 'gps-focused'
+const mapInitializationPhase = ref('waiting')
+const isTransitioning = ref(false)
+
+// Check if locations are ready for map display
+const locationsReady = computed(() => {
+  return props.locations && props.locations.length > 0
+})
+
+// Loading message based on initialization phase
+const loadingMessage = computed(() => {
+  if (props.loading) return 'Laadime ülesandeid...'
+  if (!locationsReady.value) return 'Otsime asukohti...'
+  if (mapInitializationPhase.value === 'waiting') return 'Valmistame kaarti ette...'
+  if (mapInitializationPhase.value === 'all-locations' && !props.userPosition) return 'Küsime GPS lubasi...'
+  if (mapInitializationPhase.value === 'all-locations' && props.userPosition) return 'Keskendume teie asukohale...'
+  return 'Viimistleme vaadet...'
+})
+
 // 🔍 EVENT TRACKING: Map component setup
 console.log('🗺️ [EVENT] InteractiveMap - Component setup started', {
   timestamp: new Date().toISOString(),
@@ -273,37 +307,30 @@ const getLocationIcon = (location) => {
 
 // Filter and process locations
 const displayedLocations = computed(() => {
-  console.log('🗺️ [EVENT] InteractiveMap - Computing displayedLocations', {
-    locationCount: props.locations?.length || 0,
-    firstLocation: props.locations?.[0]
-  })
+  // Only log on first run or significant changes
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🗺️ [EVENT] InteractiveMap - Computing displayedLocations', {
+      locationCount: props.locations?.length || 0
+    })
+  }
 
   if (!props.locations?.length) {
     return []
   }
 
   // Filter locations that have valid normalized coordinates
-  const locationsWithCoords = props.locations.filter((location, index) => {
-    const hasCoords = location.coordinates
+  const locationsWithCoords = props.locations.filter((location) => {
+    return location.coordinates
       && location.coordinates.lat
       && location.coordinates.lng
-
-    // Log first few locations to debug structure
-    if (index < 3) {
-      console.log(`🗺️ [EVENT] InteractiveMap - Location ${index}:`, {
-        id: location._id,
-        hasCoords,
-        coordinates: location.coordinates
-      })
-    }
-
-    return hasCoords
   })
 
-  console.log('🗺️ [EVENT] InteractiveMap - Filtered locations result:', {
-    totalInput: props.locations.length,
-    withValidCoords: locationsWithCoords.length
-  })
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🗺️ [EVENT] InteractiveMap - Filtered locations result:', {
+      totalInput: props.locations.length,
+      withValidCoords: locationsWithCoords.length
+    })
+  }
 
   return locationsWithCoords
 })
@@ -319,45 +346,15 @@ const closestUnvisitedLocations = computed(() => {
   return unvisitedLocations.slice(0, props.maxLocations)
 })
 
-// Calculate map bounds and center
+// Two-stage map bounds calculation
 const calculateMapBounds = async () => {
   try {
-    console.log('🗺️ [EVENT] InteractiveMap - calculateMapBounds called', {
-      hasMapRef: !!map.value,
-      hasLeafletObject: !!map.value?.leafletObject,
-      locationCount: props.locations?.length || 0,
-      closestUnvisited: closestUnvisitedLocations.value?.length || 0
-    })
-
     if (!map.value?.leafletObject) {
       console.log('🗺️ [EVENT] InteractiveMap - Map not ready, skipping bounds calculation')
       return
     }
 
-    const bounds = []
-
-    // Add user position if available
-    if (props.userPosition) {
-      console.log('🗺️ [EVENT] InteractiveMap - Adding user position to bounds', props.userPosition)
-      bounds.push([props.userPosition.lat, props.userPosition.lng])
-    }
-
-    // Add closest unvisited locations for viewport centering
-    closestUnvisitedLocations.value.forEach((location, index) => {
-      if (location.coordinates) {
-        console.log(`🗺️ [EVENT] InteractiveMap - Adding location ${index} to bounds`, {
-          id: location._id,
-          coordinates: location.coordinates
-        })
-        bounds.push([location.coordinates.lat, location.coordinates.lng])
-      }
-    })
-
-    console.log('🗺️ [EVENT] InteractiveMap - Total bounds points:', bounds.length)
-
-    if (bounds.length === 0) return
-
-    // Wait a bit for the map to fully initialize
+    // Wait for map to fully initialize
     await new Promise((resolve) => setTimeout(resolve, 100))
 
     // Check if map container is properly initialized
@@ -366,20 +363,42 @@ const calculateMapBounds = async () => {
       return
     }
 
-    if (bounds.length === 1) {
-      // Single point - center and use default zoom
-      console.log('🗺️ [EVENT] InteractiveMap - Setting single point view')
-      center.value = bounds[0]
-      zoom.value = 15
-      map.value.leafletObject.setView(bounds[0], 15)
+    // PHASE 1: Show all locations for overview
+    if (mapInitializationPhase.value === 'waiting' && props.locations?.length > 0) {
+      console.log('🗺️ [EVENT] InteractiveMap - PHASE 1: Showing all locations overview', {
+        locationCount: props.locations.length
+      })
+      
+      mapInitializationPhase.value = 'all-locations'
+      await fitAllLocationsBounds()
+      
+      // After Phase 1, check if we can immediately proceed to Phase 2
+      if (props.userPosition) {
+        console.log('🗺️ [EVENT] InteractiveMap - User position available after Phase 1, scheduling Phase 2')
+        // Small delay to allow Phase 1 to settle, then trigger Phase 2
+        setTimeout(async () => {
+          await calculateMapBounds()
+        }, 2000)
+      }
+    }
+    // PHASE 2: GPS-focused view with user position + 5 closest unvisited
+    else if (mapInitializationPhase.value === 'all-locations' && props.userPosition) {
+      console.log('🗺️ [EVENT] InteractiveMap - PHASE 2: GPS-focused view transition', {
+        hasUserPosition: !!props.userPosition,
+        userPosition: props.userPosition,
+        closestUnvisited: closestUnvisitedLocations.value?.length || 0,
+        mapPhase: mapInitializationPhase.value
+      })
+      
+      mapInitializationPhase.value = 'gps-focused'
+      await fitGpsFocusedBounds()
     }
     else {
-      // Multiple points - fit bounds with padding
-      console.log('🗺️ [EVENT] InteractiveMap - Fitting bounds for multiple points')
-      const leafletBounds = L.latLngBounds(bounds)
-      map.value.leafletObject.fitBounds(leafletBounds, {
-        padding: [20, 20],
-        maxZoom: 16
+      // Debug why Phase 2 didn't execute
+      console.log('🗺️ [EVENT] InteractiveMap - Phase 2 conditions not met', {
+        mapPhase: mapInitializationPhase.value,
+        hasUserPosition: !!props.userPosition,
+        userPosition: props.userPosition
       })
     }
   }
@@ -387,6 +406,84 @@ const calculateMapBounds = async () => {
     console.error('🗺️ [EVENT] InteractiveMap - Error calculating map bounds:', err)
     error.value = 'Kaardi piirkonna arvutamisel tekkis viga'
   }
+}
+
+// Phase 1: Fit all locations for overview
+const fitAllLocationsBounds = async () => {
+  const bounds = []
+
+  // Add all locations to bounds for overview
+  props.locations.forEach((location) => {
+    if (location.coordinates) {
+      bounds.push([location.coordinates.lat, location.coordinates.lng])
+    }
+  })
+
+  console.log('🗺️ [EVENT] InteractiveMap - Phase 1 bounds points:', bounds.length)
+
+  if (bounds.length === 0) return
+
+  if (bounds.length === 1) {
+    // Single location - center with medium zoom
+    console.log('🗺️ [EVENT] InteractiveMap - Phase 1: Single location view')
+    center.value = bounds[0]
+    zoom.value = 14
+    map.value.leafletObject.setView(bounds[0], 14)
+  }
+  else {
+    // Multiple locations - fit all with generous padding for overview
+    console.log('🗺️ [EVENT] InteractiveMap - Phase 1: All locations overview')
+    const leafletBounds = L.latLngBounds(bounds)
+    map.value.leafletObject.fitBounds(leafletBounds, {
+      padding: [30, 30],
+      maxZoom: 12 // Lower max zoom for better overview
+    })
+  }
+}
+
+// Phase 2: Fit GPS-focused view with user + closest unvisited
+const fitGpsFocusedBounds = async () => {
+  const bounds = []
+
+  // Add user position first
+  if (props.userPosition) {
+    bounds.push([props.userPosition.lat, props.userPosition.lng])
+  }
+
+  // Add closest unvisited locations for focused view
+  closestUnvisitedLocations.value.forEach((location) => {
+    if (location.coordinates) {
+      bounds.push([location.coordinates.lat, location.coordinates.lng])
+    }
+  })
+
+  console.log('🗺️ [EVENT] InteractiveMap - Phase 2 bounds points:', bounds.length)
+
+  if (bounds.length === 0) return
+
+  if (bounds.length === 1) {
+    // Just user position - center with close zoom
+    console.log('🗺️ [EVENT] InteractiveMap - Phase 2: User position focus')
+    center.value = bounds[0]
+    zoom.value = 15
+    map.value.leafletObject.setView(bounds[0], 15, { animate: true, duration: 1.5 })
+  }
+  else {
+    // User + nearby locations - fit with tighter padding for focus
+    console.log('🗺️ [EVENT] InteractiveMap - Phase 2: GPS-focused view')
+    const leafletBounds = L.latLngBounds(bounds)
+    map.value.leafletObject.fitBounds(leafletBounds, {
+      padding: [20, 20],
+      maxZoom: 16, // Higher max zoom for focused view
+      animate: true,
+      duration: 1.5
+    })
+  }
+
+  // Hide transition overlay after animation
+  setTimeout(() => {
+    isTransitioning.value = false
+  }, 2000)
 }
 
 // Location click handler
@@ -427,7 +524,7 @@ watch(() => props.selectedLocation, (newLocation, oldLocation) => {
 
 // Map ready handler
 // Handle map ready event
-const onMapReady = () => {
+const onMapReady = async () => {
   try {
     // 🔍 EVENT TRACKING: Map ready
     console.log('🗺️ [EVENT] InteractiveMap - Map ready', {
@@ -437,6 +534,13 @@ const onMapReady = () => {
     })
 
     emit('map-ready')
+    
+    // If locations are already loaded, start the initialization immediately
+    if (props.locations?.length > 0 && mapInitializationPhase.value === 'waiting') {
+      console.log('🗺️ [EVENT] InteractiveMap - Map ready with locations, starting initialization')
+      await nextTick()
+      await calculateMapBounds()
+    }
   }
   catch (err) {
     console.error('🗺️ [EVENT] InteractiveMap - Error in onMapReady:', err)
@@ -444,10 +548,32 @@ const onMapReady = () => {
   }
 }
 
-// Watch for location or position changes
-watch([() => props.locations, () => props.userPosition], async () => {
-  await nextTick()
-  await calculateMapBounds()
+// Watch for location changes to trigger Phase 1 (only if map is ready)
+watch(() => props.locations, async (newLocations) => {
+  if (newLocations?.length > 0
+    && mapInitializationPhase.value === 'waiting'
+    && map.value?.leafletObject) {
+    console.log('🗺️ [EVENT] InteractiveMap - Locations ready with map ready, triggering Phase 1')
+    await nextTick()
+    await calculateMapBounds()
+  }
+  else if (newLocations?.length > 0 && mapInitializationPhase.value === 'waiting') {
+    console.log('🗺️ [EVENT] InteractiveMap - Locations ready but map not ready yet, waiting...')
+  }
+}, { deep: true })
+
+// Watch for userPosition changes to trigger Phase 2
+watch(() => props.userPosition, async (newUserPosition) => {
+  if (newUserPosition && mapInitializationPhase.value === 'all-locations') {
+    console.log('🗺️ [EVENT] InteractiveMap - User position available, triggering Phase 2 transition')
+    isTransitioning.value = true
+    await nextTick()
+    // Small delay for smooth UX before transitioning
+    setTimeout(async () => {
+      await calculateMapBounds()
+      isTransitioning.value = false
+    }, 1500)
+  }
 }, { deep: true })
 
 // Component lifecycle
