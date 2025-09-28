@@ -3,12 +3,15 @@
  * Handles all tasks, selection, and form persistence for F007 SPA
  */
 
+import { nextTick } from 'vue'
+
 // Global state outside the composable to persist across navigation
 const globalTasks = ref<any[]>([])
 const globalSelectedTaskId = ref<string | null>(null)
 const globalUserResponses = ref(new Map<string, any>())
-const globalLoading = ref(true)
+const globalLoading = ref(false) // 🚀 PHASE 1: Start with non-blocking state
 const globalError = ref<string | null>(null)
+const globalInitialized = ref(false) // Track if initial load has been attempted
 
 export const useTaskWorkspace = () => {
   const router = useRouter()
@@ -24,6 +27,7 @@ export const useTaskWorkspace = () => {
   const userResponses = globalUserResponses
   const loading = globalLoading
   const error = globalError
+  const initialized = globalInitialized
   
   // Computed properties
   const selectedTask = computed(() => {
@@ -34,11 +38,16 @@ export const useTaskWorkspace = () => {
 
   // Task loading
   const loadTasks = async () => {
+    // 🔍 EVENT TRACKING: Task loading start
+    const startTime = performance.now()
+    console.log('📋 [EVENT] useTaskWorkspace - loadTasks started', new Date().toISOString())
+    
     const currentUser = user.value as any
     if (!currentUser?._id) {
       console.warn('No user ID available for loading tasks')
       tasks.value = []
       loading.value = false
+      console.log('📋 [EVENT] useTaskWorkspace - loadTasks failed (no user)', `${(performance.now() - startTime).toFixed(2)}ms`)
       return
     }
 
@@ -94,6 +103,14 @@ export const useTaskWorkspace = () => {
       }
 
       tasks.value = allTasks
+      
+      // 🔍 EVENT TRACKING: Task loading complete
+      const endTime = performance.now()
+      console.log('📋 [EVENT] useTaskWorkspace - loadTasks completed', {
+        timestamp: new Date().toISOString(),
+        taskCount: allTasks.length,
+        duration: `${(endTime - startTime).toFixed(2)}ms`
+      })
 
     } catch (err: unknown) {
       console.error('Failed to load tasks:', err)
@@ -105,6 +122,12 @@ export const useTaskWorkspace = () => {
 
   // Task selection
   const selectTask = (taskId: string) => {
+    // 🔍 EVENT TRACKING: Task selection
+    console.log('🎯 [EVENT] useTaskWorkspace - Task selected', {
+      timestamp: new Date().toISOString(),
+      taskId: taskId
+    })
+    
     selectedTaskId.value = taskId
     
     // Update URL without navigation
@@ -178,14 +201,33 @@ export const useTaskWorkspace = () => {
     }
   })
 
+  // 🚀 PHASE 1: Auto-initialize on first access (non-blocking)
+  const autoInitialize = async () => {
+    if (!initialized.value && !loading.value) {
+      console.log('🚀 [EVENT] useTaskWorkspace - Auto-initializing tasks in background', new Date().toISOString())
+      initialized.value = true
+      await loadTasks()
+    }
+  }
+  
+  // Auto-initialize when tasks are first accessed
+  const tasksWithInit = computed(() => {
+    if (!initialized.value) {
+      // Trigger background loading without blocking
+      nextTick(autoInitialize)
+    }
+    return tasks.value
+  })
+
   return {
     // State
-    tasks: readonly(tasks),
+    tasks: readonly(tasksWithInit), // 🚀 Auto-initializing tasks
     selectedTaskId: readonly(selectedTaskId),
     selectedTask,
     isTaskSelected,
     loading: readonly(loading),
     error: readonly(error),
+    initialized: readonly(initialized),
     
     // Actions
     loadTasks,

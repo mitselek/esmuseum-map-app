@@ -5,6 +5,9 @@
 
     <!-- Task Workspace SPA -->
     <TaskWorkspace />
+
+    <!-- Event Debug Panel - Available for mobile debugging -->
+    <EventDebugPanel />
   </div>
 </template>
 
@@ -13,9 +16,13 @@ definePageMeta({
   middleware: 'auth'
 })
 
+// 🔍 EVENT TRACKING: Page initialization
+console.log('🚀 [EVENT] index.vue - Script setup started', new Date().toISOString())
+
 // Initialize GPS with permission detection
 const { initializeGPSWithPermissionCheck } = useLocation()
 onMounted(() => {
+  console.log('🔍 [EVENT] index.vue - onMounted triggered', new Date().toISOString())
   initializeGPSWithPermissionCheck()
 })
 

@@ -187,6 +187,12 @@ const error = ref(null)
 const zoom = ref(13)
 const center = ref([59.4370, 24.7536]) // Default to Tallinn
 
+// 🔍 EVENT TRACKING: Map component setup
+console.log('🗺️ [EVENT] InteractiveMap - Component setup started', {
+  timestamp: new Date().toISOString(),
+  locationCount: props.locations?.length || 0
+})
+
 // Marker refs for popup control
 const markerRefs = ref(new Map())
 
@@ -267,16 +273,36 @@ const getLocationIcon = (location) => {
 
 // Filter and process locations
 const displayedLocations = computed(() => {
+  console.log('🗺️ [EVENT] InteractiveMap - Computing displayedLocations', {
+    locationCount: props.locations?.length || 0,
+    firstLocation: props.locations?.[0]
+  })
+
   if (!props.locations?.length) {
     return []
   }
 
-  // Filter locations that have valid coordinates
-  const locationsWithCoords = props.locations.filter((location) => {
+  // Filter locations that have valid normalized coordinates
+  const locationsWithCoords = props.locations.filter((location, index) => {
     const hasCoords = location.coordinates
       && location.coordinates.lat
       && location.coordinates.lng
+
+    // Log first few locations to debug structure
+    if (index < 3) {
+      console.log(`🗺️ [EVENT] InteractiveMap - Location ${index}:`, {
+        id: location._id,
+        hasCoords,
+        coordinates: location.coordinates
+      })
+    }
+
     return hasCoords
+  })
+
+  console.log('🗺️ [EVENT] InteractiveMap - Filtered locations result:', {
+    totalInput: props.locations.length,
+    withValidCoords: locationsWithCoords.length
   })
 
   return locationsWithCoords
@@ -295,42 +321,61 @@ const closestUnvisitedLocations = computed(() => {
 
 // Calculate map bounds and center
 const calculateMapBounds = async () => {
-  if (!map.value?.leafletObject) return
-
-  const bounds = []
-
-  // Add user position if available
-  if (props.userPosition) {
-    bounds.push([props.userPosition.lat, props.userPosition.lng])
-  }
-
-  // Add closest unvisited locations for viewport centering
-  closestUnvisitedLocations.value.forEach((location) => {
-    if (location.coordinates) {
-      bounds.push([location.coordinates.lat, location.coordinates.lng])
-    }
-  })
-
-  if (bounds.length === 0) return
-
-  // Wait a bit for the map to fully initialize
-  await new Promise((resolve) => setTimeout(resolve, 100))
-
   try {
+    console.log('🗺️ [EVENT] InteractiveMap - calculateMapBounds called', {
+      hasMapRef: !!map.value,
+      hasLeafletObject: !!map.value?.leafletObject,
+      locationCount: props.locations?.length || 0,
+      closestUnvisited: closestUnvisitedLocations.value?.length || 0
+    })
+
+    if (!map.value?.leafletObject) {
+      console.log('🗺️ [EVENT] InteractiveMap - Map not ready, skipping bounds calculation')
+      return
+    }
+
+    const bounds = []
+
+    // Add user position if available
+    if (props.userPosition) {
+      console.log('🗺️ [EVENT] InteractiveMap - Adding user position to bounds', props.userPosition)
+      bounds.push([props.userPosition.lat, props.userPosition.lng])
+    }
+
+    // Add closest unvisited locations for viewport centering
+    closestUnvisitedLocations.value.forEach((location, index) => {
+      if (location.coordinates) {
+        console.log(`🗺️ [EVENT] InteractiveMap - Adding location ${index} to bounds`, {
+          id: location._id,
+          coordinates: location.coordinates
+        })
+        bounds.push([location.coordinates.lat, location.coordinates.lng])
+      }
+    })
+
+    console.log('🗺️ [EVENT] InteractiveMap - Total bounds points:', bounds.length)
+
+    if (bounds.length === 0) return
+
+    // Wait a bit for the map to fully initialize
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
     // Check if map container is properly initialized
     if (!map.value?.leafletObject._container || !map.value.leafletObject._size) {
-      console.warn('Map container not ready yet, skipping bounds calculation')
+      console.warn('🗺️ [EVENT] InteractiveMap - Map container not ready yet, skipping bounds calculation')
       return
     }
 
     if (bounds.length === 1) {
       // Single point - center and use default zoom
+      console.log('🗺️ [EVENT] InteractiveMap - Setting single point view')
       center.value = bounds[0]
       zoom.value = 15
       map.value.leafletObject.setView(bounds[0], 15)
     }
     else {
       // Multiple points - fit bounds with padding
+      console.log('🗺️ [EVENT] InteractiveMap - Fitting bounds for multiple points')
       const leafletBounds = L.latLngBounds(bounds)
       map.value.leafletObject.fitBounds(leafletBounds, {
         padding: [20, 20],
@@ -339,7 +384,7 @@ const calculateMapBounds = async () => {
     }
   }
   catch (err) {
-    console.warn('Error calculating map bounds:', err)
+    console.error('🗺️ [EVENT] InteractiveMap - Error calculating map bounds:', err)
     error.value = 'Kaardi piirkonna arvutamisel tekkis viga'
   }
 }
@@ -355,14 +400,14 @@ const onLocationClick = (location) => {
 // Programmatically open popup for a location
 const openLocationPopup = (location) => {
   if (!location) return
-  
+
   const locationKey = location._id || location.id || `${location.coordinates?.lat}-${location.coordinates?.lng}`
   const markerRef = markerRefs.value.get(locationKey)
-  
+
   if (markerRef && markerRef.leafletObject) {
     // Open the popup
     markerRef.leafletObject.openPopup()
-    
+
     // Center the map on this location with a slight zoom
     if (map.value && map.value.leafletObject) {
       map.value.leafletObject.setView([location.coordinates.lat, location.coordinates.lng], Math.max(zoom.value, 15))
@@ -381,10 +426,22 @@ watch(() => props.selectedLocation, (newLocation, oldLocation) => {
 }, { deep: true })
 
 // Map ready handler
-const onMapReady = async () => {
-  await nextTick()
-  await calculateMapBounds()
-  emit('map-ready')
+// Handle map ready event
+const onMapReady = () => {
+  try {
+    // 🔍 EVENT TRACKING: Map ready
+    console.log('🗺️ [EVENT] InteractiveMap - Map ready', {
+      timestamp: new Date().toISOString(),
+      locationCount: props.locations?.length || 0,
+      hasUserPosition: !!props.userPosition
+    })
+
+    emit('map-ready')
+  }
+  catch (err) {
+    console.error('🗺️ [EVENT] InteractiveMap - Error in onMapReady:', err)
+    error.value = 'Kaardi käivitamisel tekkis viga'
+  }
 }
 
 // Watch for location or position changes

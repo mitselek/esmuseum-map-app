@@ -29,6 +29,13 @@ export const useTaskDetail = () => {
 
   // Permission checking
   const checkTaskPermissions = async (taskId) => {
+    // 🔍 EVENT TRACKING: Permission check start
+    const startTime = performance.now()
+    console.log('🔐 [EVENT] useTaskDetail - Permission check started', {
+      timestamp: new Date().toISOString(),
+      taskId: taskId
+    })
+
     const { token, user } = useEntuAuth()
     const { getEntity } = useEntuApi()
 
@@ -65,11 +72,19 @@ export const useTaskDetail = () => {
             permission.reference === user.value._id
           )
           if (hasPermission) {
+            console.log('🔐 [EVENT] useTaskDetail - Permission check completed (GRANTED)', {
+              timestamp: new Date().toISOString(),
+              duration: `${(performance.now() - startTime).toFixed(2)}ms`
+            })
             return { hasPermission: true, error: null }
           }
         }
       }
 
+      console.log('🔐 [EVENT] useTaskDetail - Permission check completed (DENIED)', {
+        timestamp: new Date().toISOString(),
+        duration: `${(performance.now() - startTime).toFixed(2)}ms`
+      })
       return { hasPermission: false, error: null }
     }
     catch (error) {
@@ -157,6 +172,14 @@ export const useTaskDetail = () => {
 
   // Task locations management
   const loadTaskLocations = async (task, userPosition = null) => {
+    // 🔍 EVENT TRACKING: Location loading start
+    const startTime = performance.now()
+    console.log('📍 [EVENT] useTaskDetail - Location loading started', {
+      timestamp: new Date().toISOString(),
+      taskId: task?._id,
+      hasUserPosition: !!userPosition
+    })
+
     if (!task) {
       return []
     }
@@ -166,8 +189,13 @@ export const useTaskDetail = () => {
 
       // Debug: Log the task structure to understand the data format
       console.log('Loading locations for task:', task)
-      // console.log('Task keys:', Object.keys(task))
-      // console.log('Task kaart field:', task.kaart)
+      console.log('📍 [EVENT] useTaskDetail - Task map field analysis:', {
+        kaart: task.kaart,
+        kaartType: typeof task.kaart,
+        kaartLength: Array.isArray(task.kaart) ? task.kaart.length : 'not array',
+        map: task.map,
+        mapType: typeof task.map
+      })
 
       // Extract map ID from task - use reference field for actual map entity
       // 'kaart' is Estonian for 'map' and is typically an array in Entu
@@ -188,10 +216,23 @@ export const useTaskDetail = () => {
 
       // Always process locations to extract coordinates, sort by distance if we have user position
       const processedLocations = sortByDistance(locations, userPosition)
+
+      // 🔍 EVENT TRACKING: Location loading complete
+      console.log('📍 [EVENT] useTaskDetail - Location loading completed', {
+        timestamp: new Date().toISOString(),
+        locationCount: processedLocations.length,
+        duration: `${(performance.now() - startTime).toFixed(2)}ms`
+      })
+
       return processedLocations
     }
     catch (error) {
       console.error('Error loading task locations:', error)
+      console.log('📍 [EVENT] useTaskDetail - Location loading failed', {
+        timestamp: new Date().toISOString(),
+        duration: `${(performance.now() - startTime).toFixed(2)}ms`,
+        error: error.message
+      })
       return []
     }
   }
@@ -258,7 +299,7 @@ export const useTaskDetail = () => {
 
     try {
       const { token, user } = useEntuAuth()
-      const { searchEntities, getEntity } = useEntuApi()
+      const { searchEntities } = useEntuApi()
 
       // Check permissions first
       if (checkPermissions) {
