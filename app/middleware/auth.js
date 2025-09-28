@@ -34,6 +34,6 @@ export default defineNuxtRouteMiddleware((to, from) => {
     }
     return navigateTo('/login')
   }
-  
+
   console.log('🔒 [EVENT] auth middleware - Authenticated, proceeding')
 })

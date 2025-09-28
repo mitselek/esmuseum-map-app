@@ -32,11 +32,11 @@ console.log('🔍 [EVENT] TaskWorkspace - useTaskWorkspace loaded', new Date().t
 
 // Watch for route changes to handle deep linking
 const route = useRoute()
-const { selectTask } = useTaskWorkspace()
+const { selectTask } = useTaskWorkspace() // Use selectTask (state-only) for route sync
 
 watch(() => route.query.task, (taskId) => {
   if (taskId && typeof taskId === 'string') {
-    selectTask(taskId)
+    selectTask(taskId) // Route sync: update state without triggering navigation
   }
 }, { immediate: true })
 </script>

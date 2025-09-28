@@ -278,15 +278,15 @@ onMounted(() => {
   // Check URL parameters to enable debug functionality
   const urlParams = new URLSearchParams(window.location.search)
   const hasUrlDebug = urlParams.has('debug') || urlParams.has('eventlog')
-  
+
   // Also check localStorage for persistent debug mode
   const hasPersistentDebug = localStorage.getItem('esm_debug_enabled') === 'true'
-  
+
   if (hasUrlDebug || hasPersistentDebug) {
     debugEnabled.value = true
     showDebugPanel.value = true
     console.log('Debug panel enabled via:', hasUrlDebug ? 'URL parameter' : 'localStorage')
-    
+
     // If enabled via URL, also persist to localStorage for future visits
     if (hasUrlDebug) {
       localStorage.setItem('esm_debug_enabled', 'true')

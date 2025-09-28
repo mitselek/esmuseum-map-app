@@ -2,8 +2,7 @@
  * Global task workspace state management
  * Handles all tasks, selection, and form persistence for F007 SPA
  */
-
-import { nextTick } from 'vue'
+import { ref, computed, watch, readonly, nextTick } from 'vue'
 
 // Global state outside the composable to persist across navigation
 const globalTasks = ref<any[]>([])
@@ -120,26 +119,49 @@ export const useTaskWorkspace = () => {
     }
   }
 
-  // Task selection
+  // Task selection - STATE ONLY (no router.push)
   const selectTask = (taskId: string) => {
     // 🔍 EVENT TRACKING: Task selection
-    console.log('🎯 [EVENT] useTaskWorkspace - Task selected', {
+    console.log('🎯 [EVENT] useTaskWorkspace - Task selected (state only)', {
       timestamp: new Date().toISOString(),
-      taskId: taskId
+      taskId
     })
     
     selectedTaskId.value = taskId
+    // No router.push - just update state
+  }
+
+  // Task navigation - For user-initiated navigation with URL update
+  const navigateToTask = (taskId: string) => {
+    // 🔍 EVENT TRACKING: Task navigation
+    console.log('🎯 [EVENT] useTaskWorkspace - Navigating to task', {
+      timestamp: new Date().toISOString(),
+      taskId,
+      preservingQuery: route.query
+    })
     
-    // Update URL without navigation
+    // First select the task (update state)
+    selectTask(taskId)
+    
+    // Then navigate (preserving existing query parameters like ?debug)
     router.push({
       path: '/',
-      query: { task: taskId }
+      query: {
+        ...route.query,  // Preserve existing parameters like ?debug
+        task: taskId     // Update/add task parameter
+      }
     })
   }
 
   const clearSelection = () => {
     selectedTaskId.value = null
-    router.push({ path: '/' })
+    
+    // Remove task parameter while preserving others (like ?debug)
+    const { task, ...otherQuery } = route.query
+    router.push({ 
+      path: '/', 
+      query: otherQuery 
+    })
   }
 
   // User response persistence
@@ -192,9 +214,11 @@ export const useTaskWorkspace = () => {
     }
   }
 
-  // Watch route changes
+  // Watch route changes - Use selectTask (state only) for route sync
   watch(() => route.query.task, (taskId) => {
     if (typeof taskId === 'string' && tasks.value.some((task: any) => task._id === taskId)) {
+      // Route sync should only update state, not trigger another navigation
+      console.log('🔄 [EVENT] useTaskWorkspace - Route sync selecting task', taskId)
       selectedTaskId.value = taskId
     } else if (!taskId) {
       selectedTaskId.value = null
@@ -231,7 +255,8 @@ export const useTaskWorkspace = () => {
     
     // Actions
     loadTasks,
-    selectTask,
+    selectTask,      // State-only task selection
+    navigateToTask,  // User-initiated navigation with URL update
     clearSelection,
     saveUserResponse,
     loadUserResponse,

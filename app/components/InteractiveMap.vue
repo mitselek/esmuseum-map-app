@@ -368,10 +368,10 @@ const calculateMapBounds = async () => {
       console.log('🗺️ [EVENT] InteractiveMap - PHASE 1: Showing all locations overview', {
         locationCount: props.locations.length
       })
-      
+
       mapInitializationPhase.value = 'all-locations'
       await fitAllLocationsBounds()
-      
+
       // After Phase 1, check if we can immediately proceed to Phase 2
       if (props.userPosition) {
         console.log('🗺️ [EVENT] InteractiveMap - User position available after Phase 1, scheduling Phase 2')
@@ -389,7 +389,7 @@ const calculateMapBounds = async () => {
         closestUnvisited: closestUnvisitedLocations.value?.length || 0,
         mapPhase: mapInitializationPhase.value
       })
-      
+
       mapInitializationPhase.value = 'gps-focused'
       await fitGpsFocusedBounds()
     }
@@ -534,7 +534,7 @@ const onMapReady = async () => {
     })
 
     emit('map-ready')
-    
+
     // If locations are already loaded, start the initialization immediately
     if (props.locations?.length > 0 && mapInitializationPhase.value === 'waiting') {
       console.log('🗺️ [EVENT] InteractiveMap - Map ready with locations, starting initialization')

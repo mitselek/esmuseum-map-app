@@ -123,7 +123,7 @@
               ? 'border-blue-500 bg-blue-50 shadow-md ring-1 ring-blue-200'
               : 'border-gray-200 hover:border-blue-300 hover:shadow-md',
           ]"
-          @click="selectTask(task._id)"
+          @click="navigateToTask(task._id)"
         >
           <!-- Task Title -->
           <h3 class="mb-2 line-clamp-2 text-sm font-medium text-gray-900">
@@ -225,7 +225,7 @@ const {
   error,
   initialized, // 🚀 PHASE 1: Track initialization state
   loadTasks,
-  selectTask
+  navigateToTask // Use navigateToTask for user clicks (preserves URL params like ?debug)
 } = useTaskWorkspace()
 const { getTaskResponseStats } = useTaskResponseStats()
 const { t } = useI18n()
