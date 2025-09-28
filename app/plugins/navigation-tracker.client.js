@@ -2,11 +2,11 @@
 export default defineNuxtPlugin(() => {
   // Track all router navigation
   const router = useRouter()
-  
+
   // Track programmatic navigation
   const originalPush = router.push
   const originalReplace = router.replace
-  
+
   router.push = function (...args) {
     console.log('🔄 [NAVIGATION] router.push called', {
       timestamp: new Date().toISOString(),
@@ -16,7 +16,7 @@ export default defineNuxtPlugin(() => {
     })
     return originalPush.apply(this, args)
   }
-  
+
   router.replace = function (...args) {
     console.log('🔄 [NAVIGATION] router.replace called', {
       timestamp: new Date().toISOString(),
@@ -26,7 +26,7 @@ export default defineNuxtPlugin(() => {
     })
     return originalReplace.apply(this, args)
   }
-  
+
   // Track navigateTo calls
   if (window.navigateTo) {
     const originalNavigateTo = window.navigateTo
@@ -40,7 +40,7 @@ export default defineNuxtPlugin(() => {
       return originalNavigateTo.apply(this, args)
     }
   }
-  
+
   // Track route changes
   router.beforeEach((to, from) => {
     console.log('🔄 [NAVIGATION] Route change', {
@@ -55,11 +55,11 @@ export default defineNuxtPlugin(() => {
       }
     })
   })
-  
+
   // Track history changes
   const originalPushState = window.history.pushState
   const originalReplaceState = window.history.replaceState
-  
+
   window.history.pushState = function (...args) {
     console.log('🔄 [NAVIGATION] history.pushState', {
       timestamp: new Date().toISOString(),
@@ -69,7 +69,7 @@ export default defineNuxtPlugin(() => {
     })
     return originalPushState.apply(this, args)
   }
-  
+
   window.history.replaceState = function (...args) {
     console.log('🔄 [NAVIGATION] history.replaceState', {
       timestamp: new Date().toISOString(),
@@ -79,7 +79,7 @@ export default defineNuxtPlugin(() => {
     })
     return originalReplaceState.apply(this, args)
   }
-  
+
   // Track window.location changes
   window.addEventListener('popstate', (event) => {
     console.log('🔄 [NAVIGATION] popstate event', {
@@ -88,7 +88,7 @@ export default defineNuxtPlugin(() => {
       state: event.state
     })
   })
-  
+
   // Monitor URL changes with a simple watcher
   let lastURL = window.location.href
   setInterval(() => {
@@ -103,6 +103,6 @@ export default defineNuxtPlugin(() => {
       lastURL = window.location.href
     }
   }, 100) // Check every 100ms
-  
+
   console.log('🔄 [NAVIGATION] Navigation tracker initialized')
 })
