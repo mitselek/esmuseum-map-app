@@ -69,6 +69,8 @@
 </template>
 
 <script setup>
+import { roundCoordinates } from '~/utils/distance'
+
 // Props
 const props = defineProps({
   selectedTask: {
@@ -194,14 +196,16 @@ const submitResponse = async () => {
           metadata: {
             // Include location reference if available
             locationId: props.selectedLocation?.reference || props.selectedLocation?._id,
-            // Include coordinates if available
+            // Include coordinates if available (rounded to 6 decimal places)
             coordinates: responseForm.value.geopunkt
               ? (() => {
                   const coords = responseForm.value.geopunkt.split(',')
-                  return {
-                    lat: parseFloat(coords[0]?.trim()),
-                    lng: parseFloat(coords[1]?.trim())
+                  const lat = parseFloat(coords[0]?.trim())
+                  const lng = parseFloat(coords[1]?.trim())
+                  if (!isNaN(lat) && !isNaN(lng)) {
+                    return roundCoordinates(lat, lng)
                   }
+                  return undefined
                 })()
               : undefined
           }

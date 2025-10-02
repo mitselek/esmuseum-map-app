@@ -52,6 +52,22 @@ export function parseCoordinates (coordinates) {
 }
 
 /**
+ * Round coordinates to specified decimal places (default 6)
+ * 6 decimal places = ~0.11m precision, sufficient for most geolocation needs
+ * @param {number} lat - Latitude
+ * @param {number} lng - Longitude
+ * @param {number} decimals - Number of decimal places (default: 6)
+ * @returns {object} Object with rounded lat and lng
+ */
+export function roundCoordinates (lat, lng, decimals = 6) {
+  const factor = Math.pow(10, decimals)
+  return {
+    lat: Math.round(lat * factor) / factor,
+    lng: Math.round(lng * factor) / factor
+  }
+}
+
+/**
  * Format distance for display to users
  * @param {number} distance - Distance in kilometers
  * @returns {string} Formatted distance string
