@@ -47,12 +47,6 @@ export async function getAdminApiConfig(
       statusMessage: 'Missing user authentication token from webhook'
     })
   }
-
-  logger.info('Using user JWT token from webhook for API calls', { 
-    userEmail,
-    userId,
-    note: 'Proper user attribution - actions performed as initiating user'
-  })
   
   return {
     apiUrl,

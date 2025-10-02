@@ -33,9 +33,7 @@ const logger = createLogger('webhook:student-added')
  * Process the webhook - separated for reprocessing logic
  */
 async function processStudentWebhook(entityId: string, userToken?: string, userId?: string, userEmail?: string) {
-  logger.info('Processing student webhook', { entityId, userEmail, userId, initiatedBy: userEmail || userId })
-
-  // Fetch full entity details
+    logger.info('Processing student webhook', { entityId })  // Fetch full entity details
   const entity = await getEntityDetails(entityId, userToken, userId, userEmail)
 
   // Extract groups from person's _parent references
@@ -94,11 +92,13 @@ async function processStudentWebhook(entityId: string, userToken?: string, userI
   // Grant permissions to person for all tasks
   const results = await batchGrantPermissions(taskIds, [entityId], userToken, userId, userEmail)
 
-  logger.info('Student access management completed', {
-    personId: entityId,
+  logger.info('Student access granted', {
+    student: entityId,
     groups: groupIds.length,
     tasks: uniqueTasks.length,
-    ...results
+    granted: results.successful,
+    skipped: results.skipped,
+    failed: results.failed
   })
 
   return {
@@ -163,7 +163,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    logger.info('Webhook initiated by user', { userId, userEmail })
+    // Process the student webhook
 
     // 5. Check queue - debounce if already processing
     const shouldProcess = enqueueWebhook(entityId)
@@ -195,18 +195,10 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const duration = Date.now() - startTime
-
-    logger.info('Webhook processing completed', {
-      entityId,
-      duration,
-      ...result
-    })
-
     // 7. Return success response
     return {
       ...result,
-      duration_ms: duration
+      duration_ms: Date.now() - startTime
     }
 
   } catch (error: any) {
