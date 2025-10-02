@@ -1,95 +1,100 @@
 /**
- * Server-side logging utility
- * Provides consistent logging format and levels for server-side code
+ * Structured logging with Pino
+ * 
+ * Provides consistent, structured logging across the application.
+ * - Development: Pretty-printed colorized output
+ * - Production: JSON logs for parsing and analysis
+ * 
+ * Usage:
+ *   const log = createLogger('webhook')
+ *   log.info('User logged in', { userId: '123', email: 'user@example.com' })
+ *   log.error({ err: error, context: {...} }, 'API call failed')
  */
 
-enum LogLevel {
-  DEBUG = 0,
-  INFO = 1,
-  WARN = 2,
-  ERROR = 3
-}
+import pino from 'pino'
 
-/**
- * Get the current log level from environment or default
- */
-function getCurrentLogLevel(): LogLevel {
-  const envLogLevel = process.env.LOG_LEVEL?.toUpperCase()
-  const isDev = process.env.NODE_ENV === 'development'
+const isDevelopment = process.env.NODE_ENV === 'development'
+
+// Configure Pino logger
+const pinoLogger = pino({
+  // Log level: debug in dev, info in production
+  level: isDevelopment ? 'debug' : 'info',
   
-  switch (envLogLevel) {
-    case 'DEBUG': return LogLevel.DEBUG
-    case 'INFO': return LogLevel.INFO
-    case 'WARN': return LogLevel.WARN
-    case 'ERROR': return LogLevel.ERROR
-    default:
-      // Default: INFO in production for API debugging, DEBUG in development
-      return isDev ? LogLevel.DEBUG : LogLevel.INFO
-  }
-}
-
-/**
- * Check if we should log at this level
- */
-function shouldLog(level: LogLevel): boolean {
-  return level >= getCurrentLogLevel()
-}
-
-/**
- * Create a formatted log message with timestamp, level, and module
- */
-function formatLogMessage (level: LogLevel, module: string, message: string): string {
-  const timestamp = new Date().toISOString().substring(11, 19) // Just time, not full date
-  const levelName = LogLevel[level]
-  return `[${timestamp}] [${levelName}] [${module}] ${message}`
-}
-
-/**
- * Format data object for logging
- */
-function formatData(data?: any): string {
-  if (!data) return ''
-  
-  try {
-    if (typeof data === 'string') return ` - ${data}`
-    if (typeof data === 'object') {
-      const jsonStr = JSON.stringify(data, null, 2)
-      return ` - ${jsonStr}`
+  // Pretty print in development, JSON in production
+  transport: isDevelopment ? {
+    target: 'pino-pretty',
+    options: {
+      colorize: true,
+      translateTime: 'HH:MM:ss.l',
+      ignore: 'pid,hostname',
+      messageFormat: '{levelLabel} [{module}] {msg}',
     }
-    return ` - ${String(data)}`
-  } catch (e) {
-    return ` - [Object could not be serialized]`
-  }
-}
+  } : undefined,
+  
+  // ISO timestamps for production
+  timestamp: pino.stdTimeFunctions.isoTime,
+  
+  // Base context for all logs
+  base: {
+    env: process.env.NODE_ENV || 'development',
+  },
+  
+  // Format level as string
+  formatters: {
+    level: (label) => {
+      return { level: label }
+    },
+  },
+})
 
 /**
  * Create a logger for a specific module
+ * Maintains backward compatibility with existing logger interface
+ * 
+ * @param moduleName - Module identifier (e.g., 'webhook', 'entu-admin')
+ * @returns Logger instance with debug, info, warn, error methods
  */
-export function createLogger (moduleName: string) {
+export function createLogger(moduleName: string) {
+  const log = pinoLogger.child({ module: moduleName })
+  
   return {
+    /**
+     * Debug level logging - development only
+     */
     debug: (message: string, data?: any) => {
-      if (shouldLog(LogLevel.DEBUG)) {
-        console.log(formatLogMessage(LogLevel.DEBUG, moduleName, message) + formatData(data))
-      }
+      log.debug(data || {}, message)
     },
 
+    /**
+     * Info level logging - general information
+     */
     info: (message: string, data?: any) => {
-      if (shouldLog(LogLevel.INFO)) {
-        console.log(formatLogMessage(LogLevel.INFO, moduleName, message) + formatData(data))
-      }
+      log.info(data || {}, message)
     },
 
+    /**
+     * Warning level logging - potential issues
+     */
     warn: (message: string, data?: any) => {
-      if (shouldLog(LogLevel.WARN)) {
-        console.warn(formatLogMessage(LogLevel.WARN, moduleName, message) + formatData(data))
-      }
+      log.warn(data || {}, message)
     },
 
+    /**
+     * Error level logging - critical issues
+     * @param message - Error message
+     * @param error - Error object or any value
+     */
     error: (message: string, error?: any) => {
-      if (shouldLog(LogLevel.ERROR)) {
-        const errorMsg = error?.message || error?.statusMessage || String(error || '')
-        console.error(formatLogMessage(LogLevel.ERROR, moduleName, `${message}: ${errorMsg}`) + formatData(error))
+      if (error instanceof Error) {
+        log.error({ err: error }, message)
+      } else if (error) {
+        log.error({ error }, message)
+      } else {
+        log.error(message)
       }
     }
   }
 }
+
+// Export default logger for advanced usage
+export const logger = pinoLogger
