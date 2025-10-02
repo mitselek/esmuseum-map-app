@@ -23,8 +23,9 @@ export async function getAdminApiConfig(
   userEmail?: string
 ): Promise<EntuApiOptions> {
   const config = useRuntimeConfig()
-  const apiUrl = config.entuApiUrl as string
-  const accountName = config.entuClientId as string
+  // Use public config for consistency with client-side code
+  const apiUrl = config.public.entuUrl as string || 'https://entu.app'
+  const accountName = config.public.entuAccount as string || 'esmuuseum'
 
   if (!apiUrl || !accountName) {
     logger.error('Entu API URL or account name not configured', { apiUrl, accountName })

@@ -156,8 +156,10 @@ The JWT token contains:
 
 ```bash
 # Required
-NUXT_ENTU_API_URL=https://entu.app/api
-NUXT_ENTU_CLIENT_ID=esmuuseum
+```bash
+NUXT_PUBLIC_ENTU_URL=https://entu.app
+NUXT_PUBLIC_ENTU_ACCOUNT=esmuuseum
+```
 
 # Optional - for webhook signature validation (Phase 4)
 NUXT_WEBHOOK_SECRET=your_webhook_secret_here
