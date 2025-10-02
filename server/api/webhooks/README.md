@@ -94,8 +94,8 @@ Required environment variables:
 
 ```bash
 # Required
-NUXT_ENTU_API_URL=https://entu.app/api
-NUXT_ENTU_CLIENT_ID=esmuuseum
+NUXT_PUBLIC_ENTU_URL=https://entu.app
+NUXT_PUBLIC_ENTU_ACCOUNT=esmuuseum
 
 # Optional - for webhook signature validation
 NUXT_WEBHOOK_SECRET=your_webhook_secret_here
