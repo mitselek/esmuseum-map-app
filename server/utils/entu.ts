@@ -202,8 +202,8 @@ export function getEntuApiConfig (token: string): EntuApiOptions {
 
   const apiConfig = {
     token,
-    apiUrl: (config.public.entuUrl as string) || 'https://entu.app',
-    accountName: (config.public.entuAccount as string) || 'esmuuseum'
+    apiUrl: (config.entuApiUrl as string) || 'https://entu.app',
+    accountName: (config.entuClientId as string) || 'esmuuseum'
   }
 
   logger.debug('Created API config', {

@@ -52,6 +52,7 @@ export function validateWebhookRequest(event: H3Event): boolean {
  * Validate webhook payload structure
  * 
  * Ensures the payload has required fields before processing
+ * Entu webhook format: { db, plugin, user: { _id }, entity: { _id } }
  * 
  * @param payload - The webhook payload to validate
  * @returns Validation result with errors if any
@@ -67,20 +68,21 @@ export function validateWebhookPayload(
     return { valid: false, errors }
   }
 
-  // These validations will be refined once we see actual Entu webhook format
-  if (!payload.entity_id && !payload.entityId) {
-    errors.push('Missing entity_id in payload')
+  // Validate Entu webhook format
+  if (!payload.db) {
+    errors.push('Missing db field in payload')
   }
 
-  if (!payload.property && !payload.propertyType) {
-    errors.push('Missing property information in payload')
+  if (!payload.entity || typeof payload.entity !== 'object') {
+    errors.push('Missing entity object in payload')
+  } else if (!payload.entity._id) {
+    errors.push('Missing entity._id in payload')
   }
 
-  // Check if it's a reference property with proper structure
-  if (payload.value && typeof payload.value === 'object') {
-    if (!payload.value.reference && !payload.value.entity_type) {
-      errors.push('Invalid reference structure in payload value')
-    }
+  if (!payload.user || typeof payload.user !== 'object') {
+    errors.push('Missing user object in payload')
+  } else if (!payload.user._id) {
+    errors.push('Missing user._id in payload')
   }
 
   const valid = errors.length === 0
@@ -93,40 +95,20 @@ export function validateWebhookPayload(
 }
 
 /**
- * Extract entity IDs from webhook payload
+ * Extract entity ID from webhook payload
  * 
- * Handles different possible payload formats from Entu
+ * Entu webhook format: { entity: { _id: "..." } }
+ * We'll need to fetch the full entity to determine what changed
  * 
  * @param payload - The webhook payload
- * @returns Extracted IDs or null if not found
+ * @returns Extracted entity ID
  */
-export function extractEntityIds(payload: any): {
-  entityId: string | null
-  referenceId: string | null
-  entityType: string | null
-} {
-  // Support multiple possible formats
-  const entityId = payload.entity_id || payload.entityId || null
-  
-  const referenceId = 
-    payload.value?.reference || 
-    payload.reference || 
-    payload.referenceId || 
-    null
+export function extractEntityId(payload: any): string | null {
+  const entityId = payload.entity?._id || null
 
-  const entityType = 
-    payload.value?.entity_type || 
-    payload.entity_type || 
-    payload.entityType || 
-    null
+  logger.debug('Extracted entity ID from payload', { entityId })
 
-  logger.debug('Extracted entity IDs from payload', {
-    entityId,
-    referenceId,
-    entityType
-  })
-
-  return { entityId, referenceId, entityType }
+  return entityId
 }
 
 /**

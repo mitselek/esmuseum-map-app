@@ -8,29 +8,74 @@ This directory contains webhook endpoints that Entu will call to automate studen
 
 **Purpose:** Automatically grant student access to all tasks when added to a class
 
-**Trigger:** Entu webhook when `person._parent` references a `grupp`
+**Trigger:** Entu webhook when a `person` entity is edited
+
+**Entu Webhook Format:**
+
+```json
+{
+  "db": "esmuuseum",
+  "plugin": "entity-edit-webhook",
+  "user": { "_id": "editor_id" },
+  "entity": { "_id": "person_id" }
+}
+```
 
 **Flow:**
 
 1. Receive webhook from Entu
-2. Extract student ID and group ID
-3. Query all tasks assigned to that group
-4. Grant `_expander` permission to student for each task
-5. Return success/failure response
+2. Check webhook queue - debounce if same entity already processing
+3. Extract entity ID from payload
+4. Fetch full entity details from Entu API
+5. Check if entity is a `person` with `_parent` references to `grupp` entities
+6. For each parent group:
+   - Query all tasks (`ulesanne`) assigned to that group
+   - Grant `_expander` permission to person for each task (skip if already granted)
+7. Check if entity was re-edited during processing → reprocess if needed
+8. Return success/failure response
+
+**Queue Strategy:**
+
+- Each entity ID gets its own queue slot
+- If webhook arrives while processing same entity → mark for reprocessing
+- After processing completes, wait 2 seconds and reprocess if marked
+- This ensures final state is always synced without duplicate work
 
 ### POST /api/webhooks/task-assigned-to-class
 
 **Purpose:** Automatically grant all class students access when task is assigned
 
-**Trigger:** Entu webhook when `ulesanne.grupp` is set/updated
+**Trigger:** Entu webhook when an `ulesanne` (task) entity is edited
+
+**Entu Webhook Format:**
+
+```json
+{
+  "db": "esmuuseum",
+  "plugin": "entity-edit-webhook",
+  "user": { "_id": "editor_id" },
+  "entity": { "_id": "task_id" }
+}
+```
 
 **Flow:**
 
 1. Receive webhook from Entu
-2. Extract task ID and group ID
-3. Query all students in that group
-4. Grant `_expander` permission to each student for the task
-5. Return success/failure response
+2. Check webhook queue - debounce if same entity already processing
+3. Extract entity ID from payload
+4. Fetch full entity details from Entu API
+5. Check if entity is an `ulesanne` with `grupp` reference
+6. Query all students (`person`) in that group (where `_parent` references the group)
+7. Grant `_expander` permission to each student for the task (skip if already granted)
+8. Check if entity was re-edited during processing → reprocess if needed
+9. Return success/failure response
+
+**Queue Strategy:**
+
+- Each entity ID gets its own queue slot
+- If webhook arrives while processing same entity → mark for reprocessing
+- After processing completes, wait 2 seconds and reprocess if marked
+- This ensures final state is always synced without duplicate work
 
 ## Security
 
