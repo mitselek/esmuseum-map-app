@@ -11,6 +11,7 @@ Comprehensive TypeScript type system for Entu entities, providing type safety, b
 ## Motivation
 
 **Problem**: The codebase was using plain JavaScript objects to represent Entu entities, leading to:
+
 - Runtime errors from accessing undefined properties
 - Poor IDE autocomplete support
 - Lack of documentation about entity structure
@@ -18,6 +19,7 @@ Comprehensive TypeScript type system for Entu entities, providing type safety, b
 - Unclear property access patterns (array-based properties)
 
 **Solution**: Create a comprehensive TypeScript type system that:
+
 - Models Entu's unique property structure (arrays of typed objects)
 - Provides type-safe entity interfaces for all core entity types
 - Includes helper functions for extracting values from property arrays
@@ -35,19 +37,19 @@ Entu stores all properties as arrays of objects with an `_id` and a value field:
 ```typescript
 // String property
 interface EntuStringProperty {
-  _id: string
-  string: string
-  language?: string
+  _id: string;
+  string: string;
+  language?: string;
 }
 
 // Reference property (links to other entities)
 interface EntuReferenceProperty {
-  _id: string
-  reference: string
-  property_type?: string
-  string?: string      // Display text
-  entity_type?: string // Referenced entity type
-  inherited?: boolean
+  _id: string;
+  reference: string;
+  property_type?: string;
+  string?: string; // Display text
+  entity_type?: string; // Referenced entity type
+  inherited?: boolean;
 }
 
 // Number, Boolean, DateTime, File, Date properties...
@@ -59,13 +61,13 @@ Common properties shared by all entities:
 
 ```typescript
 interface EntuEntity {
-  _id: string
-  _type: EntuReferenceProperty[]
-  _parent?: EntuReferenceProperty[]
-  _owner?: EntuReferenceProperty[]
-  _created?: EntuDateTimeProperty[]
-  _sharing?: EntuStringProperty[]
-  _inheritrights?: EntuBooleanProperty[]
+  _id: string;
+  _type: EntuReferenceProperty[];
+  _parent?: EntuReferenceProperty[];
+  _owner?: EntuReferenceProperty[];
+  _created?: EntuDateTimeProperty[];
+  _sharing?: EntuStringProperty[];
+  _inheritrights?: EntuBooleanProperty[];
   // ... permissions and metadata
 }
 ```
@@ -77,28 +79,28 @@ Typed interfaces for each entity type:
 ```typescript
 // Task (ulesanne)
 interface EntuTask extends EntuEntity {
-  name: EntuStringProperty[]
-  kaart?: EntuReferenceProperty[]     // Map reference
-  grupp?: EntuReferenceProperty[]     // Group reference
-  kirjeldus?: EntuStringProperty[]    // Description
-  tahtaeg?: EntuDateTimeProperty[]    // Deadline
-  vastuseid?: EntuNumberProperty[]    // Response count
+  name: EntuStringProperty[];
+  kaart?: EntuReferenceProperty[]; // Map reference
+  grupp?: EntuReferenceProperty[]; // Group reference
+  kirjeldus?: EntuStringProperty[]; // Description
+  tahtaeg?: EntuDateTimeProperty[]; // Deadline
+  vastuseid?: EntuNumberProperty[]; // Response count
 }
 
 // Response (vastus)
 interface EntuResponse extends EntuEntity {
-  asukoht?: EntuReferenceProperty[]   // Location reference
-  kirjeldus?: EntuStringProperty[]    // Text response
-  photo?: EntuFileProperty[]          // Photo file
-  geopunkt?: EntuStringProperty[]     // GPS coordinates
+  asukoht?: EntuReferenceProperty[]; // Location reference
+  kirjeldus?: EntuStringProperty[]; // Text response
+  photo?: EntuFileProperty[]; // Photo file
+  geopunkt?: EntuStringProperty[]; // GPS coordinates
 }
 
 // Location (asukoht)
 interface EntuLocation extends EntuEntity {
-  name: EntuStringProperty[]
-  kirjeldus?: EntuStringProperty[]
-  lat?: EntuNumberProperty[]
-  long?: EntuNumberProperty[]
+  name: EntuStringProperty[];
+  kirjeldus?: EntuStringProperty[];
+  lat?: EntuNumberProperty[];
+  long?: EntuNumberProperty[];
 }
 
 // Map (kaart), Group (grupp), Person (person)...
@@ -169,49 +171,53 @@ isLocation(entity: EntuEntity): entity is EntuLocation
 // No type safety, prone to errors
 function displayTask(task) {
   // What if name is undefined? What if it's not an array?
-  const title = task.name?.[0]?.string || 'Untitled'
-  
+  const title = task.name?.[0]?.string || "Untitled";
+
   // Is vastuseid a number or an array with number property?
-  const count = task.vastuseid?.[0]?.number || 0
-  
+  const count = task.vastuseid?.[0]?.number || 0;
+
   // How do we know kaart has a reference property?
-  const mapId = task.kaart?.[0]?.reference
+  const mapId = task.kaart?.[0]?.reference;
 }
 ```
 
 ### After: Type-Safe Access
 
 ```typescript
-import type { EntuTask } from '~/types/entu'
-import { getTaskName, getTaskResponseCount, getTaskMapReference } from '~/utils/entu-helpers'
+import type { EntuTask } from "~/types/entu";
+import {
+  getTaskName,
+  getTaskResponseCount,
+  getTaskMapReference,
+} from "~/utils/entu-helpers";
 
 function displayTask(task: EntuTask) {
   // Type-safe with autocomplete
-  const title = getTaskName(task)  // Always returns string
-  const count = getTaskResponseCount(task)  // Always returns number
-  const mapId = getTaskMapReference(task)  // Returns string | undefined
+  const title = getTaskName(task); // Always returns string
+  const count = getTaskResponseCount(task); // Always returns number
+  const mapId = getTaskMapReference(task); // Returns string | undefined
 }
 ```
 
 ### Working with Responses
 
 ```typescript
-import type { EntuResponse } from '~/types/entu'
-import { 
-  getResponseText, 
+import type { EntuResponse } from "~/types/entu";
+import {
+  getResponseText,
   getResponseCoordinates,
-  getResponseLocationReference 
-} from '~/utils/entu-helpers'
+  getResponseLocationReference,
+} from "~/utils/entu-helpers";
 
 function processResponse(response: EntuResponse) {
-  const text = getResponseText(response)
-  const coords = getResponseCoordinates(response)
-  const locationRef = getResponseLocationReference(response)
-  
+  const text = getResponseText(response);
+  const coords = getResponseCoordinates(response);
+  const locationRef = getResponseLocationReference(response);
+
   if (coords) {
-    console.log(`Response at ${coords.lat}, ${coords.lng}`)
+    console.log(`Response at ${coords.lat}, ${coords.lng}`);
   }
-  
+
   // TypeScript knows coords is { lat: number; lng: number } or undefined
 }
 ```
@@ -219,24 +225,28 @@ function processResponse(response: EntuResponse) {
 ### Type Guards for Dynamic Content
 
 ```typescript
-import type { EntuEntity } from '~/types/entu'
-import { isTask, isResponse, isLocation } from '~/types/entu'
-import { getTaskName, getResponseText, getLocationName } from '~/utils/entu-helpers'
+import type { EntuEntity } from "~/types/entu";
+import { isTask, isResponse, isLocation } from "~/types/entu";
+import {
+  getTaskName,
+  getResponseText,
+  getLocationName,
+} from "~/utils/entu-helpers";
 
 function displayEntity(entity: EntuEntity) {
   if (isTask(entity)) {
     // TypeScript now knows entity is EntuTask
-    return getTaskName(entity)
+    return getTaskName(entity);
   }
-  
+
   if (isResponse(entity)) {
     // TypeScript now knows entity is EntuResponse
-    return getResponseText(entity) || 'No text'
+    return getResponseText(entity) || "No text";
   }
-  
+
   if (isLocation(entity)) {
     // TypeScript now knows entity is EntuLocation
-    return getLocationName(entity)
+    return getLocationName(entity);
   }
 }
 ```
@@ -247,14 +257,14 @@ function displayEntity(entity: EntuEntity) {
 
 ```typescript
 // Import entity types
-import type { EntuTask, EntuResponse, EntuLocation } from '~/types/entu'
+import type { EntuTask, EntuResponse, EntuLocation } from "~/types/entu";
 
 // Import helper functions
-import { 
-  getTaskName, 
+import {
+  getTaskName,
   getTaskDescription,
-  getResponseCoordinates 
-} from '~/utils/entu-helpers'
+  getResponseCoordinates,
+} from "~/utils/entu-helpers";
 ```
 
 ### Step 2: Update Function Signatures
@@ -262,21 +272,21 @@ import {
 ```typescript
 // Before
 export function useTaskDetail() {
-  const task = ref(null)
-  
+  const task = ref(null);
+
   function loadTask(taskData) {
-    task.value = taskData
+    task.value = taskData;
   }
 }
 
 // After
-import type { EntuTask } from '~/types/entu'
+import type { EntuTask } from "~/types/entu";
 
 export function useTaskDetail() {
-  const task = ref<EntuTask | null>(null)
-  
+  const task = ref<EntuTask | null>(null);
+
   function loadTask(taskData: EntuTask) {
-    task.value = taskData
+    task.value = taskData;
   }
 }
 ```
@@ -285,30 +295,30 @@ export function useTaskDetail() {
 
 ```typescript
 // Before
-const taskName = task.value?.name?.[0]?.string || 'Untitled'
-const mapRef = task.value?.kaart?.[0]?.reference
+const taskName = task.value?.name?.[0]?.string || "Untitled";
+const mapRef = task.value?.kaart?.[0]?.reference;
 
 // After
-import { getTaskName, getTaskMapReference } from '~/utils/entu-helpers'
+import { getTaskName, getTaskMapReference } from "~/utils/entu-helpers";
 
-const taskName = task.value ? getTaskName(task.value) : 'Untitled'
-const mapRef = task.value ? getTaskMapReference(task.value) : undefined
+const taskName = task.value ? getTaskName(task.value) : "Untitled";
+const mapRef = task.value ? getTaskMapReference(task.value) : undefined;
 ```
 
 ### Step 4: Use Type Guards
 
 ```typescript
 // Before
-if (entity._type?.[0]?.string === 'ulesanne') {
+if (entity._type?.[0]?.string === "ulesanne") {
   // Process as task
 }
 
 // After
-import { isTask } from '~/types/entu'
+import { isTask } from "~/types/entu";
 
 if (isTask(entity)) {
   // TypeScript knows entity is EntuTask
-  const name = getTaskName(entity)
+  const name = getTaskName(entity);
 }
 ```
 
@@ -319,8 +329,8 @@ if (isTask(entity)) {
 ```typescript
 // Compiler catches errors
 function processTask(task: EntuTask) {
-  const invalid = task.invalidProperty  // ❌ TypeScript error
-  const name = getTaskName(task)        // ✅ Type-safe
+  const invalid = task.invalidProperty; // ❌ TypeScript error
+  const name = getTaskName(task); // ✅ Type-safe
 }
 ```
 
@@ -339,13 +349,13 @@ Types serve as inline documentation:
 ```typescript
 interface EntuTask extends EntuEntity {
   /** Task name */
-  name: EntuStringProperty[]
-  
+  name: EntuStringProperty[];
+
   /** Associated map reference */
-  kaart?: EntuReferenceProperty[]
-  
+  kaart?: EntuReferenceProperty[];
+
   /** Number of responses submitted */
-  vastuseid?: EntuNumberProperty[]
+  vastuseid?: EntuNumberProperty[];
 }
 ```
 
@@ -356,6 +366,7 @@ Type checking catches errors at compile time instead of runtime.
 ## Files Created
 
 - `types/entu.ts` (450+ lines)
+
   - Base property types
   - Base entity interface
   - Entity-specific interfaces (Task, Response, Location, Map, Group, Person)
@@ -406,21 +417,23 @@ nuxi typecheck
 
 ```typescript
 // Create test file to verify types work correctly
-import type { EntuTask } from '~/types/entu'
-import { getTaskName, getTaskMapReference } from '~/utils/entu-helpers'
+import type { EntuTask } from "~/types/entu";
+import { getTaskName, getTaskMapReference } from "~/utils/entu-helpers";
 
 // Sample entity from ulesanne.sample.json
 const task: EntuTask = {
   _id: "68bab85d43e4daafab199988",
-  _type: [{ _id: "...", reference: "...", string: "ulesanne", entity_type: "entity" }],
+  _type: [
+    { _id: "...", reference: "...", string: "ulesanne", entity_type: "entity" },
+  ],
   name: [{ _id: "...", string: "proovikas" }],
   kaart: [{ _id: "...", reference: "68823f8b5d95233e69c29a07", string: "..." }],
-  vastuseid: [{ _id: "...", number: 25 }]
-}
+  vastuseid: [{ _id: "...", number: 25 }],
+};
 
 // Verify helpers work
-const name = getTaskName(task)  // "proovikas"
-const mapRef = getTaskMapReference(task)  // "68823f8b5d95233e69c29a07"
+const name = getTaskName(task); // "proovikas"
+const mapRef = getTaskMapReference(task); // "68823f8b5d95233e69c29a07"
 ```
 
 ## Related Features
