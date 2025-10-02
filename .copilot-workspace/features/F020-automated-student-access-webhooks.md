@@ -141,30 +141,6 @@ The JWT token contains:
 - Proper audit trail in Entu logs
 - No admin API key required (tokens only!)
 
-⏸️ **Phase 4: Security Enhancement** - PENDING
-
-- Webhook signature validation (optional - currently validated by Entu's token)
-- Monitoring dashboard for webhook activity
-- Unit tests for edge cases
-- Error notification system
-
----
-
-## Configuration
-
-### Environment Variables
-
-```bash
-# Required
-```bash
-NUXT_PUBLIC_ENTU_URL=https://entu.app
-NUXT_PUBLIC_ENTU_ACCOUNT=esmuuseum
-```
-
-# Optional - for webhook signature validation (Phase 4)
-NUXT_WEBHOOK_SECRET=your_webhook_secret_here
-```
-
 **Note:** User JWT tokens from webhooks are **required**. No admin API key needed!
 
 ### Cloudflare Tunnel for Local Testing
