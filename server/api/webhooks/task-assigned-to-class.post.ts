@@ -33,9 +33,7 @@ const logger = createLogger('webhook:task-assigned')
  * Process the webhook - separated for reprocessing logic
  */
 async function processTaskWebhook(entityId: string, userToken?: string, userId?: string, userEmail?: string) {
-  logger.info('Processing task webhook', { entityId, userEmail, userId, initiatedBy: userEmail || userId })
-
-  // Fetch full entity details
+    logger.info('Processing task webhook', { entityId })  // Fetch full entity details
   const entity = await getEntityDetails(entityId, userToken, userId, userEmail)
 
   // Extract group from task's grupp property
@@ -86,11 +84,13 @@ async function processTaskWebhook(entityId: string, userToken?: string, userId?:
   // Grant permissions to all students for this task
   const results = await batchGrantPermissions([entityId], studentIds, userToken, userId, userEmail)
 
-  logger.info('Task access management completed', {
-    taskId: entityId,
-    groupId,
+  logger.info('Task access granted', {
+    task: entityId,
+    group: groupId,
     students: students.length,
-    ...results
+    granted: results.successful,
+    skipped: results.skipped,
+    failed: results.failed
   })
 
   return {
@@ -188,18 +188,10 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const duration = Date.now() - startTime
-
-    logger.info('Webhook processing completed', {
-      entityId,
-      duration,
-      ...result
-    })
-
     // 7. Return success response
     return {
       ...result,
-      duration_ms: duration
+      duration_ms: Date.now() - startTime
     }
 
   } catch (error: any) {

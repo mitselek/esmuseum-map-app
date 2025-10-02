@@ -12,40 +12,13 @@ const logger = createLogger('webhook-validation')
 /**
  * Validate webhook request authenticity
  * 
- * Current implementation is basic - will be enhanced when we receive
- * actual webhook payloads from Entu and understand their authentication
+ * We use JWT token authentication (in webhook payload) instead of webhook secrets.
  * 
  * @param event - H3 event object
- * @returns Boolean indicating if webhook is valid
+ * @returns Always returns true (authentication via JWT in payload)
  */
 export function validateWebhookRequest(event: H3Event): boolean {
-  const config = useRuntimeConfig()
-  const webhookSecret = config.webhookSecret as string | undefined
-
-  // If no secret is configured, log warning but allow (for initial testing)
-  if (!webhookSecret) {
-    logger.warn('NUXT_WEBHOOK_SECRET not configured - webhook validation disabled')
-    return true
-  }
-
-  // Check for webhook signature/token in headers
-  // This will be implemented once we know what Entu sends
-  const signature = getHeader(event, 'x-webhook-signature')
-  const token = getHeader(event, 'x-webhook-token')
-
-  if (!signature && !token) {
-    logger.warn('Webhook request missing authentication headers')
-    return false
-  }
-
-  // TODO: Implement actual signature validation once we know Entu's format
-  // For now, just check if secret matches token (placeholder)
-  if (token && token === webhookSecret) {
-    return true
-  }
-
-  logger.warn('Webhook authentication failed')
-  return false
+  return true
 }
 
 /**
@@ -142,12 +115,6 @@ export function extractUserToken(payload: any): {
     const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString())
     const userId = payload.accounts?.[payload.db] || payload.accounts?.esmuuseum || null
     const userEmail = payload.user?.email || null
-
-    logger.info('Extracted user token from webhook', {
-      userId,
-      userEmail,
-      tokenExpiry: payload.exp ? new Date(payload.exp * 1000).toISOString() : 'unknown'
-    })
 
     return { token, userId, userEmail }
   } catch (error: any) {
