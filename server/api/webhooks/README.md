@@ -5,11 +5,13 @@ This directory contains webhook endpoints that Entu will call to automate studen
 ## Endpoints
 
 ### POST /api/webhooks/student-added-to-class
+
 **Purpose:** Automatically grant student access to all tasks when added to a class
 
 **Trigger:** Entu webhook when `person._parent` references a `grupp`
 
 **Flow:**
+
 1. Receive webhook from Entu
 2. Extract student ID and group ID
 3. Query all tasks assigned to that group
@@ -17,11 +19,13 @@ This directory contains webhook endpoints that Entu will call to automate studen
 5. Return success/failure response
 
 ### POST /api/webhooks/task-assigned-to-class
+
 **Purpose:** Automatically grant all class students access when task is assigned
 
 **Trigger:** Entu webhook when `ulesanne.grupp` is set/updated
 
 **Flow:**
+
 1. Receive webhook from Entu
 2. Extract task ID and group ID
 3. Query all students in that group
@@ -38,6 +42,7 @@ This directory contains webhook endpoints that Entu will call to automate studen
 ## Configuration
 
 Required environment variables:
+
 ```bash
 NUXT_ENTU_ADMIN_KEY=your_admin_key_here
 NUXT_WEBHOOK_SECRET=your_webhook_secret_here
@@ -45,12 +50,36 @@ NUXT_WEBHOOK_SECRET=your_webhook_secret_here
 
 ## Testing
 
-To test webhooks locally, you can use tools like:
-- curl
-- Postman
-- VS Code REST Client
+### Local Testing with Cloudflare Tunnel
 
-Example test request:
+To receive webhooks from Entu during development:
+
+1. **Start your dev server:**
+
+   ```bash
+   npm run dev
+   ```
+
+2. **In a new terminal, start Cloudflare Tunnel:**
+
+   ```bash
+   cloudflared tunnel --url http://localhost:3000
+   ```
+
+   This will give you a public URL like `https://random-name.trycloudflare.com`
+
+3. **Configure Entu webhooks** with your tunnel URL:
+   - `https://your-tunnel-url.trycloudflare.com/api/webhooks/student-added-to-class`
+   - `https://your-tunnel-url.trycloudflare.com/api/webhooks/task-assigned-to-class`
+
+4. **Test by triggering events in Entu:**
+   - Add a student to a class
+   - Assign a task to a class
+
+### Manual Testing
+
+You can also test locally with tools like curl, Postman, or VS Code REST Client:
+
 ```bash
 curl -X POST http://localhost:3000/api/webhooks/student-added-to-class \
   -H "Content-Type: application/json" \
@@ -68,6 +97,7 @@ curl -X POST http://localhost:3000/api/webhooks/student-added-to-class \
 ## Monitoring
 
 All webhook events are logged with:
+
 - Timestamp
 - Entity IDs involved
 - Permission grants (success/failure)
