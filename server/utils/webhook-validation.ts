@@ -52,7 +52,7 @@ export function validateWebhookRequest(event: H3Event): boolean {
  * Validate webhook payload structure
  * 
  * Ensures the payload has required fields before processing
- * Entu webhook format: { db, plugin, user: { _id }, entity: { _id } }
+ * Entu webhook format: { db, plugin, entity: { _id }, token: "jwt..." }
  * 
  * @param payload - The webhook payload to validate
  * @returns Validation result with errors if any
@@ -79,10 +79,8 @@ export function validateWebhookPayload(
     errors.push('Missing entity._id in payload')
   }
 
-  if (!payload.user || typeof payload.user !== 'object') {
-    errors.push('Missing user object in payload')
-  } else if (!payload.user._id) {
-    errors.push('Missing user._id in payload')
+  if (!payload.token || typeof payload.token !== 'string') {
+    errors.push('Missing token field in payload')
   }
 
   const valid = errors.length === 0
@@ -109,6 +107,53 @@ export function extractEntityId(payload: any): string | null {
   logger.debug('Extracted entity ID from payload', { entityId })
 
   return entityId
+}
+
+/**
+ * Extract user JWT token from webhook payload
+ * 
+ * Entu webhook format: { token: "eyJhbGci..." }
+ * The token contains user information and can be used to make API calls
+ * 
+ * @param payload - The webhook payload
+ * @returns Extracted JWT token and decoded user info
+ */
+export function extractUserToken(payload: any): { 
+  token: string | null
+  userId: string | null
+  userEmail: string | null
+} {
+  const token = payload.token || null
+
+  if (!token) {
+    logger.warn('No token found in webhook payload')
+    return { token: null, userId: null, userEmail: null }
+  }
+
+  // Decode JWT to get user info (without verification - Entu already validated it)
+  try {
+    const parts = token.split('.')
+    if (parts.length !== 3) {
+      logger.warn('Invalid JWT token format')
+      return { token, userId: null, userEmail: null }
+    }
+
+    // Decode the payload (second part)
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString())
+    const userId = payload.accounts?.[payload.db] || payload.accounts?.esmuuseum || null
+    const userEmail = payload.user?.email || null
+
+    logger.info('Extracted user token from webhook', {
+      userId,
+      userEmail,
+      tokenExpiry: payload.exp ? new Date(payload.exp * 1000).toISOString() : 'unknown'
+    })
+
+    return { token, userId, userEmail }
+  } catch (error: any) {
+    logger.error('Failed to decode JWT token', { error: error.message })
+    return { token, userId: null, userEmail: null }
+  }
 }
 
 /**

@@ -1,8 +1,7 @@
 /**
- * F020: Server-side Entu Admin API utilities
+ * F020: Server-side Entu API utilities
  * 
- * Privileged operations for managing student access permissions
- * Uses NUXT_ENTU_ADMIN_KEY with elevated permissions
+ * Operations for managing student access permissions using user JWT tokens from webhooks
  */
 
 import { createLogger } from './logger'
@@ -10,67 +9,22 @@ import { callEntuApi, searchEntuEntities, getEntuApiConfig, type EntuApiOptions 
 
 const logger = createLogger('entu-admin')
 
-// Token cache - stores JWT tokens exchanged from API keys
-let adminTokenCache: { token: string; expiresAt: number } | null = null
-
 /**
- * Exchange API key for JWT token
- * Entu requires calling /auth endpoint with API key to get a JWT token
+ * Get API configuration for making Entu API calls
+ * 
+ * @param userToken - JWT token from webhook (REQUIRED - no fallback)
+ * @param userId - User ID for logging attribution
+ * @param userEmail - User email for logging attribution
+ * @returns API configuration with user authentication
  */
-async function exchangeApiKeyForToken(apiKey: string, apiUrl: string, accountName: string): Promise<string> {
-  logger.debug('Exchanging API key for JWT token')
-
-  try {
-    const url = `${apiUrl}/api/auth?account=${accountName}`
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Accept-Encoding': 'deflate'
-      }
-    })
-
-    if (!response.ok) {
-      const errorBody = await response.text()
-      logger.error('Failed to exchange API key for token', {
-        status: response.status,
-        statusText: response.statusText,
-        body: errorBody
-      })
-      throw new Error(`Auth failed: ${response.status} ${response.statusText}`)
-    }
-
-    const data = await response.json()
-    
-    if (!data.token) {
-      logger.error('Auth response missing token', { data })
-      throw new Error('Auth response missing token')
-    }
-
-    logger.info('Successfully exchanged API key for JWT token')
-    return data.token
-  } catch (error: any) {
-    logger.error('API key exchange failed', { error: error.message })
-    throw error
-  }
-}
-
-/**
- * Get admin API configuration using privileged key
- * Automatically exchanges API key for JWT token and caches it
- */
-export async function getAdminApiConfig(): Promise<EntuApiOptions> {
+export async function getAdminApiConfig(
+  userToken?: string, 
+  userId?: string,
+  userEmail?: string
+): Promise<EntuApiOptions> {
   const config = useRuntimeConfig()
-  const apiKey = config.entuAdminKey as string
   const apiUrl = config.entuApiUrl as string
   const accountName = config.entuClientId as string
-
-  if (!apiKey) {
-    logger.error('NUXT_ENTU_ADMIN_KEY not configured')
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Admin API key not configured'
-    })
-  }
 
   if (!apiUrl || !accountName) {
     logger.error('Entu API URL or account name not configured', { apiUrl, accountName })
@@ -80,24 +34,30 @@ export async function getAdminApiConfig(): Promise<EntuApiOptions> {
     })
   }
 
-  // Check if we have a valid cached token
-  const now = Date.now()
-  if (adminTokenCache && adminTokenCache.expiresAt > now) {
-    logger.debug('Using cached admin token')
-    return getEntuApiConfig(adminTokenCache.token)
+  // User JWT token is REQUIRED - no fallback to admin key
+  if (!userToken) {
+    logger.error('No user token provided - webhook must include JWT token', {
+      userId,
+      userEmail,
+      note: 'User token is required for proper attribution and security'
+    })
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Missing user authentication token from webhook'
+    })
   }
 
-  // Exchange API key for JWT token
-  logger.debug('Admin token cache miss or expired - exchanging API key')
-  const jwtToken = await exchangeApiKeyForToken(apiKey, apiUrl, accountName)
-
-  // Cache the token for 23 hours (tokens typically valid for 24h)
-  adminTokenCache = {
-    token: jwtToken,
-    expiresAt: now + (23 * 60 * 60 * 1000)
+  logger.info('Using user JWT token from webhook for API calls', { 
+    userEmail,
+    userId,
+    note: 'Proper user attribution - actions performed as initiating user'
+  })
+  
+  return {
+    apiUrl,
+    accountName,
+    token: userToken
   }
-
-  return getEntuApiConfig(jwtToken)
 }
 
 /**
@@ -108,10 +68,19 @@ export async function getAdminApiConfig(): Promise<EntuApiOptions> {
  * 
  * @param entityId - The entity to grant permission on (e.g., task ID)
  * @param personId - The person to grant permission to (e.g., student ID)
+ * @param userToken - Optional JWT token from webhook user (not usable due to IP restrictions)
+ * @param userId - Optional user ID for attribution logging
+ * @param userEmail - Optional user email for attribution logging
  * @returns API response from Entu
  */
-export async function addExpanderPermission(entityId: string, personId: string) {
-  const apiConfig = await getAdminApiConfig()
+export async function addExpanderPermission(
+  entityId: string, 
+  personId: string, 
+  userToken?: string,
+  userId?: string,
+  userEmail?: string
+) {
+  const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
 
   logger.info('Granting _expander permission', {
     entity: entityId,
@@ -159,10 +128,19 @@ export async function addExpanderPermission(entityId: string, personId: string) 
  * 
  * @param entityId - The entity to grant permissions on (e.g., task ID)
  * @param personIds - Array of person IDs to grant permission to
+ * @param userToken - Optional JWT token from webhook user (not usable due to IP restrictions)
+ * @param userId - Optional user ID for attribution logging
+ * @param userEmail - Optional user email for attribution logging
  * @returns API response from Entu
  */
-export async function addMultipleExpanderPermissions(entityId: string, personIds: string[]) {
-  const apiConfig = await getAdminApiConfig()
+export async function addMultipleExpanderPermissions(
+  entityId: string, 
+  personIds: string[], 
+  userToken?: string,
+  userId?: string,
+  userEmail?: string
+) {
+  const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
 
   logger.info('Granting multiple _expander permissions in single call', {
     entity: entityId,
@@ -204,19 +182,22 @@ export async function addMultipleExpanderPermissions(entityId: string, personIds
 
 /**
  * Batch grant _expander permissions to multiple people on multiple entities
- * Uses bulk API calls per entity for maximum efficiency (1 API call per entity instead of 1 per person)
- * Checks for existing permissions (idempotency) before granting
- * 
- * Grants _expander permissions to multiple persons on multiple entities
- * Returns detailed results including successes and failures
+ * Optimized to use bulk permission grants per entity (1 API call per entity)
+ * Includes idempotency check to skip persons who already have permission
  * 
  * @param entityIds - Array of entity IDs (e.g., task IDs)
  * @param personIds - Array of person IDs (e.g., student IDs)
+ * @param userToken - Optional JWT token from webhook user (not usable due to IP restrictions)
+ * @param userId - Optional user ID for attribution logging
+ * @param userEmail - Optional user email for attribution logging
  * @returns Summary of grant operations
  */
 export async function batchGrantPermissions(
   entityIds: string[],
-  personIds: string[]
+  personIds: string[],
+  userToken?: string,
+  userId?: string,
+  userEmail?: string
 ): Promise<{
   total: number
   successful: number
@@ -247,7 +228,7 @@ export async function batchGrantPermissions(
       results.total++
       
       try {
-        const exists = await hasExpanderPermission(entityId, personId)
+        const exists = await hasExpanderPermission(entityId, personId, userToken, userId, userEmail)
         
         if (exists) {
           logger.debug('Permission already exists, skipping', { entity: entityId, person: personId })
@@ -274,7 +255,7 @@ export async function batchGrantPermissions(
     // Grant all permissions for this entity in a single API call
     if (personsToGrant.length > 0) {
       try {
-        await addMultipleExpanderPermissions(entityId, personsToGrant)
+        await addMultipleExpanderPermissions(entityId, personsToGrant, userToken, userId, userEmail)
         
         // Mark all as successful
         for (const personId of personsToGrant) {
@@ -322,8 +303,8 @@ export async function batchGrantPermissions(
  * @param gruppId - The group ID to search for
  * @returns Array of task entities
  */
-export async function getTasksByGroup(gruppId: string) {
-  const apiConfig = await getAdminApiConfig()
+export async function getTasksByGroup(gruppId: string, userToken?: string, userId?: string, userEmail?: string) {
+  const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
 
   logger.debug('Fetching tasks for group', { gruppId })
 
@@ -360,8 +341,8 @@ export async function getTasksByGroup(gruppId: string) {
  * @param gruppId - The group ID to search for
  * @returns Array of person entities
  */
-export async function getStudentsByGroup(gruppId: string) {
-  const apiConfig = await getAdminApiConfig()
+export async function getStudentsByGroup(gruppId: string, userToken?: string, userId?: string, userEmail?: string) {
+  const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
 
   logger.debug('Fetching students for group', { gruppId })
 
@@ -397,8 +378,8 @@ export async function getStudentsByGroup(gruppId: string) {
  * @param entityId - The entity ID to fetch
  * @returns Full entity object
  */
-export async function getEntityDetails(entityId: string): Promise<any> {
-  const apiConfig = await getAdminApiConfig()
+export async function getEntityDetails(entityId: string, userToken?: string, userId?: string, userEmail?: string): Promise<any> {
+  const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
 
   logger.debug('Fetching entity details', { entityId })
 
@@ -525,8 +506,8 @@ export function extractGroupFromTask(entity: any): string | null {
  * @param personId - The person to check for
  * @returns Boolean indicating if permission exists
  */
-export async function hasExpanderPermission(entityId: string, personId: string): Promise<boolean> {
-  const apiConfig = await getAdminApiConfig()
+export async function hasExpanderPermission(entityId: string, personId: string, userToken?: string, userId?: string, userEmail?: string): Promise<boolean> {
+  const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
 
   logger.debug('Checking existing permission', {
     entity: entityId,
