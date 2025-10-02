@@ -12,6 +12,7 @@ import {
   validateWebhookRequest, 
   validateWebhookPayload, 
   extractEntityId,
+  extractUserToken,
   checkRateLimit,
   sanitizePayloadForLogging 
 } from '../../utils/webhook-validation'
@@ -31,11 +32,11 @@ const logger = createLogger('webhook:student-added')
 /**
  * Process the webhook - separated for reprocessing logic
  */
-async function processStudentWebhook(entityId: string) {
-  logger.info('Processing student webhook', { entityId })
+async function processStudentWebhook(entityId: string, userToken?: string, userId?: string, userEmail?: string) {
+  logger.info('Processing student webhook', { entityId, userEmail, userId, initiatedBy: userEmail || userId })
 
   // Fetch full entity details
-  const entity = await getEntityDetails(entityId)
+  const entity = await getEntityDetails(entityId, userToken, userId, userEmail)
 
   // Extract groups from person's _parent references
   const groupIds = extractGroupsFromPerson(entity)
@@ -61,7 +62,7 @@ async function processStudentWebhook(entityId: string) {
   // Get all tasks for all groups
   let allTasks: any[] = []
   for (const groupId of groupIds) {
-    const tasks = await getTasksByGroup(groupId)
+    const tasks = await getTasksByGroup(groupId, userToken, userId, userEmail)
     allTasks = allTasks.concat(tasks)
   }
 
@@ -91,7 +92,7 @@ async function processStudentWebhook(entityId: string) {
   })
 
   // Grant permissions to person for all tasks
-  const results = await batchGrantPermissions(taskIds, [entityId])
+  const results = await batchGrantPermissions(taskIds, [entityId], userToken, userId, userEmail)
 
   logger.info('Student access management completed', {
     personId: entityId,
@@ -140,10 +141,6 @@ export default defineEventHandler(async (event) => {
 
     // 3. Read and validate payload
     const payload = await readBody(event)
-    
-    logger.debug('Webhook payload received', {
-      payload: sanitizePayloadForLogging(payload)
-    })
 
     const payloadValidation = validateWebhookPayload(payload)
     if (!payloadValidation.valid) {
@@ -154,8 +151,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // 4. Extract entity ID
+    // 4. Extract entity ID and user token
     const entityId = extractEntityId(payload)
+    const { token: userToken, userId, userEmail } = extractUserToken(payload)
 
     if (!entityId) {
       logger.warn('Missing entity ID in payload')
@@ -164,6 +162,8 @@ export default defineEventHandler(async (event) => {
         statusMessage: 'Missing entity ID in payload'
       })
     }
+
+    logger.info('Webhook initiated by user', { userId, userEmail })
 
     // 5. Check queue - debounce if already processing
     const shouldProcess = enqueueWebhook(entityId)
@@ -183,7 +183,7 @@ export default defineEventHandler(async (event) => {
     let needsReprocessing = true
 
     while (needsReprocessing) {
-      result = await processStudentWebhook(entityId)
+      result = await processStudentWebhook(entityId, userToken || undefined, userId || undefined, userEmail || undefined)
       
       // Check if reprocessing needed (entity was edited during processing)
       needsReprocessing = completeWebhookProcessing(entityId)

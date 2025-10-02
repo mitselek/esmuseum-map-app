@@ -48,8 +48,7 @@ export default defineNuxtConfig({
     entuKey: '',
     entuApiUrl: '',
     entuClientId: '',
-    // F020: Privileged API key for webhook operations
-    entuAdminKey: '',
+    // F020: Webhook security secret
     webhookSecret: '',
     public: {
       callbackOrigin: '',
