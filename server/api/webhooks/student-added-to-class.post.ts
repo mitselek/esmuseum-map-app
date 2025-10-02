@@ -1,8 +1,9 @@
 /**
  * F020: Student Added to Class Webhook
  * 
- * Entu calls this endpoint when a student (person) is added to a class (grupp)
- * Automatically grants the student _expander permission on all tasks assigned to that class
+ * Entu calls this endpoint when a person entity is edited
+ * Checks if person has _parent → grupp references and grants _expander
+ * permission on all tasks assigned to those groups
  */
 
 import { defineEventHandler, readBody } from 'h3'
@@ -10,16 +11,106 @@ import { createLogger } from '../../utils/logger'
 import { 
   validateWebhookRequest, 
   validateWebhookPayload, 
-  extractEntityIds,
+  extractEntityId,
   checkRateLimit,
   sanitizePayloadForLogging 
 } from '../../utils/webhook-validation'
+import {
+  enqueueWebhook,
+  completeWebhookProcessing
+} from '../../utils/webhook-queue'
 import { 
+  getEntityDetails,
+  extractGroupsFromPerson,
   getTasksByGroup, 
   batchGrantPermissions 
 } from '../../utils/entu-admin'
 
 const logger = createLogger('webhook:student-added')
+
+/**
+ * Process the webhook - separated for reprocessing logic
+ */
+async function processStudentWebhook(entityId: string) {
+  logger.info('Processing student webhook', { entityId })
+
+  // Fetch full entity details
+  const entity = await getEntityDetails(entityId)
+
+  // Extract groups from person's _parent references
+  const groupIds = extractGroupsFromPerson(entity)
+
+  if (groupIds.length === 0) {
+    logger.info('Person has no group memberships', { entityId })
+    return {
+      success: true,
+      message: 'Person has no groups assigned',
+      person_id: entityId,
+      groups_found: 0,
+      tasks_found: 0,
+      permissions_granted: 0
+    }
+  }
+
+  logger.info('Found groups for person', {
+    personId: entityId,
+    groupCount: groupIds.length,
+    groupIds
+  })
+
+  // Get all tasks for all groups
+  let allTasks: any[] = []
+  for (const groupId of groupIds) {
+    const tasks = await getTasksByGroup(groupId)
+    allTasks = allTasks.concat(tasks)
+  }
+
+  // Remove duplicate tasks (if person belongs to multiple groups with same tasks)
+  const uniqueTasks = Array.from(
+    new Map(allTasks.map(task => [task._id, task])).values()
+  )
+
+  if (uniqueTasks.length === 0) {
+    logger.info('No tasks found for person\'s groups', { entityId, groupIds })
+    return {
+      success: true,
+      message: 'Person added to groups, but no tasks assigned yet',
+      person_id: entityId,
+      groups_found: groupIds.length,
+      tasks_found: 0,
+      permissions_granted: 0
+    }
+  }
+
+  const taskIds = uniqueTasks.map(task => task._id)
+
+  logger.info('Found tasks for person\'s groups', {
+    personId: entityId,
+    taskCount: uniqueTasks.length,
+    taskIds
+  })
+
+  // Grant permissions to person for all tasks
+  const results = await batchGrantPermissions(taskIds, [entityId])
+
+  logger.info('Student access management completed', {
+    personId: entityId,
+    groups: groupIds.length,
+    tasks: uniqueTasks.length,
+    ...results
+  })
+
+  return {
+    success: true,
+    message: 'Student access granted successfully',
+    person_id: entityId,
+    groups_found: groupIds.length,
+    tasks_found: uniqueTasks.length,
+    permissions_granted: results.successful,
+    permissions_skipped: results.skipped,
+    permissions_failed: results.failed
+  }
+}
 
 export default defineEventHandler(async (event) => {
   const startTime = Date.now()
@@ -63,76 +154,58 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // 4. Extract entity IDs
-    const { entityId: studentId, referenceId: gruppId, entityType } = extractEntityIds(payload)
+    // 4. Extract entity ID
+    const entityId = extractEntityId(payload)
 
-    if (!studentId || !gruppId) {
-      logger.warn('Missing required IDs in payload', { studentId, gruppId })
+    if (!entityId) {
+      logger.warn('Missing entity ID in payload')
       throw createError({
         statusCode: 400,
-        statusMessage: 'Missing student ID or group ID in payload'
+        statusMessage: 'Missing entity ID in payload'
       })
     }
 
-    // Verify this is a grupp reference
-    if (entityType && entityType !== 'grupp') {
-      logger.warn('Wrong entity type - expected grupp', { entityType, studentId, gruppId })
-      throw createError({
-        statusCode: 400,
-        statusMessage: `Expected grupp entity type, got: ${entityType}`
-      })
-    }
-
-    logger.info('Processing student added to class', {
-      studentId,
-      gruppId
-    })
-
-    // 5. Get all tasks for this group
-    const tasks = await getTasksByGroup(gruppId)
-
-    if (tasks.length === 0) {
-      logger.info('No tasks found for group - nothing to grant', { gruppId })
+    // 5. Check queue - debounce if already processing
+    const shouldProcess = enqueueWebhook(entityId)
+    
+    if (!shouldProcess) {
+      logger.info('Entity already queued - webhook will be reprocessed', { entityId })
       return {
         success: true,
-        message: 'Student added to class, but no tasks assigned yet',
-        student_id: studentId,
-        group_id: gruppId,
-        tasks_found: 0,
-        permissions_granted: 0
+        message: 'Webhook queued for reprocessing',
+        entity_id: entityId,
+        queued: true
       }
     }
 
-    const taskIds = tasks.map((task: any) => task._id)
+    // 6. Process webhook
+    let result
+    let needsReprocessing = true
 
-    logger.info('Found tasks for group', {
-      gruppId,
-      taskCount: tasks.length,
-      taskIds
-    })
-
-    // 6. Grant permissions to student for all tasks
-    const results = await batchGrantPermissions(taskIds, [studentId])
+    while (needsReprocessing) {
+      result = await processStudentWebhook(entityId)
+      
+      // Check if reprocessing needed (entity was edited during processing)
+      needsReprocessing = completeWebhookProcessing(entityId)
+      
+      if (needsReprocessing) {
+        logger.info('Reprocessing entity - was edited during processing', { entityId })
+        // Wait 2 seconds before reprocessing to let edits settle
+        await new Promise(resolve => setTimeout(resolve, 2000))
+      }
+    }
 
     const duration = Date.now() - startTime
 
-    logger.info('Student access management completed', {
-      studentId,
-      gruppId,
+    logger.info('Webhook processing completed', {
+      entityId,
       duration,
-      ...results
+      ...result
     })
 
     // 7. Return success response
     return {
-      success: true,
-      message: 'Student access granted successfully',
-      student_id: studentId,
-      group_id: gruppId,
-      tasks_found: tasks.length,
-      permissions_granted: results.successful,
-      permissions_skipped: results.skipped,
-      permissions_failed: results.failed,
+      ...result,
       duration_ms: duration
     }
 

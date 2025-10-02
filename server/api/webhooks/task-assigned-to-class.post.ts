@@ -1,8 +1,9 @@
 /**
  * F020: Task Assigned to Class Webhook
  * 
- * Entu calls this endpoint when a task (ulesanne) is assigned to a class (grupp)
- * Automatically grants all class students _expander permission on the task
+ * Entu calls this endpoint when a task (ulesanne) entity is edited
+ * Checks if task has grupp reference and grants _expander permission
+ * to all students in that group
  */
 
 import { defineEventHandler, readBody } from 'h3'
@@ -10,16 +11,99 @@ import { createLogger } from '../../utils/logger'
 import { 
   validateWebhookRequest, 
   validateWebhookPayload, 
-  extractEntityIds,
+  extractEntityId,
   checkRateLimit,
   sanitizePayloadForLogging 
 } from '../../utils/webhook-validation'
+import {
+  enqueueWebhook,
+  completeWebhookProcessing
+} from '../../utils/webhook-queue'
 import { 
+  getEntityDetails,
+  extractGroupFromTask,
   getStudentsByGroup, 
   batchGrantPermissions 
 } from '../../utils/entu-admin'
 
 const logger = createLogger('webhook:task-assigned')
+
+/**
+ * Process the webhook - separated for reprocessing logic
+ */
+async function processTaskWebhook(entityId: string) {
+  logger.info('Processing task webhook', { entityId })
+
+  // Fetch full entity details
+  const entity = await getEntityDetails(entityId)
+
+  // Extract group from task's grupp property
+  const groupId = extractGroupFromTask(entity)
+
+  if (!groupId) {
+    logger.info('Task has no group assignment', { entityId })
+    return {
+      success: true,
+      message: 'Task has no group assigned',
+      task_id: entityId,
+      group_found: false,
+      students_found: 0,
+      permissions_granted: 0
+    }
+  }
+
+  logger.info('Found group for task', {
+    taskId: entityId,
+    groupId
+  })
+
+  // Get all students in the group
+  const students = await getStudentsByGroup(groupId)
+
+  if (students.length === 0) {
+    logger.info('No students found in group', { groupId, taskId: entityId })
+    return {
+      success: true,
+      message: 'Task assigned to group, but no students in group yet',
+      task_id: entityId,
+      group_id: groupId,
+      group_found: true,
+      students_found: 0,
+      permissions_granted: 0
+    }
+  }
+
+  const studentIds = students.map((student: any) => student._id)
+
+  logger.info('Found students in group', {
+    taskId: entityId,
+    groupId,
+    studentCount: students.length,
+    studentIds
+  })
+
+  // Grant permissions to all students for this task
+  const results = await batchGrantPermissions([entityId], studentIds)
+
+  logger.info('Task access management completed', {
+    taskId: entityId,
+    groupId,
+    students: students.length,
+    ...results
+  })
+
+  return {
+    success: true,
+    message: 'Task access granted to students successfully',
+    task_id: entityId,
+    group_id: groupId,
+    group_found: true,
+    students_found: students.length,
+    permissions_granted: results.successful,
+    permissions_skipped: results.skipped,
+    permissions_failed: results.failed
+  }
+}
 
 export default defineEventHandler(async (event) => {
   const startTime = Date.now()
@@ -63,76 +147,58 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // 4. Extract entity IDs
-    const { entityId: taskId, referenceId: gruppId, entityType } = extractEntityIds(payload)
+    // 4. Extract entity ID
+    const entityId = extractEntityId(payload)
 
-    if (!taskId || !gruppId) {
-      logger.warn('Missing required IDs in payload', { taskId, gruppId })
+    if (!entityId) {
+      logger.warn('Missing entity ID in payload')
       throw createError({
         statusCode: 400,
-        statusMessage: 'Missing task ID or group ID in payload'
+        statusMessage: 'Missing entity ID in payload'
       })
     }
 
-    // Verify this is a grupp reference
-    if (entityType && entityType !== 'grupp') {
-      logger.warn('Wrong entity type - expected grupp', { entityType, taskId, gruppId })
-      throw createError({
-        statusCode: 400,
-        statusMessage: `Expected grupp entity type, got: ${entityType}`
-      })
-    }
-
-    logger.info('Processing task assigned to class', {
-      taskId,
-      gruppId
-    })
-
-    // 5. Get all students in this group
-    const students = await getStudentsByGroup(gruppId)
-
-    if (students.length === 0) {
-      logger.info('No students found in group - nothing to grant', { gruppId })
+    // 5. Check queue - debounce if already processing
+    const shouldProcess = enqueueWebhook(entityId)
+    
+    if (!shouldProcess) {
+      logger.info('Entity already queued - webhook will be reprocessed', { entityId })
       return {
         success: true,
-        message: 'Task assigned to class, but no students in class yet',
-        task_id: taskId,
-        group_id: gruppId,
-        students_found: 0,
-        permissions_granted: 0
+        message: 'Webhook queued for reprocessing',
+        entity_id: entityId,
+        queued: true
       }
     }
 
-    const studentIds = students.map((student: any) => student._id)
+    // 6. Process webhook
+    let result
+    let needsReprocessing = true
 
-    logger.info('Found students in group', {
-      gruppId,
-      studentCount: students.length,
-      studentIds
-    })
-
-    // 6. Grant permissions to all students for this task
-    const results = await batchGrantPermissions([taskId], studentIds)
+    while (needsReprocessing) {
+      result = await processTaskWebhook(entityId)
+      
+      // Check if reprocessing needed (entity was edited during processing)
+      needsReprocessing = completeWebhookProcessing(entityId)
+      
+      if (needsReprocessing) {
+        logger.info('Reprocessing entity - was edited during processing', { entityId })
+        // Wait 2 seconds before reprocessing to let edits settle
+        await new Promise(resolve => setTimeout(resolve, 2000))
+      }
+    }
 
     const duration = Date.now() - startTime
 
-    logger.info('Task access management completed', {
-      taskId,
-      gruppId,
+    logger.info('Webhook processing completed', {
+      entityId,
       duration,
-      ...results
+      ...result
     })
 
     // 7. Return success response
     return {
-      success: true,
-      message: 'Task access granted to all students successfully',
-      task_id: taskId,
-      group_id: gruppId,
-      students_found: students.length,
-      permissions_granted: results.successful,
-      permissions_skipped: results.skipped,
-      permissions_failed: results.failed,
+      ...result,
       duration_ms: duration
     }
 
