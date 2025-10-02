@@ -13,4 +13,9 @@
 - [x] Find all places, where we are checking for ._id but actually should only look for .reference (e.g. in useTaskDetail.ts)
 - [x] find out, why was expanding options after headers in callApi critical for POST requests - was it just a timing issue or something else?
 - [x] remove the certs from the repo!
-- [ ] could we use typescript interfaces to define the shape of Entu entities (e.g. Task, Response, Location) and use them across the app for better type safety and autocompletion?
+- [x] could we use typescript interfaces to define the shape of Entu entities (e.g. Task, Response, Location) and use them across the app for better type safety and autocompletion?
+  - ✅ IMPLEMENTED IN F022 - See `feature/F022-entu-entity-types` branch
+  - Created comprehensive type system in `types/entu.ts` with base types, entity interfaces, and type guards
+  - Added utility helpers in `utils/entu-helpers.ts` for type-safe value extraction
+  - Complete documentation and migration examples in `.copilot-workspace/features/F022-entu-entity-types.md`
+  - Ready for gradual migration of existing code to use typed entities
