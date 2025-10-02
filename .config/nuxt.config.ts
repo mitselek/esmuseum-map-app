@@ -46,9 +46,11 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     entuKey: '',
+    entuApiUrl: '',
+    entuClientId: '',
+    // F020: Webhook security secret
+    webhookSecret: '',
     public: {
-      entuUrl: '',
-      entuAccount: '',
       callbackOrigin: '',
       // F015 Feature Flags
       F015_CLIENT_SIDE_RESPONSE_CREATION: 'true', // Phase 3.1 - COMPLETED
