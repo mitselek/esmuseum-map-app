@@ -6,18 +6,18 @@
  */
 
 import { defineEventHandler, readBody } from 'h3'
-import { createLogger } from '~/server/utils/logger'
+import { createLogger } from '../../utils/logger'
 import { 
   validateWebhookRequest, 
   validateWebhookPayload, 
   extractEntityIds,
   checkRateLimit,
   sanitizePayloadForLogging 
-} from '~/server/utils/webhook-validation'
+} from '../../utils/webhook-validation'
 import { 
   getStudentsByGroup, 
   batchGrantPermissions 
-} from '~/server/utils/entu-admin'
+} from '../../utils/entu-admin'
 
 const logger = createLogger('webhook:task-assigned')
 
