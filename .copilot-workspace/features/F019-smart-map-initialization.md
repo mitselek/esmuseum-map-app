@@ -163,6 +163,7 @@ watch(
 ### The URL Parameter Stripping Issue 🐛➡️✅
 
 **Root Cause Found**: Task selection logic was causing unnecessary navigation:
+
 ```javascript
 // PROBLEMATIC: selectTask() was doing router.push() that stripped query params
 selectTask(taskId) {
@@ -172,18 +173,19 @@ selectTask(taskId) {
 ```
 
 **The Fix**: Separated concerns between state updates and navigation:
-```javascript  
+
+```javascript
 // ✅ selectTask() now only updates state (no navigation)
 selectTask(taskId) {
   selectedTaskId.value = taskId
   // No router.push() - preserves URL parameters!
 }
 
-// ✅ navigateToTask() for user-initiated navigation with param preservation  
+// ✅ navigateToTask() for user-initiated navigation with param preservation
 navigateToTask(taskId) {
   selectedTaskId.value = taskId
-  router.push({ 
-    path: '/', 
+  router.push({
+    path: '/',
     query: { ...route.query, task: taskId } // Preserves existing params
   })
 }
@@ -194,8 +196,9 @@ navigateToTask(taskId) {
 ### Navigation Tracking System 🔍
 
 Added comprehensive navigation debugging:
+
 - Router call interception with stack traces
-- History API monitoring  
+- History API monitoring
 - URL change detection with parameter diff tracking
 - Auth middleware enhancement with route transition logging
 
