@@ -237,14 +237,6 @@ export const useTaskDetail = () => {
     }
   }
 
-  // Task response stats
-  // Import the proper response stats composable
-  const { getTaskResponseStats: getProperTaskResponseStats } = useTaskResponseStats()
-
-  const getTaskResponseStats = async (task) => {
-    return await getProperTaskResponseStats(task)
-  }
-
   // Load existing response data
   const loadExistingResponse = async (taskId) => {
     if (!taskId) return null
@@ -280,7 +272,6 @@ export const useTaskDetail = () => {
       needsLocation,
       checkPermissions,
       loadTaskLocations: loadLocations,
-      setStats,
       resetState
     } = options
 
@@ -304,20 +295,6 @@ export const useTaskDetail = () => {
       // Check permissions first
       if (checkPermissions) {
         await checkPermissions(taskId)
-      }
-
-      // Load task response stats
-      try {
-        const stats = await getTaskResponseStats(task)
-        if (setStats) {
-          setStats(stats)
-        }
-      }
-      catch (error) {
-        console.warn('Failed to load task response stats:', error)
-        if (setStats) {
-          setStats(null)
-        }
       }
 
       // Load task locations
@@ -405,7 +382,6 @@ export const useTaskDetail = () => {
     loadTaskLocations,
 
     // Response management
-    getTaskResponseStats,
     loadExistingResponse,
 
     // Task initialization
