@@ -7,10 +7,55 @@
  * - Processing the temporary API key
  */
 
-import { ref } from 'vue'
-import { useEntuAuth } from './useEntuAuth'
+import { REDIRECT_KEY } from '../utils/auth-check.client'
+import type { EntuAuthResponse } from './useEntuAuth'
 
-export const useEntuOAuth = () => {
+// ============================================================================
+// Types & Interfaces
+// ============================================================================
+
+/**
+ * Available OAuth providers
+ */
+export const OAUTH_PROVIDERS = {
+  GOOGLE: 'google',
+  APPLE: 'apple',
+  SMART_ID: 'smart-id',
+  MOBILE_ID: 'mobile-id',
+  ID_CARD: 'id-card'
+} as const
+
+export type OAuthProvider = typeof OAUTH_PROVIDERS[keyof typeof OAUTH_PROVIDERS]
+
+/**
+ * Runtime configuration for OAuth
+ */
+export interface OAuthConfig {
+  entuUrl?: string
+  entuAccount?: string
+  callbackOrigin?: string
+}
+
+/**
+ * Return type of useEntuOAuth composable
+ */
+export interface UseEntuOAuthReturn {
+  // Methods
+  startOAuthFlow: (provider: OAuthProvider) => boolean
+  handleOAuthCallback: () => Promise<EntuAuthResponse | null>
+  
+  // State
+  providers: typeof OAUTH_PROVIDERS
+  isLoading: Ref<boolean>
+  error: Ref<string | null>
+  isAuthenticated: ComputedRef<boolean>
+}
+
+// ============================================================================
+// Composable
+// ============================================================================
+
+export const useEntuOAuth = (): UseEntuOAuthReturn => {
   // Runtime configuration
   const config = useRuntimeConfig()
   const router = useRouter()
@@ -20,35 +65,26 @@ export const useEntuOAuth = () => {
 
   // State
   const isLoading = ref(false)
-  const error = ref(null)
-  const callbackUrl = ref(null)
-
-  // Available OAuth providers
-  const providers = {
-    GOOGLE: 'google',
-    APPLE: 'apple',
-    SMART_ID: 'smart-id',
-    MOBILE_ID: 'mobile-id',
-    ID_CARD: 'id-card'
-  }
+  const error = ref<string | null>(null)
+  const callbackUrl = ref<string | null>(null)
 
   /**
    * Start the OAuth.ee authentication flow
-   * @param {string} provider - The OAuth provider to use (google, apple, smartid, mobileid, esteid)
+   * @param provider - The OAuth provider to use
    */
-  const startOAuthFlow = (provider) => {
+  const startOAuthFlow = (provider: OAuthProvider): boolean => {
     isLoading.value = true
     error.value = null
 
     try {
       // Validate provider
-      if (!provider || !Object.values(providers).includes(provider)) {
+      if (!provider || !Object.values(OAUTH_PROVIDERS).includes(provider)) {
         throw new Error('Invalid authentication provider')
       }
 
       // Build the authentication URL
-      const apiUrl = config.public.entuUrl || 'https://entu.app'
-      const accountName = config.public.entuAccount || 'esmuuseum'
+      const apiUrl = config.public.entuUrl as string || 'https://entu.app'
+      const accountName = config.public.entuAccount as string || 'esmuuseum'
 
       // Store the current URL to redirect back after auth
       if (import.meta.client) {
@@ -60,7 +96,7 @@ export const useEntuOAuth = () => {
         let callbackOrigin = window.location.origin
 
         // Allow environment override if needed for special cases
-        const callbackOriginOverride = config.public.callbackOrigin
+        const callbackOriginOverride = config.public.callbackOrigin as string | undefined
         if (callbackOriginOverride) {
           callbackOrigin = callbackOriginOverride
         }
@@ -71,7 +107,7 @@ export const useEntuOAuth = () => {
       }
 
       // Build the OAuth URL with callback
-      const callback = encodeURIComponent(callbackUrl.value)
+      const callback = encodeURIComponent(callbackUrl.value || '')
       // Use the /api/auth/{provider} endpoint as per documentation
       const authUrl = `${apiUrl}/api/auth/${provider}?account=${accountName}&next=${callback}`
 
@@ -84,7 +120,8 @@ export const useEntuOAuth = () => {
       return true
     }
     catch (err) {
-      error.value = err.message || 'Failed to start OAuth flow'
+      const errorMessage = err instanceof Error ? err.message : 'Failed to start OAuth flow'
+      error.value = errorMessage
       isLoading.value = false
       console.error('OAuth flow error:', err)
       return false
@@ -95,7 +132,7 @@ export const useEntuOAuth = () => {
    * Handle the OAuth callback
    * This should be called from the callback route
    */
-  const handleOAuthCallback = async () => {
+  const handleOAuthCallback = async (): Promise<EntuAuthResponse | null> => {
     isLoading.value = true
     error.value = null
 
@@ -114,7 +151,7 @@ export const useEntuOAuth = () => {
 
       // First, try to get the token from the jwt query parameter (our new approach)
       if (searchParams.has('jwt')) {
-        tempKey = searchParams.get('jwt')
+        tempKey = searchParams.get('jwt') || ''
       }
       // Fallback: try the old method of token in the path
       else if (fullPath.includes('/auth/callback')) {
@@ -128,7 +165,8 @@ export const useEntuOAuth = () => {
         }
       }
 
-      if (!tempKey || tempKey.length < 10) { // Basic validation to ensure we have something that looks like a token
+      // Basic validation to ensure we have something that looks like a token
+      if (!tempKey || tempKey.length < 10) {
         throw new Error('No valid temporary key found in OAuth callback')
       }
 
@@ -162,7 +200,8 @@ export const useEntuOAuth = () => {
       return authData
     }
     catch (err) {
-      error.value = err.message || 'OAuth callback failed'
+      const errorMessage = err instanceof Error ? err.message : 'OAuth callback failed'
+      error.value = errorMessage
       console.error('OAuth callback error:', err)
       return null
     }
@@ -175,7 +214,7 @@ export const useEntuOAuth = () => {
   return {
     startOAuthFlow,
     handleOAuthCallback,
-    providers,
+    providers: OAUTH_PROVIDERS,
     isLoading,
     error,
     isAuthenticated
