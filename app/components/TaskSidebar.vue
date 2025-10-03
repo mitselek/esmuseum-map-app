@@ -205,6 +205,7 @@ import type { EntuTask } from '../../types/entu'
 import { getTaskName, getTaskDescription, getTaskResponseCount, getTaskDeadline } from '../../utils/entu-helpers'
 import { formatDate } from '../../utils/date-format'
 
+const { locale } = useI18n()
 const {
   tasks,
   selectedTaskId,
@@ -303,7 +304,7 @@ const isTaskFullyCompleted = (taskId: string): boolean => {
 const getTaskDueDate = (task: EntuTask): string | null => {
   const deadline = getTaskDeadline(task)
   if (deadline) {
-    return formatDate(deadline)
+    return formatDate(deadline, locale.value)
   }
   return null
 }
