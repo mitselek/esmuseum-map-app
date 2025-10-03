@@ -45,15 +45,6 @@
 - **Question**: Could create a shared `searchUserResponses()` utility?
 - **Action**: Consider after more composables migrated to TypeScript
 
-### 8. **useEntuAdminAuth.js may be obsolete**
-
-- **File**: `app/composables/useEntuAdminAuth.js` (46 lines)
-- **Issue**: INTERNAL USE ONLY - admin authentication via API key
-- **Question**: Is this actually used? No UI references found
-- **Action**: Investigate if this can be removed entirely
-- **Impact**: Could remove 46 lines if not needed
-- **Registered**: Phase 3, October 3, 2025
-
 ---
 
 ## ✅ Completed Optimizations
@@ -203,6 +194,26 @@
   - Type-safe integration with useLocation service
 
 **Impact**: Task geolocation fully typed, ~60% composables now TypeScript
+
+### Dead Code Removal: useEntuAdminAuth.js
+
+- **Deleted**: `app/composables/useEntuAdminAuth.js` (46 lines)
+- **Investigation findings**:
+  - Created for "backend-only API key authentication" in F001
+  - Never actually integrated into any backend code
+  - No imports found anywhere in codebase
+  - Scripts (fetch-entu-model.js) do their own auth directly
+  - Only referenced in feature documentation
+- **Search results**:
+  - `useEntuAdminAuth` import: 0 occurrences
+  - `authenticateWithApiKey()` usage: 0 occurrences
+  - No usage in components, pages, server, or scripts
+- **Benefits**:
+  - Cleaner codebase (-46 lines dead code)
+  - Less confusion about authentication methods
+  - One less file to maintain/migrate
+
+**Impact**: Dead code eliminated, resolved item #8
 
 ---
 
