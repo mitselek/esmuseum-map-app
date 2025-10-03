@@ -1,4 +1,4 @@
-import { ENTU_TYPES, ENTU_TYPE_IDS } from '../constants/entu'
+import { ENTU_TYPES, ENTU_TYPE_IDS, ENTU_PROPERTIES } from '../constants/entu'
 
 export const useTaskResponseCreation = () => {
   const { token } = useEntuAuth()
@@ -10,7 +10,7 @@ export const useTaskResponseCreation = () => {
     if (!userId || !taskId) return false
     try {
       const result = await searchEntities({
-        '_type.string': ENTU_TYPES.VASTUS,
+        [ENTU_PROPERTIES.TYPE_STRING]: ENTU_TYPES.VASTUS,
         '_parent.reference': taskId,
         '_owner.reference': userId,
         limit: 1
@@ -27,21 +27,21 @@ export const useTaskResponseCreation = () => {
     const { taskId, responses, respondentName } = requestData
 
     const responseData = {
-      _parent: taskId,
-      kirjeldus: responses[0]?.value || ''
+      [ENTU_PROPERTIES.PARENT]: taskId,
+      [ENTU_PROPERTIES.KIRJELDUS]: responses[0]?.value || ''
     }
 
     if (respondentName) {
-      responseData.vastaja = respondentName
+      responseData[ENTU_PROPERTIES.VASTAJA] = respondentName
     }
 
     if (responses[0]?.metadata?.locationId) {
-      responseData.asukoht = responses[0].metadata.locationId
+      responseData[ENTU_PROPERTIES.ASUKOHT] = responses[0].metadata.locationId
     }
 
     const coords = responses[0]?.metadata?.coordinates
     if (coords && coords.lat && coords.lng) {
-      responseData.geopunkt = `${coords.lat},${coords.lng}`
+      responseData[ENTU_PROPERTIES.GEOPUNKT] = `${coords.lat},${coords.lng}`
     }
 
     const entuProperties = [
@@ -51,7 +51,7 @@ export const useTaskResponseCreation = () => {
 
     for (const [key, value] of Object.entries(responseData)) {
       if (value !== null && value !== undefined) {
-        if (key === '_parent' || key === 'asukoht') {
+        if (key === ENTU_PROPERTIES.PARENT || key === ENTU_PROPERTIES.ASUKOHT) {
           entuProperties.push({ type: key, reference: value })
         }
         else if (typeof value === 'string') {

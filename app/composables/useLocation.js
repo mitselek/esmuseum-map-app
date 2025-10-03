@@ -3,6 +3,8 @@
  * Handles GPS location requests with caching, deduplication, and automatic updates
  */
 
+import { ENTU_TYPES, ENTU_PROPERTIES } from '../constants/entu'
+
 // Global state shared across all component instances
 const globalUserPosition = ref(null)
 const globalGettingLocation = ref(false)
@@ -336,10 +338,10 @@ export const useLocation = () => {
     try {
       // Search for locations that belong to this map using direct Entu API call
       const searchResult = await searchEntities({
-        '_type.string': 'asukoht',
+        [ENTU_PROPERTIES.TYPE_STRING]: ENTU_TYPES.LOCATION,
         '_parent.reference': mapId,
         limit: 10000,
-        props: 'name.string,lat.number,long.number,kirjeldus.string'
+        props: `${ENTU_PROPERTIES.NAME_STRING},${ENTU_PROPERTIES.LAT_NUMBER},${ENTU_PROPERTIES.LONG_NUMBER},${ENTU_PROPERTIES.KIRJELDUS_STRING}`
       })
 
       const rawLocations = searchResult?.entities || []
