@@ -12,7 +12,7 @@
 
 Comprehensive TypeScript type system for Entu entities, providing type safety, better autocomplete, and improved developer experience across the application. Based on real sample entity data from the Entu database.
 
-*Note: This original plan was completed AND extended to include full composable migration to TypeScript (100% type coverage achieved!)*
+*Note: This original plan was completed AND extended to include full composable migration to TypeScript (100% type coverage achieved!)*  
 
 ## Motivation
 
