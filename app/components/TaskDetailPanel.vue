@@ -23,9 +23,9 @@
         >
           <TaskMapCard
             :task-locations="taskLocations"
-            :user-position="(userPosition as any)"
+            :user-position="userPosition"
             :loading-locations="loadingTaskLocations"
-            :selected-location="(selectedLocation as any)"
+            :selected-location="selectedLocation"
             :visited-locations="visitedLocations"
             @location-click="onMapLocationClick"
             @map-ready="onMapReady"
@@ -42,9 +42,9 @@
             :has-response-permission="hasResponsePermission"
             :needs-location="needsLocation"
             :task-locations="taskLocations"
-            :selected-location="(selectedLocation as any)"
+            :selected-location="selectedLocation"
             :loading-task-locations="loadingTaskLocations"
-            :geolocation-error="(geolocationError as any)"
+            :geolocation-error="geolocationError"
             :visited-locations="visitedLocations"
             @location-select="onLocationSelect"
             @request-location="handleLocationRequest"
