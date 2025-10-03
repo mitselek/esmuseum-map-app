@@ -3,6 +3,7 @@
  * Handles all tasks, selection, and form persistence for F007 SPA
  */
 import { ref, computed, watch, readonly, nextTick } from 'vue'
+import type { EntuUser } from './useEntuAuth'
 
 // Global state outside the composable to persist across navigation
 const globalTasks = ref<any[]>([])
@@ -41,7 +42,7 @@ export const useTaskWorkspace = () => {
     const startTime = performance.now()
     console.log('📋 [EVENT] useTaskWorkspace - loadTasks started', new Date().toISOString())
     
-    const currentUser = user.value as any
+    const currentUser = user.value as EntuUser | null
     if (!currentUser?._id) {
       console.warn('No user ID available for loading tasks')
       tasks.value = []
@@ -62,12 +63,12 @@ export const useTaskWorkspace = () => {
       error.value = null
 
       // Get user groups using client-side API (F015 migration) - ACTIVE
-      if (!(user.value as any)?._id) {
+      if (!currentUser?._id) {
         console.warn('No user ID available for profile lookup')
         tasks.value = []
         return
       }
-      const userProfileResponse = await getEntity((user.value as any)._id)
+      const userProfileResponse = await getEntity(currentUser._id)
 
       const userProfile = userProfileResponse.entity
       const groupParents = userProfile._parent?.filter((parent: any) => parent.entity_type === 'grupp') || []

@@ -86,14 +86,39 @@ if (import.meta.client) {
   if (storedExpiry) tokenExpiry.value = parseInt(storedExpiry)
   if (storedUser) {
     try {
-      user.value = JSON.parse(storedUser) as EntuUser
+      const parsedUser = JSON.parse(storedUser) as EntuUser
+      // MIGRATION FIX: If user._id is empty/missing, try to get it from authResponse
+      if (!parsedUser._id && storedAuthResponse) {
+        try {
+          const parsedAuthResponse = JSON.parse(storedAuthResponse) as EntuAuthResponse
+          if (parsedAuthResponse.accounts?.[0]?.user?._id) {
+            parsedUser._id = parsedAuthResponse.accounts[0].user._id
+            console.log('🔧 [MIGRATION] Fixed user._id from authResponse:', parsedUser._id)
+          } else if (parsedAuthResponse.user?._id) {
+            parsedUser._id = parsedAuthResponse.user._id
+            console.log('🔧 [MIGRATION] Fixed user._id from authResponse.user:', parsedUser._id)
+          }
+        } catch (e) {
+          console.error('Error parsing stored auth response for migration:', e)
+        }
+      }
+      // Only set user if we have a valid _id
+      if (parsedUser._id) {
+        user.value = parsedUser
+      } else {
+        console.warn('🔧 [MIGRATION] User object has no _id, clearing stored auth')
+        localStorage.removeItem(USER_KEY)
+        localStorage.removeItem(TOKEN_KEY)
+        localStorage.removeItem(TOKEN_EXPIRY_KEY)
+        localStorage.removeItem(AUTH_RESPONSE_KEY)
+      }
     }
     catch (e) {
       console.error('Error parsing stored user data:', e)
       localStorage.removeItem(USER_KEY)
     }
   }
-  if (storedAuthResponse) {
+  if (storedAuthResponse && !authResponse.value) {  // Only if not already set above
     try {
       authResponse.value = JSON.parse(storedAuthResponse) as EntuAuthResponse
     }
@@ -219,6 +244,16 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
 
       const data = await response.json() as EntuAuthResponse
 
+      console.log('🔐 [DEBUG] Auth response received:', {
+        hasToken: !!data.token,
+        hasUser: !!data.user,
+        userKeys: data.user ? Object.keys(data.user) : [],
+        hasAccounts: !!data.accounts,
+        accountsLength: data.accounts?.length || 0,
+        firstAccountUserId: data.accounts?.[0]?.user?._id,
+        userDirectId: data.user?._id
+      })
+
       if (data.token) {
         // Save the entire auth response
         authResponse.value = data
@@ -230,14 +265,22 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
         // Get user info if available
         if (data.user) {
           // Start with the basic user info (email, name)
-          const newUser: EntuUser = { ...data.user, _id: '' }
+          const newUser: EntuUser = { 
+            ...data.user,
+            _id: data.user._id || ''  // Try to get _id from user object first
+          }
 
-          // Add user ID from the accounts array if available
+          // Add user ID from the accounts array if available (override if present)
           if (data.accounts?.[0]?.user?._id) {
             newUser._id = data.accounts[0].user._id
           }
           
-          user.value = newUser
+          // Only set user if we have a valid _id
+          if (newUser._id) {
+            user.value = newUser
+          } else {
+            console.warn('User data received but no _id found', data)
+          }
         }
 
         return data
