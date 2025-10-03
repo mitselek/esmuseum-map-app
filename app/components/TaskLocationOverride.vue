@@ -86,52 +86,57 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 // Props
-const props = defineProps({
-  manualCoordinates: {
-    type: String,
-    default: ''
-  }
+interface Props {
+  manualCoordinates?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  manualCoordinates: ''
 })
 
 // Emits
-const emit = defineEmits(['location-change'])
+interface Emits {
+  (e: 'location-change', coordinates: string | null): void
+}
+
+const emit = defineEmits<Emits>()
 
 // Local state
-const showManualCoordinates = ref(false)
-const localCoordinates = ref('')
-const hasManualOverride = computed(() => !!props.manualCoordinates)
+const showManualCoordinates = ref<boolean>(false)
+const localCoordinates = ref<string>('')
+const hasManualOverride = computed<boolean>(() => !!props.manualCoordinates)
 
 // Validation
-const isValidCoordinates = (coordinates) => {
+const isValidCoordinates = (coordinates: string): boolean => {
   if (!coordinates) return false
   const parts = coordinates.split(',').map((s) => s.trim())
-  if (parts.length !== 2) return false
+  if (parts.length !== 2 || !parts[0] || !parts[1]) return false
   const lat = parseFloat(parts[0])
   const lng = parseFloat(parts[1])
   return !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180
 }
 
 // Methods
-const startManualEntry = () => {
+const startManualEntry = (): void => {
   showManualCoordinates.value = true
   localCoordinates.value = props.manualCoordinates
 }
 
-const cancelManualEntry = () => {
+const cancelManualEntry = (): void => {
   showManualCoordinates.value = false
   localCoordinates.value = ''
 }
 
-const applyManualLocation = () => {
+const applyManualLocation = (): void => {
   if (!isValidCoordinates(localCoordinates.value)) return
 
   emit('location-change', localCoordinates.value)
   showManualCoordinates.value = false
 }
 
-const clearManualLocation = () => {
+const clearManualLocation = (): void => {
   emit('location-change', null)
   showManualCoordinates.value = false
   localCoordinates.value = ''
