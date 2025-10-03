@@ -190,7 +190,7 @@ const loadTaskLocations = async () => {
 
     // OPTIMIZATION: Start location loading immediately without waiting for GPS
     // This allows locations to be displayed while GPS detection happens in parallel
-    const locations = await loadLocations(selectedTask.value)
+    const locations = await loadLocations(selectedTask.value, userPosition.value)
     taskLocations.value = locations
 
     // Note: GPS-based sorting will happen automatically in LocationPicker
