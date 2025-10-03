@@ -23,9 +23,9 @@
         >
           <TaskMapCard
             :task-locations="taskLocations"
-            :user-position="userPosition"
+            :user-position="(userPosition as any)"
             :loading-locations="loadingTaskLocations"
-            :selected-location="selectedLocation"
+            :selected-location="(selectedLocation as any)"
             :visited-locations="visitedLocations"
             @location-click="onMapLocationClick"
             @map-ready="onMapReady"
@@ -42,9 +42,9 @@
             :has-response-permission="hasResponsePermission"
             :needs-location="needsLocation"
             :task-locations="taskLocations"
-            :selected-location="selectedLocation"
+            :selected-location="(selectedLocation as any)"
             :loading-task-locations="loadingTaskLocations"
-            :geolocation-error="geolocationError"
+            :geolocation-error="(geolocationError as any)"
             :visited-locations="visitedLocations"
             @location-select="onLocationSelect"
             @request-location="handleLocationRequest"
@@ -57,7 +57,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { getLocationIdentifier } from '~/utils/location-sync'
 
 const { selectedTask, clearSelection } = useTaskWorkspace()
@@ -90,7 +90,12 @@ const {
 const scoringData = useTaskScoring(computed(() => selectedTask.value))
 const visitedLocations = computed(() => scoringData.visitedLocations.value)
 
-const progress = computed(() => {
+interface ProgressData {
+  actual: number
+  expected: number
+}
+
+const progress = computed<ProgressData>(() => {
   const expected = scoringData.totalExpected.value
   const actual = scoringData.uniqueLocationsCount.value
 
@@ -109,20 +114,33 @@ const progress = computed(() => {
   }
 })
 
+interface ResponseFormRef {
+  setLocation: (coordinates: { lat: number, lng: number } | string | null) => void
+}
+
 // Response form reference
-const responseFormRef = ref(null)
+const responseFormRef = ref<ResponseFormRef | null>(null)
 
 // Form permissions state
-const checkingPermissions = ref(false)
-const hasResponsePermission = ref(false)
+const checkingPermissions = ref<boolean>(false)
+const hasResponsePermission = ref<boolean>(false)
 
 // Task locations state
-const taskLocations = ref([])
-const loadingTaskLocations = ref(false)
-const selectedLocation = ref(null)
+interface TaskLocation {
+  _id: string
+  reference?: string
+  name?: Array<{ string: string }>
+  lat?: Array<{ number: number }>
+  long?: Array<{ number: number }>
+  [key: string]: unknown
+}
+
+const taskLocations = ref<TaskLocation[]>([])
+const loadingTaskLocations = ref<boolean>(false)
+const selectedLocation = ref<TaskLocation | null>(null)
 
 // Map event handlers
-const onMapLocationClick = (location) => {
+const onMapLocationClick = (location: TaskLocation): void => {
   // Handle location click from map
   console.log('[TaskDetailPanel] Map location clicked:', getLocationIdentifier(location))
   console.log('[TaskDetailPanel] Setting selectedLocation to:', location)
@@ -164,8 +182,8 @@ const loadTaskLocations = async () => {
 }
 
 // Handle location selection from LocationPicker
-const onLocationSelect = (location) => {
-  console.log('[TaskDetailPanel] List location selected:', getLocationIdentifier(location))
+const onLocationSelect = (location: TaskLocation | null): void => {
+  console.log('[TaskDetailPanel] List location selected:', location ? getLocationIdentifier(location) : 'null')
   selectedLocation.value = location
   if (location) {
     if (responseFormRef.value) {
@@ -186,24 +204,16 @@ const handleLocationRequest = async () => {
 }
 
 // Handle location change from override
-const handleLocationOverride = (coordinates) => {
+const handleLocationOverride = (coordinates: string | null): void => {
   handleLocationChange(coordinates, taskLocations)
 }
 
-// Handle response submission for optimistic scoring updates
-const handleResponseSubmitted = (responseData) => {
-  // Update scoring optimistically
-  if (selectedLocation.value?.reference) {
-    scoringData.addResponseOptimistically(
-      selectedLocation.value.reference,
-      responseData
-    )
-  }
-
+// Handle response submission for page reload
+const handleResponseSubmitted = (_responseData: unknown): void => {
   // Reload the page to ensure fresh data
   setTimeout(() => {
     window.location.reload()
-  }, 500) // Small delay to let the optimistic update show briefly
+  }, 500) // Small delay to let the submission complete
 }
 
 // Check if task needs location
@@ -218,7 +228,7 @@ const needsLocation = computed(() => {
 })
 
 // Check permissions for current task
-const checkPermissions = async (taskId) => {
+const checkPermissions = async (taskId: string): Promise<void> => {
   try {
     checkingPermissions.value = true
     const result = await checkTaskPermissions(taskId)
