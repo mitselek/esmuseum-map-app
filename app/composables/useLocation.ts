@@ -4,19 +4,150 @@
  */
 
 import { ENTU_TYPES, ENTU_PROPERTIES } from '../constants/entu'
+import { getCurrentPosition, sortLocationsByDistance } from '../utils/distance'
+
+// ============================================================================
+// TypeScript Interfaces
+// ============================================================================
+
+/**
+ * User's GPS position with accuracy
+ */
+interface UserPosition {
+  lat: number
+  lng: number
+  accuracy?: number
+}
+
+/**
+ * Geolocation permission state
+ * - 'granted': User has granted permission
+ * - 'denied': User has denied permission
+ * - 'prompt': Permission needs to be requested
+ * - 'unknown': Permission state cannot be determined (mobile browsers)
+ */
+type PermissionState = 'granted' | 'denied' | 'prompt' | 'unknown'
+
+/**
+ * Geolocation API options
+ */
+interface GeolocationOptions {
+  enableHighAccuracy?: boolean
+  timeout?: number
+  maximumAge?: number
+}
+
+/**
+ * Normalized coordinates (simple lat/lng format)
+ */
+interface NormalizedCoordinates {
+  lat: number
+  lng: number
+}
+
+/**
+ * Entu location entity (from API response)
+ */
+interface LocationEntity {
+  _id: string
+  name?: Array<{ string: string }>
+  lat?: Array<{ number: number }>
+  long?: Array<{ number: number }>
+  description?: string
+  kirjeldus?: Array<{ string: string }>
+  properties?: {
+    name?: Array<{ value: string }>
+    nimi?: Array<{ value: string }>
+    lat?: Array<{ value: number; number: number; string: string }>
+    long?: Array<{ value: number; number: number; string: string }>
+    description?: Array<{ value: string }>
+    kirjeldus?: Array<{ value: string }>
+  }
+  coordinates?: NormalizedCoordinates
+  distance?: number
+  distanceText?: string
+}
+
+/**
+ * Location with distance information (after sorting)
+ */
+interface LocationWithDistance extends LocationEntity {
+  distance: number
+  distanceText: string
+  coordinates: NormalizedCoordinates
+}
+
+/**
+ * Map reference from task (can be string or object)
+ */
+type MapReference = string | { reference?: string; _id?: string; id?: string } | null | undefined
+
+/**
+ * Task with optional map reference
+ */
+interface TaskWithMap {
+  kaart?: MapReference | Array<{ reference: string }>
+  entity?: {
+    properties?: {
+      kaart?: Array<{ reference: string }>
+    }
+    kaart?: Array<{ reference: string }>
+  }
+}
+
+/**
+ * Composable return type
+ */
+interface UseLocationReturn {
+  // State
+  userPosition: Ref<UserPosition | null>
+  gettingLocation: Ref<boolean>
+  locationError: Ref<string | null>
+  showGPSPrompt: Ref<boolean>
+  permissionDenied: Ref<boolean>
+
+  // Core GPS methods
+  getUserPosition: (forceUpdate?: boolean, options?: GeolocationOptions) => Promise<UserPosition>
+  initializeGPS: () => Promise<void>
+  initializeGPSWithPermissionCheck: () => Promise<void>
+  checkGeolocationPermission: () => Promise<PermissionState>
+  setManualOverride: (isManual: boolean) => void
+  stopGPSUpdates: () => void
+  requestGPSPermission: () => void
+  dismissGPSPrompt: () => void
+
+  // Location data methods
+  loadMapLocations: (mapId: string) => Promise<LocationEntity[]>
+  loadTaskLocations: (task: TaskWithMap) => Promise<LocationEntity[]>
+  sortByDistance: (locations: LocationEntity[], position?: UserPosition | null) => LocationEntity[] | LocationWithDistance[]
+  getSortedLocations: (locations: LocationEntity[]) => ComputedRef<LocationEntity[] | LocationWithDistance[]>
+  formatCoordinates: (coordinates: string | NormalizedCoordinates | null) => string
+  getLocationCoordinates: (location: LocationEntity) => string
+  getLocationName: (location: LocationEntity) => string
+  getLocationDescription: (location: LocationEntity) => string | null
+  clearUserPosition: () => void
+}
+
+// ============================================================================
+// Global State (Singleton Pattern)
+// ============================================================================
 
 // Global state shared across all component instances
-const globalUserPosition = ref(null)
-const globalGettingLocation = ref(false)
-const globalLocationError = ref(null)
-const globalLastRequestTime = ref(null)
-const globalManualOverride = ref(false)
-const globalShowGPSPrompt = ref(false) // Start hidden, will show based on permission check
-const globalPermissionDenied = ref(false)
-let globalUpdateInterval = null
-let globalPendingRequest = null
+const globalUserPosition = ref<UserPosition | null>(null)
+const globalGettingLocation = ref<boolean>(false)
+const globalLocationError = ref<string | null>(null)
+const globalLastRequestTime = ref<number | null>(null)
+const globalManualOverride = ref<boolean>(false)
+const globalShowGPSPrompt = ref<boolean>(false) // Start hidden, will show based on permission check
+const globalPermissionDenied = ref<boolean>(false)
+let globalUpdateInterval: ReturnType<typeof setInterval> | null = null
+let globalPendingRequest: Promise<UserPosition> | null = null
 
-export const useLocation = () => {
+// ============================================================================
+// Composable
+// ============================================================================
+
+export const useLocation = (): UseLocationReturn => {
   // Use global state for shared location data
   const userPosition = globalUserPosition
   const gettingLocation = globalGettingLocation
@@ -25,7 +156,7 @@ export const useLocation = () => {
   const permissionDenied = globalPermissionDenied
 
   // Start automatic GPS updates (30 seconds)
-  const startGPSUpdates = () => {
+  const startGPSUpdates = (): void => {
     if (globalUpdateInterval) return // Already running
 
     globalUpdateInterval = setInterval(() => {
@@ -40,7 +171,7 @@ export const useLocation = () => {
   }
 
   // Stop automatic GPS updates
-  const stopGPSUpdates = () => {
+  const stopGPSUpdates = (): void => {
     if (globalUpdateInterval) {
       clearInterval(globalUpdateInterval)
       globalUpdateInterval = null
@@ -48,7 +179,7 @@ export const useLocation = () => {
   }
 
   // Check current geolocation permission status
-  const checkGeolocationPermission = async () => {
+  const checkGeolocationPermission = async (): Promise<PermissionState> => {
     try {
       if (!navigator.permissions) {
         console.log('🔍 [EVENT] useLocation - navigator.permissions not available')
@@ -69,7 +200,7 @@ export const useLocation = () => {
 
         try {
           // Quick test - try to get position with very short timeout
-          await new Promise((resolve, reject) => {
+          await new Promise<GeolocationPosition>((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(
               resolve,
               reject,
@@ -80,7 +211,7 @@ export const useLocation = () => {
           return 'granted'
         }
         catch (testError) {
-          if (testError.code === 1) { // PERMISSION_DENIED
+          if ((testError as GeolocationPositionError).code === 1) { // PERMISSION_DENIED
             console.log('🔍 [EVENT] useLocation - Geolocation test: actually denied (permission API lied)')
             return 'denied'
           }
@@ -89,7 +220,7 @@ export const useLocation = () => {
         }
       }
 
-      return permission.state // 'granted', 'denied', or 'prompt'
+      return permission.state as PermissionState // 'granted', 'denied', or 'prompt'
     }
     catch (error) {
       console.warn('Could not check geolocation permission:', error)
@@ -100,22 +231,12 @@ export const useLocation = () => {
   }
 
   // Initialize GPS based on current permission state
-  const initializeGPSWithPermissionCheck = async () => {
-    // 🔍 EVENT TRACKING: GPS initialization start
+  const initializeGPSWithPermissionCheck = async (): Promise<void> => {
+    // 🔍 EVENT TRACKING: GPS initialization timing
     const startTime = performance.now()
-    console.log('🌍 [EVENT] useLocation - GPS initialization started', new Date().toISOString())
-    console.log('🌍 [EVENT] useLocation - User agent:', navigator.userAgent)
-    console.log('🌍 [EVENT] useLocation - Geolocation available:', !!navigator.geolocation)
-    console.log('🌍 [EVENT] useLocation - HTTPS check:', location.protocol === 'https:')
-    console.log('🌍 [EVENT] useLocation - Current host:', location.hostname)
+    console.log('🌍 [EVENT] useLocation - GPS initialization started')
 
     const permissionState = await checkGeolocationPermission()
-    console.log('🔍 [EVENT] useLocation - Permission state:', permissionState)
-    console.log('🔍 [EVENT] useLocation - Current GPS states:', {
-      showGPSPrompt: globalShowGPSPrompt.value,
-      permissionDenied: globalPermissionDenied.value,
-      userPosition: !!globalUserPosition.value
-    })
 
     switch (permissionState) {
       case 'granted':
@@ -124,7 +245,6 @@ export const useLocation = () => {
         globalPermissionDenied.value = false
         await getUserPosition()
         startGPSUpdates()
-        console.log('🌍 [EVENT] useLocation - GPS initialization completed (granted)', `${(performance.now() - startTime).toFixed(2)}ms`)
         break
 
       case 'denied':
@@ -179,12 +299,12 @@ export const useLocation = () => {
   }
 
   // Set manual override state (pauses automatic updates)
-  const setManualOverride = (isManual) => {
+  const setManualOverride = (isManual: boolean): void => {
     globalManualOverride.value = isManual
   }
 
   // Request GPS permission (triggered by user action)
-  const requestGPSPermission = () => {
+  const requestGPSPermission = (): void => {
     console.log('🌍 [EVENT] useLocation - requestGPSPermission called', {
       currentShowPrompt: globalShowGPSPrompt.value,
       currentPermissionDenied: globalPermissionDenied.value,
@@ -206,7 +326,7 @@ export const useLocation = () => {
 
     // Call native API directly within user gesture
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      (position: GeolocationPosition) => {
         console.log('🌍 [EVENT] useLocation - Native GPS success', {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
@@ -226,7 +346,7 @@ export const useLocation = () => {
         // Start continuous updates
         startGPSUpdates()
       },
-      (error) => {
+      (error: GeolocationPositionError) => {
         console.log('🌍 [EVENT] useLocation - Native GPS failed', {
           error: error.message,
           code: error.code,
@@ -250,14 +370,14 @@ export const useLocation = () => {
   }
 
   // Dismiss GPS prompt without requesting
-  const dismissGPSPrompt = () => {
+  const dismissGPSPrompt = (): void => {
     console.log('🌍 [EVENT] useLocation - GPS prompt dismissed by user')
     globalShowGPSPrompt.value = false
     globalPermissionDenied.value = true
   }
 
   // Get user's current position with caching and deduplication
-  const getUserPosition = async (forceUpdate = false, options = {}) => {
+  const getUserPosition = async (forceUpdate = false, options: GeolocationOptions = {}): Promise<UserPosition> => {
     // Return cached position if available and not forcing update
     if (!forceUpdate && globalUserPosition.value && globalLastRequestTime.value) {
       return globalUserPosition.value
@@ -269,7 +389,7 @@ export const useLocation = () => {
     }
 
     // Create new GPS request
-    globalPendingRequest = (async () => {
+    globalPendingRequest = (async (): Promise<UserPosition> => {
       globalGettingLocation.value = true
       globalLocationError.value = null
 
@@ -279,7 +399,7 @@ export const useLocation = () => {
           timeout: 10000,
           maximumAge: 0, // Always get fresh position
           ...options
-        })
+        }) as UserPosition
 
         // Only update if position has changed significantly
         const hasSignificantChange = !globalUserPosition.value
@@ -294,10 +414,12 @@ export const useLocation = () => {
           globalLastRequestTime.value = Date.now() // Update timestamp even if position unchanged
         }
 
-        return globalUserPosition.value
+        // Guaranteed to be non-null at this point
+        return globalUserPosition.value!
       }
       catch (error) {
-        globalLocationError.value = error.message
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        globalLocationError.value = errorMessage
         console.error('Error getting GPS position:', error)
         throw error
       }
@@ -311,7 +433,7 @@ export const useLocation = () => {
   }
 
   // Auto-request GPS position when service is first used
-  const initializeGPS = async () => {
+  const initializeGPS = async (): Promise<void> => {
     try {
       await getUserPosition()
       startGPSUpdates()
@@ -323,7 +445,7 @@ export const useLocation = () => {
   }
 
   // Load locations for a specific map
-  const loadMapLocations = async (mapId) => {
+  const loadMapLocations = async (mapId: string): Promise<LocationEntity[]> => {
     if (!mapId) {
       throw new Error('Map ID is required')
     }
@@ -344,14 +466,14 @@ export const useLocation = () => {
         props: `${ENTU_PROPERTIES.NAME_STRING},${ENTU_PROPERTIES.LAT_NUMBER},${ENTU_PROPERTIES.LONG_NUMBER},${ENTU_PROPERTIES.KIRJELDUS_STRING}`
       })
 
-      const rawLocations = searchResult?.entities || []
+      const rawLocations = (searchResult?.entities || []) as LocationEntity[]
 
       // Normalize coordinates at API boundary - convert from Entu's nested format to simple {lat, lng}
       const locations = rawLocations.map((location) => {
-        const normalizedLocation = { ...location }
+        const normalizedLocation: LocationEntity = { ...location }
 
         // Extract coordinates from Entu's nested format and create normalized coordinates
-        if (location.lat && location.lat[0] && location.long && location.long[0]) {
+        if (location.lat?.[0]?.number != null && location.long?.[0]?.number != null) {
           normalizedLocation.coordinates = {
             lat: location.lat[0].number,
             lng: location.long[0].number
@@ -378,23 +500,36 @@ export const useLocation = () => {
   }
 
   // Load task's map and its locations
-  const loadTaskLocations = async (task) => {
+  const loadTaskLocations = async (task: TaskWithMap): Promise<LocationEntity[]> => {
     if (!task) {
       throw new Error('Task is required')
     }
 
     // Get map reference from task - check multiple possible locations
-    let mapReference = task.kaart?.[0]?.reference
-      || task.entity?.properties?.kaart?.[0]?.reference
-      || task.entity?.kaart?.[0]?.reference
-      || task.kaart
+    let mapReference: string | undefined
 
-    // If mapReference is an object, extract the ID
-    if (typeof mapReference === 'object' && mapReference !== null) {
-      mapReference = mapReference.reference || mapReference._id || mapReference.id
+    // Check if kaart is an array with reference
+    if (Array.isArray(task.kaart) && task.kaart[0]?.reference) {
+      mapReference = task.kaart[0].reference
+    }
+    // Check entity.properties.kaart
+    else if (Array.isArray(task.entity?.properties?.kaart) && task.entity.properties.kaart[0]?.reference) {
+      mapReference = task.entity.properties.kaart[0].reference
+    }
+    // Check entity.kaart
+    else if (Array.isArray(task.entity?.kaart) && task.entity.kaart[0]?.reference) {
+      mapReference = task.entity.kaart[0].reference
+    }
+    // Check if kaart is directly a string
+    else if (typeof task.kaart === 'string') {
+      mapReference = task.kaart
+    }
+    // Check if kaart is an object with reference/_id/id
+    else if (task.kaart && typeof task.kaart === 'object' && !Array.isArray(task.kaart)) {
+      mapReference = task.kaart.reference || task.kaart._id || task.kaart.id
     }
 
-    if (!mapReference || typeof mapReference !== 'string') {
+    if (!mapReference) {
       return []
     }
 
@@ -402,41 +537,39 @@ export const useLocation = () => {
   }
 
   // Sort locations by distance from user
-  const sortByDistance = (locations, position = null) => {
+  const sortByDistance = (locations: LocationEntity[], position: UserPosition | null = null): LocationEntity[] | LocationWithDistance[] => {
     const pos = position || userPosition.value
-    console.log('📍 [EVENT] useLocation - sortByDistance called', {
-      locationsCount: locations?.length || 0,
-      hasPosition: !!pos,
-      position: pos,
-      userPositionGlobal: userPosition.value,
-      permissionDenied: globalPermissionDenied.value
-    })
 
-    const result = sortLocationsByDistance(locations, pos)
-    console.log('📍 [EVENT] useLocation - sortByDistance result', {
-      resultCount: result?.length || 0,
-      sorted: !!pos
-    })
+    // Cast to any at JS boundary (sortLocationsByDistance is JS)
+    // Pass null explicitly if no position (sortLocationsByDistance handles this)
+    const result = sortLocationsByDistance(locations, pos || null as any) as LocationEntity[] | LocationWithDistance[]
     return result
   }
 
   // Get sorted locations with distance info
-  const getSortedLocations = (locations) => {
+  const getSortedLocations = (locations: LocationEntity[]): ComputedRef<LocationEntity[] | LocationWithDistance[]> => {
     return computed(() => {
       return sortByDistance(locations, userPosition.value)
     })
   }
 
   // Format coordinates for display
-  const formatCoordinates = (coordinates) => {
+  const formatCoordinates = (coordinates: string | NormalizedCoordinates | null): string => {
     if (!coordinates) return ''
 
     if (typeof coordinates === 'string') {
-      const [lat, lng] = coordinates.split(',').map((c) => c.trim())
-      return `${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)}`
+      const parts = coordinates.split(',').map((c) => c.trim())
+      if (parts.length === 2 && parts[0] && parts[1]) {
+        const lat = parseFloat(parts[0])
+        const lng = parseFloat(parts[1])
+        if (!isNaN(lat) && !isNaN(lng)) {
+          return `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+        }
+      }
+      return ''
     }
 
-    if (coordinates.lat && coordinates.lng) {
+    if (coordinates.lat != null && coordinates.lng != null) {
       return `${coordinates.lat.toFixed(4)}, ${coordinates.lng.toFixed(4)}`
     }
 
@@ -444,29 +577,24 @@ export const useLocation = () => {
   }
 
   // Convert location to coordinate string
-  const getLocationCoordinates = (location) => {
+  const getLocationCoordinates = (location: LocationEntity): string => {
     if (!location) {
       return ''
     }
 
     // If coordinates were already calculated by sortLocationsByDistance
-    if (location.coordinates && location.coordinates.lat && location.coordinates.lng) {
+    if (location.coordinates?.lat != null && location.coordinates?.lng != null) {
       return `${location.coordinates.lat},${location.coordinates.lng}`
     }
 
     // Try to extract from separate lat/long fields (various formats)
     const lat = location.lat?.[0]?.number
-      || location.lat?.[0]?.value
-      || location.lat?.[0]?.string
-      || location.properties?.lat?.[0]?.value
-      || location.properties?.lat?.[0]?.number
-      || location.properties?.lat?.[0]?.string
+      ?? location.properties?.lat?.[0]?.value
+      ?? location.properties?.lat?.[0]?.number
+
     const lng = location.long?.[0]?.number
-      || location.long?.[0]?.value
-      || location.long?.[0]?.string
-      || location.properties?.long?.[0]?.value
-      || location.properties?.long?.[0]?.number
-      || location.properties?.long?.[0]?.string
+      ?? location.properties?.long?.[0]?.value
+      ?? location.properties?.long?.[0]?.number
 
     if (lat != null && lng != null) {
       return `${lat},${lng}`
@@ -476,24 +604,24 @@ export const useLocation = () => {
   }
 
   // Extract location name for display
-  const getLocationName = (location) => {
+  const getLocationName = (location: LocationEntity): string => {
     return location.name?.[0]?.string
       || location.properties?.name?.[0]?.value
       || location.properties?.nimi?.[0]?.value
-      || location.name
+      || (typeof location.name === 'string' ? location.name : null)
       || 'Nimetu asukoht'
   }
 
   // Extract location description
-  const getLocationDescription = (location) => {
+  const getLocationDescription = (location: LocationEntity): string | null => {
     return location.properties?.description?.[0]?.value
       || location.properties?.kirjeldus?.[0]?.value
-      || location.description
+      || (typeof location.description === 'string' ? location.description : null)
       || null
   }
 
   // Clear user position and stop updates
-  const clearUserPosition = () => {
+  const clearUserPosition = (): void => {
     globalUserPosition.value = null
     globalLocationError.value = null
     globalLastRequestTime.value = null
