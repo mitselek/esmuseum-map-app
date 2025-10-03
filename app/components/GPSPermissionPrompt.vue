@@ -61,11 +61,11 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const { permissionDenied, gettingLocation, requestGPSPermission, checkGeolocationPermission } = useLocation()
 
 // Check if user can retry (permission state is still 'prompt' not permanently 'denied')
-const canRetry = ref(false)
+const canRetry = ref<boolean>(false)
 
 // Check permission state when component mounts
 onMounted(async () => {
@@ -73,7 +73,7 @@ onMounted(async () => {
   canRetry.value = state === 'prompt'
 })
 
-const handleRetry = async () => {
+const handleRetry = async (): Promise<void> => {
   console.log('🌍 [EVENT] GPSPermissionPrompt - User retrying GPS request')
   await requestGPSPermission()
 
@@ -83,7 +83,7 @@ const handleRetry = async () => {
   console.log('🌍 [EVENT] GPSPermissionPrompt - Retry completed, can retry:', canRetry.value)
 }
 
-const handleDismiss = () => {
+const handleDismiss = (): void => {
   console.log('🌍 [EVENT] GPSPermissionPrompt - User dismissed help banner')
   // Banner will hide itself via v-if="permissionDenied"
   // User can always re-enable via browser settings
