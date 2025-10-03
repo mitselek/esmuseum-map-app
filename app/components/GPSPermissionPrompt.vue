@@ -76,7 +76,7 @@ onMounted(async () => {
 const handleRetry = async () => {
   console.log('🌍 [EVENT] GPSPermissionPrompt - User retrying GPS request')
   await requestGPSPermission()
-  
+
   // Recheck if still denied after attempt
   const state = await checkGeolocationPermission()
   canRetry.value = state === 'prompt'

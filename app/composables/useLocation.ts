@@ -212,8 +212,10 @@ export const useLocation = (): UseLocationReturn => {
         }
         catch (testError) {
           if ((testError as GeolocationPositionError).code === 1) { // PERMISSION_DENIED
-            console.log('🔍 [EVENT] useLocation - Geolocation test: actually denied (permission API lied)')
-            return 'denied'
+            // iOS blocks background geolocation requests when Safari is set to "Ask"
+            // This is NOT a user denial - it just means we need user gesture to show native prompt
+            console.log('🔍 [EVENT] useLocation - iOS blocking background request (Safari set to "Ask"), needs user gesture')
+            return 'prompt'
           }
           console.log('🔍 [EVENT] useLocation - Geolocation test: other error, treating as prompt')
           return 'prompt'
