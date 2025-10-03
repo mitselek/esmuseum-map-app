@@ -13,6 +13,40 @@
       />
     </div>
 
+    <!-- Progress, Deadline, Description -->
+    <div class="border-t bg-gray-50 px-4 py-3">
+      <div class="flex items-center justify-between text-sm">
+        <div class="flex items-center gap-4">
+          <!-- Progress -->
+          <div
+            v-if="progress"
+            class="flex items-center gap-1 text-gray-700"
+          >
+            <span class="font-medium">{{ progress.actual }}</span>
+            <span class="text-gray-400">/</span>
+            <span class="font-medium">{{ progress.expected }}</span>
+            <span class="text-gray-500">{{ $t('tasks.responses') }}</span>
+          </div>
+          
+          <!-- Deadline -->
+          <div
+            v-if="deadline"
+            class="text-orange-600"
+          >
+            ⏰ {{ deadline }}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Description -->
+      <p
+        v-if="description"
+        class="mt-2 text-sm text-gray-600"
+      >
+        {{ description }}
+      </p>
+    </div>
+
     <!-- Manual Location Override -->
     <div class="border-t">
       <div class="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
@@ -135,6 +169,9 @@ interface Props {
   loadingLocations?: boolean
   selectedLocation?: TaskLocation | null
   visitedLocations?: Set<string>
+  progress?: { actual: number, expected: number } | null
+  deadline?: string | null
+  description?: string | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -142,7 +179,10 @@ const props = withDefaults(defineProps<Props>(), {
   userPosition: null,
   loadingLocations: false,
   selectedLocation: null,
-  visitedLocations: () => new Set()
+  visitedLocations: () => new Set(),
+  progress: null,
+  deadline: null,
+  description: null
 })
 
 // Emits
