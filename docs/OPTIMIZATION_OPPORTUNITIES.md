@@ -16,12 +16,12 @@
 - **Action**: Keep as-is, consider enhancement instead of removal
 - **Confirmed**: October 3, 2025 - User feedback
 
-### 2. **useLocation.js has excessive debug logging**
+### 2. ~~**useLocation.js has excessive debug logging**~~ ✅ **RESOLVED**
 
-- **File**: `app/composables/useLocation.js`
+- **File**: ~~`app/composables/useLocation.js`~~ → **Migrated to `useLocation.ts`** (Phase 10)
 - **Issue**: 12 `🔍 [EVENT]` debug logs for permission detection
-- **Note**: Some may be useful for iOS permission quirks debugging
-- **Action**: Review if all are necessary after stable behavior confirmed
+- **Resolution**: Optimized to 7 iOS-critical logs, removed 5 verbose logs
+- **Action**: ✅ **COMPLETED** - Balanced debugging capability vs console noise
 
 ### 3. **index.vue has redundant page initialization log**
 
@@ -33,11 +33,15 @@
 
 ## 📋 Future Investigation Needed
 
-### 6. **useLocation.js permission detection complexity**
+### 6. ~~**useLocation permission detection complexity**~~ ✅ **RESOLVED**
 
+- **File**: ~~`app/composables/useLocation.js`~~ → **Migrated to `useLocation.ts`** (Phase 10)
 - **Observation**: Very complex iOS permission workaround logic
 - **Question**: Can this be simplified with modern APIs?
-- **Action**: Research if iOS quirks still exist in current versions
+- **Resolution**: Research completed - WebKit bug #294751 (June 2025, still open!)
+- **Evidence**: iOS Safari's Permissions API returns 'prompt' after user denies location
+- **Impact**: Without workaround, apps get infinite permission loop
+- **Action**: ✅ **KEPT** - iOS workarounds are necessary, documented, and evidence-based
 
 ### 7. **Response entity search patterns**
 

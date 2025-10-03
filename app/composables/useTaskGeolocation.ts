@@ -76,7 +76,7 @@ export interface UseTaskGeolocationReturn {
 export const useTaskGeolocation = (): UseTaskGeolocationReturn => {
   const { userPosition: gpsPosition, gettingLocation, locationError, sortByDistance } = useLocation()
   
-  // Type-safe wrapper for sortByDistance (useLocation.js still returns untyped function)
+  // Type-safe wrapper for sortByDistance (now from useLocation.ts)
   const sortByDistanceSafe = (locations: TaskLocation[], position: UserPosition): TaskLocation[] => {
     return (sortByDistance as any)(locations, position) as TaskLocation[]
   }
