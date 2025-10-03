@@ -2,11 +2,10 @@
 const { isAuthenticated, error, user } = useEntuAuth()
 const { startOAuthFlow } = useEntuOAuth()
 const router = useRouter()
-const selectedProvider = ref('google') // Default provider
 
 // Check if we have a redirect URL stored
 const redirectPath = ref(null)
-const oauthLoginLoading = ref(false)
+const activeProvider = ref(null) // Track which provider button is loading
 
 // OAuth provider options - ensure they match the values in useEntuOAuth.js
 const oauthProviders = [
@@ -40,16 +39,16 @@ const handleSuccessfulLogin = () => {
 
 // No API key login for public users
 
-// Perform login with OAuth.ee
-const loginWithOAuth = async () => {
-  oauthLoginLoading.value = true
+// Perform login with OAuth.ee - now accepts provider as parameter
+const loginWithOAuth = async (providerId) => {
+  activeProvider.value = providerId
   try {
     // Start the OAuth flow which will redirect to OAuth.ee with the selected provider
-    await startOAuthFlow(selectedProvider.value)
+    await startOAuthFlow(providerId)
   }
   catch (err) {
     console.error('OAuth login error:', err)
-    oauthLoginLoading.value = false
+    activeProvider.value = null
   }
 }
 </script>
@@ -89,61 +88,31 @@ const loginWithOAuth = async () => {
       </div>
 
       <div v-else>
-        <p class="mb-4 text-gray-600">
+        <p class="mb-6 text-center text-gray-600">
           {{ $t('description') }}
         </p>
 
-        <!-- OAuth Provider Selection -->
-        <div class="mb-4">
-          <label class="mb-2 block text-sm font-medium text-gray-700">{{ $t('selectProvider') }}</label>
-          <select
-            v-model="selectedProvider"
-            class="w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+        <!-- OAuth Provider Buttons -->
+        <div class="space-y-3">
+          <button
+            v-for="provider in oauthProviders"
+            :key="provider.id"
+            class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 text-left font-medium text-gray-700 transition-all hover:border-blue-500 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
+            :disabled="activeProvider !== null"
+            @click="loginWithOAuth(provider.id)"
           >
-            <option
-              v-for="provider in oauthProviders"
-              :key="provider.id"
-              :value="provider.id"
-            >
-              {{ provider.label }}
-            </option>
-          </select>
+            <span class="flex items-center justify-between">
+              <span>{{ provider.label }}</span>
+              <span
+                v-if="activeProvider === provider.id"
+                class="text-sm text-blue-600"
+              >
+                {{ $t('loggingIn') }}
+              </span>
+            </span>
+          </button>
         </div>
-
-        <button
-          class="w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-          :disabled="oauthLoginLoading"
-          @click="loginWithOAuth"
-        >
-          <span v-if="oauthLoginLoading">{{ $t('loggingIn') }}</span>
-          <span v-else>{{ $t('loginWithOAuth') }}</span>
-        </button>
       </div>
     </div>
   </div>
 </template>
-
-<i18n lang="yaml">
-en:
-  title: Welcome to Estonian War Museum
-  description: Explore Estonia's military history through interactive location-based missions and historical discoveries. Authenticate to begin your journey.
-  loginWithOAuth: Login with OAuth
-  loggingIn: Logging in...
-  alreadyLoggedIn: You are already logged in
-  continue: Continue to application
-  user: User
-  loginMethod: Login Method
-  oauthMethod: OAuth Authentication
-  selectProvider: Select Authentication Provider
-et:
-  title: Tere tulemast Eesti Sõjamuuseumi
-  description: Avasta Eesti sõjaajalugu interaktiivsete asukohal põhinevate missioonide ja ajalooliste avastuste kaudu. Autentimiseks alusta oma teekonda.
-  loginWithOAuth: Logi sisse OAuth-ga
-  loggingIn: Sisselogimine...
-  alreadyLoggedIn: Sa oled juba sisse logitud
-  continue: Jätka rakendusega
-  user: Kasutaja
-  loginMethod: Sisselogimise meetod
-  oauthMethod: OAuth autentimine
-  selectProvider: Vali autentimisteenuse pakkuja
-</i18n>

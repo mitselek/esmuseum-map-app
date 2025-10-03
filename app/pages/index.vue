@@ -19,14 +19,26 @@ definePageMeta({
 // Import debug panel explicitly (auto-import fix)
 const EventDebugPanel = defineAsyncComponent(() => import('~/components/EventDebugPanel.vue'))
 
-// 🔍 EVENT TRACKING: Page initialization
-console.log('🚀 [EVENT] index.vue - Script setup started', new Date().toISOString())
+// Initialize GPS - request directly without custom prompt
+const { checkGeolocationPermission, requestGPSPermission, getUserPosition, startGPSUpdates } = useLocation()
+onMounted(async () => {
+  try {
+    const permissionState = await checkGeolocationPermission()
 
-// Initialize GPS with permission detection
-const { initializeGPSWithPermissionCheck } = useLocation()
-onMounted(() => {
-  console.log('🔍 [EVENT] index.vue - onMounted triggered', new Date().toISOString())
-  initializeGPSWithPermissionCheck()
+    if (permissionState === 'granted') {
+      // Already granted - just start GPS
+      await getUserPosition()
+      startGPSUpdates()
+    }
+    else if (permissionState === 'prompt') {
+      // Need permission - request immediately (native prompt)
+      requestGPSPermission()
+    }
+    // If 'denied' - do nothing, GPSPermissionPrompt will show recovery UI
+  }
+  catch (error) {
+    console.error('Error initializing GPS:', error)
+  }
 })
 
 // Set page title

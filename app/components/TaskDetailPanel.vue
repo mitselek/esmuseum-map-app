@@ -85,7 +85,8 @@ const {
 const {
   loadCompletedTasks
 } = useCompletedTasks()
-// Task scoring
+
+// Task scoring (now uses consolidated cache from useCompletedTasks, no extra API calls)
 const scoringData = useTaskScoring(computed(() => selectedTask.value))
 const visitedLocations = computed(() => scoringData.visitedLocations.value)
 
