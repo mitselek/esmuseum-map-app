@@ -58,7 +58,6 @@ export interface UseEntuAuthReturn {
   getToken: (oauthToken?: string | null) => Promise<EntuAuthResponse>
   refreshToken: (forceRefresh?: boolean) => Promise<string | null>
   logout: () => void
-  checkAndRefreshToken: () => void
 }
 
 // Local storage keys
@@ -190,17 +189,8 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
     return !!tokenExpiry.value && tokenExpiry.value <= Date.now()
   })
 
-  // Check token expiration on initialization and refresh if needed
-  function checkAndRefreshToken(): void {
-    if (import.meta.client && isTokenExpired.value) {
-      refreshToken().catch((err) => {
-        console.error('Failed to refresh token:', err)
-      })
-    }
-  }
-
-  // Initialize token check (safe to call directly)
-  checkAndRefreshToken()
+  // Note: Token validation is handled by components and middleware
+  // No auto-check needed on initialization
 
   /**
    * Get a new auth token from Entu API
@@ -219,18 +209,11 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
         'Accept-Encoding': 'deflate'
       }
 
-      // If we have an OAuth token, use that instead of the API key
-      if (oauthToken) {
-        headers.Authorization = `Bearer ${oauthToken}`
+      // OAuth-only authentication
+      if (!oauthToken) {
+        throw new Error('OAuth token required for authentication')
       }
-      else {
-        // Use the configured API key
-        const apiKey = config.entuKey
-        if (!apiKey) {
-          throw new Error('No API key configured for authentication')
-        }
-        headers.Authorization = `Bearer ${apiKey}`
-      }
+      headers.Authorization = `Bearer ${oauthToken}`
 
       // Make the authentication request
       const response = await fetch(url, {
@@ -306,18 +289,9 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
    * Refresh the token if it's expired or about to expire
    */
   async function refreshToken(forceRefresh = false): Promise<string | null> {
-    // Only refresh if we have an existing token and it's expired/expiring or forced
-    const thirtyMinutes = 30 * 60 * 1000
-    
-    // Don't try to refresh if we don't have a token - user needs to OAuth authenticate
-    if (!token.value) {
-      return null
-    }
-    
-    if (forceRefresh || isTokenExpired.value || (tokenExpiry.value && tokenExpiry.value - Date.now() < thirtyMinutes)) {
-      // For OAuth users, we can't refresh - they need to re-authenticate
-      // This prevents the "No API key" error when token expires
-      console.warn('Token expired - user needs to re-authenticate via OAuth')
+    // OAuth tokens cannot be refreshed - user must re-authenticate
+    if (!token.value || isTokenExpired.value || forceRefresh) {
+      console.warn('Token expired or refresh forced - user needs to re-authenticate via OAuth')
       logout()
       return null
     }
@@ -351,7 +325,6 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
     error: readonly(error),
     getToken,
     refreshToken,
-    logout,
-    checkAndRefreshToken
+    logout
   }
 }
