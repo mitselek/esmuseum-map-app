@@ -66,6 +66,7 @@ export default defineI18nConfig(() => ({
         geolocationError: "Asukoha määramisel tekkis viga: {error}",
         noTitle: "Nimetu ülesanne",
         selectLocation: "Vali asukoht ({count} saadaval)",
+        pleaseSelectLocation: "Palun vali asukoht, et jätkata vastuse sisestamist",
 
         yourResponse: "Sinu vastus",
         addFile: "Lisa fail (valikuline)",
@@ -188,6 +189,7 @@ export default defineI18nConfig(() => ({
         geolocationError: "Geolocation error: {error}",
         noTitle: "Untitled Task",
         selectLocation: "Select location ({count} available)",
+        pleaseSelectLocation: "Please select a location to continue entering your response",
 
         yourResponse: "Your Response",
         addFile: "Add file (optional)",
@@ -307,7 +309,8 @@ export default defineI18nConfig(() => ({
         totalResponses: "{count} всього відповідей",
         geolocationError: "Помилка геолокації: {error}",
         noTitle: "Завдання без назви",
-        selectLocation: "Оберіть місце ({count} доступно)",
+        selectLocation: "Виберіть місцезнаходження ({count} доступно)",
+        pleaseSelectLocation: "Будь ласка, виберіть місцезнаходження, щоб продовжити введення відповіді",
 
         yourResponse: "Ваша відповідь",
         addFile: "Додати файл (необов'язково)",
