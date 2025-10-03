@@ -75,40 +75,58 @@
   </header>
 </template>
 
-<script setup>
-defineProps({
-  progress: {
-    type: Object,
-    required: true,
-    validator: (value) => typeof value.actual === 'number' && typeof value.expected === 'number'
-  },
-  showClose: {
-    type: Boolean,
-    default: true
-  }
+<script setup lang="ts">
+// Language code type
+type LanguageCode = 'et' | 'en' | 'uk'
+
+// Progress data interface
+interface ProgressData {
+  actual: number
+  expected: number
+}
+
+// Props
+interface Props {
+  progress: ProgressData
+  showClose?: boolean
+}
+
+withDefaults(defineProps<Props>(), {
+  showClose: true
 })
 
-defineEmits(['close'])
+// Emits
+interface Emits {
+  (e: 'close'): void
+}
+
+defineEmits<Emits>()
 
 const { locale, setLocale } = useI18n()
 const { isAuthenticated, logout: authLogout } = useEntuAuth()
 
-const allLanguages = [
+interface Language {
+  code: LanguageCode
+  name: string
+  flag: string
+}
+
+const allLanguages: Language[] = [
   { code: 'et', name: 'Eesti', flag: '🇪🇪' },
   { code: 'en', name: 'English', flag: '🇬🇧' },
   { code: 'uk', name: 'Українська', flag: '🇺🇦' }
 ]
 
-const languageButtons = computed(() => {
+const languageButtons = computed<Language[]>(() => {
   const otherLanguages = allLanguages.filter((lang) => lang.code !== locale.value)
   return otherLanguages.length > 0 ? otherLanguages : allLanguages
 })
 
-const switchLanguage = (langCode) => {
+const switchLanguage = (langCode: LanguageCode): void => {
   setLocale(langCode)
 }
 
-const handleLogout = async () => {
+const handleLogout = async (): Promise<void> => {
   await authLogout()
   await navigateTo('/login')
 }
