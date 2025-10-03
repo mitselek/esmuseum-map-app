@@ -1,3 +1,5 @@
+import { ENTU_TYPES, ENTU_TYPE_IDS } from '../constants/entu'
+
 export const useTaskResponseCreation = () => {
   const { token } = useEntuAuth()
   const { searchEntities } = useEntuApi()
@@ -8,7 +10,7 @@ export const useTaskResponseCreation = () => {
     if (!userId || !taskId) return false
     try {
       const result = await searchEntities({
-        '_type.string': 'vastus',
+        '_type.string': ENTU_TYPES.VASTUS,
         '_parent.reference': taskId,
         '_owner.reference': userId,
         limit: 1
@@ -43,7 +45,7 @@ export const useTaskResponseCreation = () => {
     }
 
     const entuProperties = [
-      { type: '_type', reference: '686917401749f351b9c82f58' },
+      { type: '_type', reference: ENTU_TYPE_IDS.VASTUS },
       { type: '_inheritrights', boolean: true }
     ]
 

@@ -11,6 +11,7 @@
 
 import type { Ref, ComputedRef } from 'vue'
 import type { EntuResponse } from '../../types/entu'
+import { ENTU_TYPES } from '../constants/entu'
 
 interface TaskStats {
   actual: number
@@ -69,7 +70,7 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
 
       // Search for user's responses using direct Entu API call
       const responsesResult = await searchEntities({
-        '_type.string': 'vastus',
+        '_type.string': ENTU_TYPES.VASTUS,
         '_owner.reference': userId,
         limit: 100,
         props: '_parent,asukoht,vastused,esitamisaeg,muutmisaeg,staatus'

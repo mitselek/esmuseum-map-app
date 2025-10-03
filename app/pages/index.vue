@@ -19,13 +19,9 @@ definePageMeta({
 // Import debug panel explicitly (auto-import fix)
 const EventDebugPanel = defineAsyncComponent(() => import('~/components/EventDebugPanel.vue'))
 
-// 🔍 EVENT TRACKING: Page initialization
-console.log('🚀 [EVENT] index.vue - Script setup started', new Date().toISOString())
-
 // Initialize GPS with permission detection
 const { initializeGPSWithPermissionCheck } = useLocation()
 onMounted(() => {
-  console.log('🔍 [EVENT] index.vue - onMounted triggered', new Date().toISOString())
   initializeGPSWithPermissionCheck()
 })
 
