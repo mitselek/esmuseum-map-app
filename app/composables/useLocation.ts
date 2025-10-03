@@ -548,8 +548,10 @@ export const useLocation = (): UseLocationReturn => {
   const sortByDistance = (locations: LocationEntity[], position: UserPosition | null = null): LocationEntity[] | LocationWithDistance[] => {
     const pos = position || userPosition.value
 
-    // Cast to any at JS boundary (sortLocationsByDistance is JS)
-    // Pass null explicitly if no position (sortLocationsByDistance handles this)
+    // Note: Using 'as any' at JS boundary - sortLocationsByDistance is from utils/distance.js
+    // This untyped JavaScript utility doesn't have TypeScript definitions. The cast is necessary
+    // to interface between our typed composable and the legacy JS utility function.
+    // TODO: Consider migrating utils/distance.js to TypeScript to eliminate this cast
     const result = sortLocationsByDistance(locations, pos || null as any) as LocationEntity[] | LocationWithDistance[]
     return result
   }

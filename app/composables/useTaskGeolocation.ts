@@ -77,6 +77,10 @@ export const useTaskGeolocation = (): UseTaskGeolocationReturn => {
   const { userPosition: gpsPosition, gettingLocation, locationError, sortByDistance } = useLocation()
   
   // Type-safe wrapper for sortByDistance (now from useLocation.ts)
+  // Note: Using 'as any' because sortByDistance returns LocationEntity[] | LocationWithDistance[]
+  // but we need TaskLocation[] for this composable. This is a JS boundary cast wrapping
+  // the untyped utils/distance.js function. The cast is safe because TaskLocation and
+  // LocationEntity are structurally compatible for distance sorting purposes.
   const sortByDistanceSafe = (locations: TaskLocation[], position: UserPosition): TaskLocation[] => {
     return (sortByDistance as any)(locations, position) as TaskLocation[]
   }

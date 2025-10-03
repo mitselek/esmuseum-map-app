@@ -20,6 +20,9 @@ export default defineNuxtPlugin({
       }
       
       // Set devtools objects without making them readonly
+      // Note: Using 'as any' to augment window object with non-standard Vue devtools globals
+      // These properties are not defined in standard Window interface but are used by Vue devtools
+      // This is the standard pattern for controlling devtools behavior in production
       try {
         (window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__ = mockDevtools
         ;(window as any).__VUE_PROD_DEVTOOLS__ = false
