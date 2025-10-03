@@ -15,7 +15,8 @@ export default defineNuxtPlugin(async () => {
     if (isAuthenticated.value) {
       await refreshToken()
       console.log('Auth token refreshed')
-    } else {
+    }
+    else {
       console.log('No authenticated user, skipping token refresh')
     }
 
