@@ -65,6 +65,15 @@
 - **Question**: Could create a shared `searchUserResponses()` utility?
 - **Action**: Consider after more composables migrated to TypeScript
 
+### 8. **useEntuAdminAuth.js may be obsolete**
+
+- **File**: `app/composables/useEntuAdminAuth.js` (46 lines)
+- **Issue**: INTERNAL USE ONLY - admin authentication via API key
+- **Question**: Is this actually used? No UI references found
+- **Action**: Investigate if this can be removed entirely
+- **Impact**: Could remove 46 lines if not needed
+- **Registered**: Phase 3, October 3, 2025
+
 ---
 
 ## ✅ Completed Optimizations

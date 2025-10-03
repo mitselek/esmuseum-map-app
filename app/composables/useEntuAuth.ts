@@ -1,6 +1,11 @@
 /**
  * Entu Authentication Composable
  *
+ * MIGRATED TO TYPESCRIPT: October 3, 2025 (Phase 3)
+ * - Added comprehensive TypeScript interfaces
+ * - Proper type safety for auth state
+ * - Removes 'as any' casts from other composables
+ *
  * Provides authentication services for Entu API including:
  * - Getting an authentication token
  * - Checking token validity
@@ -8,19 +13,67 @@
  * - Maintaining authentication state
  */
 
-// State
-const token = ref(null)
-const tokenExpiry = ref(null)
-const user = ref(null)
-const authResponse = ref(null) // Store the complete auth response
-const isLoading = ref(false)
-const error = ref(null)
+import type { Ref, ComputedRef } from 'vue'
+
+/**
+ * User object structure from Entu auth response
+ */
+export interface EntuUser {
+  _id: string
+  email?: string
+  name?: string
+  [key: string]: any  // Allow additional properties
+}
+
+/**
+ * Auth response structure from Entu API
+ */
+export interface EntuAuthResponse {
+  token: string
+  user?: {
+    email?: string
+    name?: string
+    [key: string]: any
+  }
+  accounts?: Array<{
+    user?: {
+      _id: string
+      [key: string]: any
+    }
+    [key: string]: any
+  }>
+  [key: string]: any  // Allow additional properties
+}
+
+/**
+ * Return type for useEntuAuth composable
+ */
+export interface UseEntuAuthReturn {
+  token: Readonly<Ref<string | null>>
+  user: Readonly<Ref<EntuUser | null>>
+  authResponse: Readonly<Ref<EntuAuthResponse | null>>
+  isAuthenticated: ComputedRef<boolean>
+  isLoading: Readonly<Ref<boolean>>
+  error: Readonly<Ref<string | null>>
+  getToken: (oauthToken?: string | null) => Promise<EntuAuthResponse>
+  refreshToken: (forceRefresh?: boolean) => Promise<string | null>
+  logout: () => void
+  checkAndRefreshToken: () => void
+}
 
 // Local storage keys
 const TOKEN_KEY = 'esm_token'
 const TOKEN_EXPIRY_KEY = 'esm_token_expiry'
 const USER_KEY = 'esm_user'
-const AUTH_RESPONSE_KEY = 'esm_auth_response' // New key for complete auth response
+const AUTH_RESPONSE_KEY = 'esm_auth_response'
+
+// Shared state (module-level for singleton pattern)
+const token = ref<string | null>(null)
+const tokenExpiry = ref<number | null>(null)
+const user = ref<EntuUser | null>(null)
+const authResponse = ref<EntuAuthResponse | null>(null)
+const isLoading = ref<boolean>(false)
+const error = ref<string | null>(null)
 
 // Initialize from localStorage on client side
 if (import.meta.client) {
@@ -33,7 +86,7 @@ if (import.meta.client) {
   if (storedExpiry) tokenExpiry.value = parseInt(storedExpiry)
   if (storedUser) {
     try {
-      user.value = JSON.parse(storedUser)
+      user.value = JSON.parse(storedUser) as EntuUser
     }
     catch (e) {
       console.error('Error parsing stored user data:', e)
@@ -42,7 +95,7 @@ if (import.meta.client) {
   }
   if (storedAuthResponse) {
     try {
-      authResponse.value = JSON.parse(storedAuthResponse)
+      authResponse.value = JSON.parse(storedAuthResponse) as EntuAuthResponse
     }
     catch (e) {
       console.error('Error parsing stored auth response data:', e)
@@ -99,24 +152,22 @@ watch(authResponse, (newAuthResponse) => {
   }
 })
 
-export const useEntuAuth = () => {
+export const useEntuAuth = (): UseEntuAuthReturn => {
   // Runtime configuration
   const config = useRuntimeConfig()
 
   // Computed properties
   const isAuthenticated = computed(() => {
-    return !!token.value && (tokenExpiry.value > Date.now())
+    return !!token.value && !!tokenExpiry.value && (tokenExpiry.value > Date.now())
   })
 
   const isTokenExpired = computed(() => {
-    return tokenExpiry.value && tokenExpiry.value <= Date.now()
+    return !!tokenExpiry.value && tokenExpiry.value <= Date.now()
   })
 
   // Check token expiration on initialization and refresh if needed
-  // Make sure refreshToken is hoisted before it's referenced to avoid TDZ errors
-  function checkAndRefreshToken () {
+  function checkAndRefreshToken(): void {
     if (import.meta.client && isTokenExpired.value) {
-      // Call refreshToken which is defined below (hoisted function declaration ensures it's available)
       refreshToken().catch((err) => {
         console.error('Failed to refresh token:', err)
       })
@@ -128,9 +179,9 @@ export const useEntuAuth = () => {
 
   /**
    * Get a new auth token from Entu API
-   * @param {string} oauthToken - Optional OAuth token from the callback
+   * @param oauthToken - Optional OAuth token from the callback
    */
-  const getToken = async (oauthToken = null) => {
+  const getToken = async (oauthToken: string | null = null): Promise<EntuAuthResponse> => {
     isLoading.value = true
     error.value = null
 
@@ -138,14 +189,13 @@ export const useEntuAuth = () => {
       // Build the API URL for authentication
       const apiUrl = config.public.entuUrl || 'https://entu.app'
       const accountName = config.public.entuAccount || 'esmuuseum'
-      let url = `${apiUrl}/api/auth?account=${accountName}`
-      let headers = {
+      const url = `${apiUrl}/api/auth?account=${accountName}`
+      const headers: Record<string, string> = {
         'Accept-Encoding': 'deflate'
       }
 
       // If we have an OAuth token, use that instead of the API key
       if (oauthToken) {
-        // Use the OAuth token directly
         headers.Authorization = `Bearer ${oauthToken}`
       }
       else {
@@ -167,25 +217,27 @@ export const useEntuAuth = () => {
         throw new Error(`Authentication failed: ${response.status} ${response.statusText}`)
       }
 
-      const data = await response.json()
+      const data = await response.json() as EntuAuthResponse
 
       if (data.token) {
         // Save the entire auth response
         authResponse.value = data
 
         token.value = data.token
-        // Set token expiry to 12 hours from now (can be adjusted based on Entu's actual token expiry)
+        // Set token expiry to 12 hours from now
         tokenExpiry.value = Date.now() + (12 * 60 * 60 * 1000)
 
         // Get user info if available
         if (data.user) {
           // Start with the basic user info (email, name)
-          user.value = { ...data.user }
+          const newUser: EntuUser = { ...data.user, _id: '' }
 
           // Add user ID from the accounts array if available
-          if (data.accounts && data.accounts.length > 0 && data.accounts[0].user && data.accounts[0].user._id) {
-            user.value._id = data.accounts[0].user._id
+          if (data.accounts?.[0]?.user?._id) {
+            newUser._id = data.accounts[0].user._id
           }
+          
+          user.value = newUser
         }
 
         return data
@@ -195,7 +247,7 @@ export const useEntuAuth = () => {
       }
     }
     catch (err) {
-      error.value = err.message || 'Authentication failed'
+      error.value = err instanceof Error ? err.message : 'Authentication failed'
       token.value = null
       tokenExpiry.value = null
       user.value = null
@@ -210,11 +262,12 @@ export const useEntuAuth = () => {
   /**
    * Refresh the token if it's expired or about to expire
    */
-  // Hoisted function declaration so it exists before any references (avoids TDZ when plugin calls checkAndRefreshToken early)
-  async function refreshToken (forceRefresh = false) {
+  async function refreshToken(forceRefresh = false): Promise<string | null> {
     // Only refresh if the token is expired, about to expire, or if forced
-    if (forceRefresh || isTokenExpired.value || (tokenExpiry.value && tokenExpiry.value - Date.now() < 30 * 60 * 1000)) {
-      return await getToken()
+    const thirtyMinutes = 30 * 60 * 1000
+    if (forceRefresh || isTokenExpired.value || (tokenExpiry.value && tokenExpiry.value - Date.now() < thirtyMinutes)) {
+      const data = await getToken()
+      return data.token
     }
     return token.value
   }
@@ -222,7 +275,7 @@ export const useEntuAuth = () => {
   /**
    * Logout the user and clear all stored data
    */
-  const logout = () => {
+  const logout = (): void => {
     token.value = null
     tokenExpiry.value = null
     user.value = null
@@ -238,15 +291,15 @@ export const useEntuAuth = () => {
 
   // Return the composable's API
   return {
-    token,
-    user,
-    authResponse, // Expose the complete auth response
+    token: readonly(token),
+    user: readonly(user),
+    authResponse: readonly(authResponse) as Readonly<Ref<EntuAuthResponse | null>>,
     isAuthenticated,
-    isLoading,
-    error,
+    isLoading: readonly(isLoading),
+    error: readonly(error),
     getToken,
     refreshToken,
     logout,
-    checkAndRefreshToken // Expose the check function for components to call in their setup
+    checkAndRefreshToken
   }
 }

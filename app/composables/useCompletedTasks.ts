@@ -11,6 +11,7 @@
 
 import type { Ref, ComputedRef } from 'vue'
 import type { EntuResponse } from '../../types/entu'
+import type { EntuUser } from './useEntuAuth'
 import { ENTU_TYPES } from '../constants/entu'
 
 interface TaskStats {
@@ -57,8 +58,7 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
     const { user } = useEntuAuth()
     const { searchEntities } = useEntuApi()
 
-    // TODO: Type useEntuAuth properly in future
-    const userId = (user.value as any)?._id
+    const userId = (user.value as EntuUser | null)?._id
     if (!userId) {
       console.warn('No user ID available for loading completed tasks')
       return []
