@@ -54,63 +54,69 @@ const loginWithOAuth = async (providerId) => {
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-gray-100 p-4">
-    <div class="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-      <h1 class="mb-6 text-center text-2xl font-bold">
-        {{ $t('title') }}
-      </h1>
+  <div class="min-h-screen bg-gray-100">
+    <!-- App Header -->
+    <AppHeader />
 
-      <div
-        v-if="error"
-        class="mb-4 rounded bg-red-100 p-4 text-red-700"
-      >
-        {{ error }}
-      </div>
-
-      <div v-if="isAuthenticated">
-        <div class="mb-4 rounded bg-green-100 p-4 text-green-700">
-          {{ $t('alreadyLoggedIn') }}
-        </div>
+    <!-- Login Content -->
+    <div class="flex items-center justify-center p-4">
+      <div class="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
+        <h1 class="mb-6 text-center text-2xl font-bold">
+          {{ $t('title') }}
+        </h1>
 
         <div
-          v-if="user"
-          class="mb-4"
+          v-if="error"
+          class="mb-4 rounded bg-red-100 p-4 text-red-700"
         >
-          <p><strong>{{ $t('user') }}:</strong> {{ user.name || user.email || user.id }}</p>
+          {{ error }}
         </div>
 
-        <button
-          class="w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-          @click="handleSuccessfulLogin"
-        >
-          {{ $t('continue') }}
-        </button>
-      </div>
+        <div v-if="isAuthenticated">
+          <div class="mb-4 rounded bg-green-100 p-4 text-green-700">
+            {{ $t('alreadyLoggedIn') }}
+          </div>
 
-      <div v-else>
-        <p class="mb-6 text-center text-gray-600">
-          {{ $t('description') }}
-        </p>
-
-        <!-- OAuth Provider Buttons -->
-        <div class="space-y-3">
-          <button
-            v-for="provider in oauthProviders"
-            :key="provider.id"
-            class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 text-left font-medium text-gray-700 transition-all hover:border-blue-500 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
-            :disabled="activeProvider !== null"
-            @click="loginWithOAuth(provider.id)"
+          <div
+            v-if="user"
+            class="mb-4"
           >
-            <span class="flex items-center justify-between">
-              <span>{{ provider.label }}</span>
-              <span
-                v-if="activeProvider === provider.id"
-                class="text-sm text-blue-600"
-              >
-                {{ $t('loggingIn') }}
-              </span>
-            </span>
+            <p><strong>{{ $t('user') }}:</strong> {{ user.name || user.email || user.id }}</p>
+          </div>
+
+          <button
+            class="w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+            @click="handleSuccessfulLogin"
+          >
+            {{ $t('continue') }}
           </button>
+        </div>
+
+        <div v-else>
+          <p class="mb-6 text-center text-gray-600">
+            {{ $t('description') }}
+          </p>
+
+          <!-- OAuth Provider Buttons -->
+          <div class="space-y-3">
+            <button
+              v-for="provider in oauthProviders"
+              :key="provider.id"
+              class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 text-left font-medium text-gray-700 transition-all hover:border-blue-500 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
+              :disabled="activeProvider !== null"
+              @click="loginWithOAuth(provider.id)"
+            >
+              <span class="flex items-center justify-between">
+                <span>{{ provider.label }}</span>
+                <span
+                  v-if="activeProvider === provider.id"
+                  class="text-sm text-blue-600"
+                >
+                  {{ $t('loggingIn') }}
+                </span>
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
