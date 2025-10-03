@@ -159,18 +159,7 @@
             v-if="task.groupName"
             class="mb-2 flex items-center"
           >
-            <div class="flex items-center text-xs text-gray-500">
-              <svg
-                class="mr-1 size-3"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 01-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h4a1 1 0 011 1v4a1 1 0 01-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 012 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 010 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15 13.586V12a1 1 0 011-1z"
-                  clip-rule="evenodd"
-                />
-              </svg>
+            <div class="text-xs text-gray-500">
               {{ task.groupName }}
             </div>
           </div>
@@ -179,18 +168,7 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
               <!-- Response Count -->
-              <div class="flex items-center text-xs text-gray-500">
-                <svg
-                  class="mr-1 size-3"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
+              <div class="text-xs text-gray-500">
                 <span v-if="taskResponseStatsCache.has(task._id)">
                   {{ getResponseStatsText(task) }}
                 </span>
@@ -202,29 +180,10 @@
               <!-- Due Date (if available) -->
               <div
                 v-if="getTaskDueDate(task)"
-                class="flex items-center text-xs text-orange-600"
+                class="text-xs text-orange-600"
               >
-                <svg
-                  class="mr-1 size-3"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
                 {{ getTaskDueDate(task) }}
               </div>
-            </div>
-
-            <!-- Selection Indicator -->
-            <div
-              v-if="selectedTaskId === task._id"
-              class="flex items-center"
-            >
-              <div class="size-2 rounded-full bg-blue-600" />
             </div>
           </div>
         </div>
