@@ -99,13 +99,13 @@
               <div class="flex items-start justify-between">
                 <div class="flex-1">
                   <h3 class="font-medium">
-                    {{ getLocationName(location) }}
+                    {{ getLocationName(location as any) }}
                   </h3>
                   <p
-                    v-if="getLocationDescription(location)"
+                    v-if="getLocationDescription(location as any)"
                     class="mt-1 text-sm text-gray-600"
                   >
-                    {{ getLocationDescription(location) }}
+                    {{ getLocationDescription(location as any) }}
                   </p>
                 </div>
                 <div
@@ -126,7 +126,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
   LMap,
   LTileLayer,
@@ -134,77 +134,100 @@ import {
   LPopup
 } from '@vue-leaflet/vue-leaflet'
 import L from 'leaflet'
+import type { Map as LeafletMap, LatLngExpression, Icon } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { isSameLocation } from '~/utils/location-sync'
+
+// Location coordinate interface
+interface Coordinates {
+  lat: number
+  lng: number
+}
+
+// User position interface
+interface UserPosition {
+  lat: number
+  lng: number
+  accuracy?: number
+}
+
+// Task location interface (normalized)
+interface TaskLocation {
+  _id?: string
+  id?: string
+  reference?: string
+  nimi?: string
+  name?: string
+  kirjeldus?: string
+  description?: string
+  coordinates: Coordinates
+}
+
+// Map initialization phase
+type MapPhase = 'waiting' | 'all-locations' | 'gps-focused'
+
+// Vue Leaflet component refs
+interface MapRef {
+  leafletObject: LeafletMap
+  _container?: HTMLElement
+  _size?: {
+    x: number
+    y: number
+  }
+}
+
+interface MarkerRef {
+  leafletObject: L.Marker
+  openPopup: () => void
+}
+
+// Props
+interface Props {
+  locations?: TaskLocation[]
+  userPosition?: UserPosition | null
+  maxLocations?: number
+  visitedLocations?: Set<string>
+  loading?: boolean
+  selectedLocation?: TaskLocation | null
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  locations: () => [],
+  userPosition: null,
+  maxLocations: 5,
+  visitedLocations: () => new Set(),
+  loading: false,
+  selectedLocation: null
+})
+
+// Emits
+interface Emits {
+  (e: 'map-ready'): void
+  (e: 'location-click', location: TaskLocation): void
+}
+
+const emit = defineEmits<Emits>()
 
 // Import location utility
 const { formatCoordinates, getLocationName, getLocationDescription } = useLocation()
 
 // Fix Leaflet icon issues in bundlers
-delete L.Icon.Default.prototype._getIconUrl
+delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png'
 })
 
-const props = defineProps({
-  /**
-   * Array of task locations to display on map
-   */
-  locations: {
-    type: Array,
-    default: () => []
-  },
-  /**
-   * User's current GPS position
-   */
-  userPosition: {
-    type: Object,
-    default: null
-  },
-  /**
-   * Maximum number of closest unvisited locations to use for map viewport centering
-   * All locations (visited + unvisited) are displayed as markers
-   */
-  maxLocations: {
-    type: Number,
-    default: 5
-  },
-  /**
-   * Set of visited location references for green markers
-   */
-  visitedLocations: {
-    type: Set,
-    default: () => new Set()
-  },
-  /**
-   * Loading state from parent
-   */
-  loading: {
-    type: Boolean,
-    default: false
-  },
-  /**
-   * Currently selected location for highlighting
-   */
-  selectedLocation: {
-    type: Object,
-    default: null
-  }
-})
-
-const emit = defineEmits(['map-ready', 'location-click'])
-
 // Component state
-const map = ref(null)
-const error = ref(null)
-const zoom = ref(13)
-const center = ref([59.4370, 24.7536]) // Default to Tallinn
+const map = ref<MapRef | null>(null)
+const error = ref<string | null>(null)
+const zoom = ref<number>(13)
+const center = ref<[number, number]>([59.4370, 24.7536]) // Default to Tallinn
 
-// Map initialization phases: 'waiting' | 'all-locations' | 'gps-focused'
-const mapInitializationPhase = ref('waiting')
-const isTransitioning = ref(false)
+// Map initialization phase
+const mapInitializationPhase = ref<MapPhase>('waiting')
+const isTransitioning = ref<boolean>(false)
 
 // Check if locations are ready for map display
 const locationsReady = computed(() => {
@@ -228,13 +251,13 @@ console.log('🗺️ [EVENT] InteractiveMap - Component setup started', {
 })
 
 // Marker refs for popup control
-const markerRefs = ref(new Map())
+const markerRefs = ref<Map<string, MarkerRef>>(new Map())
 
 // Set marker reference for popup control
-const setMarkerRef = (el, location) => {
-  if (el) {
+const setMarkerRef = (el: Element | ComponentPublicInstance | null, location: TaskLocation): void => {
+  if (el && typeof el === 'object' && 'leafletObject' in el) {
     const locationKey = location._id || location.id || `${location.coordinates.lat}-${location.coordinates.lng}`
-    markerRefs.value.set(locationKey, el)
+    markerRefs.value.set(locationKey, el as unknown as MarkerRef)
   }
 }
 
@@ -255,36 +278,36 @@ const tileOptions = {
 const attribution = '© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
 
 // Custom icons
-const userIcon = L.divIcon({
+const userIcon: Icon = L.divIcon({
   html: '<div style="background: #3b82f6; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">📍</div>',
   className: 'custom-user-icon',
   iconSize: [20, 20],
   iconAnchor: [10, 10]
-})
+}) as Icon
 
-const locationIcon = L.divIcon({
+const locationIcon: Icon = L.divIcon({
   html: '<div style="background: #ef4444; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">📍</div>',
   className: 'custom-location-icon',
   iconSize: [16, 16],
   iconAnchor: [8, 8]
-})
+}) as Icon
 
-const visitedLocationIcon = L.divIcon({
+const visitedLocationIcon: Icon = L.divIcon({
   html: '<div style="background: #22c55e; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">✓</div>',
   className: 'custom-visited-icon',
   iconSize: [16, 16],
   iconAnchor: [8, 8]
-})
+}) as Icon
 
-const selectedLocationIcon = L.divIcon({
+const selectedLocationIcon: Icon = L.divIcon({
   html: '<div style="background: #3b82f6; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 3px solid #1d4ed8; box-shadow: 0 4px 8px rgba(0,0,0,0.4); animation: pulse 2s infinite;">📍</div>',
   className: 'custom-selected-icon',
   iconSize: [20, 20],
   iconAnchor: [10, 10]
-})
+}) as Icon
 
 // Check if a location has been visited
-const isLocationVisited = (location) => {
+const isLocationVisited = (location: TaskLocation): boolean => {
   const locationRef = location.reference || location._id
   if (!locationRef || !props.visitedLocations) return false
 
@@ -292,13 +315,13 @@ const isLocationVisited = (location) => {
 }
 
 // Check if a location is currently selected
-const isLocationSelected = (location) => {
+const isLocationSelected = (location: TaskLocation): boolean => {
   if (!props.selectedLocation || !location) return false
   return isSameLocation(location, props.selectedLocation)
 }
 
 // Get appropriate icon for location
-const getLocationIcon = (location) => {
+const getLocationIcon = (location: TaskLocation): Icon => {
   if (isLocationSelected(location)) {
     return selectedLocationIcon
   }
@@ -306,7 +329,7 @@ const getLocationIcon = (location) => {
 }
 
 // Filter and process locations
-const displayedLocations = computed(() => {
+const displayedLocations = computed<TaskLocation[]>(() => {
   // Only log on first run or significant changes
   if (process.env.NODE_ENV === 'development') {
     console.log('🗺️ [EVENT] InteractiveMap - Computing displayedLocations', {
@@ -319,10 +342,10 @@ const displayedLocations = computed(() => {
   }
 
   // Filter locations that have valid normalized coordinates
-  const locationsWithCoords = props.locations.filter((location) => {
-    return location.coordinates
-      && location.coordinates.lat
-      && location.coordinates.lng
+  const locationsWithCoords = props.locations.filter((location): location is TaskLocation => {
+    return !!location.coordinates
+      && typeof location.coordinates.lat === 'number'
+      && typeof location.coordinates.lng === 'number'
   })
 
   if (process.env.NODE_ENV === 'development') {
@@ -336,7 +359,7 @@ const displayedLocations = computed(() => {
 })
 
 // Calculate the closest unvisited locations for viewport centering
-const closestUnvisitedLocations = computed(() => {
+const closestUnvisitedLocations = computed<TaskLocation[]>(() => {
   const unvisitedLocations = displayedLocations.value.filter((location) => {
     return !isLocationVisited(location)
   })
@@ -347,7 +370,7 @@ const closestUnvisitedLocations = computed(() => {
 })
 
 // Two-stage map bounds calculation
-const calculateMapBounds = async () => {
+const calculateMapBounds = async (): Promise<void> => {
   try {
     if (!map.value?.leafletObject) {
       console.log('🗺️ [EVENT] InteractiveMap - Map not ready, skipping bounds calculation')
@@ -358,7 +381,8 @@ const calculateMapBounds = async () => {
     await new Promise((resolve) => setTimeout(resolve, 100))
 
     // Check if map container is properly initialized
-    if (!map.value?.leafletObject._container || !map.value.leafletObject._size) {
+    const container = map.value.leafletObject.getContainer()
+    if (!container) {
       console.warn('🗺️ [EVENT] InteractiveMap - Map container not ready yet, skipping bounds calculation')
       return
     }
@@ -409,8 +433,8 @@ const calculateMapBounds = async () => {
 }
 
 // Phase 1: Fit all locations for overview
-const fitAllLocationsBounds = async () => {
-  const bounds = []
+const fitAllLocationsBounds = async (): Promise<void> => {
+  const bounds: [number, number][] = []
 
   // Add all locations to bounds for overview
   props.locations.forEach((location) => {
@@ -422,13 +446,17 @@ const fitAllLocationsBounds = async () => {
   console.log('🗺️ [EVENT] InteractiveMap - Phase 1 bounds points:', bounds.length)
 
   if (bounds.length === 0) return
+  if (!map.value) return
 
   if (bounds.length === 1) {
     // Single location - center with medium zoom
     console.log('🗺️ [EVENT] InteractiveMap - Phase 1: Single location view')
-    center.value = bounds[0]
-    zoom.value = 14
-    map.value.leafletObject.setView(bounds[0], 14)
+    const boundsPoint = bounds[0]
+    if (boundsPoint) {
+      center.value = boundsPoint
+      zoom.value = 14
+      map.value.leafletObject.setView(boundsPoint, 14)
+    }
   }
   else {
     // Multiple locations - fit all with generous padding for overview
@@ -442,8 +470,8 @@ const fitAllLocationsBounds = async () => {
 }
 
 // Phase 2: Fit GPS-focused view with user + closest unvisited
-const fitGpsFocusedBounds = async () => {
-  const bounds = []
+const fitGpsFocusedBounds = async (): Promise<void> => {
+  const bounds: [number, number][] = []
 
   // Add user position first
   if (props.userPosition) {
@@ -460,18 +488,22 @@ const fitGpsFocusedBounds = async () => {
   console.log('🗺️ [EVENT] InteractiveMap - Phase 2 bounds points:', bounds.length)
 
   if (bounds.length === 0) return
+  if (!map.value) return
 
   if (bounds.length === 1) {
     // Just user position - center with close zoom
     console.log('🗺️ [EVENT] InteractiveMap - Phase 2: User position focus')
-    center.value = bounds[0]
-    zoom.value = 15
-    map.value.leafletObject.setView(bounds[0], 15, { animate: true, duration: 1.5 })
+    const boundsPoint = bounds[0]
+    if (boundsPoint) {
+      center.value = boundsPoint
+      zoom.value = 15
+      map.value.leafletObject.setView(boundsPoint, 15, { animate: true, duration: 1.5 })
+    }
   }
   else {
     // User + nearby locations - fit with tighter padding for focus
     console.log('🗺️ [EVENT] InteractiveMap - Phase 2: GPS-focused view')
-    const leafletBounds = L.latLngBounds(bounds)
+    const leafletBounds = L.latLngBounds(bounds as LatLngExpression[])
     map.value.leafletObject.fitBounds(leafletBounds, {
       padding: [20, 20],
       maxZoom: 16, // Higher max zoom for focused view
@@ -487,7 +519,7 @@ const fitGpsFocusedBounds = async () => {
 }
 
 // Location click handler
-const onLocationClick = (location) => {
+const onLocationClick = (location: TaskLocation): void => {
   console.log('[InteractiveMap] Location clicked:', location.nimi || location.name || 'unnamed')
   // The popup will open automatically due to the click event
   // We'll emit this to parent for synchronization
@@ -495,7 +527,7 @@ const onLocationClick = (location) => {
 }
 
 // Programmatically open popup for a location
-const openLocationPopup = (location) => {
+const openLocationPopup = (location: TaskLocation | null): void => {
   if (!location) return
 
   const locationKey = location._id || location.id || `${location.coordinates?.lat}-${location.coordinates?.lng}`
@@ -514,7 +546,7 @@ const openLocationPopup = (location) => {
 
 // Watch for selectedLocation changes to open popup
 watch(() => props.selectedLocation, (newLocation, oldLocation) => {
-  if (newLocation && !isSameLocation(newLocation, oldLocation)) {
+  if (newLocation && !isSameLocation(newLocation, oldLocation || {})) {
     console.log('[InteractiveMap] Selected location changed, opening popup:', newLocation.nimi || newLocation.name || 'unnamed')
     nextTick(() => {
       openLocationPopup(newLocation)
@@ -524,7 +556,7 @@ watch(() => props.selectedLocation, (newLocation, oldLocation) => {
 
 // Map ready handler
 // Handle map ready event
-const onMapReady = async () => {
+const onMapReady = async (): Promise<void> => {
   try {
     // 🔍 EVENT TRACKING: Map ready
     console.log('🗺️ [EVENT] InteractiveMap - Map ready', {
