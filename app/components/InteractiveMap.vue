@@ -99,13 +99,13 @@
               <div class="flex items-start justify-between">
                 <div class="flex-1">
                   <h3 class="font-medium">
-                    {{ getLocationName(location as any) }}
+                    {{ getLocationName(location) }}
                   </h3>
                   <p
-                    v-if="getLocationDescription(location as any)"
+                    v-if="getLocationDescription(location)"
                     class="mt-1 text-sm text-gray-600"
                   >
-                    {{ getLocationDescription(location as any) }}
+                    {{ getLocationDescription(location) }}
                   </p>
                 </div>
                 <div

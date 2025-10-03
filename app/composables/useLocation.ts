@@ -47,14 +47,19 @@ interface NormalizedCoordinates {
 
 /**
  * Entu location entity (from API response)
+ * Note: _id is optional to support various location formats (TaskLocation, manual locations)
+ * Note: name and description can be either Entu array format or simple strings
  */
 interface LocationEntity {
-  _id: string
-  name?: Array<{ string: string }>
+  _id?: string
+  id?: string
+  reference?: string
+  name?: Array<{ string: string }> | string
+  nimi?: string
   lat?: Array<{ number: number }>
   long?: Array<{ number: number }>
   description?: string
-  kirjeldus?: Array<{ string: string }>
+  kirjeldus?: Array<{ string: string }> | string
   properties?: {
     name?: Array<{ value: string }>
     nimi?: Array<{ value: string }>
@@ -608,18 +613,36 @@ export const useLocation = (): UseLocationReturn => {
 
   // Extract location name for display
   const getLocationName = (location: LocationEntity): string => {
+    // Handle simple string format (TaskLocation)
+    if (typeof location.name === 'string') {
+      return location.name
+    }
+    if (location.nimi) {
+      return location.nimi
+    }
+    
+    // Handle Entu array format
     return location.name?.[0]?.string
       || location.properties?.name?.[0]?.value
       || location.properties?.nimi?.[0]?.value
-      || (typeof location.name === 'string' ? location.name : null)
       || 'Nimetu asukoht'
   }
 
   // Extract location description
   const getLocationDescription = (location: LocationEntity): string | null => {
-    return location.properties?.description?.[0]?.value
+    // Handle simple string format (TaskLocation)
+    if (typeof location.description === 'string') {
+      return location.description
+    }
+    
+    // Handle Entu array format
+    if (typeof location.kirjeldus === 'string') {
+      return location.kirjeldus
+    }
+    
+    return location.kirjeldus?.[0]?.string
+      || location.properties?.description?.[0]?.value
       || location.properties?.kirjeldus?.[0]?.value
-      || (typeof location.description === 'string' ? location.description : null)
       || null
   }
 
