@@ -44,6 +44,7 @@ export default defineI18nConfig(() => ({
         noTasksDescription: "Ülesanded ilmuvad siia, kui need on määratud",
         responses: "vastust",
         group: "Grupp",
+        open: "Ava →",
       },
       gps: {
         enableLocationTitle: "Luba asukoht parema kasutuskogemuse jaoks",
@@ -165,6 +166,7 @@ export default defineI18nConfig(() => ({
         hideSidebar: "Hide sidebar",
         showSidebar: "Show sidebar",
         taskDetails: "Task details",
+        open: "Open →",
       },
       gps: {
         enableLocationTitle: "Enable location for better experience",
@@ -284,6 +286,7 @@ export default defineI18nConfig(() => ({
         noTasksDescription: "Завдання з'являться тут після призначення",
         responses: "відповідей",
         group: "Група",
+        open: "Відкрити →",
       },
       gps: {
         enableLocationTitle: "Увімкніть локацію для кращого досвіду",

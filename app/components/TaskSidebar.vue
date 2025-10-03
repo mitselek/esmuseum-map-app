@@ -126,11 +126,17 @@
           ]"
           @click="navigateToTask(task._id)"
         >
-          <!-- Task Title -->
-          <div class="mb-2">
-            <h3 class="line-clamp-2 text-sm font-medium text-gray-900">
+          <!-- Task Title with Open Button -->
+          <div class="mb-2 flex items-start justify-between gap-2">
+            <h3 class="line-clamp-2 flex-1 text-sm font-medium text-gray-900">
               {{ getTaskTitle(task) }}
             </h3>
+            <button
+              class="shrink-0 text-xs font-medium text-blue-600 transition-colors hover:text-blue-700"
+              @click.stop="navigateToTask(task._id)"
+            >
+              {{ $t('tasks.open') }}
+            </button>
           </div>
 
           <!-- Task Description (if available) -->
