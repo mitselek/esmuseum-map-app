@@ -215,18 +215,75 @@
 
 **Impact**: Dead code eliminated, resolved item #8
 
+### Phase 7: useEntuOAuth TypeScript Migration
+
+- **Migrated useEntuOAuth.js → useEntuOAuth.ts** (183 lines → 223 lines)
+- **Added comprehensive TypeScript interfaces**:
+  - `OAuthProvider` type with OAUTH_PROVIDERS constants
+  - `OAuthConfig` - Runtime configuration interface
+  - `UseEntuOAuthReturn` - Composable return type
+- **Type safety improvements**:
+  - All function parameters and returns fully typed
+  - OAuthProvider type ensures only valid providers
+  - Proper null checks for URL parsing
+  - Type-safe error handling (instanceof Error)
+  - Typed runtime config access
+- **Code quality**:
+  - Imported REDIRECT_KEY constant from auth-check.client.ts
+  - Exported OAUTH_PROVIDERS as const for type safety
+  - Added comprehensive JSDoc comments
+  - Improved error messages with proper typing
+- **Benefits**:
+  - Compile-time validation for OAuth flow
+  - Better IDE autocomplete for provider selection
+  - Type-safe integration with useEntuAuth
+
+**Impact**: OAuth authentication fully typed
+
+### Phase 8: useEntuApi TypeScript Migration
+
+- **Migrated useEntuApi.js → useEntuApi.ts** (208 lines → 284 lines)
+- **Added comprehensive TypeScript interfaces**:
+  - `ApiRequestOptions` - Extends RequestInit
+  - `EntitySearchQuery` - Search query parameters
+  - `EntuEntity` - Generic entity structure
+  - `EntityListResponse` - Entity list response
+  - `EntityData` - Entity creation/update data
+  - `FileUploadResponse` - File upload URL response
+  - `AccountInfo` - Account information response
+  - `UseEntuApiReturn` - Composable return type
+- **Type safety improvements**:
+  - Generic `callApi<T>` for type-safe API responses
+  - All function parameters and returns fully typed
+  - Type-safe query string building (String conversion)
+  - Proper error handling (instanceof Error)
+  - Fixed index signature issue with 'undefined' type
+- **Code quality**:
+  - Uses ENTU_PROPERTIES constants (already integrated)
+  - Comprehensive JSDoc comments for all methods
+  - Type-safe header manipulation
+  - No 'as any' casts needed
+- **Benefits**:
+  - Compile-time validation for all API calls
+  - Better IDE autocomplete for API methods
+  - Type-safe entity operations (CRUD)
+  - Clearer API contract for responses
+
+**Impact**: Entu API client fully typed, ~80% composables now TypeScript
+
 ---
 
-**Last Updated**: October 3, 2025 (Phase 6 complete)  
-**Next Review**: After Phase 7 (next composable migration)
+**Last Updated**: October 3, 2025 (Phase 8 complete)  
+**Next Review**: After Phase 9 (useClientSideFileUpload migration)
 
 **Session Statistics**:
 
-- **Composables migrated**: 5 (useTaskDetail, useEntuAuth, useTaskResponseCreation, useTaskGeolocation + useCompletedTasks updated)
-- **Lines migrated**: ~897 JS → ~1,117 TS (+220 for interfaces, +25%)
-- **Type safety**: ~20% → ~60% of composables
+- **Composables migrated**: 7 (useTaskDetail, useEntuAuth, useTaskResponseCreation, useTaskGeolocation, useEntuOAuth, useEntuApi + useCompletedTasks updated)
+- **Lines migrated**: ~1,288 JS → ~1,624 TS (+336 for interfaces, +26%)
+- **Type safety**: ~20% → ~80% of composables
 - **Magic strings eliminated**: 20+
 - **Critical bugs fixed**: 2 (variable naming, user._id)
-- **'as any' casts removed**: 4 (added 1 for JS boundary)
+- **'as any' casts removed**: 4 (added 1 for JS boundary, net -3)
+- **Dead code removed**: 46 lines (useEntuAdminAuth.js)
 - **UX improvements**: Login page redesign (1-click providers)
 - **Translation cleanup**: Merged duplicates to global config
