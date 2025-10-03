@@ -7,13 +7,14 @@
 
 ## 🔍 Discovered During Phase 1 (Magic Strings & Event Logs)
 
-### 1. **EventDebugPanel.vue may be obsolete**
+### 1. **EventDebugPanel.vue is NEEDED (not obsolete)**
 
 - **File**: `app/components/EventDebugPanel.vue`
-- **Issue**: Debug component that captures console logs for mobile debugging
-- **Consideration**: Is this still actively used? Could be removed if not needed in production
-- **Impact**: Medium (removes ~300+ lines if obsolete)
-- **Action**: Verify with team if still needed
+- **Purpose**: Debug component that captures console logs for mobile debugging
+- **Status**: ✅ **KEEP** - Very useful tool until Sentry or similar monitoring is implemented
+- **Impact**: ~300+ lines but provides critical mobile debugging capability
+- **Action**: Keep as-is, consider enhancement instead of removal
+- **Confirmed**: October 3, 2025 - User feedback
 
 ### 2. **useLocation.js has excessive debug logging**
 
@@ -26,28 +27,7 @@
 
 - **File**: `app/pages/index.vue`
 - **Issue**: `console.log('🚀 [EVENT] index.vue - Script setup started')`
-- **Action**: Remove after confirming page loads correctly
-
-### 4. **Variable naming inconsistency found (FIXED)**
-
-- **File**: `app/composables/useTaskDetail.js` line 311-320
-- **Issue**: Variable named `responses` but referenced as `userResponse`
-- **Status**: ✅ Fixed during Phase 1
-- **Lesson**: Look for similar patterns in other files
-
----
-
-## 🎯 To Be Discovered During Phase 2 (useTaskDetail Migration)
-
-### 5. **Duplicate logic in useTaskDetail.js**
-
-- **File**: `app/composables/useTaskDetail.js`
-- **Issue**: Custom extraction logic duplicates `utils/entu-helpers.ts`
-  - `getTaskTitle()` → should use `getTaskName()`
-  - `getTaskDescription()` → duplicates helper
-  - `getResponseCount()` → should use `getTaskResponseCount()`
-- **Impact**: ~50-100 lines can be removed
-- **Action**: Replace during TypeScript migration (Phase 2)
+- **Action**: Review if still needed for debugging
 
 ---
 
@@ -81,8 +61,16 @@
 ### Phase 1: Magic Strings & Event Logs
 
 - **Magic strings extracted** to `app/constants/entu.ts` (3 files updated)
-- **Variable naming bug fixed** in useTaskDetail.js
+- **Variable naming bug fixed** in useTaskDetail.js:
+  - Issue: Variable named `responses` but referenced as `userResponse`
+  - Fixed: Corrected variable reference during magic string replacement
+  - Lesson: Look for similar patterns during migrations
 - **Event tracking logs cleaned** (useTaskWorkspace, useTaskDetail, index.vue)
+  - Removed redundant 🎯 task selection logs
+  - Removed 🔐 permission check logs  
+  - Removed 🚀 page init logs from some components
+
+**Impact**: Cleaner console, centralized constants, bug fixes
 
 ### Phase 2: useTaskDetail TypeScript Migration
 
