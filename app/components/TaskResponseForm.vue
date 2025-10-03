@@ -35,7 +35,7 @@
           @request-location="onRequestLocation"
           @retry="loadTaskLocations"
         />
-        
+
         <!-- Prompt message when no location selected -->
         <div
           v-if="!selectedLocation"

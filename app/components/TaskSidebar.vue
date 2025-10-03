@@ -203,6 +203,7 @@
 <script setup lang="ts">
 import type { EntuTask } from '../../types/entu'
 import { getTaskName, getTaskDescription, getTaskResponseCount, getTaskDeadline } from '../../utils/entu-helpers'
+import { formatDate } from '../../utils/date-format'
 
 const {
   tasks,
@@ -302,7 +303,7 @@ const isTaskFullyCompleted = (taskId: string): boolean => {
 const getTaskDueDate = (task: EntuTask): string | null => {
   const deadline = getTaskDeadline(task)
   if (deadline) {
-    return deadline.toLocaleDateString()
+    return formatDate(deadline)
   }
   return null
 }
