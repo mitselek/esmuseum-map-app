@@ -50,30 +50,40 @@
   </header>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// Language code type
+type LanguageCode = 'et' | 'en' | 'uk'
+
 // Composables
 const { locale, setLocale } = useI18n()
 const { isAuthenticated, user, logout: authLogout } = useEntuAuth()
 
+// Language interface
+interface Language {
+  code: LanguageCode
+  name: string
+  flag: string
+}
+
 // Language configuration
-const allLanguages = [
+const allLanguages: Language[] = [
   { code: 'et', name: 'Eesti', flag: '🇪🇪' },
   { code: 'en', name: 'English', flag: '🇬🇧' },
   { code: 'uk', name: 'Українська', flag: '🇺🇦' }
 ]
 
 // Computed property for available languages (excluding current)
-const availableLanguages = computed(() => {
+const availableLanguages = computed<Language[]>(() => {
   return allLanguages.filter((lang) => lang.code !== locale.value)
 })
 
 // Language switching method
-const switchLanguage = (langCode) => {
+const switchLanguage = (langCode: LanguageCode): void => {
   setLocale(langCode)
 }
 
 // Logout method
-const handleLogout = async () => {
+const handleLogout = async (): Promise<void> => {
   await authLogout()
   await navigateTo('/login')
 }
