@@ -15,6 +15,7 @@ Consolidated `useTaskScoring.js` functionality into the TypeScript `useCompleted
 We had **two separate composables** loading the same data:
 
 1. **useCompletedTasks.ts** (TaskSidebar)
+
    - Loads ALL user responses: `searchEntities({ '_type.string': 'vastus', '_owner.reference': userId })`
    - Calculates stats for multiple tasks
    - Used by TaskSidebar to show progress
@@ -38,7 +39,7 @@ We had **two separate composables** loading the same data:
 
 ### Architecture Change
 
-```
+```text
 Before:
 ┌─────────────────┐     ┌──────────────────┐
 │  TaskSidebar    │     │ TaskDetailPanel  │
@@ -88,16 +89,16 @@ Added new methods to support per-task scoring:
 ```typescript
 interface UseCompletedTasksReturn {
   // Existing (global stats)
-  completedTaskIds: ComputedRef<string[]>
-  userResponses: ComputedRef<EntuResponse[]>
-  loading: Readonly<Ref<boolean>>
-  error: Readonly<Ref<string | null>>
-  loadCompletedTasks: () => Promise<string[]>
-  getTaskStats: (taskId: string, expectedCount: number) => TaskStats
-  
+  completedTaskIds: ComputedRef<string[]>;
+  userResponses: ComputedRef<EntuResponse[]>;
+  loading: Readonly<Ref<boolean>>;
+  error: Readonly<Ref<string | null>>;
+  loadCompletedTasks: () => Promise<string[]>;
+  getTaskStats: (taskId: string, expectedCount: number) => TaskStats;
+
   // NEW (per-task scoring)
-  getVisitedLocationsForTask: (taskId: string) => Set<string>
-  isLocationVisited: (taskId: string, locationRef: string) => boolean
+  getVisitedLocationsForTask: (taskId: string) => Set<string>;
+  isLocationVisited: (taskId: string, locationRef: string) => boolean;
 }
 ```
 
@@ -107,19 +108,19 @@ interface UseCompletedTasksReturn {
 // Get visited locations for a specific task (filters cached responses)
 const getVisitedLocationsForTask = (taskId: string): Set<string> => {
   const taskResponses = userResponses.value.filter((response) => {
-    return response._parent?.[0]?.reference === taskId
-  })
+    return response._parent?.[0]?.reference === taskId;
+  });
 
-  const locations = new Set<string>()
+  const locations = new Set<string>();
   for (const response of taskResponses) {
-    const locationRef = response.asukoht?.[0]?.reference
+    const locationRef = response.asukoht?.[0]?.reference;
     if (locationRef) {
-      locations.add(locationRef)
+      locations.add(locationRef);
     }
   }
 
-  return locations
-}
+  return locations;
+};
 ```
 
 ### 3. Created Backward-Compatible Wrapper
@@ -128,13 +129,13 @@ Exported `useTaskScoring` as a **wrapper function** that uses the consolidated c
 
 ```typescript
 export const useTaskScoring = (taskData: ComputedRef<any>) => {
-  const completedTasks = useCompletedTasks()
-  
+  const completedTasks = useCompletedTasks();
+
   // All computed properties use cached data - NO API CALLS!
   const visitedLocations = computed(() => {
-    if (!taskId.value) return new Set()
-    return completedTasks.getVisitedLocationsForTask(taskId.value)
-  })
+    if (!taskId.value) return new Set();
+    return completedTasks.getVisitedLocationsForTask(taskId.value);
+  });
 
   return {
     // Same interface as old useTaskScoring
@@ -143,9 +144,9 @@ export const useTaskScoring = (taskData: ComputedRef<any>) => {
     uniqueLocationsCount,
     totalExpected,
     visitedLocations,
-    isLocationVisited
-  }
-}
+    isLocationVisited,
+  };
+};
 ```
 
 ### 4. Updated TaskDetailPanel
@@ -156,9 +157,9 @@ export const useTaskScoring = (taskData: ComputedRef<any>) => {
 // Before
 // Auto-imported from useTaskScoring.js
 
-// After  
+// After
 // Auto-imported from useCompletedTasks.ts
-const scoringData = useTaskScoring(computed(() => selectedTask.value))
+const scoringData = useTaskScoring(computed(() => selectedTask.value));
 ```
 
 **No other changes needed!** Full backward compatibility maintained.
@@ -202,12 +203,12 @@ const scoringData = useTaskScoring(computed(() => selectedTask.value))
 
 ```javascript
 // TaskSidebar mounts
-useCompletedTasks.loadCompletedTasks()
+useCompletedTasks.loadCompletedTasks();
 // API Call 1: GET /search?_type.string=vastus&_owner.reference=userId
 // Loads 19 responses
 
 // TaskDetailPanel mounts with task "proovikas"
-useTaskScoring.fetchUserResponses()
+useTaskScoring.fetchUserResponses();
 // API Call 2: GET /search?_type.string=vastus&_parent.reference=taskId&_owner.reference=userId
 // Loads 18 responses (subset of Call 1!)
 ```
@@ -218,12 +219,12 @@ useTaskScoring.fetchUserResponses()
 
 ```javascript
 // TaskSidebar mounts
-useCompletedTasks.loadCompletedTasks()
+useCompletedTasks.loadCompletedTasks();
 // API Call 1: GET /search?_type.string=vastus&_owner.reference=userId
 // Loads 19 responses → cached in userResponses
 
 // TaskDetailPanel mounts with task "proovikas"
-useTaskScoring(taskData)
+useTaskScoring(taskData);
 // NO API CALL! Filters userResponses cache for taskId
 // Returns 18 responses instantly from cache
 ```
@@ -245,7 +246,7 @@ useTaskScoring(taskData)
 
 ## Files Modified
 
-```
+```text
 app/composables/useCompletedTasks.ts (extended with scoring)
 app/composables/useTaskScoring.js (DELETED - consolidated)
 app/components/TaskDetailPanel.vue (import source changed)
@@ -275,22 +276,22 @@ docs/migrations/useTaskScoring-consolidation.md (THIS FILE)
 
 ### API Call Reduction
 
-| Component        | Before | After | Improvement |
-| ---------------- | ------ | ----- | ----------- |
-| TaskSidebar      | 1      | 1     | Same        |
-| TaskDetailPanel  | 1      | 0     | -100%       |
-| **Total**        | 2      | 1     | **-50%**    |
+| Component       | Before | After | Improvement |
+| --------------- | ------ | ----- | ----------- |
+| TaskSidebar     | 1      | 1     | Same        |
+| TaskDetailPanel | 1      | 0     | -100%       |
+| **Total**       | 2      | 1     | **-50%**    |
 
 ### Combined with Previous Optimization
 
 From the previous cleanup (removed duplicate loadCompletedTasks):
 
-| Stage                   | API Calls | Improvement |
-| ----------------------- | --------- | ----------- |
-| Original                | 4         | baseline    |
-| After cleanup           | 2         | -50%        |
-| After consolidation     | 1         | **-75%**    |
-| **Total improvement**   |           | **-75%** 🔥 |
+| Stage                 | API Calls | Improvement |
+| --------------------- | --------- | ----------- |
+| Original              | 4         | baseline    |
+| After cleanup         | 2         | -50%        |
+| After consolidation   | 1         | **-75%**    |
+| **Total improvement** |           | **-75%** 🔥 |
 
 ---
 
@@ -299,6 +300,7 @@ From the previous cleanup (removed duplicate loadCompletedTasks):
 ### 1. Look for Duplicate Data Fetching
 
 If two composables load similar data, consider:
+
 - Can one cache include the other's data?
 - Is the subset small enough to filter from the superset?
 - Would consolidation reduce API calls?
@@ -306,6 +308,7 @@ If two composables load similar data, consider:
 ### 2. Backward Compatibility via Wrappers
 
 Export legacy interfaces as thin wrappers:
+
 - No need to change consuming components
 - Can refactor internals safely
 - Gradual migration path
@@ -313,6 +316,7 @@ Export legacy interfaces as thin wrappers:
 ### 3. TypeScript Consolidation Benefits
 
 Consolidating into `.ts` provides:
+
 - Type safety for both use cases
 - Single interface to maintain
 - Compile-time guarantees
@@ -320,6 +324,7 @@ Consolidating into `.ts` provides:
 ### 4. Cache First, Fetch Later
 
 Design principle: **Cache aggressively, filter locally**
+
 - Load broader dataset once
 - Filter/compute subsets as needed
 - Avoid redundant API calls
@@ -333,15 +338,14 @@ Design principle: **Cache aggressively, filter locally**
 1. **Add cache invalidation**
    - Refresh when responses created/deleted
    - Time-based expiry (e.g., 5 minutes)
-   
 2. **Lazy loading strategy**
+
    - Only fetch responses when needed
    - Pre-fetch in background after initial load
 
 3. **Optimistic updates**
    - Add response to cache immediately on submit
    - Update from server response later
-   
 4. **Pagination**
    - Current limit: 100 responses
    - Add pagination if users have >100 responses
@@ -350,7 +354,7 @@ Design principle: **Cache aggressively, filter locally**
 
 ## Commit Message
 
-```
+```text
 refactor(F022): Consolidate useTaskScoring into useCompletedTasks
 
 CONSOLIDATION:

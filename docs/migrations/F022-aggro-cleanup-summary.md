@@ -28,7 +28,7 @@
 
 ### 1. **app/composables/useCompletedTasks.ts**
 
-#### Removed Dead Code
+#### Removed Dead Code 1
 
 - ❌ `isTaskCompleted(taskId)` - Never used
 - ❌ `filterUnvisitedLocations(locations)` - Never used
@@ -49,7 +49,7 @@
 
 ### 2. **app/composables/useTaskDetail.js**
 
-#### Removed Dead Code
+#### Removed Dead Code 2
 
 - ❌ `getTaskResponseStats()` wrapper function - Never actually called
 - ❌ Stats loading logic in `initializeTask()` - `setStats` callback never passed
@@ -147,7 +147,7 @@ watch(tasks, async () => {
 
 ### Console Logs After Cleanup
 
-```
+```text
 ✅ Single "loadCompletedTasks CALLED" log
 ✅ "Loaded 19 responses for 2 unique tasks"
 ✅ No duplicate API calls
@@ -207,7 +207,7 @@ watch(tasks, async () => {
 
 ## Files Modified
 
-```
+```text
 app/composables/useCompletedTasks.ts (cleaned up)
 app/composables/useTaskDetail.js (cleaned up)
 app/composables/useTaskResponseStats.ts (DELETED)
