@@ -27,7 +27,7 @@
             <span class="font-medium">{{ progress.expected }}</span>
             <span class="text-gray-500">{{ $t('tasks.responses') }}</span>
           </div>
-          
+
           <!-- Deadline -->
           <div
             v-if="deadline"
@@ -37,7 +37,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Description -->
       <p
         v-if="description"

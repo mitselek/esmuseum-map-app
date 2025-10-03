@@ -63,6 +63,7 @@
 <script setup lang="ts">
 import { getLocationIdentifier } from '~/utils/location-sync'
 import { getTaskName } from '../../utils/entu-helpers'
+import { formatDate } from '../../utils/date-format'
 
 const { selectedTask, clearSelection } = useTaskWorkspace()
 const {
@@ -129,8 +130,8 @@ const taskDeadline = computed(() => {
   // Get deadline from task (tahtaeg property)
   const deadline = selectedTask.value.tahtaeg?.[0]?.datetime
   if (!deadline) return null
-  // Format as simple date for now (will improve with #2)
-  return new Date(deadline).toLocaleDateString()
+  // Use date formatting utility
+  return formatDate(deadline)
 })
 
 // Task description for map card
