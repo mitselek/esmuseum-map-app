@@ -306,11 +306,20 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
    * Refresh the token if it's expired or about to expire
    */
   async function refreshToken(forceRefresh = false): Promise<string | null> {
-    // Only refresh if the token is expired, about to expire, or if forced
+    // Only refresh if we have an existing token and it's expired/expiring or forced
     const thirtyMinutes = 30 * 60 * 1000
+    
+    // Don't try to refresh if we don't have a token - user needs to OAuth authenticate
+    if (!token.value) {
+      return null
+    }
+    
     if (forceRefresh || isTokenExpired.value || (tokenExpiry.value && tokenExpiry.value - Date.now() < thirtyMinutes)) {
-      const data = await getToken()
-      return data.token
+      // For OAuth users, we can't refresh - they need to re-authenticate
+      // This prevents the "No API key" error when token expires
+      console.warn('Token expired - user needs to re-authenticate via OAuth')
+      logout()
+      return null
     }
     return token.value
   }
