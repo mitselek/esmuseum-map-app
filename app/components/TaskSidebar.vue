@@ -233,7 +233,10 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { EntuTask } from '../../types/entu'
+import { getTaskName, getTaskDescription, getTaskResponseCount, getTaskDeadline } from '../../utils/entu-helpers'
+
 const {
   tasks,
   selectedTaskId,
@@ -247,7 +250,12 @@ const { loadCompletedTasks, getTaskStats } = useCompletedTasks()
 const { t } = useI18n()
 
 // Response stats cache for all tasks (stores actual and expected counts)
-const taskResponseStatsCache = ref(new Map())
+interface TaskStats {
+  actual: number
+  expected: number
+}
+
+const taskResponseStatsCache = ref<Map<string, TaskStats>>(new Map())
 
 // Search functionality
 const searchQuery = ref('')
@@ -284,47 +292,18 @@ const filteredTasks = computed(() => {
   })
 })
 
-// Helper functions to extract data from Entu format
-const getTaskTitle = (task) => {
-  // Handle Entu array format: name: [{ string: "actual name" }]
-  if (task.name && Array.isArray(task.name) && task.name[0]?.string) {
-    return task.name[0].string
-  }
-  // Fallback for simple string format
-  if (typeof task.name === 'string') {
-    return task.name
-  }
-  return 'Unnamed Task'
+// Helper functions using typed entu-helpers
+const getTaskTitle = (task: EntuTask): string => {
+  return getTaskName(task)
 }
 
-const getTaskDescription = (task) => {
-  // Handle Entu array format for description/kirjeldus
-  if (task.kirjeldus && Array.isArray(task.kirjeldus) && task.kirjeldus[0]?.string) {
-    return task.kirjeldus[0].string
-  }
-  if (task.description && Array.isArray(task.description) && task.description[0]?.string) {
-    return task.description[0].string
-  }
-  // Fallback for simple string format
-  if (typeof task.description === 'string') {
-    return task.description
-  }
-  return null
+// getTaskDescription is imported from entu-helpers
+
+const getResponseCount = (task: EntuTask): number => {
+  return getTaskResponseCount(task)
 }
 
-const getResponseCount = (task) => {
-  // Handle Entu array format for response count
-  if (task.vastuseid && Array.isArray(task.vastuseid) && task.vastuseid[0]?.number !== undefined) {
-    return task.vastuseid[0].number
-  }
-  // Fallback for direct number
-  if (typeof task.responseCount === 'number') {
-    return task.responseCount
-  }
-  return 0
-}
-
-const getResponseStatsText = (task) => {
+const getResponseStatsText = (task: EntuTask): string => {
   const stats = taskResponseStatsCache.value.get(task._id)
   if (stats) {
     return `${stats.actual} / ${stats.expected} ${t('tasks.responses')}`
@@ -332,10 +311,10 @@ const getResponseStatsText = (task) => {
   return `${getResponseCount(task)} ${t('tasks.responses')}`
 }
 
-const loadTaskResponseStats = (task) => {
+const loadTaskResponseStats = (task: EntuTask): void => {
   try {
     // Get expected count from task data
-    const expectedCount = task.vastuseid?.[0]?.number || 1
+    const expectedCount = getTaskResponseCount(task) || 1
 
     // Use getTaskStats from useCompletedTasks (no API call needed!)
     const stats = getTaskStats(task._id, expectedCount)
@@ -347,26 +326,16 @@ const loadTaskResponseStats = (task) => {
   }
 }
 
-const isTaskFullyCompleted = (taskId) => {
+const isTaskFullyCompleted = (taskId: string): boolean => {
   const stats = taskResponseStatsCache.value.get(taskId)
   if (!stats) return false
   return stats.actual >= stats.expected
 }
 
-const getTaskDueDate = (task) => {
-  // Handle Entu array format for due date
-  if (task.tahtaeg && Array.isArray(task.tahtaeg) && task.tahtaeg[0]?.datetime) {
-    const date = new Date(task.tahtaeg[0].datetime)
-    return date.toLocaleDateString()
-  }
-  if (task.deadline && Array.isArray(task.deadline) && task.deadline[0]?.datetime) {
-    const date = new Date(task.deadline[0].datetime)
-    return date.toLocaleDateString()
-  }
-  // Fallback for direct date
-  if (task.dueDate) {
-    const date = new Date(task.dueDate)
-    return date.toLocaleDateString()
+const getTaskDueDate = (task: EntuTask): string | null => {
+  const deadline = getTaskDeadline(task)
+  if (deadline) {
+    return deadline.toLocaleDateString()
   }
   return null
 }
