@@ -205,4 +205,3 @@
 - **'as any' casts removed**: 4
 - **UX improvements**: Login page redesign (1-click providers)
 - **Translation cleanup**: Merged duplicates to global config
-
