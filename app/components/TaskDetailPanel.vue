@@ -27,6 +27,9 @@
           :loading-locations="loadingTaskLocations"
           :selected-location="selectedLocation"
           :visited-locations="visitedLocations"
+          :progress="progress"
+          :deadline="taskDeadline"
+          :description="taskDescription"
           @location-click="onMapLocationClick"
           @map-ready="onMapReady"
           @location-change="handleLocationOverride"
@@ -118,6 +121,22 @@ const progress = computed<ProgressData>(() => {
 // Task title for header
 const taskTitle = computed(() => {
   return selectedTask.value ? getTaskName(selectedTask.value) : ''
+})
+
+// Task deadline for map card
+const taskDeadline = computed(() => {
+  if (!selectedTask.value) return null
+  // Get deadline from task (tahtaeg property)
+  const deadline = selectedTask.value.tahtaeg?.[0]?.datetime
+  if (!deadline) return null
+  // Format as simple date for now (will improve with #2)
+  return new Date(deadline).toLocaleDateString()
+})
+
+// Task description for map card
+const taskDescription = computed(() => {
+  if (!selectedTask.value) return null
+  return selectedTask.value.kirjeldus?.[0]?.string || null
 })
 
 interface ResponseFormRef {
