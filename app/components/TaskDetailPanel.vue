@@ -15,11 +15,11 @@
         @close="clearSelection"
       />
 
-      <!-- Fixed map section (30vh) -->
+      <!-- Fixed map section (1/3 of available height) -->
       <div
         v-if="hasMapData"
         class="shrink-0"
-        style="height: 30vh"
+        style="height: 40vh"
       >
         <TaskMapCard
           :task-locations="taskLocations"
