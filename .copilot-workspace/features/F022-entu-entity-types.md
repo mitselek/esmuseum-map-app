@@ -1,12 +1,18 @@
 # F022: TypeScript Entity Types for Entu
 
-**Status**: ✅ Completed  
+**Status**: ✅ Completed (EXTENDED - See Note Below)  
 **Created**: October 2, 2025  
 **Branch**: `feature/F022-entu-entity-types`
+
+> **📢 IMPORTANT NOTE**: This document describes the **ORIGINAL** F022 plan (creating type definitions).  
+> F022 actually went **WAY BEYOND** this - we migrated **ALL 9 COMPOSABLES** to TypeScript!  
+> **See the complete story**: [F022-COMPOSABLE-MIGRATION.md](./F022-COMPOSABLE-MIGRATION.md)
 
 ## Overview
 
 Comprehensive TypeScript type system for Entu entities, providing type safety, better autocomplete, and improved developer experience across the application. Based on real sample entity data from the Entu database.
+
+*Note: This original plan was completed AND extended to include full composable migration to TypeScript (100% type coverage achieved!)*
 
 ## Motivation
 
