@@ -21,7 +21,9 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { LocationQueryValue } from 'vue-router'
+
 // TaskWorkspace is a component, not a page - no definePageMeta needed
 
 // 🔍 EVENT TRACKING: TaskWorkspace initialization
@@ -34,7 +36,7 @@ console.log('🔍 [EVENT] TaskWorkspace - useTaskWorkspace loaded', new Date().t
 const route = useRoute()
 const { selectTask } = useTaskWorkspace() // Use selectTask (state-only) for route sync
 
-watch(() => route.query.task, (taskId) => {
+watch(() => route.query.task, (taskId: LocationQueryValue | LocationQueryValue[] | undefined) => {
   if (taskId && typeof taskId === 'string') {
     selectTask(taskId) // Route sync: update state without triggering navigation
   }
