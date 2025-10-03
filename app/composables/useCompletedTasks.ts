@@ -200,7 +200,7 @@ export const useTaskScoring = (taskData: ComputedRef<any>) => {
   const taskId = computed(() => taskData?.value?._id || '')
 
   // Extract unique visited locations from cached responses
-  const visitedLocations = computed(() => {
+  const visitedLocations = computed<Set<string>>(() => {
     if (!taskId.value) return new Set()
     return completedTasks.getVisitedLocationsForTask(taskId.value)
   })
