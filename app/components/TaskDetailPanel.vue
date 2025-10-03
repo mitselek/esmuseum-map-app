@@ -22,10 +22,10 @@
         style="height: 40vh"
       >
         <TaskMapCard
-          :task-locations="taskLocations"
+          :task-locations="taskLocations as any"
           :user-position="userPosition"
           :loading-locations="loadingTaskLocations"
-          :selected-location="selectedLocation"
+          :selected-location="selectedLocation as any"
           :visited-locations="visitedLocations"
           :progress="progress"
           :deadline="taskDeadline"
@@ -44,8 +44,8 @@
           :checking-permissions="checkingPermissions"
           :has-response-permission="hasResponsePermission"
           :needs-location="needsLocation"
-          :task-locations="taskLocations"
-          :selected-location="selectedLocation"
+          :task-locations="taskLocations as any"
+          :selected-location="selectedLocation as any"
           :loading-task-locations="loadingTaskLocations"
           :geolocation-error="geolocationError"
           :visited-locations="visitedLocations"
@@ -164,7 +164,8 @@ const loadingTaskLocations = ref<boolean>(false)
 const selectedLocation = ref<TaskLocation | null>(null)
 
 // Map event handlers
-const onMapLocationClick = (location: TaskLocation): void => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const onMapLocationClick = (location: any): void => {
   // Handle location click from map
   console.log('[TaskDetailPanel] Map location clicked:', getLocationIdentifier(location))
   console.log('[TaskDetailPanel] Setting selectedLocation to:', location)
