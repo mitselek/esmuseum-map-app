@@ -122,13 +122,29 @@
             selectedTaskId === task._id
               ? 'border-blue-500 bg-blue-50 shadow-md ring-1 ring-blue-200'
               : 'border-gray-200 hover:border-blue-300 hover:shadow-md',
+            isTaskFullyCompleted(task._id) ? 'opacity-60' : '',
           ]"
           @click="navigateToTask(task._id)"
         >
-          <!-- Task Title -->
-          <h3 class="mb-2 line-clamp-2 text-sm font-medium text-gray-900">
-            {{ getTaskTitle(task) }}
-          </h3>
+          <!-- Task Title with Checkmark -->
+          <div class="mb-2 flex items-start justify-between">
+            <h3 class="line-clamp-2 flex-1 text-sm font-medium text-gray-900">
+              {{ getTaskTitle(task) }}
+            </h3>
+            <!-- Checkmark for completed tasks -->
+            <svg
+              v-if="isTaskFullyCompleted(task._id)"
+              class="ml-2 size-5 shrink-0 text-green-600"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
 
           <!-- Task Description (if available) -->
           <p
@@ -227,30 +243,44 @@ const {
   loadTasks,
   navigateToTask // Use navigateToTask for user clicks (preserves URL params like ?debug)
 } = useTaskWorkspace()
-const { getTaskResponseStats } = useTaskResponseStats()
+const { loadCompletedTasks, getTaskStats } = useCompletedTasks()
 const { t } = useI18n()
 
-// Response stats cache for all tasks
+// Response stats cache for all tasks (stores actual and expected counts)
 const taskResponseStatsCache = ref(new Map())
 
 // Search functionality
 const searchQuery = ref('')
 
-// Computed property for filtered tasks
+// Computed property for filtered tasks (sorted: incomplete first, completed last)
 const filteredTasks = computed(() => {
-  if (!searchQuery.value.trim()) {
-    return tasks.value
+  let taskList = tasks.value
+
+  // Apply search filter if query exists
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase().trim()
+    taskList = taskList.filter((task) => {
+      const title = getTaskTitle(task).toLowerCase()
+      const description = getTaskDescription(task)?.toLowerCase() || ''
+      const groupName = task.groupName?.toLowerCase() || ''
+
+      return title.includes(query)
+        || description.includes(query)
+        || groupName.includes(query)
+    })
   }
 
-  const query = searchQuery.value.toLowerCase().trim()
-  return tasks.value.filter((task) => {
-    const title = getTaskTitle(task).toLowerCase()
-    const description = getTaskDescription(task)?.toLowerCase() || ''
-    const groupName = task.groupName?.toLowerCase() || ''
+  // Sort: incomplete tasks first, completed tasks last
+  return [...taskList].sort((a, b) => {
+    const aStats = taskResponseStatsCache.value.get(a._id)
+    const bStats = taskResponseStatsCache.value.get(b._id)
 
-    return title.includes(query)
-      || description.includes(query)
-      || groupName.includes(query)
+    const aCompleted = aStats && aStats.actual >= aStats.expected
+    const bCompleted = bStats && bStats.actual >= bStats.expected
+
+    if (aCompleted === bCompleted) return 0
+    // Completed tasks go last
+    return aCompleted ? 1 : -1
   })
 })
 
@@ -302,14 +332,25 @@ const getResponseStatsText = (task) => {
   return `${getResponseCount(task)} ${t('tasks.responses')}`
 }
 
-const loadTaskResponseStats = async (task) => {
+const loadTaskResponseStats = (task) => {
   try {
-    const stats = await getTaskResponseStats(task)
+    // Get expected count from task data
+    const expectedCount = task.vastuseid?.[0]?.number || 1
+
+    // Use getTaskStats from useCompletedTasks (no API call needed!)
+    const stats = getTaskStats(task._id, expectedCount)
+
     taskResponseStatsCache.value.set(task._id, stats)
   }
   catch (error) {
     console.warn(`Failed to load response stats for task ${task._id}:`, error)
   }
+}
+
+const isTaskFullyCompleted = (taskId) => {
+  const stats = taskResponseStatsCache.value.get(taskId)
+  if (!stats) return false
+  return stats.actual >= stats.expected
 }
 
 const getTaskDueDate = (task) => {
@@ -330,14 +371,16 @@ const getTaskDueDate = (task) => {
   return null
 }
 
-// Load response stats for all tasks when tasks change
+// Load completed tasks and stats when tasks change
 watch(tasks, async (newTasks) => {
   if (newTasks && newTasks.length > 0) {
-    // Load stats for each task (with some delay to avoid overwhelming the API)
+    // Load user's completed tasks first
+    await loadCompletedTasks()
+
+    // Then update stats for each task
     for (const task of newTasks) {
-      await loadTaskResponseStats(task)
-      // Small delay between requests
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      // Sync, no await needed
+      loadTaskResponseStats(task)
     }
   }
 }, { immediate: false })
@@ -346,6 +389,7 @@ watch(tasks, async (newTasks) => {
 onMounted(() => {
   console.log('🏢 [EVENT] TaskSidebar - Component mounted, UI ready immediately', new Date().toISOString())
   // Tasks will auto-load when accessed via computed property
-  // No blocking loadTasks() call here - UI shows immediately!
+  // Completed tasks will load when tasks are ready (via watch above)
+  // No blocking calls here - UI shows immediately!
 })
 </script>
