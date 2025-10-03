@@ -32,7 +32,6 @@
           :description="taskDescription"
           @location-click="onMapLocationClick"
           @map-ready="onMapReady"
-          @location-change="handleLocationOverride"
         />
       </div>
 
@@ -82,9 +81,7 @@ const {
 // Use geolocation composable
 const {
   geolocationError,
-  showManualCoordinates,
-  onRequestLocation,
-  handleLocationChange
+  onRequestLocation
 } = useTaskGeolocation()
 
 // Use completed tasks tracking
@@ -216,7 +213,6 @@ const onLocationSelect = (location: TaskLocation | null): void => {
     if (responseFormRef.value) {
       responseFormRef.value.setLocation(getLocationCoordinates(location))
     }
-    showManualCoordinates.value = false
   }
   else {
     if (responseFormRef.value) {
@@ -228,11 +224,6 @@ const onLocationSelect = (location: TaskLocation | null): void => {
 // Handle location request from LocationPicker
 const handleLocationRequest = async () => {
   await onRequestLocation(taskLocations)
-}
-
-// Handle location change from override
-const handleLocationOverride = (coordinates: string | null): void => {
-  handleLocationChange(coordinates, taskLocations)
 }
 
 // Handle response submission for page reload

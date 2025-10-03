@@ -1,16 +1,18 @@
 /**
  * Date formatting utilities
- * Respects browser locale for consistent internationalization
+ * Respects app's i18n locale for consistent internationalization
  */
 
 /**
  * Format date to localized string
  * @param date Date string or Date object
+ * @param locale Locale code (e.g., 'et', 'en', 'uk')
  * @param options Intl.DateTimeFormatOptions
  * @returns Formatted date string
  */
 export function formatDate(
   date: string | Date | null | undefined,
+  locale?: string,
   options?: Intl.DateTimeFormatOptions
 ): string | null {
   if (!date) return null
@@ -25,7 +27,8 @@ export function formatDate(
       day: 'numeric'
     }
     
-    return dateObj.toLocaleDateString(undefined, options || defaultOptions)
+    // Use provided locale or fall back to browser locale
+    return dateObj.toLocaleDateString(locale || undefined, options || defaultOptions)
   }
   catch (error) {
     console.error('Error formatting date:', error)
@@ -36,14 +39,16 @@ export function formatDate(
 /**
  * Format date with time
  * @param date Date string or Date object
+ * @param locale Locale code (e.g., 'et', 'en', 'uk')
  * @returns Formatted date and time string
  */
 export function formatDateTime(
-  date: string | Date | null | undefined
+  date: string | Date | null | undefined,
+  locale?: string
 ): string | null {
   if (!date) return null
   
-  return formatDate(date, {
+  return formatDate(date, locale, {
     year: 'numeric',
     month: 'numeric',
     day: 'numeric',
@@ -55,14 +60,16 @@ export function formatDateTime(
 /**
  * Format date in long format (e.g., "19. september 2025")
  * @param date Date string or Date object
+ * @param locale Locale code (e.g., 'et', 'en', 'uk')
  * @returns Formatted long date string
  */
 export function formatDateLong(
-  date: string | Date | null | undefined
+  date: string | Date | null | undefined,
+  locale?: string
 ): string | null {
   if (!date) return null
   
-  return formatDate(date, {
+  return formatDate(date, locale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
