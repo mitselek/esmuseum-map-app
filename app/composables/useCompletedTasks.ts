@@ -92,8 +92,6 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
 
       completedTaskIds.value = new Set(taskIds)
 
-      console.log(`[useCompletedTasks] Loaded ${responses.length} responses for ${completedTaskIds.value.size} unique tasks`)
-
       return Array.from(completedTaskIds.value)
     }
     catch (err) {

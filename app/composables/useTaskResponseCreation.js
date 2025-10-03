@@ -88,17 +88,15 @@ export const useTaskResponseCreation = () => {
   const createTaskResponse = async (requestData) => {
     try {
       if (useClientSideCreation.value) {
-        console.log('F015: Using client-side response creation')
         return await createResponseClientSide(requestData)
       }
       else {
-        console.log('F015: Using server-side response creation')
         return await createResponseServerSide(requestData)
       }
     }
     catch (error) {
       if (useClientSideCreation.value) {
-        console.error('🔴 F015: Client-side creation failed!')
+        console.error('Client-side response creation failed:', error)
         throw new Error(`Client-side response creation failed: ${error.message}`)
       }
       throw error

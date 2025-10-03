@@ -67,8 +67,6 @@ export const useClientSideFileUpload = () => {
     }
 
     try {
-      console.log('F015: Getting upload URL for file:', fileInfo)
-
       const properties = [{
         type: 'photo',
         filename: fileInfo.filename,
@@ -78,20 +76,12 @@ export const useClientSideFileUpload = () => {
 
       const response = await updateEntity(entityId, properties)
 
-      console.log('F015: Upload URL response:', response)
-
       // Extract upload information from response
       if (!response?.properties?.[0]?.upload) {
         throw new Error('No upload information received from Entu API')
       }
 
       const uploadInfo = response.properties[0].upload
-      console.log('F015: Upload info details:', {
-        url: uploadInfo.url,
-        headers: uploadInfo.headers,
-        hasHeaders: !!uploadInfo.headers,
-        headerKeys: uploadInfo.headers ? Object.keys(uploadInfo.headers) : 'none'
-      })
 
       return uploadInfo
     }
@@ -142,8 +132,6 @@ export const useClientSideFileUpload = () => {
     if (!token.value) {
       throw new Error('Not authenticated')
     }
-
-    console.log('F015: Starting client-side file upload for', files.length, 'file(s)')
 
     const uploadResults = []
 
@@ -219,12 +207,6 @@ export const useClientSideFileUpload = () => {
       }
     }
 
-    console.log('F015: Client-side upload completed:', {
-      total: uploadResults.length,
-      successful: uploadResults.filter((r) => r.success).length,
-      failed: uploadResults.filter((r) => !r.success).length
-    })
-
     return uploadResults
   }
 
@@ -239,8 +221,6 @@ export const useClientSideFileUpload = () => {
     if (!token.value) {
       throw new Error('Not authenticated')
     }
-
-    console.log('F015: Using server-side file upload fallback')
 
     // Create FormData
     const formData = new FormData()
@@ -267,11 +247,9 @@ export const useClientSideFileUpload = () => {
    */
   const upload = async (parentEntityId, files, progressCallback) => {
     if (isClientSideUploadEnabled()) {
-      console.log('F015: Using client-side file upload')
       return await uploadFiles(parentEntityId, files, progressCallback)
     }
     else {
-      console.log('F015: Using server-side file upload (fallback)')
       return await uploadFilesServerSide(parentEntityId, files)
     }
   }
