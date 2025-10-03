@@ -22,18 +22,23 @@ const EventDebugPanel = defineAsyncComponent(() => import('~/components/EventDeb
 // Initialize GPS - request directly without custom prompt
 const { checkGeolocationPermission, requestGPSPermission, getUserPosition, startGPSUpdates } = useLocation()
 onMounted(async () => {
-  const permissionState = await checkGeolocationPermission()
-  
-  if (permissionState === 'granted') {
-    // Already granted - just start GPS
-    await getUserPosition()
-    startGPSUpdates()
+  try {
+    const permissionState = await checkGeolocationPermission()
+
+    if (permissionState === 'granted') {
+      // Already granted - just start GPS
+      await getUserPosition()
+      startGPSUpdates()
+    }
+    else if (permissionState === 'prompt') {
+      // Need permission - request immediately (native prompt)
+      requestGPSPermission()
+    }
+    // If 'denied' - do nothing, GPSPermissionPrompt will show recovery UI
   }
-  else if (permissionState === 'prompt') {
-    // Need permission - request immediately (native prompt)
-    requestGPSPermission()
+  catch (error) {
+    console.error('Error initializing GPS:', error)
   }
-  // If 'denied' - do nothing, GPSPermissionPrompt will show recovery UI
 })
 
 // Set page title
