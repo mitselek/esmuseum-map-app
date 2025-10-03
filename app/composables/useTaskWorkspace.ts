@@ -121,25 +121,12 @@ export const useTaskWorkspace = () => {
 
   // Task selection - STATE ONLY (no router.push)
   const selectTask = (taskId: string) => {
-    // 🔍 EVENT TRACKING: Task selection
-    console.log('🎯 [EVENT] useTaskWorkspace - Task selected (state only)', {
-      timestamp: new Date().toISOString(),
-      taskId
-    })
-    
     selectedTaskId.value = taskId
     // No router.push - just update state
   }
 
   // Task navigation - For user-initiated navigation with URL update
   const navigateToTask = (taskId: string) => {
-    // 🔍 EVENT TRACKING: Task navigation
-    console.log('🎯 [EVENT] useTaskWorkspace - Navigating to task', {
-      timestamp: new Date().toISOString(),
-      taskId,
-      preservingQuery: route.query
-    })
-    
     // First select the task (update state)
     selectTask(taskId)
     

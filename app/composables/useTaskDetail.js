@@ -1,4 +1,6 @@
 // Composable for task detail panel functionality
+import { ENTU_TYPES } from '../constants/entu'
+
 export const useTaskDetail = () => {
   const { t } = useI18n()
 
@@ -29,13 +31,6 @@ export const useTaskDetail = () => {
 
   // Permission checking
   const checkTaskPermissions = async (taskId) => {
-    // 🔍 EVENT TRACKING: Permission check start
-    const startTime = performance.now()
-    console.log('🔐 [EVENT] useTaskDetail - Permission check started', {
-      timestamp: new Date().toISOString(),
-      taskId: taskId
-    })
-
     const { token, user } = useEntuAuth()
     const { getEntity } = useEntuApi()
 
@@ -72,19 +67,11 @@ export const useTaskDetail = () => {
             permission.reference === user.value._id
           )
           if (hasPermission) {
-            console.log('🔐 [EVENT] useTaskDetail - Permission check completed (GRANTED)', {
-              timestamp: new Date().toISOString(),
-              duration: `${(performance.now() - startTime).toFixed(2)}ms`
-            })
             return { hasPermission: true, error: null }
           }
         }
       }
 
-      console.log('🔐 [EVENT] useTaskDetail - Permission check completed (DENIED)', {
-        timestamp: new Date().toISOString(),
-        duration: `${(performance.now() - startTime).toFixed(2)}ms`
-      })
       return { hasPermission: false, error: null }
     }
     catch (error) {
@@ -306,16 +293,16 @@ export const useTaskDetail = () => {
       if (token.value) {
         try {
           // Client-side version (F015 migration) - ACTIVE
-          const userResponse = await searchEntities({
-            '_type.string': 'vastus',
-            '_parent._id': taskId,
+          const responses = await searchEntities({
+            '_type.string': ENTU_TYPES.VASTUS,
+            '_parent.reference': taskId,
             '_owner._id': user.value._id,
             limit: 1
           })
 
           const responseData = {
             success: true,
-            response: userResponse.entities && userResponse.entities.length > 0 ? userResponse.entities[0] : null
+            response: responses.entities && responses.entities.length > 0 ? responses.entities[0] : null
           }
 
           if (responseData.success && responseData.response) {
