@@ -160,47 +160,74 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { isSameLocation } from '~/utils/location-sync'
 
 const { t } = useI18n()
 const { userPosition, gettingLocation, sortByDistance } = useLocation()
 
-const props = defineProps({
-  locations: {
-    type: Array,
-    default: () => []
-  },
-  selected: {
-    type: Object,
-    default: null
-  },
-  loading: {
-    type: Boolean,
-    default: false
-  },
-  error: {
-    type: String,
-    default: null
-  },
-  visitedLocations: {
-    type: Set,
-    default: () => new Set()
+// Task location interface
+interface TaskLocation {
+  _id: string
+  id?: string
+  reference?: string
+  name?: Array<{ string: string }>
+  nimi?: string
+  description?: string
+  properties?: {
+    name?: Array<{ value: string }>
+    nimi?: Array<{ value: string }>
+    description?: Array<{ value: string }>
+    kirjeldus?: Array<{ value: string }>
   }
+  lat?: Array<{ number: number }>
+  long?: Array<{ number: number }>
+  distanceText?: string
+  [key: string]: unknown
+}
+
+// User position interface
+interface UserPosition {
+  lat: number
+  lng: number
+  accuracy?: number
+}
+
+// Props
+interface Props {
+  locations?: TaskLocation[]
+  selected?: TaskLocation | null
+  loading?: boolean
+  error?: string | null
+  visitedLocations?: Set<string>
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  locations: () => [],
+  selected: null,
+  loading: false,
+  error: null,
+  visitedLocations: () => new Set()
 })
 
-const emit = defineEmits(['select', 'retry'])
+// Emits
+interface Emits {
+  (e: 'select', location: TaskLocation | null): void
+  (e: 'retry'): void
+}
+
+const emit = defineEmits<Emits>()
 
 // Local state
-const searchQuery = ref('')
+const searchQuery = ref<string>('')
 
 // Cache for sorted locations to prevent unnecessary re-renders
-const sortedLocationsCache = ref([])
-const lastUserPosition = ref(null)
-const lastLocationsArray = ref(null)
+const sortedLocationsCache = ref<TaskLocation[]>([])
+const lastUserPosition = ref<UserPosition | null>(null)
+const lastLocationsArray = ref<TaskLocation[] | null>(null)
 
 // Helper to check if position has changed significantly
-const hasPositionChangedSignificantly = (oldPos, newPos) => {
+const hasPositionChangedSignificantly = (oldPos: UserPosition | null, newPos: UserPosition | null): boolean => {
   if (!oldPos || !newPos) return true
   const threshold = 0.001 // ~100 meters
   return Math.abs(oldPos.lat - newPos.lat) > threshold
@@ -216,14 +243,14 @@ watch([() => props.locations, userPosition], ([newLocations, newPosition]) => {
     || lastLocationsArray.value !== locations
     || !lastUserPosition.value
     || !newPosition
-    || hasPositionChangedSignificantly(lastUserPosition.value, newPosition)
+    || hasPositionChangedSignificantly(lastUserPosition.value, newPosition as UserPosition | null)
 
   if (needsUpdate) {
-    let sortedLocs = [...locations]
+    let sortedLocs: TaskLocation[] = [...locations]
 
     // If we have user position, sort by distance
     if (newPosition && locations.length > 0) {
-      sortedLocs = sortByDistance(locations, newPosition)
+      sortedLocs = sortByDistance(locations, newPosition) as TaskLocation[]
     }
 
     // Update cache
@@ -234,32 +261,36 @@ watch([() => props.locations, userPosition], ([newLocations, newPosition]) => {
 }, { immediate: true })
 
 // Computed
-const selectedLocation = computed(() => props.selected)
+const selectedLocation = computed<TaskLocation | null>(() => props.selected)
 
 // Debug: Watch selected prop changes
-watch(() => props.selected, (newSelected, oldSelected) => {
+watch(() => props.selected, (newSelected: TaskLocation | null | undefined, oldSelected: TaskLocation | null | undefined) => {
+  const getDebugName = (loc: TaskLocation | null | undefined): string => {
+    if (!loc) return 'null'
+    return (loc as Record<string, unknown>).nimi as string || (loc as Record<string, unknown>).name as string || 'null'
+  }
   console.log('[LocationPicker] selected prop changed:', {
-    from: oldSelected?.nimi || oldSelected?.name || 'null',
-    to: newSelected?.nimi || newSelected?.name || 'null'
+    from: getDebugName(oldSelected),
+    to: getDebugName(newSelected)
   })
 }, { deep: true })
 
 // Check if a location is currently selected
-const isLocationSelected = (location) => {
+const isLocationSelected = (location: TaskLocation): boolean => {
   if (!selectedLocation.value || !location) return false
   return isSameLocation(location, selectedLocation.value)
 }
 
 // Check if a location is visited
-const isLocationVisited = (location) => {
+const isLocationVisited = (location: TaskLocation): boolean => {
   const locationRef = location._id || location.id
   if (!locationRef || !props.visitedLocations) return false
   return props.visitedLocations.has(locationRef)
 }
 
-const sortedLocations = computed(() => sortedLocationsCache.value)
+const sortedLocations = computed<TaskLocation[]>(() => sortedLocationsCache.value)
 
-const filteredLocations = computed(() => {
+const filteredLocations = computed<TaskLocation[]>(() => {
   if (!searchQuery.value) {
     return sortedLocations.value
   }
@@ -273,29 +304,29 @@ const filteredLocations = computed(() => {
 })
 
 // Methods
-const selectLocation = (location) => {
+const selectLocation = (location: TaskLocation): void => {
   emit('select', location)
 }
 
-const clearSelection = () => {
+const clearSelection = (): void => {
   emit('select', null)
 }
 
-const getLocationName = (location) => {
+const getLocationName = (location: TaskLocation): string => {
   return (
     location.name?.[0]?.string
     || location.properties?.name?.[0]?.value
     || location.properties?.nimi?.[0]?.value
-    || location.name
+    || (typeof location.name === 'string' ? location.name : null)
     || t('taskDetail.unnamedLocation')
   )
 }
 
-const getLocationDescription = (location) => {
+const getLocationDescription = (location: TaskLocation): string | null => {
   return (
     location.properties?.description?.[0]?.value
     || location.properties?.kirjeldus?.[0]?.value
-    || location.description
+    || (typeof location.description === 'string' ? location.description : null)
     || null
   )
 }
