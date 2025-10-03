@@ -10,21 +10,116 @@
  * 4. Return upload results
  */
 
-export const useClientSideFileUpload = () => {
-  const { $fetch } = useNuxtApp()
-  const { token } = useEntuAuth()
-  const { updateEntity } = useEntuApi() // Fix: use updateEntity instead of postEntity
+// ============================================================================
+// Types & Interfaces
+// ============================================================================
 
-  // File validation constants (matching server-side)
-  const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
-  const ALLOWED_MIME_TYPES = [
-    'image/jpeg', 'image/png', 'image/gif', 'image/webp'
-  ]
+/**
+ * File validation result
+ */
+export interface FileValidationResult {
+  isValid: boolean
+  error?: string
+}
+
+/**
+ * File information for upload request
+ */
+export interface FileInfo {
+  filename: string
+  filesize: number
+  filetype: string
+}
+
+/**
+ * Upload information from Entu API
+ */
+export interface UploadInfo {
+  url: string
+  headers?: Record<string, string>
+}
+
+/**
+ * Entu API response for file upload URL request
+ */
+export interface EntuUploadResponse {
+  properties?: Array<{
+    upload?: UploadInfo
+  }>
+}
+
+/**
+ * Upload result for a single file
+ */
+export interface FileUploadResult {
+  filename: string
+  success: boolean
+  error?: string
+  entityId?: string
+  size?: number
+  type?: string
+}
+
+/**
+ * Upload progress status
+ */
+export type UploadProgressStatus = 'validating' | 'getting_upload_url' | 'uploading' | 'completed' | 'error'
+
+/**
+ * Upload progress callback
+ */
+export type ProgressCallback = (fileIndex: number, status: UploadProgressStatus, progress: number) => void
+
+/**
+ * Server-side upload response
+ */
+export interface ServerUploadResponse {
+  data: {
+    uploads?: FileUploadResult[]
+  }
+}
+
+/**
+ * Return type of useClientSideFileUpload composable
+ */
+export interface UseClientSideFileUploadReturn {
+  // Main interface
+  upload: (parentEntityId: string, files: File[], progressCallback?: ProgressCallback) => Promise<FileUploadResult[]>
+  uploadFiles: (parentEntityId: string, files: File[], progressCallback?: ProgressCallback) => Promise<FileUploadResult[]>
+  uploadFilesServerSide: (parentEntityId: string, files: File[]) => Promise<FileUploadResult[]>
+
+  // Utilities
+  validateFile: (file: File) => FileValidationResult
+  isClientSideUploadEnabled: () => boolean
+
+  // Advanced (for testing/debugging)
+  getFileUploadUrl: (entityId: string, fileInfo: FileInfo) => Promise<UploadInfo>
+  uploadFileToUrl: (file: File, uploadUrl: string, headers?: Record<string, string>) => Promise<Response>
+}
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp'
+]
+
+// ============================================================================
+// Composable
+// ============================================================================
+
+export const useClientSideFileUpload = (): UseClientSideFileUploadReturn => {
+  const nuxtApp = useNuxtApp()
+  const $fetch = nuxtApp.$fetch
+  const { token } = useEntuAuth()
+  const { updateEntity } = useEntuApi()
 
   /**
    * Feature flag check for F015 client-side file upload
    */
-  const isClientSideUploadEnabled = () => {
+  const isClientSideUploadEnabled = (): boolean => {
     const { $config } = useNuxtApp()
     return $config?.public?.F015_CLIENT_SIDE_FILE_UPLOAD === 'true'
   }
@@ -32,7 +127,7 @@ export const useClientSideFileUpload = () => {
   /**
    * Validate uploaded file
    */
-  const validateFile = (file) => {
+  const validateFile = (file: File): FileValidationResult => {
     if (!file.name) {
       return { isValid: false, error: 'Filename is required' }
     }
@@ -61,7 +156,7 @@ export const useClientSideFileUpload = () => {
   /**
    * Get upload URL from Entu API by adding photo property to entity
    */
-  const getFileUploadUrl = async (entityId, fileInfo) => {
+  const getFileUploadUrl = async (entityId: string, fileInfo: FileInfo): Promise<UploadInfo> => {
     if (!token.value) {
       throw new Error('Not authenticated')
     }
@@ -74,7 +169,7 @@ export const useClientSideFileUpload = () => {
         filetype: fileInfo.filetype
       }]
 
-      const response = await updateEntity(entityId, properties)
+      const response = await updateEntity(entityId, properties) as EntuUploadResponse
 
       // Extract upload information from response
       if (!response?.properties?.[0]?.upload) {
@@ -86,15 +181,20 @@ export const useClientSideFileUpload = () => {
       return uploadInfo
     }
     catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       console.error('F015: Failed to get upload URL:', error)
-      throw new Error(`Failed to get upload URL: ${error.message}`)
+      throw new Error(`Failed to get upload URL: ${errorMessage}`)
     }
   }
 
   /**
    * Upload file to external storage using provided URL
    */
-  async function uploadFileToUrl (file, uploadUrl, headers = {}) {
+  const uploadFileToUrl = async (
+    file: File,
+    uploadUrl: string,
+    headers: Record<string, string> = {}
+  ): Promise<Response> => {
     // F015 Phase 3.2b: Use upload proxy to avoid CORS issues
     const formData = new FormData()
     formData.append('file', file)
@@ -124,7 +224,11 @@ export const useClientSideFileUpload = () => {
    * Client-side file upload implementation
    * Processes multiple files and uploads them directly to Entu
    */
-  const uploadFiles = async (parentEntityId, files, progressCallback) => {
+  const uploadFiles = async (
+    parentEntityId: string,
+    files: File[],
+    progressCallback?: ProgressCallback
+  ): Promise<FileUploadResult[]> => {
     if (!files || files.length === 0) {
       return []
     }
@@ -133,10 +237,15 @@ export const useClientSideFileUpload = () => {
       throw new Error('Not authenticated')
     }
 
-    const uploadResults = []
+    const uploadResults: FileUploadResult[] = []
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
+      
+      // Type guard: skip if file is undefined
+      if (!file) {
+        continue
+      }
 
       try {
         // Update progress
@@ -193,6 +302,7 @@ export const useClientSideFileUpload = () => {
         })
       }
       catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Upload failed'
         console.error(`F015: Failed to upload file ${file.name}:`, error)
 
         if (progressCallback) {
@@ -202,7 +312,7 @@ export const useClientSideFileUpload = () => {
         uploadResults.push({
           filename: file.name,
           success: false,
-          error: error.message || 'Upload failed'
+          error: errorMessage
         })
       }
     }
@@ -213,7 +323,10 @@ export const useClientSideFileUpload = () => {
   /**
    * Server-side fallback upload (current implementation)
    */
-  const uploadFilesServerSide = async (parentEntityId, files) => {
+  const uploadFilesServerSide = async (
+    parentEntityId: string,
+    files: File[]
+  ): Promise<FileUploadResult[]> => {
     if (!files || files.length === 0) {
       return []
     }
@@ -231,21 +344,25 @@ export const useClientSideFileUpload = () => {
     })
 
     // Upload via server API
-    const { data } = await $fetch('/api/upload', {
+    const response = await ($fetch as any)('/api/upload', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token.value}`
       },
       body: formData
-    })
+    }) as ServerUploadResponse
 
-    return data.uploads || []
+    return response.data.uploads || []
   }
 
   /**
    * Main upload function with feature flag routing
    */
-  const upload = async (parentEntityId, files, progressCallback) => {
+  const upload = async (
+    parentEntityId: string,
+    files: File[],
+    progressCallback?: ProgressCallback
+  ): Promise<FileUploadResult[]> => {
     if (isClientSideUploadEnabled()) {
       return await uploadFiles(parentEntityId, files, progressCallback)
     }
