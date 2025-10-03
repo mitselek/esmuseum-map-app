@@ -35,16 +35,6 @@
           @request-location="onRequestLocation"
           @retry="loadTaskLocations"
         />
-
-        <!-- Prompt message when no location selected -->
-        <div
-          v-if="!selectedLocation"
-          class="mt-4 rounded-lg bg-blue-50 p-4 text-center"
-        >
-          <p class="text-sm text-blue-800">
-            👆 {{ $t('taskDetail.pleaseSelectLocation') }}
-          </p>
-        </div>
       </div>
 
       <!-- Text Response (only show when location selected or not needed) -->
