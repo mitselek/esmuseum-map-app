@@ -50,31 +50,33 @@
 </template>
 
 <script setup lang="ts">
-// Task location interface
-interface TaskLocation {
-  _id: string
-  id?: string
-  reference?: string
-  name?: Array<{ string: string }>
-  properties?: {
-    name?: Array<{ value: string }>
-  }
-  lat?: Array<{ number: number }>
-  long?: Array<{ number: number }>
-  distanceText?: string
-  [key: string]: unknown
+// Coordinate interface (must match InteractiveMap.vue exactly)
+interface Coordinates {
+  lat: number
+  lng: number
 }
 
-// User position interface
+// Task location interface (must match InteractiveMap.vue exactly)
+interface TaskLocation {
+  _id?: string
+  id?: string
+  reference?: string
+  nimi?: string
+  name?: string
+  kirjeldus?: string
+  description?: string
+  coordinates: Coordinates
+}
+
+// User position interface (must match InteractiveMap.vue exactly)
 interface UserPosition {
   lat: number
   lng: number
   accuracy?: number
-  manual?: boolean
 }
 
 // Props
-interface Props {
+defineProps<{
   taskLocations?: TaskLocation[]
   userPosition?: UserPosition | null
   loadingLocations?: boolean
@@ -83,34 +85,21 @@ interface Props {
   progress?: { actual: number, expected: number } | null
   deadline?: string | null
   description?: string | null
-}
-
-withDefaults(defineProps<Props>(), {
-  taskLocations: () => [],
-  userPosition: null,
-  loadingLocations: false,
-  selectedLocation: null,
-  visitedLocations: () => new Set(),
-  progress: null,
-  deadline: null,
-  description: null
-})
+}>()
 
 // Emits
-interface Emits {
-  (e: 'location-click', location: TaskLocation): void
-  (e: 'map-ready'): void
-}
-
-const emit = defineEmits<Emits>()
+const emit = defineEmits<{
+  locationClick: [location: TaskLocation]
+  mapReady: []
+}>()
 
 // Handle location clicks
-const onLocationClick = (location: TaskLocation): void => {
-  emit('location-click', location)
+const onLocationClick = (location: TaskLocation) => {
+  emit('locationClick', location)
 }
 
 // Handle map ready event
-const onMapReady = (): void => {
-  emit('map-ready')
+const onMapReady = () => {
+  emit('mapReady')
 }
 </script>
