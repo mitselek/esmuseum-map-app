@@ -3,6 +3,7 @@
  * Handles all tasks, selection, and form persistence for F007 SPA
  */
 import { ref, computed, watch, readonly, nextTick } from 'vue'
+import type { EntuUser } from './useEntuAuth'
 
 // Global state outside the composable to persist across navigation
 const globalTasks = ref<any[]>([])
@@ -41,7 +42,7 @@ export const useTaskWorkspace = () => {
     const startTime = performance.now()
     console.log('📋 [EVENT] useTaskWorkspace - loadTasks started', new Date().toISOString())
     
-    const currentUser = user.value as any
+    const currentUser = user.value as EntuUser | null
     if (!currentUser?._id) {
       console.warn('No user ID available for loading tasks')
       tasks.value = []
@@ -62,12 +63,12 @@ export const useTaskWorkspace = () => {
       error.value = null
 
       // Get user groups using client-side API (F015 migration) - ACTIVE
-      if (!(user.value as any)?._id) {
+      if (!currentUser?._id) {
         console.warn('No user ID available for profile lookup')
         tasks.value = []
         return
       }
-      const userProfileResponse = await getEntity((user.value as any)._id)
+      const userProfileResponse = await getEntity(currentUser._id)
 
       const userProfile = userProfileResponse.entity
       const groupParents = userProfile._parent?.filter((parent: any) => parent.entity_type === 'grupp') || []
@@ -121,25 +122,12 @@ export const useTaskWorkspace = () => {
 
   // Task selection - STATE ONLY (no router.push)
   const selectTask = (taskId: string) => {
-    // 🔍 EVENT TRACKING: Task selection
-    console.log('🎯 [EVENT] useTaskWorkspace - Task selected (state only)', {
-      timestamp: new Date().toISOString(),
-      taskId
-    })
-    
     selectedTaskId.value = taskId
     // No router.push - just update state
   }
 
   // Task navigation - For user-initiated navigation with URL update
   const navigateToTask = (taskId: string) => {
-    // 🔍 EVENT TRACKING: Task navigation
-    console.log('🎯 [EVENT] useTaskWorkspace - Navigating to task', {
-      timestamp: new Date().toISOString(),
-      taskId,
-      preservingQuery: route.query
-    })
-    
     // First select the task (update state)
     selectTask(taskId)
     
