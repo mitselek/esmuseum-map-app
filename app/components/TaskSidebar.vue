@@ -36,7 +36,7 @@
       <!-- Task count - Show count or loading indicator -->
       <div class="mt-2 text-xs text-gray-500">
         <span v-if="initialized">
-          {{ filteredTasks.length }} {{ $t('tasks.tasksFound') }}
+          {{ $t('tasks.tasksFound', { count: filteredTasks.length }, filteredTasks.length) }}
         </span>
         <span
           v-else
