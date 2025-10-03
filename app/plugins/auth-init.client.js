@@ -5,14 +5,19 @@
 
 export default defineNuxtPlugin(async () => {
   // Import the auth composable
-  const { checkAndRefreshToken } = useEntuAuth()
+  const { refreshToken, isAuthenticated } = useEntuAuth()
 
   // Initialize auth state on client-side startup
   try {
     console.log('Auth initialization plugin running')
 
-    // Check token and refresh if needed
-    await checkAndRefreshToken()
+    // Check if user is authenticated and refresh token if needed
+    if (isAuthenticated.value) {
+      await refreshToken()
+      console.log('Auth token refreshed')
+    } else {
+      console.log('No authenticated user, skipping token refresh')
+    }
 
     console.log('Auth initialization complete')
   }
