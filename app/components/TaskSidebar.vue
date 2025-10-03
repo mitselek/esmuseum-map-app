@@ -1,13 +1,15 @@
 <template>
   <div class="flex h-full flex-col">
-    <!-- Header -->
+    <!-- App Header -->
+    <AppHeader
+      :title="$t('tasks.title')"
+      :show-greeting="false"
+    />
+    
+    <!-- Search/Filter Section -->
     <div class="shrink-0 border-b border-gray-200 bg-white p-4">
-      <h2 class="text-lg font-semibold text-gray-900">
-        {{ $t('tasks.title') }}
-      </h2>
-
       <!-- Search/Filter -->
-      <div class="mt-3">
+      <div>
         <div class="relative">
           <input
             v-model="searchQuery"

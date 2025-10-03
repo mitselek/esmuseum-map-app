@@ -11,6 +11,7 @@
     >
       <TaskWorkspaceHeader
         :progress="progress"
+        :task-title="taskTitle"
         @close="clearSelection"
       />
 
@@ -59,6 +60,7 @@
 
 <script setup lang="ts">
 import { getLocationIdentifier } from '~/utils/location-sync'
+import { getTaskName } from '../../utils/entu-helpers'
 
 const { selectedTask, clearSelection } = useTaskWorkspace()
 const {
@@ -112,6 +114,11 @@ const progress = computed<ProgressData>(() => {
     actual,
     expected: fallbackExpected || 0
   }
+})
+
+// Task title for header
+const taskTitle = computed(() => {
+  return selectedTask.value ? getTaskName(selectedTask.value) : ''
 })
 
 interface ResponseFormRef {
