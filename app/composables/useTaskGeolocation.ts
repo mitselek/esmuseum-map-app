@@ -13,7 +13,7 @@
 export interface UserPosition {
   lat: number
   lng: number
-  accuracy: number | null
+  accuracy?: number
   manual?: boolean
 }
 
@@ -127,7 +127,7 @@ export const useTaskGeolocation = (): UseTaskGeolocationReturn => {
       const lng = parseFloat(parts[1] || '')
 
       if (!isNaN(lat) && !isNaN(lng)) {
-        const newPosition: UserPosition = { lat, lng, accuracy: null, manual: true }
+        const newPosition: UserPosition = { lat, lng, accuracy: undefined, manual: true }
         taskUserPosition.value = newPosition
         hasManualOverride.value = true
         manualCoordinates.value = coordinates
