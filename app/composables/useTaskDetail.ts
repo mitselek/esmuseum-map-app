@@ -215,26 +215,11 @@ export const useTaskDetail = () => {
   }
 
   /**
-   * Extract map ID from task with proper type safety
-   * Handles multiple possible formats of map references in Entu tasks
+   * Extract map ID from task
+   * Uses standard Entu format: kaart is an array of EntuReferenceProperty
    */
   const extractMapId = (task: EntuTask): string | null => {
-    // Standard Entu format: kaart is an array of references
-    if (task.kaart?.[0]?.reference) {
-      return task.kaart[0].reference
-    }
-    
-    // Fallback patterns for non-standard task formats
-    // These patterns exist due to data migration or API variations
-    const taskAny = task as any
-    
-    return taskAny.kaart?.id 
-      || taskAny.kaart  // Direct string ID
-      || taskAny.map?.[0]?.reference 
-      || taskAny.map?.id 
-      || taskAny.mapId 
-      || taskAny.map  // Direct string ID
-      || null
+    return task.kaart?.[0]?.reference || null
   }
 
   /**
