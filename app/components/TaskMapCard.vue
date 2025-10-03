@@ -2,11 +2,11 @@
   <div class="w-full bg-white shadow-sm">
     <InteractiveMap
       :locations="taskLocations"
-      :user-position="effectiveUserPosition"
+      :user-position="effectiveUserPosition || undefined"
       :visited-locations="visitedLocations"
       :loading="loadingLocations"
       :max-locations="5"
-      :selected-location="selectedLocation"
+      :selected-location="selectedLocation || undefined"
       @location-click="onLocationClick"
       @map-ready="onMapReady"
     />
@@ -102,46 +102,55 @@
   </div>
 </template>
 
-<script setup>
-const props = defineProps({
-  /**
-   * Array of task locations to display
-   */
-  taskLocations: {
-    type: Array,
-    default: () => []
-  },
-  /**
-   * User's current GPS position
-   */
-  userPosition: {
-    type: Object,
-    default: null
-  },
-  /**
-   * Loading state for locations
-   */
-  loadingLocations: {
-    type: Boolean,
-    default: false
-  },
-  /**
-   * Currently selected location for highlighting
-   */
-  selectedLocation: {
-    type: Object,
-    default: null
-  },
-  /**
-   * Visited location references for marker styling
-   */
-  visitedLocations: {
-    type: Object,
-    default: () => new Set()
+<script setup lang="ts">
+// Task location interface
+interface TaskLocation {
+  _id: string
+  id?: string
+  reference?: string
+  name?: Array<{ string: string }>
+  properties?: {
+    name?: Array<{ value: string }>
   }
+  lat?: Array<{ number: number }>
+  long?: Array<{ number: number }>
+  distanceText?: string
+  [key: string]: unknown
+}
+
+// User position interface
+interface UserPosition {
+  lat: number
+  lng: number
+  accuracy?: number
+  manual?: boolean
+}
+
+// Props
+interface Props {
+  taskLocations?: TaskLocation[]
+  userPosition?: UserPosition | null
+  loadingLocations?: boolean
+  selectedLocation?: TaskLocation | null
+  visitedLocations?: Set<string>
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  taskLocations: () => [],
+  userPosition: null,
+  loadingLocations: false,
+  selectedLocation: null,
+  visitedLocations: () => new Set()
 })
 
-const emit = defineEmits(['location-click', 'map-ready', 'location-change'])
+// Emits
+interface Emits {
+  (e: 'location-click', location: TaskLocation): void
+  (e: 'map-ready'): void
+  (e: 'location-change', coordinates: string | null): void
+}
+
+const emit = defineEmits<Emits>()
 
 // Composables
 const {
@@ -149,15 +158,15 @@ const {
 } = useLocation()
 
 // Local state for manual override functionality
-const showManualCoordinates = ref(false)
-const manualCoordinates = ref('')
-const hasManualOverride = ref(false)
+const showManualCoordinates = ref<boolean>(false)
+const manualCoordinates = ref<string>('')
+const hasManualOverride = ref<boolean>(false)
 
 // Computed effective position (GPS or manual override)
-const effectiveUserPosition = computed(() => {
+const effectiveUserPosition = computed<UserPosition | null>(() => {
   if (hasManualOverride.value) {
     const parts = manualCoordinates.value.split(',').map((s) => s.trim())
-    if (parts.length === 2) {
+    if (parts.length === 2 && parts[0] && parts[1]) {
       const lat = parseFloat(parts[0])
       const lng = parseFloat(parts[1])
       if (!isNaN(lat) && !isNaN(lng)) {
@@ -165,20 +174,20 @@ const effectiveUserPosition = computed(() => {
       }
     }
   }
-  return props.userPosition
+  return props.userPosition || null
 })
 
 // Watch manual override state to control GPS updates
-watch(hasManualOverride, (isManual) => {
+watch(hasManualOverride, (isManual: boolean) => {
   setManualOverride(isManual)
 })
 
 // Manual location override functions
-const isValidCoordinates = (coords) => {
+const isValidCoordinates = (coords: string): boolean => {
   if (!coords || typeof coords !== 'string') return false
 
   const parts = coords.split(',').map((s) => s.trim())
-  if (parts.length !== 2) return false
+  if (parts.length !== 2 || !parts[0] || !parts[1]) return false
 
   const lat = parseFloat(parts[0])
   const lng = parseFloat(parts[1])
@@ -186,7 +195,7 @@ const isValidCoordinates = (coords) => {
   return !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180
 }
 
-const applyManualLocation = () => {
+const applyManualLocation = (): void => {
   if (!isValidCoordinates(manualCoordinates.value)) return
 
   hasManualOverride.value = true
@@ -196,7 +205,7 @@ const applyManualLocation = () => {
   emit('location-change', manualCoordinates.value)
 }
 
-const clearManualLocation = () => {
+const clearManualLocation = (): void => {
   hasManualOverride.value = false
   manualCoordinates.value = ''
   showManualCoordinates.value = false
@@ -212,13 +221,13 @@ const clearManualLocation = () => {
   }
 }
 
-const cancelManualEntry = () => {
+const cancelManualEntry = (): void => {
   showManualCoordinates.value = false
   manualCoordinates.value = ''
 }
 
 // Start manual entry with prefilled coordinates
-const startManualEntry = () => {
+const startManualEntry = (): void => {
   // Prefill with current effective position if available
   if (effectiveUserPosition.value?.lat && effectiveUserPosition.value?.lng) {
     manualCoordinates.value = `${effectiveUserPosition.value.lat.toFixed(6)},${effectiveUserPosition.value.lng.toFixed(6)}`
@@ -232,12 +241,12 @@ const startManualEntry = () => {
 }
 
 // Handle location clicks
-const onLocationClick = (location) => {
+const onLocationClick = (location: TaskLocation): void => {
   emit('location-click', location)
 }
 
 // Handle map ready event
-const onMapReady = () => {
+const onMapReady = (): void => {
   emit('map-ready')
 }
 </script>
