@@ -11,12 +11,9 @@
     <!-- Main Content Area - Show when task selected, hide when no task selected -->
     <div
       v-show="isTaskSelected"
-      class="flex w-full flex-1 flex-col"
+      class="flex size-full flex-1 flex-col"
     >
-      <!-- Main content -->
-      <div class="flex-1">
-        <TaskDetailPanel />
-      </div>
+      <TaskDetailPanel />
     </div>
   </div>
 </template>

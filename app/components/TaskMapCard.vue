@@ -1,15 +1,17 @@
 <template>
-  <div class="w-full bg-white shadow-sm">
-    <InteractiveMap
-      :locations="taskLocations"
-      :user-position="effectiveUserPosition || undefined"
-      :visited-locations="visitedLocations"
-      :loading="loadingLocations"
-      :max-locations="5"
-      :selected-location="selectedLocation || undefined"
-      @location-click="onLocationClick"
-      @map-ready="onMapReady"
-    />
+  <div class="flex size-full flex-col bg-white shadow-sm">
+    <div class="flex-1">
+      <InteractiveMap
+        :locations="taskLocations"
+        :user-position="effectiveUserPosition || undefined"
+        :visited-locations="visitedLocations"
+        :loading="loadingLocations"
+        :max-locations="5"
+        :selected-location="selectedLocation || undefined"
+        @location-click="onLocationClick"
+        @map-ready="onMapReady"
+      />
+    </div>
 
     <!-- Manual Location Override -->
     <div class="border-t">
