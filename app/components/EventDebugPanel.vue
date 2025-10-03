@@ -84,16 +84,26 @@
   </button>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 
+// Log entry interface
+interface LogEntry {
+  timestamp: string
+  emoji: string
+  type: 'auth' | 'event' | 'gps' | 'task' | 'map' | 'location' | 'error' | 'warn'
+  message: string
+  data: Record<string, unknown> | null
+  level: 'log' | 'warn' | 'error'
+}
+
 // Simple boolean to control entire debug functionality
-const debugEnabled = ref(false)
+const debugEnabled = ref<boolean>(false)
 // Control panel visibility
-const showDebugPanel = ref(false)
-const autoScroll = ref(true)
-const eventLogs = ref([])
-const logContainer = ref(null)
+const showDebugPanel = ref<boolean>(false)
+const autoScroll = ref<boolean>(true)
+const eventLogs = ref<LogEntry[]>([])
+const logContainer = ref<HTMLDivElement | null>(null)
 
 // Store original console methods
 const originalConsoleLog = console.log
@@ -101,7 +111,7 @@ const originalConsoleWarn = console.warn
 const originalConsoleError = console.error
 
 // Log colors for different types
-const getLogColor = (type) => {
+const getLogColor = (type: LogEntry['type']): string => {
   switch (type) {
     case 'auth': return 'text-blue-400'
     case 'event': return 'text-green-400'
@@ -116,10 +126,10 @@ const getLogColor = (type) => {
 }
 
 // Extract emoji and determine type from message
-const parseLogMessage = (args) => {
+const parseLogMessage = (args: unknown[]): { emoji: string, type: LogEntry['type'], message: string } => {
   const message = args.join(' ')
   let emoji = '📋'
-  let type = 'event'
+  let type: LogEntry['type'] = 'event'
 
   if (message.includes('🔒') || message.includes('auth')) {
     emoji = '🔒'
@@ -150,15 +160,15 @@ const parseLogMessage = (args) => {
 }
 
 // Format log data for display
-const formatLogData = (data) => {
-  if (typeof data === 'object') {
+const formatLogData = (data: Record<string, unknown> | null): string => {
+  if (typeof data === 'object' && data !== null) {
     return JSON.stringify(data, null, 1).replace(/\n\s*/g, ' ')
   }
   return String(data)
 }
 
 // Add log entry
-const addLog = (level, args) => {
+const addLog = (level: 'log' | 'warn' | 'error', args: unknown[]): void => {
   const parsed = parseLogMessage(args)
   const timestamp = new Date().toLocaleTimeString('en-US', {
     hour12: false,
@@ -169,10 +179,10 @@ const addLog = (level, args) => {
   })
 
   // Extract structured data if available
-  let structuredData = null
+  let structuredData: Record<string, unknown> | null = null
   args.forEach((arg) => {
     if (typeof arg === 'object' && arg !== null) {
-      structuredData = arg
+      structuredData = arg as Record<string, unknown>
     }
   })
 
@@ -192,8 +202,8 @@ const addLog = (level, args) => {
 }
 
 // Override console methods to capture logs
-const interceptConsole = () => {
-  console.log = (...args) => {
+const interceptConsole = (): void => {
+  console.log = (...args: unknown[]) => {
     // Only capture EVENT logs, not everything
     const message = args.join(' ')
     if (message.includes('[EVENT]') || message.includes('🔒') || message.includes('🚀')
@@ -205,29 +215,31 @@ const interceptConsole = () => {
     originalConsoleLog(...args)
   }
 
-  console.warn = (...args) => {
+  console.warn = (...args: unknown[]) => {
     addLog('warn', args)
     originalConsoleWarn(...args)
   }
 
-  console.error = (...args) => {
+  console.error = (...args: unknown[]) => {
     addLog('error', args)
     originalConsoleError(...args)
   }
 }
 
 // Restore console methods
-const restoreConsole = () => {
+const restoreConsole = (): void => {
   console.log = originalConsoleLog
   console.warn = originalConsoleWarn
   console.error = originalConsoleError
 }
 
 // Auto-scroll to bottom
-const scrollToBottom = () => {
+const scrollToBottom = (): void => {
   if (autoScroll.value && logContainer.value) {
     nextTick(() => {
-      logContainer.value.scrollTop = logContainer.value.scrollHeight
+      if (logContainer.value) {
+        logContainer.value.scrollTop = logContainer.value.scrollHeight
+      }
     })
   }
 }
@@ -236,12 +248,12 @@ const scrollToBottom = () => {
 watch(() => eventLogs.value.length, scrollToBottom)
 
 // Clear logs
-const clearLogs = () => {
+const clearLogs = (): void => {
   eventLogs.value = []
 }
 
 // Copy logs to clipboard
-const copyLogs = async () => {
+const copyLogs = async (event: Event): Promise<void> => {
   const logText = eventLogs.value.map((log) => {
     let text = `${log.timestamp} ${log.emoji} ${log.message}`
     if (log.data) {
@@ -253,7 +265,7 @@ const copyLogs = async () => {
   try {
     await navigator.clipboard.writeText(logText)
     // Show brief feedback
-    const button = event.target
+    const button = event.target as HTMLButtonElement
     const originalText = button.textContent
     button.textContent = 'Copied!'
     setTimeout(() => {
@@ -266,7 +278,7 @@ const copyLogs = async () => {
 }
 
 // Disable debug mode permanently
-const disableDebug = () => {
+const disableDebug = (): void => {
   localStorage.removeItem('esm_debug_enabled')
   debugEnabled.value = false
   showDebugPanel.value = false
