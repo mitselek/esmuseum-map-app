@@ -106,7 +106,48 @@
 
 **Impact**: Better maintainability, type safety, integration with F022 helpers
 
+### Phase 3: useEntuAuth TypeScript Migration (HIGH IMPACT)
+
+- **Migrated useEntuAuth.js → useEntuAuth.ts** (252 lines → 308 lines)
+- **Exported comprehensive TypeScript interfaces**:
+  - `EntuUser` - User object structure (REUSABLE!)
+  - `EntuAuthResponse` - Full auth response from API
+  - `UseEntuAuthReturn` - Composable return type
+- **Type safety improvements**:
+  - All function parameters and returns fully typed
+  - Proper null checks throughout
+  - Type-safe localStorage operations
+  - No 'as any' casts needed
+- **Singleton pattern maintained** with module-level state
+- **Removed 'as any' from useCompletedTasks**:
+  - Updated to import EntuUser type
+  - Changed: `const userId = (user.value as any)?._id`
+  - To: `const userId = (user.value as EntuUser | null)?._id`
+  - Full type safety achieved! ✅
+
+**Impact**: Core authentication fully typed, EntuUser type available throughout codebase
+
+### Phase 4: Magic String Expansion
+
+- **Extended ENTU_PROPERTIES constants** in `app/constants/entu.ts`:
+  - Added property names: `KIRJELDUS`, `VASTAJA`, `GEOPUNKT`, `ASUKOHT`
+  - Added query properties: `NAME_STRING`, `LAT_NUMBER`, `LONG_NUMBER`, `KIRJELDUS_STRING`
+  - Added system properties: `PARENT`, `TYPE_STRING`, `INHERIT_RIGHTS`
+  - Added `ENTITY` type to `ENTU_TYPES`
+- **Updated 3 composables** to use constants:
+  - `useTaskResponseCreation.js` - replaced 8 magic strings
+  - `useLocation.js` - replaced 5 magic strings
+  - `useEntuApi.js` - replaced 2 magic strings
+- **Benefits**:
+  - Centralized property name management
+  - Easier refactoring (change once, apply everywhere)
+  - Type safety for property names
+  - Better IDE autocomplete
+
+**Impact**: 15+ magic strings eliminated, improved maintainability
+
 ---
 
 **Last Updated**: October 3, 2025  
-**Next Review**: After Phase 3 (testing and additional migrations)
+**Next Review**: After more TypeScript migrations
+

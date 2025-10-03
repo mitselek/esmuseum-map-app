@@ -9,6 +9,8 @@
  * then constructing headers object to ensure Authorization header is preserved.
  */
 
+import { ENTU_TYPES, ENTU_PROPERTIES } from '../constants/entu'
+
 export const useEntuApi = () => {
   const { token, isAuthenticated, refreshToken } = useEntuAuth()
 
@@ -150,7 +152,7 @@ export const useEntuApi = () => {
    */
   const getEntityTypes = async () => {
     return searchEntities({
-      '_type.string': 'entity'
+      [ENTU_PROPERTIES.TYPE_STRING]: ENTU_TYPES.ENTITY
     })
   }
 
@@ -159,7 +161,7 @@ export const useEntuApi = () => {
    */
   const getEntitiesByType = async (type, props = null, limit = 100) => {
     const query = {
-      '_type.string': type,
+      [ENTU_PROPERTIES.TYPE_STRING]: type,
       limit: limit
     }
 
