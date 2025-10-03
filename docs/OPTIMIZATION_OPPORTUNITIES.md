@@ -79,11 +79,13 @@
 ## ✅ Completed Optimizations
 
 ### Phase 1: Magic Strings & Event Logs
+
 - **Magic strings extracted** to `app/constants/entu.ts` (3 files updated)
 - **Variable naming bug fixed** in useTaskDetail.js
 - **Event tracking logs cleaned** (useTaskWorkspace, useTaskDetail, index.vue)
 
 ### Phase 2: useTaskDetail TypeScript Migration
+
 - **Migrated useTaskDetail.js → useTaskDetail.ts** (394 lines → 410 lines)
 - **Replaced duplicate logic** with entu-helpers:
   - `getTaskTitle()` → now uses `getTaskName()` helper
