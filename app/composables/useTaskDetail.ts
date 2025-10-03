@@ -8,6 +8,7 @@
  */
 
 import type { EntuTask } from '../../types/entu'
+import type { EntuUser } from './useEntuAuth'
 import { ENTU_TYPES } from '../constants/entu'
 import { 
   getTaskName, 
@@ -112,7 +113,7 @@ export const useTaskDetail = () => {
 
       for (const permissionArray of permissionArrays) {
         if (Array.isArray(permissionArray)) {
-          const userId = (user.value as any)?._id
+          const userId = user.value?._id
           const hasPermission = permissionArray.some((permission: any) =>
             permission.reference === userId
           )
@@ -214,22 +215,40 @@ export const useTaskDetail = () => {
   }
 
   /**
+   * Extract map ID from task with proper type safety
+   * Handles multiple possible formats of map references in Entu tasks
+   */
+  const extractMapId = (task: EntuTask): string | null => {
+    // Standard Entu format: kaart is an array of references
+    if (task.kaart?.[0]?.reference) {
+      return task.kaart[0].reference
+    }
+    
+    // Fallback patterns for non-standard task formats
+    // These patterns exist due to data migration or API variations
+    const taskAny = task as any
+    
+    return taskAny.kaart?.id 
+      || taskAny.kaart  // Direct string ID
+      || taskAny.map?.[0]?.reference 
+      || taskAny.map?.id 
+      || taskAny.mapId 
+      || taskAny.map  // Direct string ID
+      || null
+  }
+
+  /**
    * Load locations for a task's map
    */
-  const loadTaskLocations = async (task: EntuTask | null, userPosition: Coordinates | null = null): Promise<any[]> => {
-    if (!task) {
-      return []
-    }
-
+  const loadTaskLocations = async (
+    task: EntuTask,
+    userPosition: Coordinates | null
+  ): Promise<any[]> => {
     try {
       const { loadMapLocations, sortByDistance } = useLocation()
 
-      // Extract map ID from task - use reference field for actual map entity
-      // 'kaart' is Estonian for 'map' and is typically an array in Entu
-      const mapId = task.kaart?.[0]?.reference
-        || (task as any).kaart?.id || (task as any).kaart
-        || (task as any).map?.[0]?.reference
-        || (task as any).map?.id || (task as any).mapId || (task as any).map
+      // Extract map ID from task using type-safe helper
+      const mapId = extractMapId(task)
 
       if (!mapId) {
         console.warn('No map ID found for task')
@@ -239,7 +258,8 @@ export const useTaskDetail = () => {
       const locations = await loadMapLocations(mapId)
 
       // Sort by distance if we have user position
-      const processedLocations = sortByDistance(locations, userPosition as any)
+      // Note: Coordinates type is compatible with UserPosition (has required lat/lng)
+      const processedLocations = sortByDistance(locations, userPosition)
 
       return processedLocations
     }
@@ -321,7 +341,7 @@ export const useTaskDetail = () => {
           const responses = await searchEntities({
             '_type.string': ENTU_TYPES.VASTUS,
             '_parent.reference': taskId,
-            '_owner._id': (user.value as any)._id,
+            '_owner._id': user.value?._id,
             limit: 1
           })
 
