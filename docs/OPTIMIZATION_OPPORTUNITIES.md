@@ -178,18 +178,44 @@
 
 **Impact**: Critical functionality restored, improved resilience
 
+### Phase 6: useTaskGeolocation TypeScript Migration
+
+- **Migrated useTaskGeolocation.js → useTaskGeolocation.ts** (118 lines → 206 lines)
+- **Added comprehensive TypeScript interfaces**:
+  - `UserPosition` - Location coordinates with accuracy
+  - `TaskLocation` - Entu location entity structure
+  - `ResponseFormRef` - Form reference with location setter
+  - `CoordinatesObject` and `CoordinatesInput` - Coordinate input types
+  - `UseTaskGeolocationReturn` - Composable return type
+- **Type safety improvements**:
+  - All function parameters and returns fully typed
+  - Proper null checks for array indices (`parts[0]`, `parts[1]`)
+  - Null checks before calling sortByDistance
+  - Type-safe wrapper for sortByDistance (JS boundary)
+- **Code quality**:
+  - Added comprehensive JSDoc comments for all functions
+  - Proper type guards for coordinate parsing
+  - Cleaner error handling
+  - Single 'as any' cast only at JS boundary (sortByDistance)
+- **Benefits**:
+  - Compile-time validation for geolocation logic
+  - Better IDE autocomplete for location handling
+  - Type-safe integration with useLocation service
+
+**Impact**: Task geolocation fully typed, ~60% composables now TypeScript
+
 ---
 
-**Last Updated**: October 3, 2025 (Phase 5 complete)  
-**Next Review**: After Phase 6 (useTaskGeolocation migration)
+**Last Updated**: October 3, 2025 (Phase 6 complete)  
+**Next Review**: After Phase 7 (next composable migration)
 
 **Session Statistics**:
 
-- **Composables migrated**: 4 (useTaskDetail, useEntuAuth, useTaskResponseCreation + useCompletedTasks updated)
-- **Lines migrated**: ~779 JS → ~911 TS (+132 for interfaces)
-- **Type safety**: ~20% → ~50% of composables
+- **Composables migrated**: 5 (useTaskDetail, useEntuAuth, useTaskResponseCreation, useTaskGeolocation + useCompletedTasks updated)
+- **Lines migrated**: ~897 JS → ~1,117 TS (+220 for interfaces, +25%)
+- **Type safety**: ~20% → ~60% of composables
 - **Magic strings eliminated**: 20+
 - **Critical bugs fixed**: 2 (variable naming, user._id)
-- **'as any' casts removed**: 4
+- **'as any' casts removed**: 4 (added 1 for JS boundary)
 - **UX improvements**: Login page redesign (1-click providers)
 - **Translation cleanup**: Merged duplicates to global config
