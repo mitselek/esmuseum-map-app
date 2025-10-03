@@ -126,24 +126,11 @@
           ]"
           @click="navigateToTask(task._id)"
         >
-          <!-- Task Title with Checkmark -->
-          <div class="mb-2 flex items-start justify-between">
-            <h3 class="line-clamp-2 flex-1 text-sm font-medium text-gray-900">
+          <!-- Task Title -->
+          <div class="mb-2">
+            <h3 class="line-clamp-2 text-sm font-medium text-gray-900">
               {{ getTaskTitle(task) }}
             </h3>
-            <!-- Checkmark for completed tasks -->
-            <svg
-              v-if="isTaskFullyCompleted(task._id)"
-              class="ml-2 size-5 shrink-0 text-green-600"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clip-rule="evenodd"
-              />
-            </svg>
           </div>
 
           <!-- Task Description (if available) -->
@@ -167,8 +154,21 @@
           <!-- Response Count and Status -->
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <!-- Response Count -->
-              <div class="text-xs text-gray-500">
+              <!-- Response Count with Checkmark -->
+              <div class="flex items-center text-xs text-gray-500">
+                <!-- Checkmark for completed tasks -->
+                <svg
+                  v-if="isTaskFullyCompleted(task._id)"
+                  class="mr-1.5 size-4 shrink-0 text-green-600"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
                 <span v-if="taskResponseStatsCache.has(task._id)">
                   {{ getResponseStatsText(task) }}
                 </span>
