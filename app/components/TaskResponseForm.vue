@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded-lg border bg-white p-6 shadow-sm">
+  <div class="p-6">
     <h3 class="mb-4 text-lg font-medium text-gray-900">
       {{ $t('taskDetail.yourResponse') }}
     </h3>

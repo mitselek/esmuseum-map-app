@@ -15,44 +15,43 @@
         @close="clearSelection"
       />
 
-      <!-- Task content -->
-      <div class="flex-1 overflow-y-auto bg-gray-50">
-        <!-- Full-width map section -->
-        <div
-          v-if="hasMapData"
-          class="pb-6"
-        >
-          <TaskMapCard
-            :task-locations="taskLocations"
-            :user-position="userPosition"
-            :loading-locations="loadingTaskLocations"
-            :selected-location="selectedLocation"
-            :visited-locations="visitedLocations"
-            @location-click="onMapLocationClick"
-            @map-ready="onMapReady"
-            @location-change="handleLocationOverride"
-          />
-        </div>
+      <!-- Fixed map section (30vh) -->
+      <div
+        v-if="hasMapData"
+        class="shrink-0"
+        style="height: 30vh"
+      >
+        <TaskMapCard
+          :task-locations="taskLocations"
+          :user-position="userPosition"
+          :loading-locations="loadingTaskLocations"
+          :selected-location="selectedLocation"
+          :visited-locations="visitedLocations"
+          @location-click="onMapLocationClick"
+          @map-ready="onMapReady"
+          @location-change="handleLocationOverride"
+        />
+      </div>
 
+      <!-- Scrollable content area -->
+      <div class="flex-1 overflow-y-auto">
         <!-- Response Form -->
-        <div class="mx-auto max-w-5xl px-4 pb-6 sm:px-6">
-          <TaskResponseForm
-            ref="responseFormRef"
-            :selected-task="selectedTask"
-            :checking-permissions="checkingPermissions"
-            :has-response-permission="hasResponsePermission"
-            :needs-location="needsLocation"
-            :task-locations="taskLocations"
-            :selected-location="selectedLocation"
-            :loading-task-locations="loadingTaskLocations"
-            :geolocation-error="geolocationError"
-            :visited-locations="visitedLocations"
-            @location-select="onLocationSelect"
-            @request-location="handleLocationRequest"
-            @load-task-locations="loadTaskLocations"
-            @response-submitted="handleResponseSubmitted"
-          />
-        </div>
+        <TaskResponseForm
+          ref="responseFormRef"
+          :selected-task="selectedTask"
+          :checking-permissions="checkingPermissions"
+          :has-response-permission="hasResponsePermission"
+          :needs-location="needsLocation"
+          :task-locations="taskLocations"
+          :selected-location="selectedLocation"
+          :loading-task-locations="loadingTaskLocations"
+          :geolocation-error="geolocationError"
+          :visited-locations="visitedLocations"
+          @location-select="onLocationSelect"
+          @request-location="handleLocationRequest"
+          @load-task-locations="loadTaskLocations"
+          @response-submitted="handleResponseSubmitted"
+        />
       </div>
     </div>
   </div>
