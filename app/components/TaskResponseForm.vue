@@ -27,9 +27,9 @@
         <!-- LocationPicker Component -->
         <LocationPicker
           :locations="taskLocations"
-          :selected="(selectedLocation as any)"
+          :selected="selectedLocation"
           :loading="loadingTaskLocations"
-          :error="(geolocationError as any)"
+          :error="geolocationError"
           :visited-locations="visitedLocations"
           @select="onLocationSelect"
           @request-location="onRequestLocation"
