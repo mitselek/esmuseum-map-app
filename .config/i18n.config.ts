@@ -8,11 +8,13 @@ export default defineI18nConfig(() => ({
     et: {
       // Authentication
       alreadyLoggedIn: "Sa oled juba sisse logitud",
-      loggingIn: "Logi sisse...",
-      loginWithOAuth: "Logi sisse",
-      selectProvider: "Vali teenusepakkuja",
-      continue: "Jätka",
+      loggingIn: "Sisselogimine...",
+      loginWithOAuth: "Logi sisse OAuth-ga",
+      selectProvider: "Vali autentimisteenuse pakkuja",
+      continue: "Jätka rakendusega",
       user: "Kasutaja",
+      loginMethod: "Sisselogimise meetod",
+      oauthMethod: "OAuth autentimine",
       // Common
       common: {
         noData: "Andmed puuduvad",
@@ -25,7 +27,7 @@ export default defineI18nConfig(() => ({
       appName: "ESMuseum Kaardid",
       description: "Avasta Eesti sõjaajalugu interaktiivsete asukohal põhinevate missioonide ja ajalooliste avastuste kaudu. Autentimiseks alusta oma teekonda.",
       loading: "Laadimine...",
-      title: "Tere tulemast Eesti Sõjamuuseumi",
+      title: "Tere tulemast Eesti Sõjamuuseumisse",
       redirecting: "Suunamine...",
       hello: "Tere",
       student: "õpilane",
@@ -118,10 +120,12 @@ export default defineI18nConfig(() => ({
       // Authentication
       alreadyLoggedIn: "You are already logged in",
       loggingIn: "Logging in...",
-      loginWithOAuth: "Login",
-      selectProvider: "Select provider",
-      continue: "Continue",
+      loginWithOAuth: "Login with OAuth",
+      selectProvider: "Select Authentication Provider",
+      continue: "Continue to application",
       user: "User",
+      loginMethod: "Login Method",
+      oauthMethod: "OAuth Authentication",
       // Common
       common: {
         noData: "No data",
@@ -233,10 +237,12 @@ export default defineI18nConfig(() => ({
       // Authentication
       alreadyLoggedIn: "Ви вже увійшли в систему",
       loggingIn: "Вхід...",
-      loginWithOAuth: "Увійти",
-      selectProvider: "Оберіть провайдера",
-      continue: "Продовжити",
+      loginWithOAuth: "Увійти через OAuth",
+      selectProvider: "Оберіть провайдера автентифікації",
+      continue: "Продовжити до додатку",
       user: "Користувач",
+      loginMethod: "Метод входу",
+      oauthMethod: "OAuth автентифікація",
       // Common
       common: {
         noData: "Немає даних",
