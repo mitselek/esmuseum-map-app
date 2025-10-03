@@ -112,6 +112,7 @@ interface UseLocationReturn {
   initializeGPSWithPermissionCheck: () => Promise<void>
   checkGeolocationPermission: () => Promise<PermissionState>
   setManualOverride: (isManual: boolean) => void
+  startGPSUpdates: () => void
   stopGPSUpdates: () => void
   requestGPSPermission: () => void
   dismissGPSPrompt: () => void
@@ -644,6 +645,7 @@ export const useLocation = (): UseLocationReturn => {
     initializeGPSWithPermissionCheck,
     checkGeolocationPermission,
     setManualOverride,
+    startGPSUpdates,
     stopGPSUpdates,
     requestGPSPermission,
     dismissGPSPrompt,
