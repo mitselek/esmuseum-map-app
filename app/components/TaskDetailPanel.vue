@@ -263,6 +263,9 @@ const handleResponseSubmitted = async (_responseData: unknown): Promise<void> =>
       (form as any).resetForm()
     }
 
+    // Clear selected location
+    selectedLocation.value = null
+
     // Refetch task data to ensure consistency
     if (selectedTask.value?._id) {
       await refetchTask(selectedTask.value._id)
