@@ -99,6 +99,11 @@ export default defineI18nConfig(() => ({
         checkingPermissions: "Kontrollin õigusi...",
         noPermission: "Juurdepääs keelatud",
         noPermissionDescription: "Sul pole õigust sellele ülesandele vastata. Võta ühendust õpetajaga, kui arvad, et see on viga.",
+        // Submission modal translations
+        submitting: "Saadan vastust...",
+        submitSuccess: "Vastus saadetud!",
+        submitError: "Viga saatmisel",
+        retry: "Proovi uuesti",
         // LocationPicker translations
         selectedLocation: "Valitud asukoht",
         changeLocation: "Muuda",
@@ -222,8 +227,13 @@ export default defineI18nConfig(() => ({
         loadingLocations: "Loading locations for this task's map",
         geolocationNotSupported: "Geolocation is not supported in this browser",
         checkingPermissions: "Checking permissions...",
-        noPermission: "Access denied",
+        noPermission: "No permission",
         noPermissionDescription: "You don't have permission to respond to this task. Contact your teacher if you think this is an error.",
+        // Submission modal translations
+        submitting: "Submitting response...",
+        submitSuccess: "Response submitted!",
+        submitError: "Submission error",
+        retry: "Retry",
         // LocationPicker translations
         selectedLocation: "Selected location",
         changeLocation: "Change",
@@ -342,8 +352,13 @@ export default defineI18nConfig(() => ({
         responseAlreadySubmitted: "✅ Ваша відповідь подана",
         geolocationNotSupported: "Геолокація не підтримується в цьому браузері",
         checkingPermissions: "Перевірка дозволів...",
-        noPermission: "Доступ заборонено",
+        noPermission: "Немає дозволу",
         noPermissionDescription: "У вас немає дозволу відповідати на це завдання. Зверніться до вчителя, якщо ви вважаєте, що це помилка.",
+        // Submission modal translations
+        submitting: "Надсилання відповіді...",
+        submitSuccess: "Відповідь надіслано!",
+        submitError: "Помилка надсилання",
+        retry: "Спробувати знову",
         // LocationPicker translations
         selectedLocation: "Вибране місце",
         changeLocation: "Змінити",
