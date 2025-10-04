@@ -94,7 +94,7 @@ const {
 } = useTaskGeolocation()
 
 // Use optimistic update composable
-const { incrementResponseCount, revertResponseCount, refetchTask } = useOptimisticTaskUpdate(selectedTask)
+const { refetchTask } = useOptimisticTaskUpdate(selectedTask)
 
 // Submission modal state
 const showSubmissionModal = ref(false)
@@ -252,9 +252,6 @@ const handleResponseSubmitted = async (_responseData: unknown): Promise<void> =>
   submissionError.value = undefined
 
   try {
-    // Optimistically increment response count
-    incrementResponseCount()
-
     // Reset the form
     const form = responseFormRef.value
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -266,7 +263,8 @@ const handleResponseSubmitted = async (_responseData: unknown): Promise<void> =>
     // Clear selected location
     selectedLocation.value = null
 
-    // Refetch task data to ensure consistency
+    // Refetch task data to get updated response count
+    // This reloads completed tasks and recalculates unique locations visited
     if (selectedTask.value?._id) {
       await refetchTask(selectedTask.value._id)
     }
@@ -280,9 +278,6 @@ const handleResponseSubmitted = async (_responseData: unknown): Promise<void> =>
     }, 1500)
   }
   catch (error) {
-    // Revert optimistic update on error
-    revertResponseCount()
-
     // Show error state
     submissionStatus.value = 'error'
     submissionError.value = error instanceof Error ? error.message : 'Unknown error occurred'
