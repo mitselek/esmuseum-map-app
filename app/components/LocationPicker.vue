@@ -73,12 +73,6 @@
         >
           {{ t('taskDetail.searchingLocationGPS') }}
         </span>
-        <span
-          v-else-if="userPosition"
-          class="text-xs text-green-600"
-        >
-          📍 GPS sorted
-        </span>
       </div>
 
       <!-- Search Filter -->
@@ -95,7 +89,7 @@
       </div>
 
       <!-- Location Items -->
-      <div class="max-h-60 space-y-1 overflow-y-auto">
+      <div class="space-y-1">
         <button
           v-for="location in filteredLocations"
           :key="location._id || location.id"

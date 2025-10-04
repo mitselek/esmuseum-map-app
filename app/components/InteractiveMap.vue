@@ -1,5 +1,5 @@
 <template>
-  <div class="h-64 w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
+  <div class="size-full overflow-hidden border border-gray-200 bg-gray-100">
     <!-- Loading state - don't show map until locations are ready -->
     <div
       v-if="loading || !locationsReady"
