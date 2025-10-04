@@ -36,29 +36,10 @@
         <button
           v-if="isAuthenticated"
           type="button"
-          class="rounded p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800"
-          :title="$t('logout')"
+          class="text-sm text-gray-600 hover:text-gray-900"
           @click="handleLogout"
         >
-          <svg
-            class="size-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15"
-            />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 9l3-3m0 0l3 3m-3-3v12"
-            />
-          </svg>
+          {{ $t('logout') }}
         </button>
       </div>
     </div>
