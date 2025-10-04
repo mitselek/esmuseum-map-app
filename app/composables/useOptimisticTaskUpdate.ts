@@ -2,41 +2,16 @@ import type { Ref } from 'vue';
 
 /**
  * Composable for optimistic task updates after response submission.
- * Handles immediate UI updates, rollback on error, and data refetch.
+ * Handles data refetch to ensure UI consistency after submission.
  */
 export function useOptimisticTaskUpdate(task: Ref<any>) {
   /**
-   * Optimistically increment the response count
-   * Updates the task's vastuseid (responses) count immediately
-   */
-  const incrementResponseCount = () => {
-    if (!task.value) return;
-    
-    // Increment vastuseid count
-    if (typeof task.value.vastuseid === 'number') {
-      task.value.vastuseid += 1;
-    } else {
-      // Initialize if missing
-      task.value.vastuseid = 1;
-    }
-  };
-
-  /**
-   * Revert the optimistic response count increment
-   * Called when submission fails to rollback UI changes
-   */
-  const revertResponseCount = () => {
-    if (!task.value) return;
-    
-    // Decrement vastuseid count
-    if (typeof task.value.vastuseid === 'number' && task.value.vastuseid > 0) {
-      task.value.vastuseid -= 1;
-    }
-  };
-
-  /**
    * Refetch task data from API to ensure consistency
-   * Also reloads completed tasks list to update UI
+   * Also reloads completed tasks list to update actual response count
+   * 
+   * Note: We don't do optimistic count increments because the actual count
+   * is calculated from unique locations visited, which requires reloading
+   * all user responses. The refetch is fast enough (~200ms) for good UX.
    */
   const refetchTask = async (taskId: string) => {
     try {
@@ -53,18 +28,17 @@ export function useOptimisticTaskUpdate(task: Ref<any>) {
         Object.assign(task.value, freshTask);
       }
 
-      // Reload completed tasks to update checkmarks in sidebar
+      // Reload completed tasks to update response counts and checkmarks
+      // This recalculates uniqueLocationsCount from the user's responses
       await loadCompletedTasks();
     } catch (error) {
       console.error('Failed to refetch task:', error);
-      // Silent fail - user already has optimistic update
-      // If it fails, they'll see stale data but submission was successful
+      // Rethrow to allow error handling in the caller
+      throw error;
     }
   };
 
   return {
-    incrementResponseCount,
-    revertResponseCount,
     refetchTask,
   };
 }
