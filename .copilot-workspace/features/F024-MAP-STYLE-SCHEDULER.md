@@ -31,10 +31,10 @@ Currently, the map uses a single static style (OpenStreetMap). While we've imple
 
 ### Secondary Goals
 
-- Console logging for debugging/discovery
-- Smooth transitions between styles
-- Persistence of manual overrides
-- ~~User notification of style changes (subtle)~~ _Deferred - notification translation complexity_
+- ✅ Console logging for debugging/discovery
+- ❌ Smooth transitions between styles _Deferred - Leaflet limitations, bandwidth concerns_
+- ⏳ Persistence of manual overrides _Deferred - will implement when needed_
+- ❌ User notification of style changes (subtle) _Deferred - notification translation complexity_
 
 ## Requirements
 
@@ -251,14 +251,14 @@ const MAP_STYLE_RULES: MapStyleRule[] = [
 
 ## Implementation Plan
 
-### Phase 1: Foundation (30 min)
+### Phase 1: Foundation (30 min) ✅ COMPLETE
 
 1. ✅ Install SunCalc library
 2. ✅ Create `useMapStyleScheduler.ts` composable
 3. ✅ Implement basic rule evaluation
 4. ✅ Add astronomical calculations helper
 
-### Phase 2: Rule System (45 min)
+### Phase 2: Rule System (45 min) ✅ COMPLETE
 
 1. ✅ Define rule data structures
 2. ✅ Implement date-range condition evaluator
@@ -266,24 +266,24 @@ const MAP_STYLE_RULES: MapStyleRule[] = [
 4. ✅ Implement priority resolution
 5. ✅ Add rule testing utilities
 
-### Phase 3: Integration (30 min)
+### Phase 3: Integration (30 min) ✅ COMPLETE
 
 1. ✅ Integrate scheduler with `useMapStyles`
 2. ✅ Add timer/interval for rule checking (5 min intervals)
 3. ✅ Add console logging for debugging
 4. ✅ Test all three rules
 
-### Phase 4: Polish (30 min)
+### Phase 4: Polish (30 min) ⏳ PARTIAL
 
-1. ✅ Add transition effects
-2. ~~✅ Add user notification (subtle toast?)~~ _Deferred - translation complexity_
-3. ✅ Add manual override support
-4. ✅ Add persistence to localStorage
+1. ❌ Add transition effects _Deferred - Leaflet limitations_
+2. ❌ Add user notification (subtle toast?) _Deferred - translation complexity_
+3. ⏳ Add manual override support _Deferred - will implement when needed_
+4. ⏳ Add persistence to localStorage _Deferred - will implement when needed_
 
-### Phase 5: Documentation (15 min)
+### Phase 5: Documentation (15 min) ✅ COMPLETE
 
 1. ✅ Add code documentation
-2. ✅ Update README with easter egg info
+2. ⏳ Update README with easter egg info _Will document when feature is discovered_
 3. ✅ Create Entu entity specification for future
 
 **Total Estimated Time**: ~2.5 hours
@@ -427,12 +427,41 @@ describe("MapStyleScheduler", () => {
 - Timezone: Europe/Tallinn (EET/EEST, UTC+2/+3)
 - Sunrise/sunset times vary significantly (summer: 03:00-22:00, winter: 09:00-15:00)
 
+## Implementation Notes
+
+**Completed Features:**
+
+- ✅ **Map Style System**: 9 tile providers (OpenStreetMap, Stamen Watercolor, Toner, Toner Lite, Terrain, OpenTopoMap, CartoDB Positron/Dark Matter/Voyager)
+- ✅ **Console Commands**: `window.$map.setStyle()`, `listStyles()`, `currentStyle()`, `help()`
+- ✅ **Scheduler Console Commands**: `window.$scheduler.status()`, `checkNow()`, `help()`
+- ✅ **Astronomical Calculations**: SunCalc integration for accurate moon phases, sunrise/sunset, moonrise/moonset
+- ✅ **GPS-Based Location**: Uses user's actual GPS coordinates for astronomical calculations (no fallback)
+- ✅ **ETA Display**: Shows countdown to next occurrence of each inactive rule
+- ✅ **Priority System**: 100=Independence Day, 90=Victory Day, 80=Full Moon Thursday, 0=Default
+- ✅ **Auto-Start**: Scheduler starts automatically on app load, checks every 5 minutes
+- ✅ **Full Moon Detection**: Scans 60 days ahead to find next full moon Thursday
+
+**Architecture Decisions:**
+
+- **GPS-Only Approach**: Astronomical calculations require user's actual location; no fallback coordinates (meaningless without real location)
+- **No Smooth Transitions**: Deferred due to Leaflet limitations and bandwidth concerns (would require dual tile layers)
+- **Simplified Rule Structure**: Used priority-based functions instead of complex condition objects for maintainability
+- **Client-Side Only**: All calculations happen in browser using SunCalc library (11kb, lightweight)
+
+**Deferred Features:**
+
+- localStorage persistence for manual overrides
+- User notifications (translation complexity)
+- Smooth style transitions (technical limitations)
+- Entu configuration entity (future enhancement)
+
 ## Related Files
 
-- `/app/composables/useMapStyles.ts` - Map style management
-- `/app/composables/useMapStyleScheduler.ts` - NEW - Rule scheduler
-- `/app/components/InteractiveMap.vue` - Map component
-- `/app/plugins/map-console.client.ts` - Console commands
+- `/app/composables/useMapStyles.ts` - Map style management (151 lines)
+- `/app/composables/useMapStyleScheduler.ts` - Rule scheduler with astronomical calculations (360+ lines)
+- `/app/components/InteractiveMap.vue` - Map component (modified for dynamic styles)
+- `/app/plugins/map-console.client.ts` - Console commands for manual style control
+- `/app/plugins/map-scheduler.client.ts` - Auto-start scheduler with debugging commands
 
 ## References
 
