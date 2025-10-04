@@ -100,10 +100,9 @@ export default defineI18nConfig(() => ({
         noPermission: "Juurdepääs keelatud",
         noPermissionDescription: "Sul pole õigust sellele ülesandele vastata. Võta ühendust õpetajaga, kui arvad, et see on viga.",
         // Submission modal translations
-        submitting: "Saadan vastust...",
-        submitSuccess: "Vastus saadetud!",
-        submitError: "Viga saatmisel",
-        retry: "Proovi uuesti",
+        modalSubmitting: "Saadan vastust...",
+        modalSubmitSuccess: "Vastus saadetud!",
+        modalSubmitError: "Viga saatmisel",
         // LocationPicker translations
         selectedLocation: "Valitud asukoht",
         changeLocation: "Muuda",
@@ -230,10 +229,9 @@ export default defineI18nConfig(() => ({
         noPermission: "No permission",
         noPermissionDescription: "You don't have permission to respond to this task. Contact your teacher if you think this is an error.",
         // Submission modal translations
-        submitting: "Submitting response...",
-        submitSuccess: "Response submitted!",
-        submitError: "Submission error",
-        retry: "Retry",
+        modalSubmitting: "Submitting response...",
+        modalSubmitSuccess: "Response submitted!",
+        modalSubmitError: "Submission error",
         // LocationPicker translations
         selectedLocation: "Selected location",
         changeLocation: "Change",
@@ -355,10 +353,9 @@ export default defineI18nConfig(() => ({
         noPermission: "Немає дозволу",
         noPermissionDescription: "У вас немає дозволу відповідати на це завдання. Зверніться до вчителя, якщо ви вважаєте, що це помилка.",
         // Submission modal translations
-        submitting: "Надсилання відповіді...",
-        submitSuccess: "Відповідь надіслано!",
-        submitError: "Помилка надсилання",
-        retry: "Спробувати знову",
+        modalSubmitting: "Надсилання відповіді...",
+        modalSubmitSuccess: "Відповідь надіслано!",
+        modalSubmitError: "Помилка надсилання",
         // LocationPicker translations
         selectedLocation: "Вибране місце",
         changeLocation: "Змінити",

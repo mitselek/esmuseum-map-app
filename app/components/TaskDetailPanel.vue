@@ -257,8 +257,10 @@ const handleResponseSubmitted = async (_responseData: unknown): Promise<void> =>
 
     // Reset the form
     const form = responseFormRef.value
-    if (form && typeof form.resetForm === 'function') {
-      form.resetForm()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (form && typeof (form as any).resetForm === 'function') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (form as any).resetForm()
     }
 
     // Refetch task data to ensure consistency
