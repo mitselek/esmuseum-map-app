@@ -56,6 +56,15 @@
         />
       </div>
     </div>
+
+    <!-- Submission Modal -->
+    <TaskSubmissionModal
+      :is-open="showSubmissionModal"
+      :status="submissionStatus"
+      :error-message="submissionError"
+      @retry="handleRetry"
+      @close="handleModalClose"
+    />
   </div>
 </template>
 
@@ -83,6 +92,14 @@ const {
   geolocationError,
   onRequestLocation
 } = useTaskGeolocation()
+
+// Use optimistic update composable
+const { incrementResponseCount, revertResponseCount, refetchTask } = useOptimisticTaskUpdate(selectedTask)
+
+// Submission modal state
+const showSubmissionModal = ref(false)
+const submissionStatus = ref<'submitting' | 'success' | 'error'>('submitting')
+const submissionError = ref<string | undefined>(undefined)
 
 // Use completed tasks tracking
 const {
@@ -227,12 +244,58 @@ const handleLocationRequest = async () => {
   await onRequestLocation(taskLocations)
 }
 
-// Handle response submission for page reload
-const handleResponseSubmitted = (_responseData: unknown): void => {
-  // Reload the page to ensure fresh data
-  setTimeout(() => {
-    window.location.reload()
-  }, 500) // Small delay to let the submission complete
+// Handle response submission with optimistic updates
+const handleResponseSubmitted = async (_responseData: unknown): Promise<void> => {
+  // Show submitting modal
+  showSubmissionModal.value = true
+  submissionStatus.value = 'submitting'
+  submissionError.value = undefined
+
+  try {
+    // Optimistically increment response count
+    incrementResponseCount()
+
+    // Reset the form
+    const form = responseFormRef.value
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (form && typeof (form as any).resetForm === 'function') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (form as any).resetForm()
+    }
+
+    // Refetch task data to ensure consistency
+    if (selectedTask.value?._id) {
+      await refetchTask(selectedTask.value._id)
+    }
+
+    // Show success state
+    submissionStatus.value = 'success'
+
+    // Auto-close modal after success
+    setTimeout(() => {
+      showSubmissionModal.value = false
+    }, 1500)
+  }
+  catch (error) {
+    // Revert optimistic update on error
+    revertResponseCount()
+
+    // Show error state
+    submissionStatus.value = 'error'
+    submissionError.value = error instanceof Error ? error.message : 'Unknown error occurred'
+  }
+}
+
+// Handle retry after submission error
+const handleRetry = () => {
+  showSubmissionModal.value = false
+  submissionError.value = undefined
+}
+
+// Handle modal close
+const handleModalClose = () => {
+  showSubmissionModal.value = false
+  submissionError.value = undefined
 }
 
 // Check if task needs location

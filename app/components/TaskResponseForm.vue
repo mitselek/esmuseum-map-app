@@ -319,6 +319,20 @@ defineExpose({
     else {
       responseForm.value.geopunkt = null
     }
+  },
+  resetForm: (): void => {
+    // Clear form fields
+    responseForm.value.text = ''
+    responseForm.value.geopunkt = null
+    responseForm.value.file = null
+    
+    // Clear uploaded files
+    uploadedFiles.value = []
+    
+    // Reset file upload component if it exists
+    if (fileUploadRef.value && typeof fileUploadRef.value.clearFiles === 'function') {
+      fileUploadRef.value.clearFiles()
+    }
   }
 })
 </script>
