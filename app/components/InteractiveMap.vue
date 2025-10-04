@@ -59,8 +59,9 @@
       >
         <!-- Tile layer -->
         <LTileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          :attribution="attribution"
+          :key="currentMapStyle.id"
+          :url="currentMapStyle.url"
+          :attribution="currentMapStyle.attribution"
           :options="tileOptions"
         />
 
@@ -137,6 +138,10 @@ import L from 'leaflet'
 import type { Map as LeafletMap, LatLngExpression, Icon } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { isSameLocation } from '~/utils/location-sync'
+
+// Use map styles composable
+const { getCurrentStyle, getStyle } = useMapStyles()
+const currentMapStyle = computed(() => getCurrentStyle.value || getStyle('default')!)
 
 // Location coordinate interface
 interface Coordinates {
@@ -274,8 +279,6 @@ const tileOptions = {
   maxZoom: 18,
   minZoom: 3
 }
-
-const attribution = '© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
 
 // Custom icons
 const userIcon: Icon = L.divIcon({
