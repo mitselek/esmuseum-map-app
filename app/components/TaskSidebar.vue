@@ -1,13 +1,15 @@
 <template>
   <div class="flex h-full flex-col">
-    <!-- Header -->
-    <div class="shrink-0 border-b border-gray-200 bg-white p-4">
-      <h2 class="text-lg font-semibold text-gray-900">
-        {{ $t('tasks.title') }}
-      </h2>
+    <!-- App Header -->
+    <AppHeader
+      :title="$t('tasks.title')"
+      :show-greeting="false"
+    />
 
+    <!-- Search/Filter Section -->
+    <div class="shrink-0 border-b border-gray-200 bg-white p-4">
       <!-- Search/Filter -->
-      <div class="mt-3">
+      <div>
         <div class="relative">
           <input
             v-model="searchQuery"
@@ -36,7 +38,7 @@
       <!-- Task count - Show count or loading indicator -->
       <div class="mt-2 text-xs text-gray-500">
         <span v-if="initialized">
-          {{ filteredTasks.length }} {{ $t('tasks.tasksFound') }}
+          {{ $t('tasks.tasksFound', { count: filteredTasks.length }, filteredTasks.length) }}
         </span>
         <span
           v-else
@@ -126,24 +128,17 @@
           ]"
           @click="navigateToTask(task._id)"
         >
-          <!-- Task Title with Checkmark -->
-          <div class="mb-2 flex items-start justify-between">
+          <!-- Task Title with Open Button -->
+          <div class="mb-2 flex items-start justify-between gap-2">
             <h3 class="line-clamp-2 flex-1 text-sm font-medium text-gray-900">
               {{ getTaskTitle(task) }}
             </h3>
-            <!-- Checkmark for completed tasks -->
-            <svg
-              v-if="isTaskFullyCompleted(task._id)"
-              class="ml-2 size-5 shrink-0 text-green-600"
-              fill="currentColor"
-              viewBox="0 0 20 20"
+            <button
+              class="shrink-0 text-xs font-medium text-blue-600 transition-colors hover:text-blue-700"
+              @click.stop="navigateToTask(task._id)"
             >
-              <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clip-rule="evenodd"
-              />
-            </svg>
+              {{ $t('tasks.open') }}
+            </button>
           </div>
 
           <!-- Task Description (if available) -->
@@ -159,18 +154,7 @@
             v-if="task.groupName"
             class="mb-2 flex items-center"
           >
-            <div class="flex items-center text-xs text-gray-500">
-              <svg
-                class="mr-1 size-3"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 01-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h4a1 1 0 011 1v4a1 1 0 01-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 012 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 010 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15 13.586V12a1 1 0 011-1z"
-                  clip-rule="evenodd"
-                />
-              </svg>
+            <div class="text-xs text-gray-500">
               {{ task.groupName }}
             </div>
           </div>
@@ -178,16 +162,18 @@
           <!-- Response Count and Status -->
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <!-- Response Count -->
+              <!-- Response Count with Checkmark -->
               <div class="flex items-center text-xs text-gray-500">
+                <!-- Checkmark for completed tasks -->
                 <svg
-                  class="mr-1 size-3"
+                  v-if="isTaskFullyCompleted(task._id)"
+                  class="mr-1.5 size-4 shrink-0 text-green-600"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
                   <path
                     fill-rule="evenodd"
-                    d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                     clip-rule="evenodd"
                   />
                 </svg>
@@ -202,29 +188,10 @@
               <!-- Due Date (if available) -->
               <div
                 v-if="getTaskDueDate(task)"
-                class="flex items-center text-xs text-orange-600"
+                class="text-xs text-orange-600"
               >
-                <svg
-                  class="mr-1 size-3"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
                 {{ getTaskDueDate(task) }}
               </div>
-            </div>
-
-            <!-- Selection Indicator -->
-            <div
-              v-if="selectedTaskId === task._id"
-              class="flex items-center"
-            >
-              <div class="size-2 rounded-full bg-blue-600" />
             </div>
           </div>
         </div>
@@ -236,7 +203,9 @@
 <script setup lang="ts">
 import type { EntuTask } from '../../types/entu'
 import { getTaskName, getTaskDescription, getTaskResponseCount, getTaskDeadline } from '../../utils/entu-helpers'
+import { formatDate } from '../../utils/date-format'
 
+const { locale } = useI18n()
 const {
   tasks,
   selectedTaskId,
@@ -335,7 +304,7 @@ const isTaskFullyCompleted = (taskId: string): boolean => {
 const getTaskDueDate = (task: EntuTask): string | null => {
   const deadline = getTaskDeadline(task)
   if (deadline) {
-    return deadline.toLocaleDateString()
+    return formatDate(deadline, locale.value)
   }
   return null
 }
