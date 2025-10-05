@@ -363,10 +363,13 @@ localStorage.getItem("auth_redirect"); // → null
 
 ## Helper Scripts
 
+**IMPORTANT**: Copy these scripts into your **app's browser console** (not the test helper page).
+The test helper runs on `file://` origin and cannot access `localStorage` from `http://localhost:3000`.
+
 ### Check Token Status
 
 ```javascript
-// Run in browser console
+// Run in browser console (app tab at http://localhost:3000)
 function checkToken() {
   const token = localStorage.getItem("esm_token");
   if (!token) {
@@ -403,7 +406,7 @@ checkToken();
 ### Manually Expire Token
 
 ```javascript
-// Run in browser console
+// Run in browser console (app tab at http://localhost:3000)
 function expireToken() {
   const token = localStorage.getItem("esm_token");
   if (!token) {
@@ -441,7 +444,7 @@ expireToken();
 ### Check Auth Storage
 
 ```javascript
-// Run in browser console
+// Run in browser console (app tab at http://localhost:3000)
 function checkAuthStorage() {
   console.log("=== Auth Storage ===");
   console.log(
@@ -495,8 +498,6 @@ checkAuthStorage();
 
 ### Network vs Auth Errors
 
-### Network vs Auth Errors
-
 - Network errors show "Proovi uuesti" (Try again)
 - Auth errors redirect to login
 - **Do not confuse these two!**
@@ -509,23 +510,27 @@ checkAuthStorage();
 ### ~~500 Error: useI18n() in Middleware~~ ✅ **FIXED**
 
 **Issue**: (Discovered during testing - October 5, 2025)
+
 - Initial implementation used `useI18n()` in `notifySessionExpired()` and `notifyAuthRequired()`
 - These functions are called from middleware context
 - `useI18n()` can only be called in component setup functions
 - Result: 500 error: "Must be called at the top of a `setup` function"
 
 **Fix**: (Commit: 1918cf0)
+
 - Changed to `useNuxtApp().$i18n` instead of `useI18n()`
 - `$i18n` is available in all Nuxt contexts (middleware, composables, plugins)
 - Same translation functionality, different API
 - Notifications now work correctly from middleware
 
 **Impact**:
+
 - ✅ No more 500 errors on token expiry
 - ✅ Notifications work in middleware context
 - ✅ i18n translations still work (et, en, uk)
 
 ---
+
 - Test both scenarios separately
 
 ---
@@ -550,16 +555,12 @@ If you find issues during testing, use this template:
 
 **Expected Behavior**:
 
--
+- **Actual Behavior**:
 
-**Actual Behavior**:
+- **Screenshots/Console Logs**:
+  [Paste here]
 
--
-
-**Screenshots/Console Logs**:
-[Paste here]
-
-**Auth Storage State**:
+  **Auth Storage State**:
 
 - Token: [present/missing]
 - User: [present/missing]
