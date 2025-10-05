@@ -61,29 +61,28 @@ We should look after:
 
 ## 🔍 Discovered During F025 (Expired Token Handling)
 
-### 14. **auth.js Middleware Should Be Migrated to TypeScript**
+### ~~14. **auth.js Middleware Should Be Migrated to TypeScript**~~ ✅ **RESOLVED**
 
-- **File**: `app/middleware/auth.js`
-- **Issue**: Only remaining JavaScript file in middleware (auth.js vs auth.ts)
-- **Observation**: Uses TypeScript imports but defined as .js file
-- **Impact**:
-  - No type checking for middleware logic
-  - Inconsistent with rest of codebase (100% TS composables/components)
-  - New F025 code (token validation, notifications) all TypeScript
-- **Action**: Migrate `auth.js` → `auth.ts` for consistency
-- **Benefits**:
-  - Type-safe route navigation
-  - Proper typing for `to`, `from` parameters
-  - TypeScript validation for localStorage operations
-  - Better IDE autocomplete
-- **Priority**: MEDIUM (technical debt, already working correctly)
-- **Estimated effort**: ~15 minutes
+- **File**: ~~`app/middleware/auth.js`~~ → **Migrated to `auth.ts`** (October 5, 2025)
+- **Issue**: Only remaining JavaScript file in middleware
+- **Resolution**: Migrated to TypeScript with proper route parameter types
+- **Changes**:
+  - Added `RouteLocationNormalized` type for `to`, `from` parameters
+  - Added explicit imports for all auth utility functions
+  - Added comprehensive JSDoc comments explaining auth flow
+  - Improved documentation with F025 references
+- **Benefits achieved**:
+  - ✅ Type-safe route navigation
+  - ✅ Proper typing for localStorage operations
+  - ✅ Better IDE autocomplete
+  - ✅ **100% TypeScript middleware coverage** (matches composables/components)
+- **Action**: ✅ **COMPLETED** - Consistent TypeScript across entire codebase!
 
 ### 15. **Duplicate Token Expiry Checking Logic**
 
 - **Files**:
   - `app/utils/token-validation.ts` - Has `isTokenExpired()` with buffer
-  - `app/middleware/auth.js` - Calls `isTokenExpired(token)` once
+  - `app/middleware/auth.ts` - Calls `isTokenExpired(token)` once
   - `app/composables/useEntuApi.ts` - Has refresh token logic with expiry check
 - **Observation**: Two different approaches to token refresh:
   1. Middleware: Proactive check before route load (NEW in F025)
