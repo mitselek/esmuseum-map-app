@@ -3,6 +3,14 @@
 **Created**: October 3, 2025  
 **Purpose**: Track potential improvements discovered during refactoring
 
+We should look after:
+
+- Reducing magic strings in the codebase
+- Eliminating excessive debug logging
+- Duplicate or suspiciously similar code patterns
+- Redundant or unnecessary code
+- Investigating complex logic
+
 ---
 
 ## 🔍 Discovered During Phase 1 (Magic Strings & Event Logs)
