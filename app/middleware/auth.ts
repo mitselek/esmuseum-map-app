@@ -19,6 +19,7 @@ import type { RouteLocationNormalized } from 'vue-router'
 import { isTokenExpired } from '~/utils/token-validation'
 import { notifySessionExpired } from '~/composables/useNotifications'
 import { getStoredAuth, isClientAuthenticated, rememberRedirect } from '~/utils/auth-check.client'
+import { useEntuAuth } from '~/composables/useEntuAuth'
 
 export default defineNuxtRouteMiddleware((to: RouteLocationNormalized, from: RouteLocationNormalized) => {
   // 🔍 EVENT TRACKING: Auth middleware start
@@ -52,13 +53,11 @@ export default defineNuxtRouteMiddleware((to: RouteLocationNormalized, from: Rou
   if (token && isTokenExpired(token)) {
     console.warn('🔒 [EVENT] auth middleware - Token expired, clearing and redirecting')
 
-    // Clear ALL auth-related data from storage
+    // Use composable's logout() to properly clear reactive state + localStorage
     if (import.meta.client) {
-      localStorage.removeItem('esm_token')
-      localStorage.removeItem('esm_user')
-      localStorage.removeItem('esm_auth_response')  // Prevent "already logged in" message on login page
-      localStorage.removeItem('esm_token_expiry')   // Clean up expiry timestamp
-
+      const { logout } = useEntuAuth()
+      logout()  // Clears all reactive refs AND localStorage items
+      
       // Remember where user was trying to go
       rememberRedirect(to.fullPath)
       console.log('🔒 [EVENT] auth middleware - Cleared expired auth, stored redirect:', to.fullPath)
