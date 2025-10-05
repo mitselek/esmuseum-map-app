@@ -59,6 +59,140 @@ We should look after:
 
 ---
 
+## 🔍 Discovered During F025 (Expired Token Handling)
+
+### 14. **auth.js Middleware Should Be Migrated to TypeScript**
+
+- **File**: `app/middleware/auth.js`
+- **Issue**: Only remaining JavaScript file in middleware (auth.js vs auth.ts)
+- **Observation**: Uses TypeScript imports but defined as .js file
+- **Impact**:
+  - No type checking for middleware logic
+  - Inconsistent with rest of codebase (100% TS composables/components)
+  - New F025 code (token validation, notifications) all TypeScript
+- **Action**: Migrate `auth.js` → `auth.ts` for consistency
+- **Benefits**:
+  - Type-safe route navigation
+  - Proper typing for `to`, `from` parameters
+  - TypeScript validation for localStorage operations
+  - Better IDE autocomplete
+- **Priority**: MEDIUM (technical debt, already working correctly)
+- **Estimated effort**: ~15 minutes
+
+### 15. **Duplicate Token Expiry Checking Logic**
+
+- **Files**:
+  - `app/utils/token-validation.ts` - Has `isTokenExpired()` with buffer
+  - `app/middleware/auth.js` - Calls `isTokenExpired(token)` once
+  - `app/composables/useEntuApi.ts` - Has refresh token logic with expiry check
+- **Observation**: Two different approaches to token refresh:
+  1. Middleware: Proactive check before route load (NEW in F025)
+  2. useEntuApi: Reactive check after 401 response (existing)
+- **Question**: Is both proactive + reactive checking needed?
+- **Analysis**:
+  - **Proactive** (middleware): Prevents bad API calls, better UX, catches expired tokens on tab restore
+  - **Reactive** (API): Handles mid-request expiry, token refresh with temporary key
+  - **Verdict**: Both are valuable - different use cases
+- **Potential optimization**: Could middleware set a flag to skip API-level check?
+- **Action**: Monitor in production - might be defensive duplication (good) or unnecessary overhead (bad)
+- **Priority**: LOW (wait for real-world data)
+
+### 16. **Error Handling: Magic Status Codes**
+
+- **File**: `app/utils/error-handling.ts`
+- **Issue**: Status codes (401, 403, 500, etc.) are magic numbers
+- **Observation**: Multiple conditions checking `statusCode === 401`, `statusCode >= 500`
+- **Action**: Consider HTTP status code constants
+- **Example**:
+
+  ```typescript
+  const HTTP_STATUS = {
+    UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    SERVER_ERROR: 500,
+  } as const;
+  ```
+
+- **Benefits**:
+  - More readable: `statusCode === HTTP_STATUS.UNAUTHORIZED`
+  - Self-documenting code
+  - Easier to maintain
+- **Priority**: LOW (code works, marginal readability improvement)
+
+### 17. **Notification Durations: Magic Numbers**
+
+- **File**: `app/composables/useNotifications.ts`
+- **Issue**: Hardcoded durations (4000, 4500, 5000 ms) without explanation
+- **Observation**:
+  - Success: 4000ms
+  - Info: 4000ms
+  - Warning: 4500ms
+  - Error: 5000ms
+  - Session expired: 5000ms
+- **Question**: Why these specific durations? Should they be configurable?
+- **Action**: Consider extracting to constants with comments explaining rationale
+- **Example**:
+
+  ```typescript
+  const NOTIFICATION_DURATION = {
+    SHORT: 3000, // Quick success messages
+    NORMAL: 4000, // Standard notifications
+    IMPORTANT: 5000, // Errors requiring attention
+    CRITICAL: 6000, // Must be acknowledged
+  } as const;
+  ```
+
+- **Priority**: LOW (works fine, minor maintainability improvement)
+
+### 18. **Event Logging Still Present in Middleware** ⚠️
+
+- **File**: `app/middleware/auth.js`
+- **Issue**: 6 console.log statements with 🔒 [EVENT] markers
+- **Observation**: We removed many event logs during Phase 1, but middleware still has verbose logging
+- **Logs**:
+  1. "Auth middleware start" with full route details
+  2. "Skipped (SSR)"
+  3. "Auth check" with token/user details
+  4. "Not authenticated"
+  5. "Token expired"
+  6. "Authenticated, proceeding"
+- **Question**: Are these still needed now that F025 notifications provide user feedback?
+- **Analysis**:
+  - Pro keeping: Helps debug auth flow issues
+  - Pro removing: Cleaner console, most info now in notifications
+  - Middle ground: Keep only error/warning logs, remove verbose success logs
+- **Action**: Review if all 6 logs still needed or if can trim to critical errors only
+- **Priority**: LOW (same decision as Phase 1 - useful for debugging)
+
+### 19. **i18n Translation Keys Could Use Namespacing**
+
+- **File**: `.config/i18n.config.ts`
+- **Observation**: F025 added translations:
+  - `auth.sessionExpired`
+  - `auth.sessionExpiredMessage`
+  - `auth.authRequired`
+  - `auth.authRequiredMessage`
+- **Pattern**: `{domain}.{key}` and `{domain}.{key}Message` pairs
+- **Alternative approach**:
+
+  ```typescript
+  auth: {
+    errors: {
+      sessionExpired: {
+        title: "Session Expired",
+        message: "Please log in again"
+      }
+    }
+  }
+  ```
+
+- **Benefits**: Clearer structure, grouped related translations
+- **Drawbacks**: More verbose access, breaking change
+- **Priority**: VERY LOW (cosmetic, would require refactor)
+
+---
+
 ## 🔍 Newly Discovered Opportunities (October 3, 2025 - Component Migration Phase)
 
 ### 11. **Code Duplication: TaskLocationOverride vs TaskMapCard**
@@ -115,7 +249,7 @@ We should look after:
   - Lesson: Look for similar patterns during migrations
 - **Event tracking logs cleaned** (useTaskWorkspace, useTaskDetail, index.vue)
   - Removed redundant 🎯 task selection logs
-  - Removed 🔐 permission check logs  
+  - Removed 🔐 permission check logs
   - Removed 🚀 page init logs from some components
 
 **Impact**: Cleaner console, centralized constants, bug fixes
@@ -208,14 +342,14 @@ We should look after:
 
 ### Critical Bug Fixes (Post Phase 3)
 
-- **Issue**: Phase 3 migration introduced bug where user._id was set to empty string
+- **Issue**: Phase 3 migration introduced bug where user.\_id was set to empty string
 - **Symptom**: "No user ID available for loading tasks" - tasks not loading
 - **Root Cause**: `newUser._id` initialized as empty string instead of checking data structure
-- **Fix 1**: Try to get _id from `data.user._id` first, then from `accounts[0].user._id`
-- **Fix 2**: Only set `user.value` if _id is valid (not empty)
+- **Fix 1**: Try to get \_id from `data.user._id` first, then from `accounts[0].user._id`
+- **Fix 2**: Only set `user.value` if \_id is valid (not empty)
 - **Fix 3**: Added migration code to auto-fix broken localStorage on app load
 - **Migration Logic**:
-  - Check if stored user has empty _id
+  - Check if stored user has empty \_id
   - Try to recover from stored authResponse
   - If recovery fails, clear auth and force re-login
 - **Additional Fixes**:
@@ -445,12 +579,12 @@ We should look after:
   - useEntuOAuth, useEntuApi, useClientSideFileUpload, useLocation
   - useCompletedTasks, useTaskWorkspace updated
 - **Components migrated**: **18 of 18 (100%)** ✅
-  - All app/components/*.vue have lang="ts"
+  - All app/components/\*.vue have lang="ts"
   - Zero components remaining
 - **Lines migrated**: ~2,089 JS → ~2,660 TS (+571 for interfaces, +27%)
 - **Type safety**: ~20% → **100% of composables AND components** 🎉
 - **Magic strings eliminated**: 25+
-- **Critical bugs fixed**: 3 (variable naming, user._id, OAuth login error)
+- **Critical bugs fixed**: 3 (variable naming, user.\_id, OAuth login error)
 - **'as any' casts**: Minimal (only at JS boundaries and type compatibility edges)
 - **Dead code removed**: 73 lines (useEntuAdminAuth.js + auth simplifications)
 - **UX improvements**: Login page redesign (1-click providers)
@@ -475,7 +609,7 @@ We should look after:
 - **Lines migrated**: ~2,089 JS → ~2,660 TS (+571 for interfaces, +27%)
 - **Type safety**: ~20% → **100% of composables** 🎉
 - **Magic strings eliminated**: 25+
-- **Critical bugs fixed**: 3 (variable naming, user._id, OAuth login error)
+- **Critical bugs fixed**: 3 (variable naming, user.\_id, OAuth login error)
 - **'as any' casts**: Net 0 (removed 4, added 4 for JS boundaries only)
 - **Dead code removed**: 73 lines (useEntuAdminAuth.js + auth simplifications)
 - **UX improvements**: Login page redesign (1-click providers)
