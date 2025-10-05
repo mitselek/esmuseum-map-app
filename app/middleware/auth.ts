@@ -52,10 +52,12 @@ export default defineNuxtRouteMiddleware((to: RouteLocationNormalized, from: Rou
   if (token && isTokenExpired(token)) {
     console.warn('🔒 [EVENT] auth middleware - Token expired, clearing and redirecting')
 
-    // Clear expired token from storage
+    // Clear ALL auth-related data from storage
     if (import.meta.client) {
       localStorage.removeItem('esm_token')
       localStorage.removeItem('esm_user')
+      localStorage.removeItem('esm_auth_response')  // Prevent "already logged in" message on login page
+      localStorage.removeItem('esm_token_expiry')   // Clean up expiry timestamp
 
       // Remember where user was trying to go
       rememberRedirect(to.fullPath)
