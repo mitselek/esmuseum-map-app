@@ -1,8 +1,26 @@
-// Middleware for authentication using Entu OAuth
+/**
+ * Authentication Middleware
+ *
+ * Protects routes by checking if user is authenticated via Entu OAuth.
+ * Performs proactive token expiry validation to prevent API errors.
+ *
+ * Flow:
+ * 1. Skip check in SSR (localStorage not available)
+ * 2. Check if user has valid token and user data
+ * 3. Check if token is expired (with 60s buffer)
+ * 4. Redirect to login if not authenticated or token expired
+ * 5. Preserve destination URL for post-login redirect
+ *
+ * @see app/utils/token-validation.ts - Token expiry checking
+ * @see app/utils/auth-check.client.ts - Auth state helpers
+ */
+
+import type { RouteLocationNormalized } from 'vue-router'
 import { isTokenExpired } from '~/utils/token-validation'
 import { notifySessionExpired } from '~/composables/useNotifications'
+import { getStoredAuth, isClientAuthenticated, rememberRedirect } from '~/utils/auth-check.client'
 
-export default defineNuxtRouteMiddleware((to, from) => {
+export default defineNuxtRouteMiddleware((to: RouteLocationNormalized, from: RouteLocationNormalized) => {
   // 🔍 EVENT TRACKING: Auth middleware start
   console.log('🔒 [EVENT] auth middleware - Started', {
     timestamp: new Date().toISOString(),
@@ -39,7 +57,9 @@ export default defineNuxtRouteMiddleware((to, from) => {
     return navigateTo('/login')
   }
 
-  // NEW: Check if token is expired (proactive validation)
+  // Proactive token expiry validation (added in F025)
+  // Check if token is expired before allowing route access
+  // This prevents API errors and provides better UX with notifications
   if (token && isTokenExpired(token)) {
     console.warn('🔒 [EVENT] auth middleware - Token expired, clearing and redirecting')
 
@@ -52,7 +72,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
       rememberRedirect(to.fullPath)
       console.log('🔒 [EVENT] auth middleware - Cleared expired auth, stored redirect:', to.fullPath)
 
-      // Show notification
+      // Show notification to user (Naive UI discrete API)
       notifySessionExpired()
     }
 
