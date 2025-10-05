@@ -507,7 +507,7 @@ checkAuthStorage();
 
 ## Fixed Issues
 
-### ~~500 Error: useI18n() in Middleware~~ ✅ **FIXED**
+### ~~Bug #1: 500 Error - useI18n() in Middleware~~ ✅ **FIXED**
 
 **Issue**: (Discovered during testing - October 5, 2025)
 
@@ -528,6 +528,40 @@ checkAuthStorage();
 - ✅ No more 500 errors on token expiry
 - ✅ Notifications work in middleware context
 - ✅ i18n translations still work (et, en, uk)
+
+---
+
+### ~~Bug #4: Confusing "Already Logged In" Message~~ ✅ **FIXED**
+
+**Issue**: (Discovered during testing - October 6, 2025)
+
+- After token expiry, login page showed green "Sa oled juba sisse logitud" (You are already logged in) message
+- User had no valid token but page acted like they were authenticated
+- OAuth buttons were hidden, "Continue" button didn't work
+- Caused confusion: "I'm logged out, why does it say I'm logged in?"
+
+**Root Cause**:
+
+- Middleware correctly cleared `esm_token` and `esm_user` on expiry
+- BUT did not clear `esm_auth_response` and `esm_token_expiry`
+- Login page saw stale OAuth response data and thought user was authenticated
+- `useEntuAuth.isAuthenticated` only checks token + expiry timestamp, not actual validity
+
+**Fix**: (Commit: c3e14a8)
+
+- Middleware now clears **ALL 4** auth-related localStorage keys on token expiry:
+  - `esm_token` (was already cleared)
+  - `esm_user` (was already cleared)
+  - `esm_auth_response` (**NEW** - prevents stale OAuth data)
+  - `esm_token_expiry` (**NEW** - prevents stale expiry timestamp)
+- Complete auth state cleanup ensures login page shows correct UI
+
+**Impact**:
+
+- ✅ Login page now shows OAuth provider buttons after token expiry
+- ✅ No more confusing "already logged in" message with no valid token
+- ✅ Clean slate for re-authentication
+- ✅ Better UX consistency
 
 ---
 
