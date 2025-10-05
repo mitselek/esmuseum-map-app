@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F025 Token Testing Helper</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 { color: #333; margin-bottom: 10px; }
+    .subtitle { color: #666; margin-bottom: 30px; }
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 6px;
+      border-left: 4px solid #4CAF50;
+    }
+    .section h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      transition: background 0.2s;
+    }
+    button:hover { background: #45a049; }
+    button.danger { background: #f44336; }
+    button.danger:hover { background: #da190b; }
+    button.secondary { background: #2196F3; }
+    button.secondary:hover { background: #0b7dda; }
+    .output {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      margin-top: 15px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .status { 
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+    .status.valid { background: #4CAF50; color: white; }
+    .status.expired { background: #f44336; color: white; }
+    .status.warning { background: #ff9800; color: white; }
+    .status.none { background: #9e9e9e; color: white; }
+    .instructions {
+      background: #e3f2fd;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      border-left: 4px solid #2196F3;
+    }
+    .instructions p { margin-bottom: 10px; }
+    .instructions ul { margin-left: 20px; margin-top: 10px; }
+    .warning {
+      background: #fff3cd;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 15px;
+      border-left: 4px solid #ff9800;
+      color: #856404;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 F025 Token Testing Helper</h1>
+    <p class="subtitle">Interactive tool for testing expired token handling</p>
+
+    <div class="instructions">
+      <strong>📋 How to use:</strong>
+      <ol>
+        <li>Open your app in another tab: <strong>http://localhost:3000</strong></li>
+        <li>Login to the app</li>
+        <li>Return to this page and use the buttons below</li>
+        <li>Refresh the app tab to trigger middleware checks</li>
+      </ol>
+    </div>
+
+    <!-- Token Status Section -->
+    <div class="section">
+      <h2>1️⃣ Check Token Status</h2>
+      <p>View current token information from localStorage</p>
+      <button onclick="checkToken()">Check Token</button>
+      <button onclick="checkAllAuth()" class="secondary">Check All Auth Data</button>
+      <div id="token-output" class="output" style="display: none;"></div>
+    </div>
+
+    <!-- Expire Token Section -->
+    <div class="section">
+      <h2>2️⃣ Expire Token</h2>
+      <p>Manually set token expiry to the past for testing</p>
+      <button onclick="expireToken()" class="danger">Expire Token Now</button>
+      <button onclick="expireTokenSoon()" class="warning" style="background: #ff9800;">Expire in 30s</button>
+      <div id="expire-output" class="output" style="display: none;"></div>
+      <div class="warning">
+        ⚠️ After expiring token, <strong>refresh the app tab</strong> to trigger middleware check
+      </div>
+    </div>
+
+    <!-- Clear Auth Section -->
+    <div class="section">
+      <h2>3️⃣ Clear Authentication</h2>
+      <p>Remove all auth data from localStorage (simulates logout)</p>
+      <button onclick="clearAuth()" class="danger">Clear All Auth Data</button>
+      <div id="clear-output" class="output" style="display: none;"></div>
+    </div>
+
+    <!-- Test URLs Section -->
+    <div class="section">
+      <h2>4️⃣ Quick Test Links</h2>
+      <p>Open app pages in new tabs for testing</p>
+      <button onclick="openApp('/')">Open Home</button>
+      <button onclick="openApp('/login')">Open Login</button>
+      <button onclick="openApp('/auth/callback?jwt=test')">Open Callback</button>
+    </div>
+
+    <!-- Instructions -->
+    <div class="section">
+      <h2>📝 Test Scenarios</h2>
+      <ul>
+        <li><strong>Test 1:</strong> Click "Expire Token Now" → Refresh app → Should see notification + redirect</li>
+        <li><strong>Test 2:</strong> Click "Expire in 30s" → Wait → Navigate in app → Should catch expiry</li>
+        <li><strong>Test 3:</strong> Check token status before/after expiry</li>
+        <li><strong>Test 4:</strong> Clear auth → Try to access protected pages → Should redirect</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Use localStorage from same origin
+    const STORAGE_KEY_TOKEN = 'esm_token';
+    const STORAGE_KEY_USER = 'esm_user';
+    const STORAGE_KEY_REDIRECT = 'auth_redirect';
+
+    function log(elementId, message, isError = false) {
+      const output = document.getElementById(elementId);
+      output.style.display = 'block';
+      output.textContent = message;
+      if (isError) {
+        output.style.borderLeft = '4px solid #f44336';
+      } else {
+        output.style.borderLeft = '4px solid #4CAF50';
+      }
+    }
+
+    function checkToken() {
+      try {
+        const token = localStorage.getItem(STORAGE_KEY_TOKEN);
+        
+        if (!token) {
+          log('token-output', '❌ No token found in localStorage\n\nPlease login to the app first.', true);
+          return;
+        }
+
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+          log('token-output', '❌ Invalid token format\n\nExpected 3 parts (header.payload.signature)', true);
+          return;
+        }
+
+        const payload = JSON.parse(atob(parts[1]));
+        const exp = payload.exp * 1000;
+        const now = Date.now();
+        const remaining = exp - now;
+        const remainingSeconds = Math.floor(remaining / 1000);
+        const remainingMinutes = Math.floor(remainingSeconds / 60);
+
+        let status = '';
+        if (remaining < 0) {
+          status = '❌ EXPIRED';
+        } else if (remaining < 60000) {
+          status = '⚠️ EXPIRING SOON (< 60s buffer)';
+        } else {
+          status = '✅ VALID';
+        }
+
+        const output = `
+${status}
+
+📅 Expires at: ${new Date(exp).toLocaleString()}
+⏱️  Time remaining: ${remainingMinutes}m ${remainingSeconds % 60}s (${remainingSeconds}s total)
+👤 User: ${payload.user || 'N/A'}
+📌 Issued at: ${payload.iat ? new Date(payload.iat * 1000).toLocaleString() : 'N/A'}
+
+Token preview: ${token.substring(0, 30)}...${token.substring(token.length - 30)}
+        `.trim();
+
+        log('token-output', output);
+      } catch (error) {
+        log('token-output', `❌ Error checking token:\n\n${error.message}`, true);
+      }
+    }
+
+    function checkAllAuth() {
+      try {
+        const token = localStorage.getItem(STORAGE_KEY_TOKEN);
+        const user = localStorage.getItem(STORAGE_KEY_USER);
+        const redirect = localStorage.getItem(STORAGE_KEY_REDIRECT);
+
+        let output = '=== Authentication Storage ===\n\n';
+
+        // Token
+        if (token) {
+          const parts = token.split('.');
+          const payload = JSON.parse(atob(parts[1]));
+          const exp = payload.exp * 1000;
+          const remaining = exp - Date.now();
+          const status = remaining > 60000 ? '✅ Valid' : remaining > 0 ? '⚠️ Expiring' : '❌ Expired';
+          output += `🔑 Token: ${status}\n`;
+          output += `   Length: ${token.length} chars\n`;
+          output += `   Expires: ${new Date(exp).toLocaleString()}\n\n`;
+        } else {
+          output += '🔑 Token: ❌ Missing\n\n';
+        }
+
+        // User
+        if (user) {
+          try {
+            const parsed = JSON.parse(user);
+            output += `👤 User: ✅ Present\n`;
+            output += `   ID: ${parsed._id || 'N/A'}\n`;
+            output += `   Name: ${parsed.name || 'N/A'}\n\n`;
+          } catch {
+            output += '👤 User: ⚠️ Present but corrupted\n\n';
+          }
+        } else {
+          output += '👤 User: ❌ Missing\n\n';
+        }
+
+        // Redirect
+        output += `🔄 Redirect path: ${redirect || 'None'}\n\n`;
+
+        // Other auth keys
+        const allKeys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.includes('auth') || key.includes('esm_'))) {
+            allKeys.push(key);
+          }
+        }
+        output += `📦 Auth-related keys: ${allKeys.join(', ') || 'None'}`;
+
+        log('token-output', output);
+      } catch (error) {
+        log('token-output', `❌ Error checking auth:\n\n${error.message}`, true);
+      }
+    }
+
+    function expireToken() {
+      try {
+        const token = localStorage.getItem(STORAGE_KEY_TOKEN);
+        
+        if (!token) {
+          log('expire-output', '❌ No token found\n\nPlease login first.', true);
+          return;
+        }
+
+        const parts = token.split('.');
+        const payload = JSON.parse(atob(parts[1]));
+        
+        // Set expiry to 2 minutes ago
+        payload.exp = Math.floor(Date.now() / 1000) - 120;
+        
+        // Re-encode (note: breaks signature, but client doesn't verify)
+        const newPayloadB64 = btoa(JSON.stringify(payload))
+          .replace(/=/g, '')
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_');
+        
+        const expiredToken = parts[0] + '.' + newPayloadB64 + '.' + parts[2];
+        localStorage.setItem(STORAGE_KEY_TOKEN, expiredToken);
+        
+        const output = `
+✅ Token manually expired!
+
+🕐 New expiry: ${new Date(payload.exp * 1000).toLocaleString()}
+⏱️  Status: EXPIRED (2 minutes ago)
+
+🔄 Next steps:
+1. Refresh the app tab (F5)
+2. Or navigate to any page
+3. Should see "Session Expired" notification
+4. Should redirect to /login
+5. Return URL should be preserved
+        `.trim();
+
+        log('expire-output', output);
+      } catch (error) {
+        log('expire-output', `❌ Error expiring token:\n\n${error.message}`, true);
+      }
+    }
+
+    function expireTokenSoon() {
+      try {
+        const token = localStorage.getItem(STORAGE_KEY_TOKEN);
+        
+        if (!token) {
+          log('expire-output', '❌ No token found\n\nPlease login first.', true);
+          return;
+        }
+
+        const parts = token.split('.');
+        const payload = JSON.parse(atob(parts[1]));
+        
+        // Set expiry to 30 seconds from now
+        payload.exp = Math.floor(Date.now() / 1000) + 30;
+        
+        const newPayloadB64 = btoa(JSON.stringify(payload))
+          .replace(/=/g, '')
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_');
+        
+        const expiredToken = parts[0] + '.' + newPayloadB64 + '.' + parts[2];
+        localStorage.setItem(STORAGE_KEY_TOKEN, expiredToken);
+        
+        const output = `
+✅ Token will expire in 30 seconds!
+
+🕐 New expiry: ${new Date(payload.exp * 1000).toLocaleString()}
+⏱️  Status: Valid for 30 seconds
+
+⚠️ Warning: Middleware uses 60s buffer, so it will be caught immediately!
+
+🔄 Next steps:
+1. Refresh or navigate in app NOW
+2. Should immediately see "Session Expired" 
+3. (Because 30s < 60s buffer)
+        `.trim();
+
+        log('expire-output', output);
+      } catch (error) {
+        log('expire-output', `❌ Error setting expiry:\n\n${error.message}`, true);
+      }
+    }
+
+    function clearAuth() {
+      try {
+        localStorage.removeItem(STORAGE_KEY_TOKEN);
+        localStorage.removeItem(STORAGE_KEY_USER);
+        localStorage.removeItem(STORAGE_KEY_REDIRECT);
+        
+        const output = `
+✅ All authentication data cleared!
+
+Removed:
+- esm_token
+- esm_user  
+- auth_redirect
+
+🔄 Next steps:
+1. Refresh the app tab
+2. Should redirect to /login (no notification, just redirect)
+3. Login again to continue testing
+        `.trim();
+
+        log('clear-output', output);
+      } catch (error) {
+        log('clear-output', `❌ Error clearing auth:\n\n${error.message}`, true);
+      }
+    }
+
+    function openApp(path) {
+      window.open(`http://localhost:3000${path}`, '_blank');
+    }
+
+    // Auto-check token on load if available
+    window.addEventListener('load', () => {
+      const token = localStorage.getItem(STORAGE_KEY_TOKEN);
+      if (token) {
+        checkToken();
+      }
+    });
+  </script>
+</body>
+</html>
