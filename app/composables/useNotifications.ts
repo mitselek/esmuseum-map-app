@@ -71,11 +71,13 @@ export const notifyInfo = (options: NotificationOptions | string) => {
  * called from middleware context where useI18n() is not available
  */
 export const notifySessionExpired = () => {
+  if (!import.meta.client) return
+  
   const { $i18n } = useNuxtApp()
   
   notifyWarning({
-    title: $i18n.t('auth.sessionExpired'),
-    content: $i18n.t('auth.sessionExpiredMessage'),
+    title: ($i18n as any).t('auth.sessionExpired'),
+    content: ($i18n as any).t('auth.sessionExpiredMessage'),
     duration: 5000
   })
 }
@@ -87,11 +89,13 @@ export const notifySessionExpired = () => {
  * called from middleware context where useI18n() is not available
  */
 export const notifyAuthRequired = () => {
+  if (!import.meta.client) return
+  
   const { $i18n } = useNuxtApp()
   
   notifyError({
-    title: $i18n.t('auth.authRequired'),
-    content: $i18n.t('auth.authRequiredMessage'),
+    title: ($i18n as any).t('auth.authRequired'),
+    content: ($i18n as any).t('auth.authRequiredMessage'),
     duration: 4000
   })
 }
