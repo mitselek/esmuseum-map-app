@@ -47,19 +47,8 @@ export default defineNuxtRouteMiddleware((to: RouteLocationNormalized, from: Rou
     isAuthenticated: isClientAuthenticated()
   })
 
-  // Check if user is authenticated
-  if (!isClientAuthenticated()) {
-    console.log('🔒 [EVENT] auth middleware - Not authenticated, redirecting to login')
-    if (import.meta.client) {
-      rememberRedirect(to.fullPath)
-      console.log('🔒 [EVENT] auth middleware - Stored redirect path:', to.fullPath)
-    }
-    return navigateTo('/login')
-  }
-
-  // Proactive token expiry validation (added in F025)
-  // Check if token is expired before allowing route access
-  // This prevents API errors and provides better UX with notifications
+  // IMPORTANT: Check token expiry FIRST, before authentication check
+  // This ensures expired tokens are always cleared, even if user data is missing
   if (token && isTokenExpired(token)) {
     console.warn('🔒 [EVENT] auth middleware - Token expired, clearing and redirecting')
 
@@ -76,6 +65,16 @@ export default defineNuxtRouteMiddleware((to: RouteLocationNormalized, from: Rou
       notifySessionExpired()
     }
 
+    return navigateTo('/login')
+  }
+
+  // Check if user is authenticated (both token AND user must exist)
+  if (!isClientAuthenticated()) {
+    console.log('🔒 [EVENT] auth middleware - Not authenticated, redirecting to login')
+    if (import.meta.client) {
+      rememberRedirect(to.fullPath)
+      console.log('🔒 [EVENT] auth middleware - Stored redirect path:', to.fullPath)
+    }
     return navigateTo('/login')
   }
 
