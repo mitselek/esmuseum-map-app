@@ -6,7 +6,8 @@ Fix the critical UX issue where returning users with expired tokens get stuck on
 
 ## Problem Statement
 
-**Current broken flow:**
+**Current broken flow:**  
+
 1. User closes browser/app with active session
 2. Token expires (time passes)
 3. User reopens browser → tab restores with URL like `/?task=68bab85d43e4daafab199988`
@@ -16,7 +17,8 @@ Fix the critical UX issue where returning users with expired tokens get stuck on
 7. Retry button doesn't help (token still expired)
 8. User is stuck - no clear path to login
 
-**Why this is critical:**
+**Why this is critical:**  
+
 - ❌ Affects EVERY returning user whose token expired
 - ❌ Confusing UX - retry button is misleading
 - ❌ No clear way to recover (user might give up)
@@ -43,29 +45,34 @@ Fix the critical UX issue where returning users with expired tokens get stuck on
 
 ### Functional Requirements
 
-**FR-1: Proactive Token Validation**
+**FR-1: Proactive Token Validation**  
+
 - Check token expiry in `auth.js` middleware BEFORE route loads
 - Validate token signature and expiration time
 - Don't allow expired tokens to reach API calls
 
-**FR-2: Automatic Login Redirect**
+**FR-2: Automatic Login Redirect**  
+
 - If token is expired/invalid, redirect to `/login`
 - Preserve original URL: `/login?redirect=/path/to/original/page`
 - After login, automatically navigate back to original destination
 
-**FR-3: User-Friendly Notifications**
+**FR-3: User-Friendly Notifications**  
+
 - Show notification: "Session expired, please log in again"
 - Use Naive UI's `useNotification()` for consistent styling
 - Auto-dismiss after 5 seconds
 - Don't block user interaction
 
-**FR-4: Smart Error Handling**
+**FR-4: Smart Error Handling**  
+
 - **Auth errors (401, 403)**: Redirect to login immediately
 - **Network errors (500, timeout)**: Show retry button
 - **Other errors**: Show generic error with retry option
 - Remove "Proovi uuesti" button for auth errors
 
-**FR-5: Return URL Preservation**
+**FR-5: Return URL Preservation**  
+
 - Store original URL when redirecting to login
 - Support query parameters: `?task=123&filter=active`
 - Handle edge cases: login page itself, auth callback page
@@ -73,17 +80,20 @@ Fix the critical UX issue where returning users with expired tokens get stuck on
 
 ### Non-Functional Requirements
 
-**NFR-1: Performance**
+**NFR-1: Performance**  
+
 - Token validation should be fast (<5ms)
 - Don't add noticeable delay to page loads
 - Cache token expiry checks when possible
 
-**NFR-2: Security**
+**NFR-2: Security**  
+
 - Don't expose token details in URLs or logs
 - Clear expired tokens from localStorage
 - Validate token structure and signature
 
-**NFR-3: User Experience**
+**NFR-3: User Experience**  
+
 - Redirect should feel instant (<100ms)
 - Notification should be subtle but noticeable
 - No jarring page transitions
@@ -139,16 +149,16 @@ interface TokenPayload {
 
 const isTokenExpired = (token: string): boolean => {
   if (!token) return true;
-  
+
   try {
     // Decode JWT without verification (we just need expiry)
-    const payload = JSON.parse(atob(token.split('.')[1])) as TokenPayload;
+    const payload = JSON.parse(atob(token.split(".")[1])) as TokenPayload;
     const now = Math.floor(Date.now() / 1000);
-    
+
     // Add 60s buffer to prevent edge cases
-    return payload.exp < (now + 60);
+    return payload.exp < now + 60;
   } catch (error) {
-    console.error('Invalid token format:', error);
+    console.error("Invalid token format:", error);
     return true; // Treat malformed tokens as expired
   }
 };
@@ -156,24 +166,24 @@ const isTokenExpired = (token: string): boolean => {
 // In middleware
 export default defineNuxtRouteMiddleware((to, from) => {
   // Skip for public routes
-  if (to.path === '/login' || to.path.startsWith('/auth/')) {
+  if (to.path === "/login" || to.path.startsWith("/auth/")) {
     return;
   }
-  
-  const token = localStorage.getItem('entuAccessToken');
-  
+
+  const token = localStorage.getItem("entuAccessToken");
+
   if (!token || isTokenExpired(token)) {
     // Clear expired token
-    localStorage.removeItem('entuAccessToken');
-    
+    localStorage.removeItem("entuAccessToken");
+
     // Show notification
     const notification = useNotification();
     notification.warning({
-      title: 'Session Expired',
-      content: 'Please log in again',
-      duration: 5000
+      title: "Session Expired",
+      content: "Please log in again",
+      duration: 5000,
     });
-    
+
     // Redirect to login with return URL
     const returnUrl = to.fullPath;
     return navigateTo(`/login?redirect=${encodeURIComponent(returnUrl)}`);
@@ -188,30 +198,30 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
 export const handleApiError = (error: any, context: string) => {
   const statusCode = error.response?.status || error.statusCode;
-  
+
   // Auth errors - redirect to login
   if (statusCode === 401 || statusCode === 403) {
     const notification = useNotification();
     notification.error({
-      title: 'Authentication Required',
-      content: 'Redirecting to login...',
-      duration: 3000
+      title: "Authentication Required",
+      content: "Redirecting to login...",
+      duration: 3000,
     });
-    
+
     // Clear token and redirect
-    localStorage.removeItem('entuAccessToken');
+    localStorage.removeItem("entuAccessToken");
     const router = useRouter();
     const route = useRoute();
     router.push(`/login?redirect=${encodeURIComponent(route.fullPath)}`);
-    
+
     return { shouldRetry: false, redirected: true };
   }
-  
+
   // Network errors - allow retry
   if (statusCode >= 500 || !statusCode) {
     return { shouldRetry: true, redirected: false };
   }
-  
+
   // Other errors - show generic message
   return { shouldRetry: false, redirected: false };
 };
@@ -227,11 +237,11 @@ const router = useRouter();
 
 const redirectAfterLogin = () => {
   const redirectUrl = route.query.redirect as string;
-  
-  if (redirectUrl && redirectUrl !== '/login') {
+
+  if (redirectUrl && redirectUrl !== "/login") {
     router.push(redirectUrl);
   } else {
-    router.push('/');
+    router.push("/");
   }
 };
 
@@ -288,7 +298,8 @@ onAuthenticated(() => {
 
 ### Manual Testing Scenarios
 
-**Test 1: Expired Token on Desktop**
+**Test 1: Expired Token on Desktop**  
+
 1. Log in to app
 2. Open DevTools → Application → Local Storage
 3. Manually set token expiry to past date (modify JWT payload)
@@ -296,7 +307,8 @@ onAuthenticated(() => {
 5. ✅ Should redirect to login with notification
 6. ✅ After login, should return to original page
 
-**Test 2: Expired Token on Mobile**
+**Test 2: Expired Token on Mobile**  
+
 1. Log in on mobile
 2. Wait for token to expire naturally (or force expire)
 3. Reopen browser tab
@@ -304,14 +316,16 @@ onAuthenticated(() => {
 5. ✅ Should NOT show "Proovi uuesti" button
 6. ✅ After login, should return to original task
 
-**Test 3: Tab Restore with Query Parameters**
+**Test 3: Tab Restore with Query Parameters**  
+
 1. Open URL: `/?task=68bab85d43e4daafab199988`
 2. Let token expire
 3. Restore tab
 4. ✅ Should redirect to `/login?redirect=%2F%3Ftask%3D68bab85d43e4daafab199988`
 5. ✅ After login, should load task 68bab85d
 
-**Test 4: Network Error (Not Auth Error)**
+**Test 4: Network Error (Not Auth Error)**  
+
 1. Log in with valid token
 2. Disconnect internet / block API
 3. Try to load tasks
@@ -319,7 +333,8 @@ onAuthenticated(() => {
 5. ✅ Should NOT redirect to login
 6. ✅ Retry should work after reconnecting
 
-**Test 5: Auth Error During Session**
+**Test 5: Auth Error During Session**  
+
 1. Log in successfully
 2. Admin revokes token on server side
 3. Try to perform action
@@ -376,22 +391,26 @@ onAuthenticated(() => {
 
 ### Phase 2 (Future)
 
-1. **Token Refresh Mechanism**
+1. **Token Refresh Mechanism**  
+
    - Automatically refresh tokens before expiry
    - Background refresh without user interaction
    - Extend session for active users
 
-2. **Remember Me / Longer Tokens**
+2. **Remember Me / Longer Tokens**  
+
    - Optional "keep me logged in" checkbox
    - Issue longer-lived refresh tokens
    - Balance security vs convenience
 
-3. **Multi-Tab Sync**
+3. **Multi-Tab Sync**  
+
    - Sync logout across all open tabs
    - Use BroadcastChannel API or localStorage events
    - Clear all tabs when token expires
 
-4. **Offline Support**
+4. **Offline Support**  
+
    - Cache last known auth state
    - Queue actions when offline
    - Retry queue after reconnection
