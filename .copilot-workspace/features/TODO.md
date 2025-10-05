@@ -23,3 +23,49 @@
   - iOS GPS flow tested and working (3 Safari scenarios verified)
   - Complete documentation: `.copilot-workspace/features/F022-COMPOSABLE-MIGRATION.md`
   - **Status**: ✅ **READY TO MERGE TO MAIN** 🚀
+- [ ] **Investigate `/auth/callback` redirect behavior**
+  - Currently shows debug info (OAuth callback details, auth keys, "Authentication successful!")
+  - Shows "Suunamine..." (Redirecting...) but redirect appears slow/delayed
+  - Should either:
+    - Auto-redirect immediately after token storage (< 100ms, no visible page)
+    - Remove debug info display for production
+    - Add proper loading spinner/animation instead of static text
+  - Consider if this debug page is necessary or if callback should be invisible to users
+- [ ] **Fix expired token handling on browser tab restore**
+  - **Symptom**: Browser restores tabs with URLs like `/?task=68bab85d43e4daafab199988`, app gets stuck with 401 errors
+  - **Additional symptom**: On mobile (screenshot), user sees "Ülesanded" page with "API error: 403 Forbidden" and "Proovi uuesti" (Try again) button
+  - **Current behavior**:
+    - `useEntuAuth.ts:294` logs "Token expired or refresh forced - user needs to re-authenticate via OAuth"
+    - `callApi` throws 401 errors: `API error: 401`
+    - Mobile shows 403 Forbidden error with retry button (doesn't help - still expired token)
+    - App continues loading (GPS works, map loads) but task loading fails silently
+    - No automatic redirect to login page
+  - **Expected behavior**:
+    - Detect expired token before making API calls
+    - Automatically redirect to `/login` with return URL preserved
+    - Show user-friendly message: "Session expired, please log in again"
+    - Don't show "Proovi uuesti" button if token is expired (it won't work)
+  - **Root cause**: Token expiry check happens during API call, not during auth middleware
+  - **Suggested fix**:
+    - Add token expiry validation in `auth.js` middleware (check before route loads)
+    - Implement automatic redirect to login with `?redirect=` query parameter
+    - Add user-friendly notification using Naive UI's `useNotification()` (already installed)
+    - Update error handling to distinguish between network errors (retry makes sense) vs auth errors (redirect to login)
+    - Consider adding "remember me" / longer-lived refresh tokens
+- [ ] **Add long-press gesture to toggle map fullscreen mode**
+  - **Behavior**: User long-presses anywhere on the map → map enters/exits fullscreen
+  - **Implementation approach**:
+    - Use `@longpress` event on InteractiveMap component (VueUse `useLongPress` or custom implementation)
+    - Toggle fullscreen using Fullscreen API: `element.requestFullscreen()` / `document.exitFullscreen()`
+    - Fallback for iOS Safari: Use CSS fullscreen overlay (position: fixed, z-index: 9999) since iOS doesn't support Fullscreen API
+    - Add visual feedback during long-press (e.g., expanding circle animation, haptic feedback)
+    - Show subtle hint/icon when entering fullscreen: "Tap to exit fullscreen" (auto-hide after 2s)
+  - **UX considerations**:
+    - Long-press duration: ~500-700ms (not too sensitive, prevents accidental triggers)
+    - Don't trigger if user is dragging/panning the map
+    - Exit fullscreen on: long-press again, ESC key, or dedicated exit button
+    - Preserve map state (zoom, center, selected markers) when toggling fullscreen
+  - **Technical notes**:
+    - VueUse has `useFullscreen()` composable for easy implementation
+    - May need to handle Leaflet map resize: `map.invalidateSize()` after fullscreen change
+    - Consider mobile-specific behaviors (hide browser chrome, handle safe areas)
