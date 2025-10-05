@@ -15,6 +15,13 @@ export default defineI18nConfig(() => ({
       user: "Kasutaja",
       loginMethod: "Sisselogimise meetod",
       oauthMethod: "OAuth autentimine",
+      // Authentication notifications
+      auth: {
+        sessionExpired: "Sessioon aegunud",
+        sessionExpiredMessage: "Palun logi uuesti sisse",
+        authRequired: "Autentimine vajalik",
+        authRequiredMessage: "Suuname sisselogimislehele...",
+      },
       // Common
       common: {
         noData: "Andmed puuduvad",
@@ -138,6 +145,13 @@ export default defineI18nConfig(() => ({
       user: "User",
       loginMethod: "Login Method",
       oauthMethod: "OAuth Authentication",
+      // Authentication notifications
+      auth: {
+        sessionExpired: "Session Expired",
+        sessionExpiredMessage: "Please log in again",
+        authRequired: "Authentication Required",
+        authRequiredMessage: "Redirecting to login...",
+      },
       // Common
       common: {
         noData: "No data",
@@ -267,6 +281,13 @@ export default defineI18nConfig(() => ({
       user: "Користувач",
       loginMethod: "Метод входу",
       oauthMethod: "OAuth автентифікація",
+      // Authentication notifications
+      auth: {
+        sessionExpired: "Сесія закінчилася",
+        sessionExpiredMessage: "Будь ласка, увійдіть знову",
+        authRequired: "Потрібна автентифікація",
+        authRequiredMessage: "Перенаправлення на сторінку входу...",
+      },
       // Common
       common: {
         noData: "Немає даних",
