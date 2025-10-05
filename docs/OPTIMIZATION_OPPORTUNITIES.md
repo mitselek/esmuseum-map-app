@@ -13,7 +13,22 @@ We should look after:
 
 ---
 
-## 🔍 Discovered During Phase 1 (Magic Strings & Event Logs)
+## � Bugs Discovered During F025 Testing (October 5-6, 2025)
+
+**Feature**: F025 - Expired Token Handling  
+**Testing Phase**: Manual desktop testing  
+**Bugs Found**: 4 critical issues discovered and fixed
+
+1. **Bug #1**: 500 Error - `useI18n()` in middleware context ✅ Fixed (1918cf0)
+2. **Bug #2**: Redirect loop - middleware check order ✅ Fixed (23f8966)
+3. **Bug #3**: Translation keys showing instead of text ✅ Fixed (type cast)
+4. **Bug #4**: "Already logged in" message with no valid token ✅ Fixed (c3e14a8)
+
+**Result**: All bugs fixed during testing, F025 is production-ready
+
+---
+
+## �🔍 Discovered During Phase 1 (Magic Strings & Event Logs)
 
 ### 1. **EventDebugPanel.vue is NEEDED (not obsolete)**
 
