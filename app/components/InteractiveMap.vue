@@ -34,11 +34,10 @@
     <div
       v-else
       ref="mapContainer"
-      class="relative size-full select-none"
+      class="relative size-full"
       :class="{
         'fixed inset-0 z-[9999] h-screen w-screen bg-white': isCSSFullscreen,
       }"
-      @click="onMapContainerClick"
     >
       <!-- GPS transition overlay -->
       <div
@@ -57,16 +56,6 @@
           </p>
         </div>
       </div>
-
-      <!-- Exit fullscreen hint (auto-hides after 2s) -->
-      <Transition name="fade">
-        <div
-          v-if="showExitHintState && isInFullscreenMode"
-          class="pointer-events-none absolute left-1/2 top-5 z-[10000] -translate-x-1/2 rounded-full bg-black/80 px-6 py-3 text-sm text-white"
-        >
-          {{ $t("map.tapToExit") }}
-        </div>
-      </Transition>
 
       <LMap
         ref="map"
@@ -233,23 +222,6 @@ const emit = defineEmits<Emits>()
 const { formatCoordinates, getLocationName, getLocationDescription }
   = useLocation()
 
-// Detect touch device for conditional CSS and button visibility
-// Use multiple heuristics: actual touch capability + pointer type + screen size
-const isTouchDevice = computed(() => {
-  // Primary check: pointer type (coarse = touch, fine = mouse/trackpad)
-  const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches
-
-  // Secondary check: check if primary input is touch
-  const hasTouchScreen = 'ontouchstart' in window && navigator.maxTouchPoints > 0
-
-  // Tertiary check: mobile screen size as fallback
-  const isMobileSize = window.matchMedia('(max-width: 768px)').matches
-
-  // Desktop with touchscreen should NOT be treated as touch device
-  // Only true mobile/tablet devices
-  return hasCoarsePointer || (hasTouchScreen && isMobileSize)
-})
-
 // Map fullscreen composable refs
 const mapContainer = useTemplateRef('mapContainer')
 const leafletMapRef = computed(
@@ -258,21 +230,8 @@ const leafletMapRef = computed(
 const {
   isCSSFullscreen,
   isInFullscreenMode,
-  showExitHintState,
   toggle: toggleFullscreen
-} = useMapFullscreen(mapContainer, leafletMapRef as Ref<LeafletMap | null>, {
-  longPressDelay: 600,
-  distanceThreshold: 10,
-  autoHideHint: 2000
-})
-
-// Handle tap to exit fullscreen (iOS CSS fallback)
-const onMapContainerClick = async (event: MouseEvent): Promise<void> => {
-  // Only handle if in CSS fullscreen mode and tap is on the container (not map controls)
-  if (isCSSFullscreen.value && event.target === mapContainer.value) {
-    await toggleFullscreen()
-  }
-}
+} = useMapFullscreen(mapContainer, leafletMapRef as Ref<LeafletMap | null>)
 
 // Fix Leaflet icon issues in bundlers
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)
@@ -689,8 +648,8 @@ const onMapReady = async (): Promise<void> => {
       hasUserPosition: !!props.userPosition
     })
 
-    // Add custom fullscreen control to Leaflet controls (desktop only)
-    if (!isTouchDevice.value && map.value?.leafletObject) {
+    // Add custom fullscreen control to Leaflet controls (always visible)
+    if (map.value?.leafletObject) {
       const leafletMap = map.value.leafletObject
 
       // Create custom control

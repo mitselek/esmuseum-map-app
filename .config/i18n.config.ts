@@ -133,7 +133,6 @@ export default defineI18nConfig(() => ({
         loading: 'Kaardi laadimine...',
         yourLocation: 'Sinu asukoht',
         visited: 'Külastatud',
-        tapToExit: 'Puudutage ekraanist väljumiseks',
         enterFullscreen: 'Ava täisekraan',
         exitFullscreen: 'Sulge täisekraan'
       }
@@ -272,7 +271,6 @@ export default defineI18nConfig(() => ({
         loading: 'Loading map...',
         yourLocation: 'Your location',
         visited: 'Visited',
-        tapToExit: 'Tap to exit fullscreen',
         enterFullscreen: 'Enter fullscreen',
         exitFullscreen: 'Exit fullscreen'
       }
@@ -407,7 +405,6 @@ export default defineI18nConfig(() => ({
         loading: 'Завантаження карти...',
         yourLocation: 'Ваше місцезнаходження',
         visited: 'Відвідано',
-        tapToExit: 'Торкніться, щоб вийти з повноекранного режиму',
         enterFullscreen: 'Відкрити на весь екран',
         exitFullscreen: 'Вийти з повноекранного режиму'
       }
