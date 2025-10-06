@@ -13,7 +13,7 @@ Implement a scoring mechanism that displays user progress as "X of Y" where:
 
 The complete API structure is documented in:
 
-- **Sample request file**: `.copilot-docs/api-requests/entu task responses.http`
+- **Sample request file**: `docs/api-requests/entu task responses.http`
 - **Sample JSON structure**: `.copilot-workspace/model/vastus.sample.json`
 - **Task structure**: `.copilot-workspace/model/ulesanne.sample.json`
 

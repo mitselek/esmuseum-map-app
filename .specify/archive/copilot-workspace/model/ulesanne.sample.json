@@ -1,0 +1,96 @@
+{
+  "entity": {
+    "_id": "68bab85d43e4daafab199988",
+    "_parent": [
+      {
+        "_id": "68bab85d43e4daafab19998b",
+        "reference": "68691eb91749f351b9c82f68",
+        "property_type": "_parent",
+        "string": "Ülesanded",
+        "entity_type": "folder"
+      }
+    ],
+    "_sharing": [
+      {
+        "_id": "68baf58243e4daafab199a64",
+        "string": "domain"
+      }
+    ],
+    "_type": [
+      {
+        "_id": "68bab85d43e4daafab19998a",
+        "reference": "686917231749f351b9c82f4c",
+        "property_type": "_type",
+        "string": "ulesanne",
+        "entity_type": "entity"
+      }
+    ],
+    "name": [
+      {
+        "_id": "68bab85d43e4daafab199989",
+        "string": "proovikas"
+      }
+    ],
+    "kaart": [
+      {
+        "_id": "68bab8d343e4daafab199990",
+        "reference": "68823f8b5d95233e69c29a07",
+        "property_type": "kaart",
+        "string": "Peeter Suure Merekindlus",
+        "entity_type": "kaart"
+      }
+    ],
+    "grupp": [
+      {
+        "_id": "68bab90f43e4daafab199992",
+        "reference": "686a6c011749f351b9c83124",
+        "property_type": "grupp",
+        "string": "esimene klass",
+        "entity_type": "grupp"
+      }
+    ],
+    "vastuseid": [
+      {
+        "_id": "68bae03f43e4daafab199a48",
+        "number": 25
+      }
+    ],
+    "_expander": [
+      {
+        "_id": "68c570b385a9d472cca35b5d",
+        "reference": "66b6245c7efc9ac06a437b97",
+        "property_type": "_expander",
+        "string": "Mihkel Putrinš",
+        "entity_type": "person"
+      },
+      {
+        "_id": "68c9b19c85a9d472cca36738",
+        "reference": "66d97072f2daf46b3145403c",
+        "property_type": "_expander",
+        "string": "Eli Pilve",
+        "entity_type": "person"
+      },
+      {
+        "_id": "68d1292c85a9d472cca3798d",
+        "reference": "66e14d5b7c0f550903a6bb41",
+        "property_type": "_expander",
+        "string": "Hellar Lill",
+        "entity_type": "person"
+      },
+      {
+        "_id": "68d1292f85a9d472cca3798e",
+        "reference": "670b574bea86ab3572489b48",
+        "property_type": "_expander",
+        "string": "Jaak Pihlak",
+        "entity_type": "person"
+      },
+      {
+        "_id": "68bab85d43e4daafab19998c",
+        "reference": "66b6245c7efc9ac06a437ba0",
+        "property_type": "_owner",
+        "string": "esmuuseum",
+        "entity_type": "database"
+      }
+    ]
+  }
+}

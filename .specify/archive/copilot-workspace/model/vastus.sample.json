@@ -1,0 +1,75 @@
+{
+  "entity": {
+    "_id": "68c7331a85a9d472cca35ce9",
+    "asukoht": [
+      {
+        "_id": "68c7331a85a9d472cca35cea",
+        "reference": "688260755d95233e69c2a5e3",
+        "property_type": "asukoht",
+        "string": "AEGNA RAUDTEE",
+        "entity_type": "asukoht"
+      }
+    ],
+    "_parent": [
+      {
+        "_id": "68c7331a85a9d472cca35ced",
+        "reference": "68bab85d43e4daafab199988",
+        "property_type": "_parent",
+        "string": "proovikas",
+        "entity_type": "ulesanne"
+      }
+    ],
+    "_type": [
+      {
+        "_id": "68c7331a85a9d472cca35cee",
+        "reference": "686917401749f351b9c82f58",
+        "property_type": "_type",
+        "string": "vastus",
+        "entity_type": "entity"
+      }
+    ],
+    "_inheritrights": [
+      {
+        "_id": "68c7331a85a9d472cca35cf1",
+        "boolean": true
+      }
+    ],
+    "_owner": [
+      {
+        "_id": "686917231749f351b9c82f56",
+        "reference": "66b6245c7efc9ac06a437b97",
+        "property_type": "_owner",
+        "string": "Mihkel Putrinš",
+        "entity_type": "person",
+        "inherited": true
+      },
+      {
+        "_id": "68c7331b85a9d472cca35cf5",
+        "reference": "66b6245c7efc9ac06a437ba0",
+        "property_type": "_owner",
+        "string": "esmuuseum",
+        "entity_type": "database"
+      }
+    ],
+    "kirjeldus": [
+      {
+        "_id": "68c7332985a9d472cca35cf9",
+        "string": "näidis kirjeldus"
+      }
+    ],
+    "photo": [
+      {
+        "_id": "68c7334385a9d472cca35cfa",
+        "filename": "Kevin_Kohjus_265_10062025.jpg",
+        "filesize": 5578478,
+        "filetype": "image/jpeg"
+      }
+    ],
+    "geopunkt": [
+      {
+        "_id": "68c7335885a9d472cca35cfb",
+        "string": "24.45,64.56"
+      }
+    ]
+  }
+}
