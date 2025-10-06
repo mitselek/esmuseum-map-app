@@ -164,13 +164,13 @@ export const useEntuApi = (): UseEntuApiReturn => {
             const router = useRouter()
             const route = useRoute()
             handleAuthError(route.fullPath)
-            
+
             // Show notification
             notifyAuthRequired()
-            
+
             // Redirect to login
             router.push('/login')
-            
+
             throw new Error(`API error: ${retryResponse.status} ${retryResponse.statusText}`)
           }
 
@@ -181,12 +181,12 @@ export const useEntuApi = (): UseEntuApiReturn => {
         const router = useRouter()
         const route = useRoute()
         handleAuthError(route.fullPath)
-        
+
         // Show notification
         notifyAuthRequired()
-        
+
         router.push('/login')
-        
+
         throw new Error(`API error: ${response.status} ${response.statusText}`)
       }
 
@@ -201,22 +201,22 @@ export const useEntuApi = (): UseEntuApiReturn => {
       // Analyze error to determine type
       const errorAnalysis = analyzeApiError(err, `API call to ${endpoint}`)
       error.value = errorAnalysis.userMessage
-      
+
       // Log technical details
       console.error('Entu API error:', errorAnalysis.technicalMessage)
-      
+
       // If it's an auth error and we haven't already redirected, do it now
       if (errorAnalysis.shouldRedirectToLogin && import.meta.client) {
         const router = useRouter()
         const route = useRoute()
         handleAuthError(route.fullPath)
-        
+
         // Show notification
         notifyAuthRequired()
-        
+
         router.push('/login')
       }
-      
+
       throw err
     }
     finally {

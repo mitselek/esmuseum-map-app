@@ -1,6 +1,6 @@
 /**
  * Notification Composable
- * 
+ *
  * Provides a simple wrapper around Naive UI's notification system
  * with i18n support and consistent styling
  */
@@ -24,10 +24,10 @@ export interface NotificationOptions {
  * Show success notification
  */
 export const notifySuccess = (options: NotificationOptions | string) => {
-  const opts = typeof options === 'string' 
+  const opts = typeof options === 'string'
     ? { title: options, duration: 4000, closable: true }
     : { duration: 4000, closable: true, ...options }
-  
+
   notification.success(opts)
 }
 
@@ -38,7 +38,7 @@ export const notifyError = (options: NotificationOptions | string) => {
   const opts = typeof options === 'string'
     ? { title: options, duration: 5000, closable: true }
     : { duration: 5000, closable: true, ...options }
-  
+
   notification.error(opts)
 }
 
@@ -49,7 +49,7 @@ export const notifyWarning = (options: NotificationOptions | string) => {
   const opts = typeof options === 'string'
     ? { title: options, duration: 4500, closable: true }
     : { duration: 4500, closable: true, ...options }
-  
+
   notification.warning(opts)
 }
 
@@ -60,21 +60,21 @@ export const notifyInfo = (options: NotificationOptions | string) => {
   const opts = typeof options === 'string'
     ? { title: options, duration: 4000, closable: true }
     : { duration: 4000, closable: true, ...options }
-  
+
   notification.info(opts)
 }
 
 /**
  * Show session expired notification
- * 
+ *
  * Note: Uses useNuxtApp() instead of useI18n() because this can be
  * called from middleware context where useI18n() is not available
  */
 export const notifySessionExpired = () => {
   if (!import.meta.client) return
-  
+
   const { $i18n } = useNuxtApp()
-  
+
   notifyWarning({
     title: ($i18n as any).t('auth.sessionExpired'),
     content: ($i18n as any).t('auth.sessionExpiredMessage'),
@@ -84,15 +84,15 @@ export const notifySessionExpired = () => {
 
 /**
  * Show auth required notification
- * 
+ *
  * Note: Uses useNuxtApp() instead of useI18n() because this can be
  * called from middleware context where useI18n() is not available
  */
 export const notifyAuthRequired = () => {
   if (!import.meta.client) return
-  
+
   const { $i18n } = useNuxtApp()
-  
+
   notifyError({
     title: ($i18n as any).t('auth.authRequired'),
     content: ($i18n as any).t('auth.authRequiredMessage'),
@@ -103,7 +103,7 @@ export const notifyAuthRequired = () => {
 /**
  * Composable for notifications
  */
-export function useNotifications() {
+export function useNotifications () {
   return {
     success: notifySuccess,
     error: notifyError,

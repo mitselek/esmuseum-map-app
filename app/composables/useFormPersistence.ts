@@ -19,7 +19,7 @@ export interface FormData {
 
 export const useFormPersistence = (taskId: string) => {
   const { saveUserResponse, loadUserResponse } = useTaskWorkspace()
-  
+
   // Form state
   const formData = ref<FormData>({})
   const isDirty = ref(false)
@@ -34,7 +34,8 @@ export const useFormPersistence = (taskId: string) => {
       formData.value = { ...savedData }
       isDirty.value = false
       lastSaved.value = savedData.timestamp ? new Date(savedData.timestamp) : null
-    } else {
+    }
+    else {
       formData.value = {}
       isDirty.value = false
       lastSaved.value = null
@@ -46,19 +47,21 @@ export const useFormPersistence = (taskId: string) => {
     if (!isDirty.value && !immediate) return
 
     isSaving.value = true
-    
+
     try {
       const dataToSave: FormData = {
         ...formData.value,
         timestamp: Date.now()
       }
-      
+
       await saveUserResponse(taskId, dataToSave)
       isDirty.value = false
       lastSaved.value = new Date()
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Failed to save form data:', error)
-    } finally {
+    }
+    finally {
       isSaving.value = false
     }
   }
@@ -68,7 +71,7 @@ export const useFormPersistence = (taskId: string) => {
     if (autoSaveTimeout.value) {
       clearTimeout(autoSaveTimeout.value)
     }
-    
+
     autoSaveTimeout.value = setTimeout(() => {
       saveFormData()
     }, 2000) // Auto-save after 2 seconds of inactivity
@@ -102,12 +105,14 @@ export const useFormPersistence = (taskId: string) => {
       const now = new Date()
       const diffMs = now.getTime() - lastSaved.value.getTime()
       const diffMinutes = Math.floor(diffMs / (1000 * 60))
-      
+
       if (diffMinutes < 1) {
         return 'Saved just now'
-      } else if (diffMinutes === 1) {
+      }
+      else if (diffMinutes === 1) {
         return 'Saved 1 minute ago'
-      } else {
+      }
+      else {
         return `Saved ${diffMinutes} minutes ago`
       }
     }
@@ -139,7 +144,7 @@ export const useFormPersistence = (taskId: string) => {
     isSaving: readonly(isSaving),
     lastSaved: readonly(lastSaved),
     autoSaveStatus,
-    
+
     // Actions
     updateField,
     saveFormData,

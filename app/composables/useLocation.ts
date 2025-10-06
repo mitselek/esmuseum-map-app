@@ -63,8 +63,8 @@ interface LocationEntity {
   properties?: {
     name?: Array<{ value: string }>
     nimi?: Array<{ value: string }>
-    lat?: Array<{ value: number; number: number; string: string }>
-    long?: Array<{ value: number; number: number; string: string }>
+    lat?: Array<{ value: number, number: number, string: string }>
+    long?: Array<{ value: number, number: number, string: string }>
     description?: Array<{ value: string }>
     kirjeldus?: Array<{ value: string }>
   }
@@ -85,7 +85,7 @@ interface LocationWithDistance extends LocationEntity {
 /**
  * Map reference from task (can be string or object)
  */
-type MapReference = string | { reference?: string; _id?: string; id?: string } | null | undefined
+type MapReference = string | { reference?: string, _id?: string, id?: string } | null | undefined
 
 /**
  * Task with optional map reference
@@ -622,7 +622,7 @@ export const useLocation = (): UseLocationReturn => {
     if (location.nimi) {
       return location.nimi
     }
-    
+
     // Handle Entu array format
     return location.name?.[0]?.string
       || location.properties?.name?.[0]?.value
@@ -636,12 +636,12 @@ export const useLocation = (): UseLocationReturn => {
     if (typeof location.description === 'string') {
       return location.description
     }
-    
+
     // Handle Entu array format
     if (typeof location.kirjeldus === 'string') {
       return location.kirjeldus
     }
-    
+
     return location.kirjeldus?.[0]?.string
       || location.properties?.description?.[0]?.value
       || location.properties?.kirjeldus?.[0]?.value

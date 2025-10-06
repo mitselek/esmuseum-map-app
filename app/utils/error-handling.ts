@@ -1,6 +1,6 @@
 /**
  * API Error Handling Utilities
- * 
+ *
  * Provides centralized error handling logic to distinguish between
  * authentication errors (401/403) that require login redirect and
  * other errors (network, server) that can be retried.
@@ -25,7 +25,7 @@ export interface ErrorHandlingResult {
 
 /**
  * Analyze an error and determine appropriate handling
- * 
+ *
  * @param error - Error object or status code
  * @param context - Context where error occurred (for logging)
  * @returns Error handling guidance
@@ -45,10 +45,12 @@ export const analyzeApiError = (
     if (statusMatch && statusMatch[1]) {
       statusCode = parseInt(statusMatch[1], 10)
     }
-  } else if (typeof error === 'number') {
+  }
+  else if (typeof error === 'number') {
     statusCode = error
     message = `HTTP ${error}`
-  } else if (typeof error === 'object' && error !== null) {
+  }
+  else if (typeof error === 'object' && error !== null) {
     // Try to extract from error object
     const err = error as any
     statusCode = err.statusCode || err.status
@@ -132,7 +134,7 @@ export const isRetryableError = (error: unknown): boolean => {
 
 /**
  * Handle auth error by clearing storage and preparing for redirect
- * 
+ *
  * @param redirectPath - Path to redirect to after login
  */
 export const handleAuthError = (redirectPath?: string): void => {

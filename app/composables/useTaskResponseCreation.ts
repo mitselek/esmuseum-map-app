@@ -82,7 +82,7 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
    */
   const checkExistingResponse = async (taskId: string, userId: string): Promise<boolean> => {
     if (!userId || !taskId) return false
-    
+
     try {
       const result = await searchEntities({
         [ENTU_PROPERTIES.TYPE_STRING]: ENTU_TYPES.VASTUS,

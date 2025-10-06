@@ -22,7 +22,7 @@ export interface EntuUser {
   _id: string
   email?: string
   name?: string
-  [key: string]: any  // Allow additional properties
+  [key: string]: any // Allow additional properties
 }
 
 /**
@@ -42,7 +42,7 @@ export interface EntuAuthResponse {
     }
     [key: string]: any
   }>
-  [key: string]: any  // Allow additional properties
+  [key: string]: any // Allow additional properties
 }
 
 /**
@@ -93,18 +93,21 @@ if (import.meta.client) {
           if (parsedAuthResponse.accounts?.[0]?.user?._id) {
             parsedUser._id = parsedAuthResponse.accounts[0].user._id
             console.log('🔧 [MIGRATION] Fixed user._id from authResponse:', parsedUser._id)
-          } else if (parsedAuthResponse.user?._id) {
+          }
+          else if (parsedAuthResponse.user?._id) {
             parsedUser._id = parsedAuthResponse.user._id
             console.log('🔧 [MIGRATION] Fixed user._id from authResponse.user:', parsedUser._id)
           }
-        } catch (e) {
+        }
+        catch (e) {
           console.error('Error parsing stored auth response for migration:', e)
         }
       }
       // Only set user if we have a valid _id
       if (parsedUser._id) {
         user.value = parsedUser
-      } else {
+      }
+      else {
         console.warn('🔧 [MIGRATION] User object has no _id, clearing stored auth')
         localStorage.removeItem(USER_KEY)
         localStorage.removeItem(TOKEN_KEY)
@@ -117,7 +120,7 @@ if (import.meta.client) {
       localStorage.removeItem(USER_KEY)
     }
   }
-  if (storedAuthResponse && !authResponse.value) {  // Only if not already set above
+  if (storedAuthResponse && !authResponse.value) { // Only if not already set above
     try {
       authResponse.value = JSON.parse(storedAuthResponse) as EntuAuthResponse
     }
@@ -248,20 +251,21 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
         // Get user info if available
         if (data.user) {
           // Start with the basic user info (email, name)
-          const newUser: EntuUser = { 
+          const newUser: EntuUser = {
             ...data.user,
-            _id: data.user._id || ''  // Try to get _id from user object first
+            _id: data.user._id || '' // Try to get _id from user object first
           }
 
           // Add user ID from the accounts array if available (override if present)
           if (data.accounts?.[0]?.user?._id) {
             newUser._id = data.accounts[0].user._id
           }
-          
+
           // Only set user if we have a valid _id
           if (newUser._id) {
             user.value = newUser
-          } else {
+          }
+          else {
             console.warn('User data received but no _id found', data)
           }
         }
@@ -288,7 +292,7 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
   /**
    * Refresh the token if it's expired or about to expire
    */
-  async function refreshToken(forceRefresh = false): Promise<string | null> {
+  async function refreshToken (forceRefresh = false): Promise<string | null> {
     // OAuth tokens cannot be refreshed - user must re-authenticate
     if (!token.value || isTokenExpired.value || forceRefresh) {
       console.warn('Token expired or refresh forced - user needs to re-authenticate via OAuth')

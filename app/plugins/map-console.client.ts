@@ -1,7 +1,7 @@
 /**
  * Map Console Easter Egg Plugin
  * Exposes map style controls to browser console for experimentation
- * 
+ *
  * Usage in browser console:
  * - window.$map.listStyles()        // Show all available styles
  * - window.$map.setStyle('vintage') // Switch to vintage style
@@ -11,19 +11,19 @@
 import { useMapStyles } from '~/composables/useMapStyles'
 
 export default defineNuxtPlugin(() => {
-  if (process.client) {
+  if (import.meta.client) {
     const { setStyle, listStyles, getCurrentStyle } = useMapStyles()
-    
+
     // Expose map controls to window object
     const mapConsole = {
       setStyle: (styleId: string) => {
         return setStyle(styleId)
       },
-      
+
       listStyles: () => {
         listStyles()
       },
-      
+
       currentStyle: () => {
         const style = getCurrentStyle.value
         if (style) {
@@ -33,7 +33,7 @@ export default defineNuxtPlugin(() => {
         }
         return null
       },
-      
+
       help: () => {
         console.log('🎨 ESMuseum Map Console Commands')
         console.log('=================================')
@@ -44,11 +44,11 @@ export default defineNuxtPlugin(() => {
         console.log('\n💡 Try: window.$map.setStyle("vintage")')
       }
     }
-    
+
     // Make it globally available
     if (typeof window !== 'undefined') {
       (window as any).$map = mapConsole
-      
+
       // Welcome message for developers
       console.log('%c🗺️ ESMuseum Map Controls', 'font-size: 16px; font-weight: bold; color: #2563eb')
       console.log('%cType window.$map.help() for map style commands', 'color: #64748b')

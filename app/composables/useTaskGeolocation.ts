@@ -70,7 +70,7 @@ export interface UseTaskGeolocationReturn {
 
 export const useTaskGeolocation = (): UseTaskGeolocationReturn => {
   const { userPosition: gpsPosition, gettingLocation, locationError, sortByDistance } = useLocation()
-  
+
   // Type-safe wrapper for sortByDistance (now from useLocation.ts)
   // Note: Using 'as any' because sortByDistance returns LocationEntity[] | LocationWithDistance[]
   // but we need TaskLocation[] for this composable. This is a JS boundary cast wrapping
