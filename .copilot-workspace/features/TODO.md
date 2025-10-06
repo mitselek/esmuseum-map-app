@@ -23,14 +23,15 @@
   - iOS GPS flow tested and working (3 Safari scenarios verified)
   - Complete documentation: `.copilot-workspace/features/F022-COMPOSABLE-MIGRATION.md`
   - **Status**: ✅ **READY TO MERGE TO MAIN** 🚀
-- [ ] **Investigate `/auth/callback` redirect behavior**
-  - Currently shows debug info (OAuth callback details, auth keys, "Authentication successful!")
-  - Shows "Suunamine..." (Redirecting...) but redirect appears slow/delayed
-  - Should either:
-    - Auto-redirect immediately after token storage (< 100ms, no visible page)
-    - Remove debug info display for production
-    - Add proper loading spinner/animation instead of static text
-  - Consider if this debug page is necessary or if callback should be invisible to users
+- [x] **Investigate `/auth/callback` redirect behavior** ✅ **COMPLETED IN F025**
+  - **Status**: Callback page optimized for instant redirect during F025 implementation
+  - **Implementation**:
+    - ✅ Minimal UI: spinner + "Suunatakse ümber..." text only
+    - ✅ NO debug info shown (OAuth details, tokens, etc. removed)
+    - ✅ Instant redirect using `onMounted()` (no artificial delays)
+    - ✅ Defensive fallback link (user-approved for edge cases)
+    - ✅ Clean i18n translations (et, en, uk)
+  - **Result**: Page visible for <100ms, professional UX
 - [x] **Fix expired token handling on browser tab restore** ✅ **COMPLETED IN F025**
   - **Feature**: F025 - Expired Token Handling (October 5-6, 2025)
   - **Implementation completed**:
@@ -55,6 +56,7 @@
     - Console helper scripts: checkToken(), expireToken(), checkAuthStorage()
   - **Status**: ✅ **PRODUCTION READY** - Initial testing passed, awaiting team testing
 - [ ] **Add long-press gesture to toggle map fullscreen mode**
+  - **Feature**: F026 - Map Fullscreen Toggle (planned for October 6-7, 2025)
   - **Behavior**: User long-presses anywhere on the map → map enters/exits fullscreen
   - **Implementation approach**:
     - Use `@longpress` event on InteractiveMap component (VueUse `useLongPress` or custom implementation)
