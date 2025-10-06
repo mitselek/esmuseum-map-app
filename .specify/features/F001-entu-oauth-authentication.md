@@ -111,6 +111,6 @@ Potential improvements for future iterations:
 
 ## Related Documentation
 
-- [Entu Authentication Guide](/.copilot-docs/authentication/entu-authentication.md)
-- [API Requests Examples](/.copilot-docs/api-requests/entu.http)
-- [Technical Notes](/.copilot-docs/technical-notes.md)
+- [Entu Authentication Guide](/docs/authentication/entu-authentication.md)
+- [API Requests Examples](/docs/api-requests/entu.http)
+- [Technical Notes](/docs/technical-notes.md)
