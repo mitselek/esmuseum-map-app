@@ -1,4 +1,6 @@
-# Optimization ## ✅ F025 - Expired Token Handling (COMPLETED October 5-6, 2025)
+# Optimization Opportunities
+
+## ✅ F025 - Expired Token Handling (COMPLETED October 5-6, 2025)
 
 **Feature**: F025 - Expired Token Handling  
 **Status**: ✅ **PRODUCTION READY** - Initial testing passed, awaiting team testing
@@ -8,6 +10,7 @@
 **Problem Solved**: Users getting stuck on 403 error pages after token expiry during browser tab restore
 
 **Solution Delivered**:
+
 - ✅ Proactive token validation in `auth.ts` middleware (checks BEFORE route loads)
 - ✅ 60-second expiry buffer prevents mid-request failures
 - ✅ Automatic redirect to `/login` with return URL preservation
@@ -56,7 +59,7 @@ See sections #15-19 below for potential future improvements discovered during F0
 
 ---
 
-## 🐛 Historical Bug Trackings Index
+## Historical Bug Tracking Index
 
 **Created**: October 3, 2025  
 **Purpose**: Track potential improvements discovered during refactoring
@@ -71,7 +74,7 @@ We should look after:
 
 ---
 
-## � Bugs Discovered During F025 Testing (October 5-6, 2025)
+## Bugs Discovered During F025 Testing (October 5-6, 2025)
 
 **Feature**: F025 - Expired Token Handling  
 **Testing Phase**: Manual desktop testing  
@@ -86,9 +89,9 @@ We should look after:
 
 ---
 
-## �🔍 Discovered During Phase 1 (Magic Strings & Event Logs)
+## Discovered During Phase 1 (Magic Strings & Event Logs)
 
-### 1. **EventDebugPanel.vue is NEEDED (not obsolete)**
+### 1. EventDebugPanel.vue is NEEDED (not obsolete)
 
 - **File**: `app/components/EventDebugPanel.vue`
 - **Purpose**: Debug component that captures console logs for mobile debugging
@@ -97,14 +100,14 @@ We should look after:
 - **Action**: Keep as-is, consider enhancement instead of removal
 - **Confirmed**: October 3, 2025 - User feedback
 
-### 2. ~~**useLocation.js has excessive debug logging**~~ ✅ **RESOLVED**
+### 2. useLocation.js has excessive debug logging ✅ RESOLVED
 
 - **File**: ~~`app/composables/useLocation.js`~~ → **Migrated to `useLocation.ts`** (Phase 10)
 - **Issue**: 12 `🔍 [EVENT]` debug logs for permission detection
 - **Resolution**: Optimized to 7 iOS-critical logs, removed 5 verbose logs
 - **Action**: ✅ **COMPLETED** - Balanced debugging capability vs console noise
 
-### 3. **index.vue has redundant page initialization log**
+### 3. index.vue has redundant page initialization log
 
 - **File**: `app/pages/index.vue`
 - **Issue**: `console.log('🚀 [EVENT] index.vue - Script setup started')`
@@ -114,7 +117,7 @@ We should look after:
 
 ## 📋 Future Investigation Needed
 
-### 6. ~~**useLocation permission detection complexity**~~ ✅ **RESOLVED**
+### 6. useLocation permission detection complexity ✅ RESOLVED
 
 - **File**: ~~`app/composables/useLocation.js`~~ → **Migrated to `useLocation.ts`** (Phase 10)
 - **Observation**: Very complex iOS permission workaround logic
@@ -124,7 +127,7 @@ We should look after:
 - **Impact**: Without workaround, apps get infinite permission loop
 - **Action**: ✅ **KEPT** - iOS workarounds are necessary, documented, and evidence-based
 
-### 7. **Response entity search patterns**
+### 7. Response entity search patterns
 
 - **Observation**: Three files search for responses with similar patterns
 - **Question**: Could create a shared `searchUserResponses()` utility?
@@ -134,7 +137,7 @@ We should look after:
 
 ## 🔍 Discovered During F025 (Expired Token Handling)
 
-### ~~14. **auth.js Middleware Should Be Migrated to TypeScript**~~ ✅ **RESOLVED**
+### 14. auth.js Middleware Should Be Migrated to TypeScript ✅ RESOLVED
 
 - **File**: ~~`app/middleware/auth.js`~~ → **Migrated to `auth.ts`** (October 5, 2025)
 - **Issue**: Only remaining JavaScript file in middleware
@@ -151,7 +154,7 @@ We should look after:
   - ✅ **100% TypeScript middleware coverage** (matches composables/components)
 - **Action**: ✅ **COMPLETED** - Consistent TypeScript across entire codebase!
 
-### 15. **Duplicate Token Expiry Checking Logic**
+### 15. Duplicate Token Expiry Checking Logic
 
 - **Files**:
   - `app/utils/token-validation.ts` - Has `isTokenExpired()` with buffer
@@ -169,7 +172,7 @@ We should look after:
 - **Action**: Monitor in production - might be defensive duplication (good) or unnecessary overhead (bad)
 - **Priority**: LOW (wait for real-world data)
 
-### 16. **Error Handling: Magic Status Codes**
+### 16. Error Handling: Magic Status Codes
 
 - **File**: `app/utils/error-handling.ts`
 - **Issue**: Status codes (401, 403, 500, etc.) are magic numbers
@@ -192,7 +195,7 @@ We should look after:
   - Easier to maintain
 - **Priority**: LOW (code works, marginal readability improvement)
 
-### 17. **Notification Durations: Magic Numbers**
+### 17. Notification Durations: Magic Numbers
 
 - **File**: `app/composables/useNotifications.ts`
 - **Issue**: Hardcoded durations (4000, 4500, 5000 ms) without explanation
@@ -217,7 +220,7 @@ We should look after:
 
 - **Priority**: LOW (works fine, minor maintainability improvement)
 
-### 18. **Event Logging Still Present in Middleware** ⚠️
+### 18. Event Logging Still Present in Middleware ⚠️
 
 - **File**: `app/middleware/auth.js`
 - **Issue**: 6 console.log statements with 🔒 [EVENT] markers
@@ -237,7 +240,7 @@ We should look after:
 - **Action**: Review if all 6 logs still needed or if can trim to critical errors only
 - **Priority**: LOW (same decision as Phase 1 - useful for debugging)
 
-### 19. **i18n Translation Keys Could Use Namespacing**
+### 19. i18n Translation Keys Could Use Namespacing
 
 - **File**: `.config/i18n.config.ts`
 - **Observation**: F025 added translations:
@@ -267,7 +270,7 @@ We should look after:
 
 ## 🔍 Newly Discovered Opportunities (October 3, 2025 - Component Migration Phase)
 
-### 11. **Code Duplication: TaskLocationOverride vs TaskMapCard**
+### 11. Code Duplication: TaskLocationOverride vs TaskMapCard
 
 - **Files**:
   - `app/components/TaskLocationOverride.vue` (98 lines)
@@ -281,7 +284,7 @@ We should look after:
 - **Priority**: MEDIUM (technical debt, not blocking functionality)
 - **Benefit**: DRY principle, single source of truth for coordinate override logic
 
-### 12. **Git Command Auto-Approval Settings** ⚠️ STILL INVESTIGATING
+### 12. Git Command Auto-Approval Settings ⚠️ STILL INVESTIGATING
 
 - **Issue**: `git commit -m "message"` still requires manual approval despite settings
 - **Root Cause**: VS Code auto-approval matching is more complex than expected
@@ -298,7 +301,7 @@ We should look after:
 - **Priority**: LOW (can manually approve once and VS Code will remember)
 - **Status**: ⚠️ Settings approach unclear, manual approval works
 
-### 13. **Unexpected Component Modifications**
+### 13. Unexpected Component Modifications
 
 - **File**: `app/components/TaskWorkspaceHeader.vue`
 - **Issue**: Component was modified (migrated to TypeScript) but not in the current migration plan

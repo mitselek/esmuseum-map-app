@@ -1,6 +1,6 @@
 /**
  * F020: Webhook validation utilities
- * 
+ *
  * Security and validation helpers for webhook endpoints
  */
 
@@ -11,28 +11,28 @@ const logger = createLogger('webhook-validation')
 
 /**
  * Validate webhook request authenticity
- * 
+ *
  * We use JWT token authentication (in webhook payload) instead of webhook secrets.
- * 
+ *
  * @param event - H3 event object
  * @returns Always returns true (authentication via JWT in payload)
  */
-export function validateWebhookRequest(event: H3Event): boolean {
+export function validateWebhookRequest (event: H3Event): boolean {
   return true
 }
 
 /**
  * Validate webhook payload structure
- * 
+ *
  * Ensures the payload has required fields before processing
  * Entu webhook format: { db, plugin, entity: { _id }, token: "jwt..." }
- * 
+ *
  * @param payload - The webhook payload to validate
  * @returns Validation result with errors if any
  */
-export function validateWebhookPayload(
+export function validateWebhookPayload (
   payload: any
-): { valid: boolean; errors: string[] } {
+): { valid: boolean, errors: string[] } {
   const errors: string[] = []
 
   // Check for basic structure
@@ -48,7 +48,8 @@ export function validateWebhookPayload(
 
   if (!payload.entity || typeof payload.entity !== 'object') {
     errors.push('Missing entity object in payload')
-  } else if (!payload.entity._id) {
+  }
+  else if (!payload.entity._id) {
     errors.push('Missing entity._id in payload')
   }
 
@@ -67,14 +68,14 @@ export function validateWebhookPayload(
 
 /**
  * Extract entity ID from webhook payload
- * 
+ *
  * Entu webhook format: { entity: { _id: "..." } }
  * We'll need to fetch the full entity to determine what changed
- * 
+ *
  * @param payload - The webhook payload
  * @returns Extracted entity ID
  */
-export function extractEntityId(payload: any): string | null {
+export function extractEntityId (payload: any): string | null {
   const entityId = payload.entity?._id || null
 
   logger.debug('Extracted entity ID from payload', { entityId })
@@ -84,14 +85,14 @@ export function extractEntityId(payload: any): string | null {
 
 /**
  * Extract user JWT token from webhook payload
- * 
+ *
  * Entu webhook format: { token: "eyJhbGci..." }
  * The token contains user information and can be used to make API calls
- * 
+ *
  * @param payload - The webhook payload
  * @returns Extracted JWT token and decoded user info
  */
-export function extractUserToken(payload: any): { 
+export function extractUserToken (payload: any): {
   token: string | null
   userId: string | null
   userEmail: string | null
@@ -117,7 +118,8 @@ export function extractUserToken(payload: any): {
     const userEmail = payload.user?.email || null
 
     return { token, userId, userEmail }
-  } catch (error: any) {
+  }
+  catch (error: any) {
     logger.error('Failed to decode JWT token', { error: error.message })
     return { token, userId: null, userEmail: null }
   }
@@ -125,25 +127,25 @@ export function extractUserToken(payload: any): {
 
 /**
  * Rate limiting check (simple in-memory implementation)
- * 
+ *
  * Prevents webhook spam by tracking request frequency per IP
- * 
+ *
  * @param event - H3 event object
  * @param maxRequests - Maximum requests allowed in time window
  * @param windowMs - Time window in milliseconds
  * @returns Boolean indicating if request should be allowed
  */
-const requestCounts = new Map<string, { count: number; resetAt: number }>()
+const requestCounts = new Map<string, { count: number, resetAt: number }>()
 
-export function checkRateLimit(
+export function checkRateLimit (
   event: H3Event,
   maxRequests: number = 100,
   windowMs: number = 60000
 ): boolean {
   // Get client IP
-  const ip = getHeader(event, 'x-forwarded-for') || 
-             getHeader(event, 'x-real-ip') || 
-             'unknown'
+  const ip = getHeader(event, 'x-forwarded-for')
+    || getHeader(event, 'x-real-ip')
+    || 'unknown'
 
   const now = Date.now()
   const record = requestCounts.get(ip)
@@ -165,7 +167,8 @@ export function checkRateLimit(
       return false
     }
     record.count++
-  } else {
+  }
+  else {
     // New window
     requestCounts.set(ip, {
       count: 1,
@@ -178,13 +181,13 @@ export function checkRateLimit(
 
 /**
  * Sanitize and log webhook payload safely
- * 
+ *
  * Removes sensitive data before logging
- * 
+ *
  * @param payload - The payload to sanitize
  * @returns Sanitized payload safe for logging
  */
-export function sanitizePayloadForLogging(payload: any): any {
+export function sanitizePayloadForLogging (payload: any): any {
   if (!payload || typeof payload !== 'object') {
     return payload
   }
@@ -194,7 +197,7 @@ export function sanitizePayloadForLogging(payload: any): any {
 
   // Remove potentially sensitive fields
   const sensitiveFields = ['token', 'api_key', 'apiKey', 'secret', 'password']
-  
+
   for (const field of sensitiveFields) {
     if (sanitized[field]) {
       sanitized[field] = '***REDACTED***'

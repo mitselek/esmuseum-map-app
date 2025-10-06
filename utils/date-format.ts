@@ -10,23 +10,23 @@
  * @param options Intl.DateTimeFormatOptions
  * @returns Formatted date string
  */
-export function formatDate(
+export function formatDate (
   date: string | Date | null | undefined,
   locale?: string,
   options?: Intl.DateTimeFormatOptions
 ): string | null {
   if (!date) return null
-  
+
   try {
     const dateObj = typeof date === 'string' ? new Date(date) : date
-    
+
     // Default options for short date format
     const defaultOptions: Intl.DateTimeFormatOptions = {
       year: 'numeric',
       month: 'numeric',
       day: 'numeric'
     }
-    
+
     // Use provided locale or fall back to browser locale
     return dateObj.toLocaleDateString(locale || undefined, options || defaultOptions)
   }
@@ -42,12 +42,12 @@ export function formatDate(
  * @param locale Locale code (e.g., 'et', 'en', 'uk')
  * @returns Formatted date and time string
  */
-export function formatDateTime(
+export function formatDateTime (
   date: string | Date | null | undefined,
   locale?: string
 ): string | null {
   if (!date) return null
-  
+
   return formatDate(date, locale, {
     year: 'numeric',
     month: 'numeric',
@@ -63,12 +63,12 @@ export function formatDateTime(
  * @param locale Locale code (e.g., 'et', 'en', 'uk')
  * @returns Formatted long date string
  */
-export function formatDateLong(
+export function formatDateLong (
   date: string | Date | null | undefined,
   locale?: string
 ): string | null {
   if (!date) return null
-  
+
   return formatDate(date, locale, {
     year: 'numeric',
     month: 'long',
@@ -81,17 +81,17 @@ export function formatDateLong(
  * @param date Date string or Date object
  * @returns Relative time string
  */
-export function formatRelativeTime(
+export function formatRelativeTime (
   date: string | Date | null | undefined
 ): string | null {
   if (!date) return null
-  
+
   try {
     const dateObj = typeof date === 'string' ? new Date(date) : date
     const now = new Date()
     const diffMs = dateObj.getTime() - now.getTime()
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-    
+
     if (Math.abs(diffDays) === 0) {
       return 'Täna' // Today
     }

@@ -56,8 +56,8 @@ export default defineNuxtRouteMiddleware((to: RouteLocationNormalized, from: Rou
     // Use composable's logout() to properly clear reactive state + localStorage
     if (import.meta.client) {
       const { logout } = useEntuAuth()
-      logout()  // Clears all reactive refs AND localStorage items
-      
+      logout() // Clears all reactive refs AND localStorage items
+
       // Remember where user was trying to go
       rememberRedirect(to.fullPath)
       console.log('🔒 [EVENT] auth middleware - Cleared expired auth, stored redirect:', to.fullPath)

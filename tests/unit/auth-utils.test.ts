@@ -9,34 +9,37 @@ import { mockTokens, mockUsers } from '../mocks/jwt-tokens'
 const mockAuthUtils = {
   extractBearerToken: (event: any) => {
     const authHeader = event?.node?.req?.headers?.authorization
-    
+
     if (!authHeader) {
       throw new Error('Authorization header is required')
     }
-    
+
     if (!authHeader.startsWith('Bearer ')) {
       throw new Error('Authorization header must be in Bearer format')
     }
-    
+
     const token = authHeader.slice(7)
     if (!token) {
       throw new Error('Bearer token is required')
     }
-    
+
     return token
   },
 
   authenticateUser: async (event: any) => {
     const token = mockAuthUtils.extractBearerToken(event)
-    
+
     // Simulate JWT verification
     if (token === mockTokens.valid) {
       return mockUsers.student
-    } else if (token === mockTokens.noAccounts) {
+    }
+    else if (token === mockTokens.noAccounts) {
       return { ...mockUsers.student, email: 'noaccounts@student.ee', accounts: [] }
-    } else if (token === 'trigger-server-error') {
+    }
+    else if (token === 'trigger-server-error') {
       throw new Error('Server error')
-    } else {
+    }
+    else {
       throw new Error('Authentication failed')
     }
   },
@@ -110,7 +113,7 @@ describe('Auth Utilities (Unit Tests)', () => {
       }
 
       const user = await mockAuthUtils.authenticateUser(mockEvent)
-      
+
       expect(user).toMatchObject({
         _id: mockUsers.student._id,
         email: mockUsers.student.email,

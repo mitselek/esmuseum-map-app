@@ -1,6 +1,6 @@
 /**
  * Composable for task detail panel functionality
- * 
+ *
  * MIGRATED TO TYPESCRIPT: October 3, 2025 (Phase 2)
  * - Replaced duplicate extraction logic with entu-helpers
  * - Added TypeScript types throughout
@@ -10,10 +10,10 @@
 import type { EntuTask } from '../../types/entu'
 import type { EntuUser } from './useEntuAuth'
 import { ENTU_TYPES } from '../constants/entu'
-import { 
-  getTaskName, 
+import {
+  getTaskName,
   getTaskDescription as getTaskDescriptionHelper,
-  getTaskResponseCount 
+  getTaskResponseCount
 } from '../../utils/entu-helpers'
 
 interface PermissionCheckResult {
