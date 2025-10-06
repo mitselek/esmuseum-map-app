@@ -1,8 +1,5 @@
 # ES Museum Map App Constitution
 
-TODO: bring in golden rules from #SPEC-KIT-ANALYSIS.md
-TODO: make sure we have well-thought-out flow for regularly checking spec-kit updates
-
 ## Core Principles
 
 ### I. Type Safety First
