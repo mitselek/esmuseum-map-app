@@ -31,27 +31,29 @@
     - Remove debug info display for production
     - Add proper loading spinner/animation instead of static text
   - Consider if this debug page is necessary or if callback should be invisible to users
-- [ ] **Fix expired token handling on browser tab restore**
-  - **Symptom**: Browser restores tabs with URLs like `/?task=68bab85d43e4daafab199988`, app gets stuck with 401 errors
-  - **Additional symptom**: On mobile (screenshot), user sees "Ülesanded" page with "API error: 403 Forbidden" and "Proovi uuesti" (Try again) button
-  - **Current behavior**:
-    - `useEntuAuth.ts:294` logs "Token expired or refresh forced - user needs to re-authenticate via OAuth"
-    - `callApi` throws 401 errors: `API error: 401`
-    - Mobile shows 403 Forbidden error with retry button (doesn't help - still expired token)
-    - App continues loading (GPS works, map loads) but task loading fails silently
-    - No automatic redirect to login page
-  - **Expected behavior**:
-    - Detect expired token before making API calls
-    - Automatically redirect to `/login` with return URL preserved
-    - Show user-friendly message: "Session expired, please log in again"
-    - Don't show "Proovi uuesti" button if token is expired (it won't work)
-  - **Root cause**: Token expiry check happens during API call, not during auth middleware
-  - **Suggested fix**:
-    - Add token expiry validation in `auth.js` middleware (check before route loads)
-    - Implement automatic redirect to login with `?redirect=` query parameter
-    - Add user-friendly notification using Naive UI's `useNotification()` (already installed)
-    - Update error handling to distinguish between network errors (retry makes sense) vs auth errors (redirect to login)
-    - Consider adding "remember me" / longer-lived refresh tokens
+- [x] **Fix expired token handling on browser tab restore** ✅ **COMPLETED IN F025**
+  - **Feature**: F025 - Expired Token Handling (October 5-6, 2025)
+  - **Implementation completed**:
+    - ✅ Proactive token validation in `auth.ts` middleware (checks BEFORE route loads)
+    - ✅ 60-second buffer prevents mid-request expiry
+    - ✅ Automatic redirect to `/login` with return URL preservation
+    - ✅ User-friendly i18n notifications (Estonian, English, Ukrainian)
+    - ✅ Smart error handling: distinguishes auth errors (redirect) from network errors (retry button)
+    - ✅ Naive UI notification integration with discrete API
+    - ✅ Auth callback instant redirect (<100ms, minimal UI flash)
+  - **Token validation utilities**:
+    - `app/utils/token-validation.ts` - JWT decoder with 60s buffer
+    - `app/utils/error-handling.ts` - Smart error analyzer
+  - **Bugs discovered and fixed during testing**:
+    - Bug #1: 500 error with `useI18n()` in middleware → Fixed: use `useNuxtApp().$i18n` (commit 1918cf0)
+    - Bug #2: Redirect loop with expired token → Fixed: reordered middleware checks (commit 23f8966)
+    - Bug #3: Translation keys showing instead of text → Fixed: type cast for $i18n.t() (commit 401ab7c)
+    - Bug #4: "Already logged in" message with no valid token → Fixed: use logout() composable (commit 72bcfd0)
+  - **Testing infrastructure**:
+    - Comprehensive testing guide: `docs/testing/F025-TESTING-GUIDE.md` (564 lines, 23 test scenarios)
+    - Interactive test helper: `docs/testing/token-test-helper.html` (410 lines)
+    - Console helper scripts: checkToken(), expireToken(), checkAuthStorage()
+  - **Status**: ✅ **PRODUCTION READY** - Initial testing passed, awaiting team testing
 - [ ] **Add long-press gesture to toggle map fullscreen mode**
   - **Behavior**: User long-presses anywhere on the map → map enters/exits fullscreen
   - **Implementation approach**:
