@@ -1,8 +1,0 @@
-optimization opportunities -> archived optimizations
-
-### 🎯 Golden Rules
-
-1. **Every 'as any' needs a comment** explaining why
-2. **Every 'as any' needs a plan** for removal (or justification to keep)
-3. **Prefer type guards** over casts when possible
-4. **Document JS boundaries** clearly
