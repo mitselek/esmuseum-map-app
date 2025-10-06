@@ -4,21 +4,23 @@ This document contains the Entu data model for the ESMuseum application.
 
 ## Table of Contents
 
-- [asukoht](#asukoht)
-- [database](#database)
-- [department](#department)
-- [entity](#entity)
-- [folder](#folder)
-- [grupp](#grupp)
-- [kaart](#kaart)
-- [menu](#menu)
-- [person](#person)
-- [plugin](#plugin)
-- [property](#property)
-- [ulesanne](#ulesanne)
-- [vastus](#vastus)
-- [vr_aum2rk](#vr_aum2rk)
-- [vr_kavaler](#vr_kavaler)
+- [Entu Data Model](#entu-data-model)
+  - [Table of Contents](#table-of-contents)
+  - [asukoht](#asukoht)
+  - [database](#database)
+  - [department](#department)
+  - [entity](#entity)
+  - [folder](#folder)
+  - [grupp](#grupp)
+  - [kaart](#kaart)
+  - [menu](#menu)
+  - [person](#person)
+  - [plugin](#plugin)
+  - [property](#property)
+  - [ulesanne](#ulesanne)
+  - [vastus](#vastus)
+  - [vr\_aum2rk](#vr_aum2rk)
+  - [vr\_kavaler](#vr_kavaler)
 
 ## asukoht
 
@@ -27,7 +29,7 @@ This document contains the Entu data model for the ESMuseum application.
 - Singular: "Asukoht"
 - Plural: "Asukohad"
 
-### Properties
+**Properties**  
 
 | Property | Type | Value | References |
 |---|---|---|---|
@@ -42,7 +44,7 @@ This document contains the Entu data model for the ESMuseum application.
 | link | string |  |  |
 | pildilingid | string |  |  |
 
-### References
+**References**  
 
 - **add_from** references the **entity** entity type with value "kaart" (ID: 687d27c8259fc48ba59cf71a)
 - **plugin** references the **plugin** entity type with value "KML import" (ID: 687a1404259fc48ba59cdffa)
@@ -54,7 +56,7 @@ This document contains the Entu data model for the ESMuseum application.
 - Singular: "Andmebaas"
 - Plural: "Andmebaasid"
 
-### Properties
+**Properties**  
 
 | Property | Type | Value | References |
 |---|---|---|---|
@@ -77,7 +79,7 @@ This document contains the Entu data model for the ESMuseum application.
 - Singular: "Osakond"
 - Plural: "Osakonnad"
 
-### Properties
+**Properties**  
 
 | Property | Type | Value | References |
 |---|---|---|---|
@@ -92,7 +94,7 @@ This document contains the Entu data model for the ESMuseum application.
 - Singular: "Objekt"
 - Plural: "Objektid"
 
-### Properties
+**Properties**  
 
 | Property | Type | Value | References |
 |---|---|---|---|
@@ -105,7 +107,7 @@ This document contains the Entu data model for the ESMuseum application.
 | name | string |  |  |
 | plugin | string |  |  |
 
-### References
+**References**  
 
 - **add_from** references the **menu** entity type with value "Entities" (ID: 66b6245a7efc9ac06a437b4c)
 - **plugin** references the **plugin** entity type with value "Objekti mall" (ID: 6864fe56d21b6a4025802de9)
@@ -117,7 +119,7 @@ This document contains the Entu data model for the ESMuseum application.
 - Singular: "Kaust"
 - Plural: "Kaustad"
 
-### Properties
+**Properties**  
 
 | Property | Type | Value | References |
 |---|---|---|---|
@@ -126,7 +128,7 @@ This document contains the Entu data model for the ESMuseum application.
 | name | string |  |  |
 | notes | string |  |  |
 
-### References
+**References**  
 
 - **add_from** references the **entity** entity type with value "folder" (ID: 66b624597efc9ac06a4378a6)
 
@@ -137,7 +139,7 @@ This document contains the Entu data model for the ESMuseum application.
 - Singular: "Grupp"
 - Plural: "Grupid"
 
-### Properties
+**Properties**  
 
 | Property | Type | Value | References |
 |---|---|---|---|
@@ -147,7 +149,7 @@ This document contains the Entu data model for the ESMuseum application.
 | kirjeldus | text |  |  |
 | grupijuht | string |  |  |
 
-### References
+**References**  
 
 - **add_from** references the **database** entity type with value "esmuuseum" (ID: 66b6245c7efc9ac06a437ba0)
 
@@ -158,7 +160,7 @@ This document contains the Entu data model for the ESMuseum application.
 - Singular: "Kaart"
 - Plural: "Kaardid"
 
-### Properties
+**Properties**  
 
 | Property | Type | Value | References |
 |---|---|---|---|
@@ -169,7 +171,7 @@ This document contains the Entu data model for the ESMuseum application.
 | kirjeldus | string |  |  |
 | url | string |  |  |
 
-### References
+**References**  
 
 - **add_from** references the **menu** entity type with value "Kaardid" (ID: 687c9fd8259fc48ba59cf2e4)
 - **default_parent** references the **folder** entity type with value "Kaardid" (ID: 688227005d95233e69c28cf4)
@@ -181,7 +183,7 @@ This document contains the Entu data model for the ESMuseum application.
 - Singular: "Menüü"
 - Plural: "Menüüd"
 
-### Properties
+**Properties**  
 
 | Property | Type | Value | References |
 |---|---|---|---|
@@ -193,7 +195,7 @@ This document contains the Entu data model for the ESMuseum application.
 | ordinal | string |  |  |
 | query | string |  |  |
 
-### References
+**References**  
 
 - **add_from** references the **menu** entity type with value "Menu" (ID: 66b6245a7efc9ac06a437b56)
 
@@ -204,7 +206,7 @@ This document contains the Entu data model for the ESMuseum application.
 - Singular: "Persoon"
 - Plural: "Persoonid"
 
-### Properties
+**Properties**  
 
 | Property | Type | Value | References |
 |---|---|---|---|
@@ -229,7 +231,7 @@ This document contains the Entu data model for the ESMuseum application.
 | postalcode | string |  |  |
 | surname | string |  |  |
 
-### References
+**References**  
 
 - **plugin** references the **plugin** entity type with value "CSV file" (ID: 66b6245a7efc9ac06a437b87)
 - **add_from** references the **menu** entity type with value "Persons" (ID: 66b6245a7efc9ac06a437b73)
@@ -242,7 +244,7 @@ This document contains the Entu data model for the ESMuseum application.
 - Singular: "Pistikprogramm"
 - Plural: "Pistikprogrammid"
 
-### Properties
+**Properties**  
 
 | Property | Type | Value | References |
 |---|---|---|---|
@@ -253,7 +255,7 @@ This document contains the Entu data model for the ESMuseum application.
 | type | string |  |  |
 | url | string |  |  |
 
-### References
+**References**  
 
 - **add_from** references the **menu** entity type with value "Plugins" (ID: 66b6245a7efc9ac06a437b60)
 
@@ -264,7 +266,7 @@ This document contains the Entu data model for the ESMuseum application.
 - Singular: "Parameeter"
 - Plural: "Parameetrid"
 
-### Properties
+**Properties**  
 
 | Property | Type | Value | References |
 |---|---|---|---|
@@ -288,7 +290,7 @@ This document contains the Entu data model for the ESMuseum application.
 | table | string |  |  |
 | type | string |  |  |
 
-### References
+**References**  
 
 - **add_from** references the **entity** entity type with value "entity" (ID: 66b624597efc9ac06a437840)
 
@@ -299,7 +301,7 @@ This document contains the Entu data model for the ESMuseum application.
 - Singular: "Ülesanne"
 - Plural: "Ülesanded"
 
-### Properties
+**Properties**  
 
 | Property | Type | Value | References |
 |---|---|---|---|
@@ -313,7 +315,7 @@ This document contains the Entu data model for the ESMuseum application.
 | grupp | string |  |  |
 | vastuseid | string |  |  |
 
-### References
+**References**  
 
 - **add_from** references the **folder** entity type with value "Ülesanded" (ID: 68691eb91749f351b9c82f68)
 - **default_parent** references the **folder** entity type with value "Ülesanded" (ID: 68691eb91749f351b9c82f68)
@@ -325,7 +327,7 @@ This document contains the Entu data model for the ESMuseum application.
 - Singular: "Vastus"
 - Plural: "Vastused"
 
-### Properties
+**Properties**  
 
 | Property | Type | Value | References |
 |---|---|---|---|
@@ -338,7 +340,7 @@ This document contains the Entu data model for the ESMuseum application.
 | geopunkt | string |  |  |
 | vastaja | string |  |  |
 
-### References
+**References**  
 
 - **add_from** references the **entity** entity type with value "ulesanne" (ID: 686917231749f351b9c82f4c)
 - **default_parent** references the **entity** entity type with value "ulesanne" (ID: 686917231749f351b9c82f4c)
@@ -350,7 +352,7 @@ This document contains the Entu data model for the ESMuseum application.
 - Singular: "Vabaduse rist"
 - Plural: "Vabaduse ristid"
 
-### Properties
+**Properties**  
 
 | Property | Type | Value | References |
 |---|---|---|---|
@@ -372,7 +374,7 @@ This document contains the Entu data model for the ESMuseum application.
 - Singular: "Vabaduse Risti Kavaler"
 - Plural: "Vabaduse Risti Kavalerid"
 
-### Properties
+**Properties**  
 
 | Property | Type | Value | References |
 |---|---|---|---|
@@ -386,4 +388,3 @@ This document contains the Entu data model for the ESMuseum application.
 | vr_id | string |  |  |
 | synd | string |  |  |
 | photo | string |  |  |
-
