@@ -49,7 +49,7 @@ export function logAuthStorage () {
       allKeys.push(`${key}: ${localStorage.getItem(key)}`)
     }
   }
-  
+
   if (allKeys.length > 0) {
     console.log('Auth storage:', allKeys.join(', '))
   }

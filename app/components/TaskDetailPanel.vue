@@ -11,56 +11,70 @@
     >
       <TaskWorkspaceHeader
         :progress="progress"
+        :task-title="taskTitle"
         @close="clearSelection"
       />
 
-      <!-- Task content -->
-      <div class="flex-1 overflow-y-auto bg-gray-50">
-        <!-- Full-width map section -->
-        <div
-          v-if="hasMapData"
-          class="pb-6"
-        >
-          <TaskMapCard
-            :task-locations="taskLocations"
-            :user-position="userPosition"
-            :loading-locations="loadingTaskLocations"
-            :selected-location="selectedLocation"
-            :visited-locations="visitedLocations"
-            @location-click="onMapLocationClick"
-            @map-ready="onMapReady"
-            @location-change="handleLocationOverride"
-          />
-        </div>
+      <!-- Fixed map section (1/3 of available height) -->
+      <div
+        v-if="hasMapData"
+        class="shrink-0"
+        style="height: 40vh"
+      >
+        <TaskMapCard
+          :task-locations="taskLocations as any"
+          :user-position="userPosition"
+          :loading-locations="loadingTaskLocations"
+          :selected-location="selectedLocation as any"
+          :visited-locations="visitedLocations"
+          :progress="progress"
+          :deadline="taskDeadline"
+          :description="taskDescription"
+          @location-click="onMapLocationClick"
+          @map-ready="onMapReady"
+        />
+      </div>
 
+      <!-- Scrollable content area -->
+      <div class="flex-1 overflow-y-auto">
         <!-- Response Form -->
-        <div class="mx-auto max-w-5xl px-4 pb-6 sm:px-6">
-          <TaskResponseForm
-            ref="responseFormRef"
-            :selected-task="selectedTask"
-            :checking-permissions="checkingPermissions"
-            :has-response-permission="hasResponsePermission"
-            :needs-location="needsLocation"
-            :task-locations="taskLocations"
-            :selected-location="selectedLocation"
-            :loading-task-locations="loadingTaskLocations"
-            :geolocation-error="geolocationError"
-            :visited-locations="visitedLocations"
-            @location-select="onLocationSelect"
-            @request-location="handleLocationRequest"
-            @load-task-locations="loadTaskLocations"
-            @response-submitted="handleResponseSubmitted"
-          />
-        </div>
+        <TaskResponseForm
+          ref="responseFormRef"
+          :selected-task="selectedTask"
+          :checking-permissions="checkingPermissions"
+          :has-response-permission="hasResponsePermission"
+          :needs-location="needsLocation"
+          :task-locations="taskLocations as any"
+          :selected-location="selectedLocation as any"
+          :loading-task-locations="loadingTaskLocations"
+          :geolocation-error="geolocationError"
+          :visited-locations="visitedLocations"
+          @location-select="onLocationSelect"
+          @request-location="handleLocationRequest"
+          @load-task-locations="loadTaskLocations"
+          @response-submitted="handleResponseSubmitted"
+        />
       </div>
     </div>
+
+    <!-- Submission Modal -->
+    <TaskSubmissionModal
+      :is-open="showSubmissionModal"
+      :status="submissionStatus"
+      :error-message="submissionError"
+      @retry="handleRetry"
+      @close="handleModalClose"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { getLocationIdentifier } from '~/utils/location-sync'
+import { getTaskName } from '../../utils/entu-helpers'
+import { formatDate } from '../../utils/date-format'
 
 const { selectedTask, clearSelection } = useTaskWorkspace()
+const { locale } = useI18n()
 const {
   getLocationCoordinates,
   userPosition
@@ -76,10 +90,16 @@ const {
 // Use geolocation composable
 const {
   geolocationError,
-  showManualCoordinates,
-  onRequestLocation,
-  handleLocationChange
+  onRequestLocation
 } = useTaskGeolocation()
+
+// Use optimistic update composable
+const { refetchTask } = useOptimisticTaskUpdate(selectedTask)
+
+// Submission modal state
+const showSubmissionModal = ref(false)
+const submissionStatus = ref<'submitting' | 'success' | 'error'>('submitting')
+const submissionError = ref<string | undefined>(undefined)
 
 // Use completed tasks tracking
 const {
@@ -114,6 +134,27 @@ const progress = computed<ProgressData>(() => {
   }
 })
 
+// Task title for header
+const taskTitle = computed(() => {
+  return selectedTask.value ? getTaskName(selectedTask.value) : ''
+})
+
+// Task deadline for map card
+const taskDeadline = computed(() => {
+  if (!selectedTask.value) return null
+  // Get deadline from task (tahtaeg property)
+  const deadline = selectedTask.value.tahtaeg?.[0]?.datetime
+  if (!deadline) return null
+  // Use date formatting utility with app locale
+  return formatDate(deadline, locale.value)
+})
+
+// Task description for map card
+const taskDescription = computed(() => {
+  if (!selectedTask.value) return null
+  return selectedTask.value.kirjeldus?.[0]?.string || null
+})
+
 interface ResponseFormRef {
   setLocation: (coordinates: { lat: number, lng: number } | string | null) => void
 }
@@ -140,7 +181,8 @@ const loadingTaskLocations = ref<boolean>(false)
 const selectedLocation = ref<TaskLocation | null>(null)
 
 // Map event handlers
-const onMapLocationClick = (location: TaskLocation): void => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const onMapLocationClick = (location: any): void => {
   // Handle location click from map
   console.log('[TaskDetailPanel] Map location clicked:', getLocationIdentifier(location))
   console.log('[TaskDetailPanel] Setting selectedLocation to:', location)
@@ -166,7 +208,7 @@ const loadTaskLocations = async () => {
 
     // OPTIMIZATION: Start location loading immediately without waiting for GPS
     // This allows locations to be displayed while GPS detection happens in parallel
-    const locations = await loadLocations(selectedTask.value)
+    const locations = await loadLocations(selectedTask.value, userPosition.value)
     taskLocations.value = locations
 
     // Note: GPS-based sorting will happen automatically in LocationPicker
@@ -189,7 +231,6 @@ const onLocationSelect = (location: TaskLocation | null): void => {
     if (responseFormRef.value) {
       responseFormRef.value.setLocation(getLocationCoordinates(location))
     }
-    showManualCoordinates.value = false
   }
   else {
     if (responseFormRef.value) {
@@ -203,17 +244,56 @@ const handleLocationRequest = async () => {
   await onRequestLocation(taskLocations)
 }
 
-// Handle location change from override
-const handleLocationOverride = (coordinates: string | null): void => {
-  handleLocationChange(coordinates, taskLocations)
+// Handle response submission with optimistic updates
+const handleResponseSubmitted = async (_responseData: unknown): Promise<void> => {
+  // Show submitting modal
+  showSubmissionModal.value = true
+  submissionStatus.value = 'submitting'
+  submissionError.value = undefined
+
+  try {
+    // Reset the form
+    const form = responseFormRef.value
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (form && typeof (form as any).resetForm === 'function') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (form as any).resetForm()
+    }
+
+    // Clear selected location
+    selectedLocation.value = null
+
+    // Refetch task data to get updated response count
+    // This reloads completed tasks and recalculates unique locations visited
+    if (selectedTask.value?._id) {
+      await refetchTask(selectedTask.value._id)
+    }
+
+    // Show success state
+    submissionStatus.value = 'success'
+
+    // Auto-close modal after success
+    setTimeout(() => {
+      showSubmissionModal.value = false
+    }, 1500)
+  }
+  catch (error) {
+    // Show error state
+    submissionStatus.value = 'error'
+    submissionError.value = error instanceof Error ? error.message : 'Unknown error occurred'
+  }
 }
 
-// Handle response submission for page reload
-const handleResponseSubmitted = (_responseData: unknown): void => {
-  // Reload the page to ensure fresh data
-  setTimeout(() => {
-    window.location.reload()
-  }, 500) // Small delay to let the submission complete
+// Handle retry after submission error
+const handleRetry = () => {
+  showSubmissionModal.value = false
+  submissionError.value = undefined
+}
+
+// Handle modal close
+const handleModalClose = () => {
+  showSubmissionModal.value = false
+  submissionError.value = undefined
 }
 
 // Check if task needs location

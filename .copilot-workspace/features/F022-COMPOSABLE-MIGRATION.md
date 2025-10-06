@@ -424,15 +424,20 @@ Developer experience dramatically improved with full type information
 
 ### Foundation & Types
 
+```list
 1. Initial type system (types/entu.ts, utils/entu-helpers.ts)
 2. Magic string constants (ENTU_PROPERTIES expansion)
+```
 
 ### Phase 1-9: Composable Migrations
 
+```list
 3-11. useTaskDetail, useEntuAuth, useTaskResponseCreation, useTaskGeolocation, useEntuOAuth, useEntuApi, useClientSideFileUpload, useCompletedTasks, useTaskWorkspace migrations
+```
 
 ### Phase 10: The Dessert (useLocation)
 
+```list
 12. useLocation TypeScript migration (665 lines)
 13. Evidence-based iOS research (WebKit bugs documented)
 14. Smart GPS UX redesign (direct prompt + recovery)
@@ -441,10 +446,13 @@ Developer experience dramatically improved with full type information
 17. Vue error fix (try-catch in index.vue)
 18. Missing startGPSUpdates export fix
 19. Log improvements (JSON.stringify × 6)
+```
 
 ### Documentation & Cleanup
 
+```list
 20-25. Updated OPTIMIZATION_OPPORTUNITIES.md, marked items resolved, final cleanup
+```
 
 ## Production Readiness
 

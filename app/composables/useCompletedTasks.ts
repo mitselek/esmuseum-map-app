@@ -1,6 +1,6 @@
 /**
  * Composable for tracking user's completed tasks
- * 
+ *
  * MIGRATED TO TYPESCRIPT (F022)
  * CONSOLIDATED: Replaced useTaskScoring.js functionality
  * - Added proper type annotations
@@ -26,11 +26,11 @@ interface UseCompletedTasksReturn {
   userResponses: ComputedRef<EntuResponse[]>
   loading: Readonly<Ref<boolean>>
   error: Readonly<Ref<string | null>>
-  
+
   // Methods
   loadCompletedTasks: () => Promise<string[]>
   getTaskStats: (taskId: string, expectedCount: number) => TaskStats
-  
+
   // Per-task scoring (replaces useTaskScoring)
   getVisitedLocationsForTask: (taskId: string) => Set<string>
   isLocationVisited: (taskId: string, locationRef: string) => boolean
@@ -78,7 +78,7 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
 
       // Type assertion: we know these are response entities
       const responses = (responsesResult.entities || []) as EntuResponse[]
-      
+
       // Store all responses for later stats calculation
       userResponses.value = responses
 
@@ -181,13 +181,13 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
  * Legacy compatibility wrapper for useTaskScoring
  * Provides the same interface as the old useTaskScoring.js
  * Uses the consolidated useCompletedTasks cache instead of making separate API calls
- * 
+ *
  * @param taskData - Computed ref containing the task object
  * @returns Scoring data with the same interface as old useTaskScoring
  */
 export const useTaskScoring = (taskData: ComputedRef<any>) => {
   const completedTasks = useCompletedTasks()
-  
+
   // Extract expected response count from task data
   const expectedResponses = computed(() => {
     if (!taskData?.value?.vastuseid?.[0]?.number) {

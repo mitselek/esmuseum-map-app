@@ -3,7 +3,7 @@
     <div class="px-4 py-3">
       <div class="flex items-center justify-between">
         <h1 class="text-xl font-semibold text-gray-900">
-          {{ $t('appName') }}
+          {{ title || $t('appName') }}
         </h1>
         <div class="flex items-center space-x-4">
           <!-- Language Switcher -->
@@ -41,7 +41,7 @@
 
       <!-- User Greeting -->
       <p
-        v-if="isAuthenticated && user"
+        v-if="showGreeting && isAuthenticated && user"
         class="mt-1 text-sm text-gray-600"
       >
         {{ $t('hello') }}, {{ user.displayname || user.name || $t('student') }}!
@@ -53,6 +53,17 @@
 <script setup lang="ts">
 // Language code type
 type LanguageCode = 'et' | 'en' | 'uk'
+
+// Props
+interface Props {
+  title?: string
+  showGreeting?: boolean
+}
+
+withDefaults(defineProps<Props>(), {
+  title: undefined,
+  showGreeting: true
+})
 
 // Composables
 const { locale, setLocale } = useI18n()

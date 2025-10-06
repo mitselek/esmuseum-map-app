@@ -241,7 +241,7 @@ export const useClientSideFileUpload = (): UseClientSideFileUploadReturn => {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
-      
+
       // Type guard: skip if file is undefined
       if (!file) {
         continue

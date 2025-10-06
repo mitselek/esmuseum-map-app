@@ -1,10 +1,10 @@
 /**
  * Structured logging with Pino
- * 
+ *
  * Provides consistent, structured logging across the application.
  * - Development: Pretty-printed colorized output
  * - Production: JSON logs for parsing and analysis
- * 
+ *
  * Usage:
  *   const log = createLogger('webhook')
  *   log.info('User logged in', { userId: '123', email: 'user@example.com' })
@@ -19,44 +19,46 @@ const isDevelopment = process.env.NODE_ENV === 'development'
 const pinoLogger = pino({
   // Log level: debug in dev, info in production
   level: isDevelopment ? 'debug' : 'info',
-  
+
   // Pretty print in development, JSON in production
-  transport: isDevelopment ? {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-      translateTime: 'HH:MM:ss.l',
-      ignore: 'pid,hostname',
-      messageFormat: '{levelLabel} [{module}] {msg}',
-    }
-  } : undefined,
-  
+  transport: isDevelopment
+    ? {
+        target: 'pino-pretty',
+        options: {
+          colorize: true,
+          translateTime: 'HH:MM:ss.l',
+          ignore: 'pid,hostname',
+          messageFormat: '{levelLabel} [{module}] {msg}'
+        }
+      }
+    : undefined,
+
   // ISO timestamps for production
   timestamp: pino.stdTimeFunctions.isoTime,
-  
+
   // Base context for all logs
   base: {
-    env: process.env.NODE_ENV || 'development',
+    env: process.env.NODE_ENV || 'development'
   },
-  
+
   // Format level as string
   formatters: {
     level: (label) => {
       return { level: label }
-    },
-  },
+    }
+  }
 })
 
 /**
  * Create a logger for a specific module
  * Maintains backward compatibility with existing logger interface
- * 
+ *
  * @param moduleName - Module identifier (e.g., 'webhook', 'entu-admin')
  * @returns Logger instance with debug, info, warn, error methods
  */
-export function createLogger(moduleName: string) {
+export function createLogger (moduleName: string) {
   const log = pinoLogger.child({ module: moduleName })
-  
+
   return {
     /**
      * Debug level logging - development only
@@ -87,9 +89,11 @@ export function createLogger(moduleName: string) {
     error: (message: string, error?: any) => {
       if (error instanceof Error) {
         log.error({ err: error }, message)
-      } else if (error) {
+      }
+      else if (error) {
         log.error({ error }, message)
-      } else {
+      }
+      else {
         log.error(message)
       }
     }

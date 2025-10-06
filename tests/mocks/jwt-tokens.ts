@@ -7,7 +7,7 @@ export const createMockJWT = (payload: any): string => {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))
   const body = btoa(JSON.stringify(payload))
   const signature = 'mock-signature-for-testing'
-  
+
   return `${header}.${body}.${signature}`
 }
 
@@ -24,7 +24,7 @@ export const mockTokens = {
     iat: Math.floor(Date.now() / 1000),
     exp: Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
   }),
-  
+
   expired: createMockJWT({
     user: {
       email: 'expired@student.ee',
@@ -34,13 +34,13 @@ export const mockTokens = {
       esmuuseum: '507f1f77bcf86cd799439012'
     },
     iat: Math.floor(Date.now() / 1000) - 7200, // 2 hours ago
-    exp: Math.floor(Date.now() / 1000) - 3600  // Expired 1 hour ago
+    exp: Math.floor(Date.now() / 1000) - 3600 // Expired 1 hour ago
   }),
-  
+
   malformed: 'not.a.valid.jwt.token.at.all',
-  
+
   invalidSignature: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImVtYWlsIjoidGVzdEBzdHVkZW50LmVlIn19.invalid-signature',
-  
+
   noUser: createMockJWT({
     // Missing user data
     accounts: {
@@ -49,7 +49,7 @@ export const mockTokens = {
     iat: Math.floor(Date.now() / 1000),
     exp: Math.floor(Date.now() / 1000) + 3600
   }),
-  
+
   noAccounts: createMockJWT({
     user: {
       email: 'noaccounts@student.ee',
@@ -71,13 +71,13 @@ export const mockUsers = {
     name: 'Test Student',
     displayname: 'Test Student'
   },
-  
+
   expiredStudent: {
     _id: '507f1f77bcf86cd799439012',
     email: 'expired@student.ee',
     name: 'Expired Student'
   },
-  
+
   teacher: {
     _id: '507f1f77bcf86cd799439020',
     email: 'teacher@school.ee',
@@ -97,7 +97,7 @@ export const mockAuthResponses = {
       user: { _id: mockUsers.student._id }
     }]
   },
-  
+
   invalidAuth: {
     error: 'Invalid credentials'
   }

@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded-lg border bg-white p-6 shadow-sm">
+  <div class="p-6">
     <h3 class="mb-4 text-lg font-medium text-gray-900">
       {{ $t('taskDetail.yourResponse') }}
     </h3>
@@ -37,21 +37,26 @@
         />
       </div>
 
-      <!-- Text Response -->
+      <!-- Text Response (only show when location selected or not needed) -->
       <TaskResponseTextarea
+        v-if="!needsLocation || selectedLocation"
         v-model:response-text="responseForm.text"
         :submitting="submitting"
       />
 
-      <!-- File Upload -->
+      <!-- File Upload (only show when location selected or not needed) -->
       <TaskFileUpload
+        v-if="!needsLocation || selectedLocation"
         ref="fileUploadRef"
         @upload-complete="onFileUploadComplete"
         @upload-error="onFileUploadError"
       />
 
-      <!-- Submit Button -->
-      <div class="flex flex-col space-y-2">
+      <!-- Submit Button (only show when location selected or not needed) -->
+      <div
+        v-if="!needsLocation || selectedLocation"
+        class="flex flex-col space-y-2"
+      >
         <button
           type="submit"
           class="w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -313,6 +318,20 @@ defineExpose({
     }
     else {
       responseForm.value.geopunkt = null
+    }
+  },
+  resetForm: (): void => {
+    // Clear form fields
+    responseForm.value.text = ''
+    responseForm.value.geopunkt = null
+    responseForm.value.file = null
+
+    // Clear uploaded files
+    uploadedFiles.value = []
+
+    // Reset file upload component if it exists
+    if (fileUploadRef.value && typeof fileUploadRef.value.clearFiles === 'function') {
+      fileUploadRef.value.clearFiles()
     }
   }
 })

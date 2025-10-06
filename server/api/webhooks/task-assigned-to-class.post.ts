@@ -1,6 +1,6 @@
 /**
  * F020: Task Assigned to Class Webhook
- * 
+ *
  * Entu calls this endpoint when a task (ulesanne) entity is edited
  * Checks if task has grupp reference and grants _expander permission
  * to all students in that group
@@ -8,23 +8,23 @@
 
 import { defineEventHandler, readBody } from 'h3'
 import { createLogger } from '../../utils/logger'
-import { 
-  validateWebhookRequest, 
-  validateWebhookPayload, 
+import {
+  validateWebhookRequest,
+  validateWebhookPayload,
   extractEntityId,
   extractUserToken,
   checkRateLimit,
-  sanitizePayloadForLogging 
+  sanitizePayloadForLogging
 } from '../../utils/webhook-validation'
 import {
   enqueueWebhook,
   completeWebhookProcessing
 } from '../../utils/webhook-queue'
-import { 
+import {
   getEntityDetails,
   extractGroupFromTask,
-  getStudentsByGroup, 
-  batchGrantPermissions 
+  getStudentsByGroup,
+  batchGrantPermissions
 } from '../../utils/entu-admin'
 
 const logger = createLogger('webhook:task-assigned')
@@ -32,8 +32,8 @@ const logger = createLogger('webhook:task-assigned')
 /**
  * Process the webhook - separated for reprocessing logic
  */
-async function processTaskWebhook(entityId: string, userToken?: string, userId?: string, userEmail?: string) {
-    logger.info('Processing task webhook', { entityId })  // Fetch full entity details
+async function processTaskWebhook (entityId: string, userToken?: string, userId?: string, userEmail?: string) {
+  logger.info('Processing task webhook', { entityId }) // Fetch full entity details
   const entity = await getEntityDetails(entityId, userToken, userId, userEmail)
 
   // Extract group from task's grupp property
@@ -108,7 +108,7 @@ async function processTaskWebhook(entityId: string, userToken?: string, userId?:
 
 export default defineEventHandler(async (event) => {
   const startTime = Date.now()
-  
+
   logger.info('Webhook received: task-assigned-to-class')
 
   try {
@@ -160,7 +160,7 @@ export default defineEventHandler(async (event) => {
 
     // 5. Check queue - debounce if already processing
     const shouldProcess = enqueueWebhook(entityId)
-    
+
     if (!shouldProcess) {
       logger.info('Entity already queued - webhook will be reprocessed', { entityId })
       return {
@@ -177,14 +177,14 @@ export default defineEventHandler(async (event) => {
 
     while (needsReprocessing) {
       result = await processTaskWebhook(entityId, userToken || undefined, userId || undefined, userEmail || undefined)
-      
+
       // Check if reprocessing needed (entity was edited during processing)
       needsReprocessing = completeWebhookProcessing(entityId)
-      
+
       if (needsReprocessing) {
         logger.info('Reprocessing entity - was edited during processing', { entityId })
         // Wait 2 seconds before reprocessing to let edits settle
-        await new Promise(resolve => setTimeout(resolve, 2000))
+        await new Promise((resolve) => setTimeout(resolve, 2000))
       }
     }
 
@@ -193,8 +193,8 @@ export default defineEventHandler(async (event) => {
       ...result,
       duration_ms: Date.now() - startTime
     }
-
-  } catch (error: any) {
+  }
+  catch (error: any) {
     const duration = Date.now() - startTime
 
     logger.error('Webhook processing failed', {

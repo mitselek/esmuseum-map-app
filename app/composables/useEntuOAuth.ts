@@ -43,7 +43,7 @@ export interface UseEntuOAuthReturn {
   // Methods
   startOAuthFlow: (provider: OAuthProvider) => boolean
   handleOAuthCallback: () => Promise<EntuAuthResponse | null>
-  
+
   // State
   providers: typeof OAUTH_PROVIDERS
   isLoading: Ref<boolean>

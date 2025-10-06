@@ -1,6 +1,6 @@
 /**
  * Quick Test: F022 TypeScript Types
- * 
+ *
  * This file tests the type system without affecting production code.
  * Run this to verify types work correctly.
  */
@@ -25,27 +25,27 @@ console.log('🧪 Testing F022 TypeScript Types...\n')
 console.log('📋 TEST 1: Task Entity')
 
 const sampleTask: EntuTask = {
-  _id: "68bab85d43e4daafab199988",
+  _id: '68bab85d43e4daafab199988',
   _type: [{
-    _id: "68bab85d43e4daafab19998a",
-    reference: "686917231749f351b9c82f4c",
-    property_type: "_type",
-    string: "ulesanne",
-    entity_type: "entity"
+    _id: '68bab85d43e4daafab19998a',
+    reference: '686917231749f351b9c82f4c',
+    property_type: '_type',
+    string: 'ulesanne',
+    entity_type: 'entity'
   }],
   name: [{
-    _id: "68bab85d43e4daafab199989",
-    string: "proovikas"
+    _id: '68bab85d43e4daafab199989',
+    string: 'proovikas'
   }],
   kaart: [{
-    _id: "68bab8d343e4daafab199990",
-    reference: "68823f8b5d95233e69c29a07",
-    property_type: "kaart",
-    string: "Peeter Suure Merekindlus",
-    entity_type: "kaart"
+    _id: '68bab8d343e4daafab199990',
+    reference: '68823f8b5d95233e69c29a07',
+    property_type: 'kaart',
+    string: 'Peeter Suure Merekindlus',
+    entity_type: 'kaart'
   }],
   vastuseid: [{
-    _id: "68bae03f43e4daafab199a48",
+    _id: '68bae03f43e4daafab199a48',
     number: 25
   }]
 }
@@ -61,8 +61,8 @@ console.log(`  ✅ Map Reference: ${mapRef}`)
 console.log(`  ✅ Type Guard: isTask() = ${isTask(sampleTask)}`)
 
 // TypeScript knows the types!
-const nameIsString: string = taskName  // ✅ Compiles
-const countIsNumber: number = responseCount  // ✅ Compiles
+const nameIsString: string = taskName // ✅ Compiles
+const countIsNumber: number = responseCount // ✅ Compiles
 
 console.log('')
 
@@ -73,28 +73,28 @@ console.log('')
 console.log('💬 TEST 2: Response Entity')
 
 const sampleResponse: EntuResponse = {
-  _id: "68c7331a85a9d472cca35ce9",
+  _id: '68c7331a85a9d472cca35ce9',
   _type: [{
-    _id: "68c7331a85a9d472cca35cee",
-    reference: "686917401749f351b9c82f58",
-    property_type: "_type",
-    string: "vastus",
-    entity_type: "entity"
+    _id: '68c7331a85a9d472cca35cee',
+    reference: '686917401749f351b9c82f58',
+    property_type: '_type',
+    string: 'vastus',
+    entity_type: 'entity'
   }],
   kirjeldus: [{
-    _id: "68c7332985a9d472cca35cf9",
-    string: "näidis kirjeldus"
+    _id: '68c7332985a9d472cca35cf9',
+    string: 'näidis kirjeldus'
   }],
   geopunkt: [{
-    _id: "68c7335885a9d472cca35cfb",
-    string: "24.45,64.56"
+    _id: '68c7335885a9d472cca35cfb',
+    string: '24.45,64.56'
   }],
   asukoht: [{
-    _id: "68c7331a85a9d472cca35cea",
-    reference: "688260755d95233e69c2a5e3",
-    property_type: "asukoht",
-    string: "AEGNA RAUDTEE",
-    entity_type: "asukoht"
+    _id: '68c7331a85a9d472cca35cea',
+    reference: '688260755d95233e69c2a5e3',
+    property_type: 'asukoht',
+    string: 'AEGNA RAUDTEE',
+    entity_type: 'asukoht'
   }]
 }
 
@@ -104,8 +104,8 @@ console.log(`  ✅ Has coordinates: ${coords ? 'Yes' : 'No'}`)
 if (coords) {
   console.log(`  ✅ Coordinates: lat=${coords.lat}, lng=${coords.lng}`)
   // TypeScript knows coords has lat and lng as numbers!
-  const latIsNumber: number = coords.lat  // ✅ Compiles
-  const lngIsNumber: number = coords.lng  // ✅ Compiles
+  const latIsNumber: number = coords.lat // ✅ Compiles
+  const lngIsNumber: number = coords.lng // ✅ Compiles
 }
 console.log(`  ✅ Type Guard: isResponse() = ${isResponse(sampleResponse)}`)
 
@@ -118,24 +118,24 @@ console.log('')
 console.log('📍 TEST 3: Location Entity')
 
 const sampleLocation: EntuLocation = {
-  _id: "688260755d95233e69c2a5e3",
+  _id: '688260755d95233e69c2a5e3',
   _type: [{
-    _id: "688260755d95233e69c2a5e4",
-    reference: "687d27c9259fc48ba59cf726",
-    property_type: "_type",
-    string: "asukoht",
-    entity_type: "entity"
+    _id: '688260755d95233e69c2a5e4',
+    reference: '687d27c9259fc48ba59cf726',
+    property_type: '_type',
+    string: 'asukoht',
+    entity_type: 'entity'
   }],
   name: [{
-    _id: "688260755d95233e69c2a5e6",
-    string: "AEGNA RAUDTEE"
+    _id: '688260755d95233e69c2a5e6',
+    string: 'AEGNA RAUDTEE'
   }],
   lat: [{
-    _id: "688260755d95233e69c2a5e7",
+    _id: '688260755d95233e69c2a5e7',
     number: 59.580067
   }],
   long: [{
-    _id: "688260755d95233e69c2a5e8",
+    _id: '688260755d95233e69c2a5e8',
     number: 24.763499
   }]
 }
