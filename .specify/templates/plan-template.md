@@ -50,7 +50,7 @@ scripts:
 **Map Library**: Leaflet 1.9+ (via leaflet.client.js plugin)  
 **State Management**: Vue reactivity (ref, reactive, computed, watch)  
 **API Integration**: Entu API (via useEntuApi, useEntuAuth composables)  
-**Testing**: Vitest + @vue/test-utils  
+**Testing**: [AUTO-DETECT: Check package.json for @vue/test-utils, @nuxt/test-utils, or vitest-only. Scan tests/ for existing patterns (mounting vs mocking). Document actual testing approach.]  
 **Target Platform**: Web (SSR/CSR hybrid via Nuxt)  
 **Project Type**: web (Nuxt 3 application)  
 **Performance Goals**: [e.g., <100ms route transitions, <2s initial load, 60fps map interactions or NEEDS CLARIFICATION]  
@@ -150,6 +150,12 @@ tests/
 2. **Vue 3 + Nuxt 3 specific research areas**:
 
    ```text
+   Testing Infrastructure (REQUIRED - analyze first):
+     - Check package.json for test libraries (@vue/test-utils, @nuxt/test-utils, vitest)
+     - Scan tests/ directory for existing test patterns
+     - Are tests mounting components or testing logic only?
+     - Document actual testing approach in research.md
+   
    Component Architecture:
      - Which Naive UI components needed? (n-button, n-card, n-modal, etc.)
      - Custom component complexity (presentational vs. smart components)?
