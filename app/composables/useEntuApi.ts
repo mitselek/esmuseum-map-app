@@ -10,6 +10,8 @@
  */
 
 import { ENTU_TYPES, ENTU_PROPERTIES } from '../constants/entu'
+import { analyzeApiError, handleAuthError } from '~/utils/error-handling'
+import { notifyAuthRequired } from '~/composables/useNotifications'
 
 // ============================================================================
 // Types & Interfaces
@@ -143,32 +145,78 @@ export const useEntuApi = (): UseEntuApiReturn => {
       const url = `${getApiBase()}${endpoint}`
       const response = await fetch(url, requestOptions)
 
-      if (response.status === 401) {
-        // Token expired, try refreshing and retry once
-        await refreshToken(true)
+      if (response.status === 401 || response.status === 403) {
+        // Authentication error - analyze and handle appropriately
+        const errorAnalysis = analyzeApiError(response.status, `API call to ${endpoint}`)
+        console.warn('[API] Authentication error:', errorAnalysis.technicalMessage)
 
-        // Retry the request with the new token
-        const retryHeaders = requestOptions.headers as Record<string, string>
-        retryHeaders.Authorization = `Bearer ${token.value}`
-        const retryResponse = await fetch(url, requestOptions)
+        // Try refreshing token once
+        if (response.status === 401) {
+          await refreshToken(true)
 
-        if (!retryResponse.ok) {
-          throw new Error(`API error: ${retryResponse.status} ${retryResponse.statusText}`)
+          // Retry the request with the new token
+          const retryHeaders = requestOptions.headers as Record<string, string>
+          retryHeaders.Authorization = `Bearer ${token.value}`
+          const retryResponse = await fetch(url, requestOptions)
+
+          if (!retryResponse.ok) {
+            // Still failed - handle auth error and throw
+            const router = useRouter()
+            const route = useRoute()
+            handleAuthError(route.fullPath)
+
+            // Show notification
+            notifyAuthRequired()
+
+            // Redirect to login
+            router.push('/login')
+
+            throw new Error(`API error: ${retryResponse.status} ${retryResponse.statusText}`)
+          }
+
+          return await retryResponse.json() as T
         }
 
-        return await retryResponse.json() as T
+        // 403 or refresh failed - redirect to login
+        const router = useRouter()
+        const route = useRoute()
+        handleAuthError(route.fullPath)
+
+        // Show notification
+        notifyAuthRequired()
+
+        router.push('/login')
+
+        throw new Error(`API error: ${response.status} ${response.statusText}`)
       }
 
       if (!response.ok) {
+        // Other HTTP error - let it bubble up
         throw new Error(`API error: ${response.status} ${response.statusText}`)
       }
 
       return await response.json() as T
     }
     catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'API call failed'
-      error.value = errorMessage
-      console.error('Entu API error:', err)
+      // Analyze error to determine type
+      const errorAnalysis = analyzeApiError(err, `API call to ${endpoint}`)
+      error.value = errorAnalysis.userMessage
+
+      // Log technical details
+      console.error('Entu API error:', errorAnalysis.technicalMessage)
+
+      // If it's an auth error and we haven't already redirected, do it now
+      if (errorAnalysis.shouldRedirectToLogin && import.meta.client) {
+        const router = useRouter()
+        const route = useRoute()
+        handleAuthError(route.fullPath)
+
+        // Show notification
+        notifyAuthRequired()
+
+        router.push('/login')
+      }
+
       throw err
     }
     finally {

@@ -27,13 +27,14 @@ export const useServerAuth = () => {
    */
   const checkAuthStatus = async () => {
     try {
-      const response = await $fetch('/api/auth/status') as { authenticated: boolean; user: any }
-      
+      const response = await $fetch('/api/auth/status') as { authenticated: boolean, user: any }
+
       isAuthenticated.value = response.authenticated
       user.value = response.user
-      
+
       return response
-    } catch (error: any) {
+    }
+    catch (error: any) {
       console.error('Failed to check auth status:', error)
       isAuthenticated.value = false
       user.value = null
@@ -63,7 +64,7 @@ export const useServerAuth = () => {
           provider,
           redirectUrl
         }
-      }) as { success: boolean; authUrl?: string }
+      }) as { success: boolean, authUrl?: string }
 
       if (!response.success || !response.authUrl) {
         throw new Error('Failed to start authentication flow')
@@ -104,14 +105,15 @@ export const useServerAuth = () => {
       user.value = null
 
       console.log('Logout successful')
-      
+
       // Redirect to home or login page
       await navigateTo('/')
-      
-    } catch (err: any) {
+    }
+    catch (err: any) {
       error.value = err.message || 'Failed to logout'
       console.error('Logout error:', err)
-    } finally {
+    }
+    finally {
       isLoading.value = false
     }
   }
@@ -129,17 +131,17 @@ export const useServerAuth = () => {
       if (authResult === 'success') {
         console.log('Authentication successful, checking status...')
         await checkAuthStatus()
-        
+
         // Clean up URL parameters
         const url = new URL(window.location.href)
         url.searchParams.delete('auth')
         url.searchParams.delete('message')
         window.history.replaceState({}, '', url.toString())
-        
-      } else if (authResult === 'error') {
+      }
+      else if (authResult === 'error') {
         error.value = message || 'Authentication failed'
         console.error('Authentication failed:', message)
-        
+
         // Clean up URL parameters
         const url = new URL(window.location.href)
         url.searchParams.delete('auth')
@@ -153,7 +155,7 @@ export const useServerAuth = () => {
   if (import.meta.client) {
     // Check for auth result first
     handleAuthResult()
-    
+
     // Then check current status
     checkAuthStatus()
   }
@@ -165,13 +167,13 @@ export const useServerAuth = () => {
     user: readonly(user),
     isLoading: readonly(isLoading),
     error: readonly(error),
-    
+
     // Actions
     startAuthFlow,
     logout,
     checkAuthStatus,
     handleAuthResult,
-    
+
     // Constants
     providers
   }

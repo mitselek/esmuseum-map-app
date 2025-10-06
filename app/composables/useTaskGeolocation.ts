@@ -1,6 +1,6 @@
 /**
  * Task Geolocation Management Composable
- * Simplified to use centralized GPS service and handle manual coordinate override
+ * Simplified to use centralized GPS service for location sorting
  */
 
 // ============================================================================
@@ -14,7 +14,6 @@ export interface UserPosition {
   lat: number
   lng: number
   accuracy?: number
-  manual?: boolean
 }
 
 /**
@@ -54,13 +53,9 @@ export interface UseTaskGeolocationReturn {
   geolocationLoading: ComputedRef<boolean>
   geolocationError: ComputedRef<string | null>
   userLocation: ComputedRef<UserPosition | null>
-  showManualCoordinates: Ref<boolean>
-  manualCoordinates: Ref<string>
-  hasManualOverride: Ref<boolean>
 
   // Methods
   onRequestLocation: (taskLocations: Ref<TaskLocation[]>) => Promise<void>
-  handleLocationChange: (coordinates: string | null, taskLocations: Ref<TaskLocation[]>) => void
   setFormLocation: (responseFormRef: Ref<ResponseFormRef | null>, coordinates: CoordinatesInput) => void
   watchPosition: (
     userPosition: ComputedRef<UserPosition | null>,
@@ -75,7 +70,7 @@ export interface UseTaskGeolocationReturn {
 
 export const useTaskGeolocation = (): UseTaskGeolocationReturn => {
   const { userPosition: gpsPosition, gettingLocation, locationError, sortByDistance } = useLocation()
-  
+
   // Type-safe wrapper for sortByDistance (now from useLocation.ts)
   // Note: Using 'as any' because sortByDistance returns LocationEntity[] | LocationWithDistance[]
   // but we need TaskLocation[] for this composable. This is a JS boundary cast wrapping
@@ -85,23 +80,10 @@ export const useTaskGeolocation = (): UseTaskGeolocationReturn => {
     return (sortByDistance as any)(locations, position) as TaskLocation[]
   }
 
-  // Manual coordinates state
-  const showManualCoordinates = ref(false)
-  const manualCoordinates = ref('')
-  const hasManualOverride = ref(false)
-
-  // Task-specific position that can be overridden (separate from global GPS)
-  const taskUserPosition = ref<UserPosition | null>(null)
-
   // Re-export centralized GPS state
   const geolocationLoading = computed(() => gettingLocation.value)
   const geolocationError = computed(() => locationError.value)
   const userLocation = computed(() => gpsPosition.value)
-
-  // Effective user position for this task (manual override or GPS)
-  const userPosition = computed<UserPosition | null>(() => {
-    return hasManualOverride.value ? taskUserPosition.value : gpsPosition.value
-  })
 
   /**
    * Handle location request (simplified - just triggers re-sorting)
@@ -110,48 +92,13 @@ export const useTaskGeolocation = (): UseTaskGeolocationReturn => {
     try {
       // GPS is automatically managed by centralized service
       // Just re-sort locations if we have them and user position
-      const currentPosition = userPosition.value
+      const currentPosition = gpsPosition.value
       if (taskLocations.value?.length > 0 && currentPosition) {
         taskLocations.value = sortByDistanceSafe(taskLocations.value, currentPosition)
       }
     }
     catch (err) {
       console.error('Error in location request:', err)
-    }
-  }
-
-  /**
-   * Handle manual location override or clear
-   */
-  const handleLocationChange = (coordinates: string | null, taskLocations: Ref<TaskLocation[]>): void => {
-    if (coordinates) {
-      // Apply manual coordinates to task-specific position (don't mutate global GPS!)
-      const parts = coordinates.split(',').map((s) => s.trim())
-      const lat = parseFloat(parts[0] || '')
-      const lng = parseFloat(parts[1] || '')
-
-      if (!isNaN(lat) && !isNaN(lng)) {
-        const newPosition: UserPosition = { lat, lng, accuracy: undefined, manual: true }
-        taskUserPosition.value = newPosition
-        hasManualOverride.value = true
-        manualCoordinates.value = coordinates
-
-        // Re-sort locations with new position
-        if (taskLocations.value?.length > 0) {
-          taskLocations.value = sortByDistanceSafe(taskLocations.value, newPosition)
-        }
-      }
-    }
-    else {
-      // Clear manual override - revert to GPS position
-      hasManualOverride.value = false
-      manualCoordinates.value = ''
-      taskUserPosition.value = null
-
-      // Re-sort locations with GPS position if available
-      if (taskLocations.value?.length > 0 && gpsPosition.value) {
-        taskLocations.value = sortByDistanceSafe(taskLocations.value, gpsPosition.value)
-      }
     }
   }
 
@@ -202,13 +149,9 @@ export const useTaskGeolocation = (): UseTaskGeolocationReturn => {
     geolocationLoading,
     geolocationError,
     userLocation,
-    showManualCoordinates,
-    manualCoordinates,
-    hasManualOverride,
 
     // Methods
     onRequestLocation,
-    handleLocationChange,
     setFormLocation,
     watchPosition
   }

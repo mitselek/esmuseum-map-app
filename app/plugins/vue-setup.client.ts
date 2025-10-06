@@ -4,9 +4,9 @@
 export default defineNuxtPlugin({
   name: 'vue-setup',
   enforce: 'pre', // Run before other plugins
-  setup() {
+  setup () {
     // Safely disable devtools before Vue app initialization
-    if (process.client) {
+    if (import.meta.client) {
       // Create a safe mock devtools object
       const mockDevtools = {
         Vue: {},
@@ -18,7 +18,7 @@ export default defineNuxtPlugin({
         apps: [],
         enabled: false
       }
-      
+
       // Set devtools objects without making them readonly
       // Note: Using 'as any' to augment window object with non-standard Vue devtools globals
       // These properties are not defined in standard Window interface but are used by Vue devtools
@@ -26,7 +26,8 @@ export default defineNuxtPlugin({
       try {
         (window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__ = mockDevtools
         ;(window as any).__VUE_PROD_DEVTOOLS__ = false
-      } catch (e) {
+      }
+      catch (e) {
         // Ignore if already set
       }
     }

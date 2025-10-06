@@ -2,7 +2,7 @@ import { defineEventHandler, readMultipartFormData } from 'h3'
 
 /**
  * F015 Phase 3.2b: Upload Proxy Endpoint
- * 
+ *
  * Hybrid approach:
  * 1. Client gets upload URL from Entu (client-side)
  * 2. Client sends file + upload info to this proxy
@@ -12,7 +12,7 @@ import { defineEventHandler, readMultipartFormData } from 'h3'
 export default defineEventHandler(async (event) => {
   try {
     const formData = await readMultipartFormData(event)
-    
+
     if (!formData) {
       throw new Error('No form data received')
     }
@@ -25,9 +25,11 @@ export default defineEventHandler(async (event) => {
     for (const field of formData) {
       if (field.name === 'file' && field.data) {
         file = field
-      } else if (field.name === 'uploadUrl' && field.data) {
+      }
+      else if (field.name === 'uploadUrl' && field.data) {
         uploadUrl = field.data.toString()
-      } else if (field.name === 'headers' && field.data) {
+      }
+      else if (field.name === 'headers' && field.data) {
         headers = JSON.parse(field.data.toString())
       }
     }
@@ -40,7 +42,8 @@ export default defineEventHandler(async (event) => {
     let validatedUrl: URL
     try {
       validatedUrl = new URL(uploadUrl)
-    } catch (urlError: any) {
+    }
+    catch (urlError: any) {
       console.error('F015: Invalid upload URL:', urlError.message)
       throw new Error(`Invalid upload URL: ${urlError.message}`)
     }
@@ -78,10 +81,10 @@ export default defineEventHandler(async (event) => {
       filename: file.filename,
       size: file.data.length
     }
-
-  } catch (error: any) {
+  }
+  catch (error: any) {
     console.error('F015: Upload proxy error:', error)
-    
+
     return {
       success: false,
       message: 'Upload proxy failed',

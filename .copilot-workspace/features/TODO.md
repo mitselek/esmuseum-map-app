@@ -23,3 +23,53 @@
   - iOS GPS flow tested and working (3 Safari scenarios verified)
   - Complete documentation: `.copilot-workspace/features/F022-COMPOSABLE-MIGRATION.md`
   - **Status**: ✅ **READY TO MERGE TO MAIN** 🚀
+- [x] **Investigate `/auth/callback` redirect behavior** ✅ **COMPLETED IN F025**
+  - **Status**: Callback page optimized for instant redirect during F025 implementation
+  - **Implementation**:
+    - ✅ Minimal UI: spinner + "Suunatakse ümber..." text only
+    - ✅ NO debug info shown (OAuth details, tokens, etc. removed)
+    - ✅ Instant redirect using `onMounted()` (no artificial delays)
+    - ✅ Defensive fallback link (user-approved for edge cases)
+    - ✅ Clean i18n translations (et, en, uk)
+  - **Result**: Page visible for <100ms, professional UX
+- [x] **Fix expired token handling on browser tab restore** ✅ **COMPLETED IN F025**
+  - **Feature**: F025 - Expired Token Handling (October 5-6, 2025)
+  - **Implementation completed**:
+    - ✅ Proactive token validation in `auth.ts` middleware (checks BEFORE route loads)
+    - ✅ 60-second buffer prevents mid-request expiry
+    - ✅ Automatic redirect to `/login` with return URL preservation
+    - ✅ User-friendly i18n notifications (Estonian, English, Ukrainian)
+    - ✅ Smart error handling: distinguishes auth errors (redirect) from network errors (retry button)
+    - ✅ Naive UI notification integration with discrete API
+    - ✅ Auth callback instant redirect (<100ms, minimal UI flash)
+  - **Token validation utilities**:
+    - `app/utils/token-validation.ts` - JWT decoder with 60s buffer
+    - `app/utils/error-handling.ts` - Smart error analyzer
+  - **Bugs discovered and fixed during testing**:
+    - Bug #1: 500 error with `useI18n()` in middleware → Fixed: use `useNuxtApp().$i18n` (commit 1918cf0)
+    - Bug #2: Redirect loop with expired token → Fixed: reordered middleware checks (commit 23f8966)
+    - Bug #3: Translation keys showing instead of text → Fixed: type cast for $i18n.t() (commit 401ab7c)
+    - Bug #4: "Already logged in" message with no valid token → Fixed: use logout() composable (commit 72bcfd0)
+  - **Testing infrastructure**:
+    - Comprehensive testing guide: `docs/testing/F025-TESTING-GUIDE.md` (564 lines, 23 test scenarios)
+    - Interactive test helper: `docs/testing/token-test-helper.html` (410 lines)
+    - Console helper scripts: checkToken(), expireToken(), checkAuthStorage()
+  - **Status**: ✅ **PRODUCTION READY** - Initial testing passed, awaiting team testing
+- [ ] **Add long-press gesture to toggle map fullscreen mode**
+  - **Feature**: F026 - Map Fullscreen Toggle (planned for October 6-7, 2025)
+  - **Behavior**: User long-presses anywhere on the map → map enters/exits fullscreen
+  - **Implementation approach**:
+    - Use `@longpress` event on InteractiveMap component (VueUse `useLongPress` or custom implementation)
+    - Toggle fullscreen using Fullscreen API: `element.requestFullscreen()` / `document.exitFullscreen()`
+    - Fallback for iOS Safari: Use CSS fullscreen overlay (position: fixed, z-index: 9999) since iOS doesn't support Fullscreen API
+    - Add visual feedback during long-press (e.g., expanding circle animation, haptic feedback)
+    - Show subtle hint/icon when entering fullscreen: "Tap to exit fullscreen" (auto-hide after 2s)
+  - **UX considerations**:
+    - Long-press duration: ~500-700ms (not too sensitive, prevents accidental triggers)
+    - Don't trigger if user is dragging/panning the map
+    - Exit fullscreen on: long-press again, ESC key, or dedicated exit button
+    - Preserve map state (zoom, center, selected markers) when toggling fullscreen
+  - **Technical notes**:
+    - VueUse has `useFullscreen()` composable for easy implementation
+    - May need to handle Leaflet map resize: `map.invalidateSize()` after fullscreen change
+    - Consider mobile-specific behaviors (hide browser chrome, handle safe areas)

@@ -1,13 +1,97 @@
-# Optimization Opportunities Index
+# Optimization Opportunities
+
+## ✅ F025 - Expired Token Handling (COMPLETED October 5-6, 2025)
+
+**Feature**: F025 - Expired Token Handling  
+**Status**: ✅ **PRODUCTION READY** - Initial testing passed, awaiting team testing
+
+### Implementation Summary
+
+**Problem Solved**: Users getting stuck on 403 error pages after token expiry during browser tab restore
+
+**Solution Delivered**:
+
+- ✅ Proactive token validation in `auth.ts` middleware (checks BEFORE route loads)
+- ✅ 60-second expiry buffer prevents mid-request failures
+- ✅ Automatic redirect to `/login` with return URL preservation
+- ✅ User-friendly i18n notifications (Estonian, English, Ukrainian)
+- ✅ Smart error handling: distinguishes auth errors from network errors
+- ✅ Naive UI notification integration with discrete API
+- ✅ Auth callback instant redirect (<100ms, minimal UI flash)
+
+### New Files Created
+
+1. **`app/utils/token-validation.ts`** - JWT decoder with 60s buffer
+2. **`app/utils/error-handling.ts`** - Smart error analyzer
+3. **`docs/testing/F025-TESTING-GUIDE.md`** - 564 lines, 23 test scenarios
+4. **`docs/testing/token-test-helper.html`** - 410 lines, interactive testing tool
+
+### Bugs Discovered & Fixed During Testing
+
+**Testing Phase**: Manual desktop testing revealed 4 critical issues
+
+1. **Bug #1**: 500 Error - `useI18n()` in middleware context
+   - **Fix**: Use `useNuxtApp().$i18n` instead (commit 1918cf0)
+   - **Impact**: Notifications now work in middleware context
+
+2. **Bug #2**: Redirect loop with expired token
+   - **Fix**: Reordered middleware checks - expiry FIRST, auth SECOND (commit 23f8966)
+   - **Impact**: Clean single redirect, no loops
+
+3. **Bug #3**: Translation keys showing instead of translated text
+   - **Fix**: Type cast for `$i18n.t()` method (commit 401ab7c)
+   - **Impact**: Proper Estonian translations displayed
+
+4. **Bug #4**: "Already logged in" message with no valid token
+   - **Root Cause**: Middleware cleared localStorage but reactive refs stayed populated
+   - **Fix**: Use `logout()` composable method for proper state cleanup (commit 72bcfd0)
+   - **Impact**: Login page shows correct OAuth buttons after expiry
+
+### Testing Infrastructure
+
+- **Comprehensive guide**: 23 test scenarios (9 desktop, 4 mobile, 5 edge cases, 5 i18n)
+- **Helper scripts**: `checkToken()`, `expireToken()`, `checkAuthStorage()`
+- **Interactive tool**: HTML test helper with buttons (cross-origin limitation documented)
+
+### Optimization Opportunities Identified
+
+See sections #15-19 below for potential future improvements discovered during F025 development
+
+---
+
+## Historical Bug Tracking Index
 
 **Created**: October 3, 2025  
 **Purpose**: Track potential improvements discovered during refactoring
 
+We should look after:
+
+- Reducing magic strings in the codebase
+- Eliminating excessive debug logging
+- Duplicate or suspiciously similar code patterns
+- Redundant or unnecessary code
+- Investigating complex logic
+
 ---
 
-## 🔍 Discovered During Phase 1 (Magic Strings & Event Logs)
+## Bugs Discovered During F025 Testing (October 5-6, 2025)
 
-### 1. **EventDebugPanel.vue is NEEDED (not obsolete)**
+**Feature**: F025 - Expired Token Handling  
+**Testing Phase**: Manual desktop testing  
+**Bugs Found**: 4 critical issues discovered and fixed
+
+1. **Bug #1**: 500 Error - `useI18n()` in middleware context ✅ Fixed (1918cf0)
+2. **Bug #2**: Redirect loop - middleware check order ✅ Fixed (23f8966)
+3. **Bug #3**: Translation keys showing instead of text ✅ Fixed (type cast)
+4. **Bug #4**: "Already logged in" message with no valid token ✅ Fixed (c3e14a8)
+
+**Result**: All bugs fixed during testing, F025 is production-ready
+
+---
+
+## Discovered During Phase 1 (Magic Strings & Event Logs)
+
+### 1. EventDebugPanel.vue is NEEDED (not obsolete)
 
 - **File**: `app/components/EventDebugPanel.vue`
 - **Purpose**: Debug component that captures console logs for mobile debugging
@@ -16,14 +100,14 @@
 - **Action**: Keep as-is, consider enhancement instead of removal
 - **Confirmed**: October 3, 2025 - User feedback
 
-### 2. ~~**useLocation.js has excessive debug logging**~~ ✅ **RESOLVED**
+### 2. useLocation.js has excessive debug logging ✅ RESOLVED
 
 - **File**: ~~`app/composables/useLocation.js`~~ → **Migrated to `useLocation.ts`** (Phase 10)
 - **Issue**: 12 `🔍 [EVENT]` debug logs for permission detection
 - **Resolution**: Optimized to 7 iOS-critical logs, removed 5 verbose logs
 - **Action**: ✅ **COMPLETED** - Balanced debugging capability vs console noise
 
-### 3. **index.vue has redundant page initialization log**
+### 3. index.vue has redundant page initialization log
 
 - **File**: `app/pages/index.vue`
 - **Issue**: `console.log('🚀 [EVENT] index.vue - Script setup started')`
@@ -33,7 +117,7 @@
 
 ## 📋 Future Investigation Needed
 
-### 6. ~~**useLocation permission detection complexity**~~ ✅ **RESOLVED**
+### 6. useLocation permission detection complexity ✅ RESOLVED
 
 - **File**: ~~`app/composables/useLocation.js`~~ → **Migrated to `useLocation.ts`** (Phase 10)
 - **Observation**: Very complex iOS permission workaround logic
@@ -43,7 +127,7 @@
 - **Impact**: Without workaround, apps get infinite permission loop
 - **Action**: ✅ **KEPT** - iOS workarounds are necessary, documented, and evidence-based
 
-### 7. **Response entity search patterns**
+### 7. Response entity search patterns
 
 - **Observation**: Three files search for responses with similar patterns
 - **Question**: Could create a shared `searchUserResponses()` utility?
@@ -51,9 +135,142 @@
 
 ---
 
+## 🔍 Discovered During F025 (Expired Token Handling)
+
+### 14. auth.js Middleware Should Be Migrated to TypeScript ✅ RESOLVED
+
+- **File**: ~~`app/middleware/auth.js`~~ → **Migrated to `auth.ts`** (October 5, 2025)
+- **Issue**: Only remaining JavaScript file in middleware
+- **Resolution**: Migrated to TypeScript with proper route parameter types
+- **Changes**:
+  - Added `RouteLocationNormalized` type for `to`, `from` parameters
+  - Added explicit imports for all auth utility functions
+  - Added comprehensive JSDoc comments explaining auth flow
+  - Improved documentation with F025 references
+- **Benefits achieved**:
+  - ✅ Type-safe route navigation
+  - ✅ Proper typing for localStorage operations
+  - ✅ Better IDE autocomplete
+  - ✅ **100% TypeScript middleware coverage** (matches composables/components)
+- **Action**: ✅ **COMPLETED** - Consistent TypeScript across entire codebase!
+
+### 15. Duplicate Token Expiry Checking Logic
+
+- **Files**:
+  - `app/utils/token-validation.ts` - Has `isTokenExpired()` with buffer
+  - `app/middleware/auth.ts` - Calls `isTokenExpired(token)` once
+  - `app/composables/useEntuApi.ts` - Has refresh token logic with expiry check
+- **Observation**: Two different approaches to token refresh:
+  1. Middleware: Proactive check before route load (NEW in F025)
+  2. useEntuApi: Reactive check after 401 response (existing)
+- **Question**: Is both proactive + reactive checking needed?
+- **Analysis**:
+  - **Proactive** (middleware): Prevents bad API calls, better UX, catches expired tokens on tab restore
+  - **Reactive** (API): Handles mid-request expiry, token refresh with temporary key
+  - **Verdict**: Both are valuable - different use cases
+- **Potential optimization**: Could middleware set a flag to skip API-level check?
+- **Action**: Monitor in production - might be defensive duplication (good) or unnecessary overhead (bad)
+- **Priority**: LOW (wait for real-world data)
+
+### 16. Error Handling: Magic Status Codes
+
+- **File**: `app/utils/error-handling.ts`
+- **Issue**: Status codes (401, 403, 500, etc.) are magic numbers
+- **Observation**: Multiple conditions checking `statusCode === 401`, `statusCode >= 500`
+- **Action**: Consider HTTP status code constants
+- **Example**:
+
+  ```typescript
+  const HTTP_STATUS = {
+    UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    SERVER_ERROR: 500,
+  } as const;
+  ```
+
+- **Benefits**:
+  - More readable: `statusCode === HTTP_STATUS.UNAUTHORIZED`
+  - Self-documenting code
+  - Easier to maintain
+- **Priority**: LOW (code works, marginal readability improvement)
+
+### 17. Notification Durations: Magic Numbers
+
+- **File**: `app/composables/useNotifications.ts`
+- **Issue**: Hardcoded durations (4000, 4500, 5000 ms) without explanation
+- **Observation**:
+  - Success: 4000ms
+  - Info: 4000ms
+  - Warning: 4500ms
+  - Error: 5000ms
+  - Session expired: 5000ms
+- **Question**: Why these specific durations? Should they be configurable?
+- **Action**: Consider extracting to constants with comments explaining rationale
+- **Example**:
+
+  ```typescript
+  const NOTIFICATION_DURATION = {
+    SHORT: 3000, // Quick success messages
+    NORMAL: 4000, // Standard notifications
+    IMPORTANT: 5000, // Errors requiring attention
+    CRITICAL: 6000, // Must be acknowledged
+  } as const;
+  ```
+
+- **Priority**: LOW (works fine, minor maintainability improvement)
+
+### 18. Event Logging Still Present in Middleware ⚠️
+
+- **File**: `app/middleware/auth.js`
+- **Issue**: 6 console.log statements with 🔒 [EVENT] markers
+- **Observation**: We removed many event logs during Phase 1, but middleware still has verbose logging
+- **Logs**:
+  1. "Auth middleware start" with full route details
+  2. "Skipped (SSR)"
+  3. "Auth check" with token/user details
+  4. "Not authenticated"
+  5. "Token expired"
+  6. "Authenticated, proceeding"
+- **Question**: Are these still needed now that F025 notifications provide user feedback?
+- **Analysis**:
+  - Pro keeping: Helps debug auth flow issues
+  - Pro removing: Cleaner console, most info now in notifications
+  - Middle ground: Keep only error/warning logs, remove verbose success logs
+- **Action**: Review if all 6 logs still needed or if can trim to critical errors only
+- **Priority**: LOW (same decision as Phase 1 - useful for debugging)
+
+### 19. i18n Translation Keys Could Use Namespacing
+
+- **File**: `.config/i18n.config.ts`
+- **Observation**: F025 added translations:
+  - `auth.sessionExpired`
+  - `auth.sessionExpiredMessage`
+  - `auth.authRequired`
+  - `auth.authRequiredMessage`
+- **Pattern**: `{domain}.{key}` and `{domain}.{key}Message` pairs
+- **Alternative approach**:
+
+  ```typescript
+  auth: {
+    errors: {
+      sessionExpired: {
+        title: "Session Expired",
+        message: "Please log in again"
+      }
+    }
+  }
+  ```
+
+- **Benefits**: Clearer structure, grouped related translations
+- **Drawbacks**: More verbose access, breaking change
+- **Priority**: VERY LOW (cosmetic, would require refactor)
+
+---
+
 ## 🔍 Newly Discovered Opportunities (October 3, 2025 - Component Migration Phase)
 
-### 11. **Code Duplication: TaskLocationOverride vs TaskMapCard**
+### 11. Code Duplication: TaskLocationOverride vs TaskMapCard
 
 - **Files**:
   - `app/components/TaskLocationOverride.vue` (98 lines)
@@ -67,7 +284,7 @@
 - **Priority**: MEDIUM (technical debt, not blocking functionality)
 - **Benefit**: DRY principle, single source of truth for coordinate override logic
 
-### 12. **Git Command Auto-Approval Settings** ⚠️ STILL INVESTIGATING
+### 12. Git Command Auto-Approval Settings ⚠️ STILL INVESTIGATING
 
 - **Issue**: `git commit -m "message"` still requires manual approval despite settings
 - **Root Cause**: VS Code auto-approval matching is more complex than expected
@@ -84,7 +301,7 @@
 - **Priority**: LOW (can manually approve once and VS Code will remember)
 - **Status**: ⚠️ Settings approach unclear, manual approval works
 
-### 13. **Unexpected Component Modifications**
+### 13. Unexpected Component Modifications
 
 - **File**: `app/components/TaskWorkspaceHeader.vue`
 - **Issue**: Component was modified (migrated to TypeScript) but not in the current migration plan
@@ -107,7 +324,7 @@
   - Lesson: Look for similar patterns during migrations
 - **Event tracking logs cleaned** (useTaskWorkspace, useTaskDetail, index.vue)
   - Removed redundant 🎯 task selection logs
-  - Removed 🔐 permission check logs  
+  - Removed 🔐 permission check logs
   - Removed 🚀 page init logs from some components
 
 **Impact**: Cleaner console, centralized constants, bug fixes
@@ -200,14 +417,14 @@
 
 ### Critical Bug Fixes (Post Phase 3)
 
-- **Issue**: Phase 3 migration introduced bug where user._id was set to empty string
+- **Issue**: Phase 3 migration introduced bug where user.\_id was set to empty string
 - **Symptom**: "No user ID available for loading tasks" - tasks not loading
 - **Root Cause**: `newUser._id` initialized as empty string instead of checking data structure
-- **Fix 1**: Try to get _id from `data.user._id` first, then from `accounts[0].user._id`
-- **Fix 2**: Only set `user.value` if _id is valid (not empty)
+- **Fix 1**: Try to get \_id from `data.user._id` first, then from `accounts[0].user._id`
+- **Fix 2**: Only set `user.value` if \_id is valid (not empty)
 - **Fix 3**: Added migration code to auto-fix broken localStorage on app load
 - **Migration Logic**:
-  - Check if stored user has empty _id
+  - Check if stored user has empty \_id
   - Try to recover from stored authResponse
   - If recovery fails, clear auth and force re-login
 - **Additional Fixes**:
@@ -437,12 +654,12 @@
   - useEntuOAuth, useEntuApi, useClientSideFileUpload, useLocation
   - useCompletedTasks, useTaskWorkspace updated
 - **Components migrated**: **18 of 18 (100%)** ✅
-  - All app/components/*.vue have lang="ts"
+  - All app/components/\*.vue have lang="ts"
   - Zero components remaining
 - **Lines migrated**: ~2,089 JS → ~2,660 TS (+571 for interfaces, +27%)
 - **Type safety**: ~20% → **100% of composables AND components** 🎉
 - **Magic strings eliminated**: 25+
-- **Critical bugs fixed**: 3 (variable naming, user._id, OAuth login error)
+- **Critical bugs fixed**: 3 (variable naming, user.\_id, OAuth login error)
 - **'as any' casts**: Minimal (only at JS boundaries and type compatibility edges)
 - **Dead code removed**: 73 lines (useEntuAdminAuth.js + auth simplifications)
 - **UX improvements**: Login page redesign (1-click providers)
@@ -467,7 +684,7 @@
 - **Lines migrated**: ~2,089 JS → ~2,660 TS (+571 for interfaces, +27%)
 - **Type safety**: ~20% → **100% of composables** 🎉
 - **Magic strings eliminated**: 25+
-- **Critical bugs fixed**: 3 (variable naming, user._id, OAuth login error)
+- **Critical bugs fixed**: 3 (variable naming, user.\_id, OAuth login error)
 - **'as any' casts**: Net 0 (removed 4, added 4 for JS boundaries only)
 - **Dead code removed**: 73 lines (useEntuAdminAuth.js + auth simplifications)
 - **UX improvements**: Login page redesign (1-click providers)

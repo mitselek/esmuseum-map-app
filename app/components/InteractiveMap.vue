@@ -1,5 +1,5 @@
 <template>
-  <div class="h-64 w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
+  <div class="size-full overflow-hidden border border-gray-200 bg-gray-100">
     <!-- Loading state - don't show map until locations are ready -->
     <div
       v-if="loading || !locationsReady"
@@ -33,11 +33,18 @@
     <!-- Map container -->
     <div
       v-else
+      ref="mapContainer"
       class="relative size-full"
+      :class="{
+        'fixed inset-0 z-[9999] h-screen w-screen bg-white': isCSSFullscreen,
+      }"
     >
       <!-- GPS transition overlay -->
       <div
-        v-if="isTransitioning || (mapInitializationPhase === 'all-locations' && props.userPosition)"
+        v-if="
+          isTransitioning
+            || (mapInitializationPhase === 'all-locations' && props.userPosition)
+        "
         class="absolute inset-0 z-50 flex items-center justify-center bg-blue-50/90 transition-opacity duration-500"
       >
         <div class="text-center">
@@ -59,8 +66,9 @@
       >
         <!-- Tile layer -->
         <LTileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          :attribution="attribution"
+          :key="currentMapStyle.id"
+          :url="currentMapStyle.url"
+          :attribution="currentMapStyle.attribution"
           :options="tileOptions"
         />
 
@@ -76,7 +84,7 @@
                 📍
               </div>
               <p class="font-medium">
-                {{ $t('map.yourLocation') }}
+                {{ $t("map.yourLocation") }}
               </p>
               <p class="text-xs text-gray-600">
                 {{ formatCoordinates(userPosition) }}
@@ -127,16 +135,18 @@
 </template>
 
 <script setup lang="ts">
-import {
-  LMap,
-  LTileLayer,
-  LMarker,
-  LPopup
-} from '@vue-leaflet/vue-leaflet'
+import { LMap, LTileLayer, LMarker, LPopup } from '@vue-leaflet/vue-leaflet'
 import L from 'leaflet'
 import type { Map as LeafletMap, LatLngExpression, Icon } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { isSameLocation } from '~/utils/location-sync'
+import { useMapFullscreen } from '~/composables/useMapFullscreen'
+
+// Use map styles composable
+const { getCurrentStyle, getStyle } = useMapStyles()
+const currentMapStyle = computed(
+  () => getCurrentStyle.value || getStyle('default')!
+)
 
 // Location coordinate interface
 interface Coordinates {
@@ -209,21 +219,37 @@ interface Emits {
 const emit = defineEmits<Emits>()
 
 // Import location utility
-const { formatCoordinates, getLocationName, getLocationDescription } = useLocation()
+const { formatCoordinates, getLocationName, getLocationDescription }
+  = useLocation()
+
+// Map fullscreen composable refs
+const mapContainer = useTemplateRef('mapContainer')
+const leafletMapRef = computed(
+  () => (map.value?.leafletObject || null) as LeafletMap | null
+)
+const {
+  isCSSFullscreen,
+  isInFullscreenMode,
+  toggle: toggleFullscreen
+} = useMapFullscreen(mapContainer, leafletMapRef as Ref<LeafletMap | null>)
 
 // Fix Leaflet icon issues in bundlers
-delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
+delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)
+  ._getIconUrl
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png'
+  iconRetinaUrl:
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl:
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl:
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png'
 })
 
 // Component state
 const map = ref<MapRef | null>(null)
 const error = ref<string | null>(null)
 const zoom = ref<number>(13)
-const center = ref<[number, number]>([59.4370, 24.7536]) // Default to Tallinn
+const center = ref<[number, number]>([59.437, 24.7536]) // Default to Tallinn
 
 // Map initialization phase
 const mapInitializationPhase = ref<MapPhase>('waiting')
@@ -238,9 +264,12 @@ const locationsReady = computed(() => {
 const loadingMessage = computed(() => {
   if (props.loading) return 'Laadime ülesandeid...'
   if (!locationsReady.value) return 'Otsime asukohti...'
-  if (mapInitializationPhase.value === 'waiting') return 'Valmistame kaarti ette...'
-  if (mapInitializationPhase.value === 'all-locations' && !props.userPosition) return 'Küsime GPS lubasi...'
-  if (mapInitializationPhase.value === 'all-locations' && props.userPosition) return 'Keskendume teie asukohale...'
+  if (mapInitializationPhase.value === 'waiting')
+    return 'Valmistame kaarti ette...'
+  if (mapInitializationPhase.value === 'all-locations' && !props.userPosition)
+    return 'Küsime GPS lubasi...'
+  if (mapInitializationPhase.value === 'all-locations' && props.userPosition)
+    return 'Keskendume teie asukohale...'
   return 'Viimistleme vaadet...'
 })
 
@@ -254,9 +283,15 @@ console.log('🗺️ [EVENT] InteractiveMap - Component setup started', {
 const markerRefs = ref<Map<string, MarkerRef>>(new Map())
 
 // Set marker reference for popup control
-const setMarkerRef = (el: Element | ComponentPublicInstance | null, location: TaskLocation): void => {
+const setMarkerRef = (
+  el: Element | ComponentPublicInstance | null,
+  location: TaskLocation
+): void => {
   if (el && typeof el === 'object' && 'leafletObject' in el) {
-    const locationKey = location._id || location.id || `${location.coordinates.lat}-${location.coordinates.lng}`
+    const locationKey
+      = location._id
+        || location.id
+        || `${location.coordinates.lat}-${location.coordinates.lng}`
     markerRefs.value.set(locationKey, el as unknown as MarkerRef)
   }
 }
@@ -274,8 +309,6 @@ const tileOptions = {
   maxZoom: 18,
   minZoom: 3
 }
-
-const attribution = '© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
 
 // Custom icons
 const userIcon: Icon = L.divIcon({
@@ -342,11 +375,15 @@ const displayedLocations = computed<TaskLocation[]>(() => {
   }
 
   // Filter locations that have valid normalized coordinates
-  const locationsWithCoords = props.locations.filter((location): location is TaskLocation => {
-    return !!location.coordinates
-      && typeof location.coordinates.lat === 'number'
-      && typeof location.coordinates.lng === 'number'
-  })
+  const locationsWithCoords = props.locations.filter(
+    (location): location is TaskLocation => {
+      return (
+        !!location.coordinates
+        && typeof location.coordinates.lat === 'number'
+        && typeof location.coordinates.lng === 'number'
+      )
+    }
+  )
 
   if (process.env.NODE_ENV === 'development') {
     console.log('🗺️ [EVENT] InteractiveMap - Filtered locations result:', {
@@ -373,7 +410,9 @@ const closestUnvisitedLocations = computed<TaskLocation[]>(() => {
 const calculateMapBounds = async (): Promise<void> => {
   try {
     if (!map.value?.leafletObject) {
-      console.log('🗺️ [EVENT] InteractiveMap - Map not ready, skipping bounds calculation')
+      console.log(
+        '🗺️ [EVENT] InteractiveMap - Map not ready, skipping bounds calculation'
+      )
       return
     }
 
@@ -383,22 +422,32 @@ const calculateMapBounds = async (): Promise<void> => {
     // Check if map container is properly initialized
     const container = map.value.leafletObject.getContainer()
     if (!container) {
-      console.warn('🗺️ [EVENT] InteractiveMap - Map container not ready yet, skipping bounds calculation')
+      console.warn(
+        '🗺️ [EVENT] InteractiveMap - Map container not ready yet, skipping bounds calculation'
+      )
       return
     }
 
     // PHASE 1: Show all locations for overview
-    if (mapInitializationPhase.value === 'waiting' && props.locations?.length > 0) {
-      console.log('🗺️ [EVENT] InteractiveMap - PHASE 1: Showing all locations overview', {
-        locationCount: props.locations.length
-      })
+    if (
+      mapInitializationPhase.value === 'waiting'
+      && props.locations?.length > 0
+    ) {
+      console.log(
+        '🗺️ [EVENT] InteractiveMap - PHASE 1: Showing all locations overview',
+        {
+          locationCount: props.locations.length
+        }
+      )
 
       mapInitializationPhase.value = 'all-locations'
       await fitAllLocationsBounds()
 
       // After Phase 1, check if we can immediately proceed to Phase 2
       if (props.userPosition) {
-        console.log('🗺️ [EVENT] InteractiveMap - User position available after Phase 1, scheduling Phase 2')
+        console.log(
+          '🗺️ [EVENT] InteractiveMap - User position available after Phase 1, scheduling Phase 2'
+        )
         // Small delay to allow Phase 1 to settle, then trigger Phase 2
         setTimeout(async () => {
           await calculateMapBounds()
@@ -406,13 +455,19 @@ const calculateMapBounds = async (): Promise<void> => {
       }
     }
     // PHASE 2: GPS-focused view with user position + 5 closest unvisited
-    else if (mapInitializationPhase.value === 'all-locations' && props.userPosition) {
-      console.log('🗺️ [EVENT] InteractiveMap - PHASE 2: GPS-focused view transition', {
-        hasUserPosition: !!props.userPosition,
-        userPosition: props.userPosition,
-        closestUnvisited: closestUnvisitedLocations.value?.length || 0,
-        mapPhase: mapInitializationPhase.value
-      })
+    else if (
+      mapInitializationPhase.value === 'all-locations'
+      && props.userPosition
+    ) {
+      console.log(
+        '🗺️ [EVENT] InteractiveMap - PHASE 2: GPS-focused view transition',
+        {
+          hasUserPosition: !!props.userPosition,
+          userPosition: props.userPosition,
+          closestUnvisited: closestUnvisitedLocations.value?.length || 0,
+          mapPhase: mapInitializationPhase.value
+        }
+      )
 
       mapInitializationPhase.value = 'gps-focused'
       await fitGpsFocusedBounds()
@@ -427,7 +482,10 @@ const calculateMapBounds = async (): Promise<void> => {
     }
   }
   catch (err) {
-    console.error('🗺️ [EVENT] InteractiveMap - Error calculating map bounds:', err)
+    console.error(
+      '🗺️ [EVENT] InteractiveMap - Error calculating map bounds:',
+      err
+    )
     error.value = 'Kaardi piirkonna arvutamisel tekkis viga'
   }
 }
@@ -443,7 +501,10 @@ const fitAllLocationsBounds = async (): Promise<void> => {
     }
   })
 
-  console.log('🗺️ [EVENT] InteractiveMap - Phase 1 bounds points:', bounds.length)
+  console.log(
+    '🗺️ [EVENT] InteractiveMap - Phase 1 bounds points:',
+    bounds.length
+  )
 
   if (bounds.length === 0) return
   if (!map.value) return
@@ -485,7 +546,10 @@ const fitGpsFocusedBounds = async (): Promise<void> => {
     }
   })
 
-  console.log('🗺️ [EVENT] InteractiveMap - Phase 2 bounds points:', bounds.length)
+  console.log(
+    '🗺️ [EVENT] InteractiveMap - Phase 2 bounds points:',
+    bounds.length
+  )
 
   if (bounds.length === 0) return
   if (!map.value) return
@@ -497,7 +561,10 @@ const fitGpsFocusedBounds = async (): Promise<void> => {
     if (boundsPoint) {
       center.value = boundsPoint
       zoom.value = 15
-      map.value.leafletObject.setView(boundsPoint, 15, { animate: true, duration: 1.5 })
+      map.value.leafletObject.setView(boundsPoint, 15, {
+        animate: true,
+        duration: 1.5
+      })
     }
   }
   else {
@@ -520,7 +587,10 @@ const fitGpsFocusedBounds = async (): Promise<void> => {
 
 // Location click handler
 const onLocationClick = (location: TaskLocation): void => {
-  console.log('[InteractiveMap] Location clicked:', location.nimi || location.name || 'unnamed')
+  console.log(
+    '[InteractiveMap] Location clicked:',
+    location.nimi || location.name || 'unnamed'
+  )
   // The popup will open automatically due to the click event
   // We'll emit this to parent for synchronization
   emit('location-click', location)
@@ -530,7 +600,10 @@ const onLocationClick = (location: TaskLocation): void => {
 const openLocationPopup = (location: TaskLocation | null): void => {
   if (!location) return
 
-  const locationKey = location._id || location.id || `${location.coordinates?.lat}-${location.coordinates?.lng}`
+  const locationKey
+    = location._id
+      || location.id
+      || `${location.coordinates?.lat}-${location.coordinates?.lng}`
   const markerRef = markerRefs.value.get(locationKey)
 
   if (markerRef && markerRef.leafletObject) {
@@ -539,20 +612,30 @@ const openLocationPopup = (location: TaskLocation | null): void => {
 
     // Center the map on this location with a slight zoom
     if (map.value && map.value.leafletObject) {
-      map.value.leafletObject.setView([location.coordinates.lat, location.coordinates.lng], Math.max(zoom.value, 15))
+      map.value.leafletObject.setView(
+        [location.coordinates.lat, location.coordinates.lng],
+        Math.max(zoom.value, 15)
+      )
     }
   }
 }
 
 // Watch for selectedLocation changes to open popup
-watch(() => props.selectedLocation, (newLocation, oldLocation) => {
-  if (newLocation && !isSameLocation(newLocation, oldLocation || {})) {
-    console.log('[InteractiveMap] Selected location changed, opening popup:', newLocation.nimi || newLocation.name || 'unnamed')
-    nextTick(() => {
-      openLocationPopup(newLocation)
-    })
-  }
-}, { deep: true })
+watch(
+  () => props.selectedLocation,
+  (newLocation, oldLocation) => {
+    if (newLocation && !isSameLocation(newLocation, oldLocation || {})) {
+      console.log(
+        '[InteractiveMap] Selected location changed, opening popup:',
+        newLocation.nimi || newLocation.name || 'unnamed'
+      )
+      nextTick(() => {
+        openLocationPopup(newLocation)
+      })
+    }
+  },
+  { deep: true }
+)
 
 // Map ready handler
 // Handle map ready event
@@ -565,11 +648,73 @@ const onMapReady = async (): Promise<void> => {
       hasUserPosition: !!props.userPosition
     })
 
+    // Add custom fullscreen control to Leaflet controls (always visible)
+    if (map.value?.leafletObject) {
+      const leafletMap = map.value.leafletObject
+
+      // Create custom control
+      const FullscreenControl = L.Control.extend({
+        options: {
+          position: 'topleft'
+        },
+        onAdd: function () {
+          const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control')
+          const button = L.DomUtil.create('a', 'leaflet-control-fullscreen', container)
+
+          button.href = '#'
+          button.role = 'button'
+          button.innerHTML = '⛶'
+          button.style.fontSize = '18px'
+          button.style.lineHeight = '26px'
+          button.style.textAlign = 'center'
+          button.style.width = '26px'
+          button.style.height = '26px'
+          button.style.display = 'block'
+          button.style.textDecoration = 'none'
+          button.style.color = '#000'
+
+          // Update button on fullscreen state change
+          const updateButton = () => {
+            button.innerHTML = isInFullscreenMode.value ? '⊗' : '⛶'
+            button.title = isInFullscreenMode.value
+              ? 'Exit fullscreen' // Will be replaced by i18n in watch
+              : 'Enter fullscreen'
+            button.setAttribute('aria-label', button.title)
+          }
+
+          updateButton()
+
+          // Watch for fullscreen state changes
+          watch(isInFullscreenMode, updateButton)
+
+          // Handle click
+          L.DomEvent.on(button, 'click', function (e: Event) {
+            L.DomEvent.stopPropagation(e)
+            L.DomEvent.preventDefault(e)
+            toggleFullscreen()
+          })
+
+          // Prevent map interactions on the button
+          L.DomEvent.disableClickPropagation(container)
+          L.DomEvent.disableScrollPropagation(container)
+
+          return container
+        }
+      })
+
+      leafletMap.addControl(new FullscreenControl())
+    }
+
     emit('map-ready')
 
     // If locations are already loaded, start the initialization immediately
-    if (props.locations?.length > 0 && mapInitializationPhase.value === 'waiting') {
-      console.log('🗺️ [EVENT] InteractiveMap - Map ready with locations, starting initialization')
+    if (
+      props.locations?.length > 0
+      && mapInitializationPhase.value === 'waiting'
+    ) {
+      console.log(
+        '🗺️ [EVENT] InteractiveMap - Map ready with locations, starting initialization'
+      )
       await nextTick()
       await calculateMapBounds()
     }
@@ -581,32 +726,51 @@ const onMapReady = async (): Promise<void> => {
 }
 
 // Watch for location changes to trigger Phase 1 (only if map is ready)
-watch(() => props.locations, async (newLocations) => {
-  if (newLocations?.length > 0
-    && mapInitializationPhase.value === 'waiting'
-    && map.value?.leafletObject) {
-    console.log('🗺️ [EVENT] InteractiveMap - Locations ready with map ready, triggering Phase 1')
-    await nextTick()
-    await calculateMapBounds()
-  }
-  else if (newLocations?.length > 0 && mapInitializationPhase.value === 'waiting') {
-    console.log('🗺️ [EVENT] InteractiveMap - Locations ready but map not ready yet, waiting...')
-  }
-}, { deep: true })
+watch(
+  () => props.locations,
+  async (newLocations) => {
+    if (
+      newLocations?.length > 0
+      && mapInitializationPhase.value === 'waiting'
+      && map.value?.leafletObject
+    ) {
+      console.log(
+        '🗺️ [EVENT] InteractiveMap - Locations ready with map ready, triggering Phase 1'
+      )
+      await nextTick()
+      await calculateMapBounds()
+    }
+    else if (
+      newLocations?.length > 0
+      && mapInitializationPhase.value === 'waiting'
+    ) {
+      console.log(
+        '🗺️ [EVENT] InteractiveMap - Locations ready but map not ready yet, waiting...'
+      )
+    }
+  },
+  { deep: true }
+)
 
 // Watch for userPosition changes to trigger Phase 2
-watch(() => props.userPosition, async (newUserPosition) => {
-  if (newUserPosition && mapInitializationPhase.value === 'all-locations') {
-    console.log('🗺️ [EVENT] InteractiveMap - User position available, triggering Phase 2 transition')
-    isTransitioning.value = true
-    await nextTick()
-    // Small delay for smooth UX before transitioning
-    setTimeout(async () => {
-      await calculateMapBounds()
-      isTransitioning.value = false
-    }, 1500)
-  }
-}, { deep: true })
+watch(
+  () => props.userPosition,
+  async (newUserPosition) => {
+    if (newUserPosition && mapInitializationPhase.value === 'all-locations') {
+      console.log(
+        '🗺️ [EVENT] InteractiveMap - User position available, triggering Phase 2 transition'
+      )
+      isTransitioning.value = true
+      await nextTick()
+      // Small delay for smooth UX before transitioning
+      setTimeout(async () => {
+        await calculateMapBounds()
+        isTransitioning.value = false
+      }, 1500)
+    }
+  },
+  { deep: true }
+)
 
 // Component lifecycle
 onMounted(() => {
@@ -670,5 +834,16 @@ onMounted(() => {
 :deep(.leaflet-popup-content) {
   margin: 12px;
   line-height: 1.4;
+}
+
+/* Fade transition for exit hint */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

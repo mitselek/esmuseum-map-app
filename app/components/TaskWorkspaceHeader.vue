@@ -1,36 +1,26 @@
 <template>
   <header class="border-b bg-white/95 backdrop-blur">
     <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
-      <div class="flex items-center gap-3">
-        <div class="flex items-baseline gap-1 text-lg font-semibold text-gray-900">
-          <span>{{ progress.actual }}</span>
-          <span class="text-gray-400">/</span>
-          <span>{{ progress.expected }}</span>
-        </div>
+      <!-- Left: Back button + Task title -->
+      <div class="flex min-w-0 flex-1 items-center gap-3">
         <button
           v-if="showClose"
           type="button"
-          class="rounded p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800"
-          :title="$t('taskDetail.closeTask')"
+          class="shrink-0 rounded p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800"
+          :title="$t('taskDetail.close')"
           @click="$emit('close')"
         >
-          <svg
-            class="size-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          {{ $t('taskDetail.close') }}
         </button>
+
+        <!-- Task Title -->
+        <h1 class="min-w-0 flex-1 truncate text-lg font-semibold text-gray-900">
+          {{ taskTitle || $t('tasks.title') }}
+        </h1>
       </div>
 
-      <div class="flex items-center gap-3">
+      <!-- Right: Languages + Logout -->
+      <div class="flex shrink-0 items-center gap-3">
         <div class="flex items-center gap-2">
           <button
             v-for="lang in languageButtons"
@@ -46,29 +36,10 @@
         <button
           v-if="isAuthenticated"
           type="button"
-          class="rounded p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800"
-          :title="$t('logout')"
+          class="text-sm text-gray-600 hover:text-gray-900"
           @click="handleLogout"
         >
-          <svg
-            class="size-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15"
-            />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 9l3-3m0 0l3 3m-3-3v12"
-            />
-          </svg>
+          {{ $t('logout') }}
         </button>
       </div>
     </div>
@@ -88,11 +59,13 @@ interface ProgressData {
 // Props
 interface Props {
   progress: ProgressData
+  taskTitle?: string
   showClose?: boolean
 }
 
 withDefaults(defineProps<Props>(), {
-  showClose: true
+  showClose: true,
+  taskTitle: undefined
 })
 
 // Emits

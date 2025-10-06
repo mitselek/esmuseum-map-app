@@ -1,6 +1,6 @@
 /**
  * F020: Server-side Entu API utilities
- * 
+ *
  * Operations for managing student access permissions using user JWT tokens from webhooks
  */
 
@@ -11,14 +11,14 @@ const logger = createLogger('entu-admin')
 
 /**
  * Get API configuration for making Entu API calls
- * 
+ *
  * @param userToken - JWT token from webhook (REQUIRED - no fallback)
  * @param userId - User ID for logging attribution
  * @param userEmail - User email for logging attribution
  * @returns API configuration with user authentication
  */
-export async function getAdminApiConfig(
-  userToken?: string, 
+export async function getAdminApiConfig (
+  userToken?: string,
   userId?: string,
   userEmail?: string
 ): Promise<EntuApiOptions> {
@@ -47,7 +47,7 @@ export async function getAdminApiConfig(
       statusMessage: 'Missing user authentication token from webhook'
     })
   }
-  
+
   return {
     apiUrl,
     accountName,
@@ -57,10 +57,10 @@ export async function getAdminApiConfig(
 
 /**
  * Grant _expander permission to a person on an entity
- * 
+ *
  * This allows the person to create child entities (e.g., vastus responses)
  * under the target entity (e.g., ulesanne task)
- * 
+ *
  * @param entityId - The entity to grant permission on (e.g., task ID)
  * @param personId - The person to grant permission to (e.g., student ID)
  * @param userToken - Optional JWT token from webhook user (not usable due to IP restrictions)
@@ -68,9 +68,9 @@ export async function getAdminApiConfig(
  * @param userEmail - Optional user email for attribution logging
  * @returns API response from Entu
  */
-export async function addExpanderPermission(
-  entityId: string, 
-  personId: string, 
+export async function addExpanderPermission (
+  entityId: string,
+  personId: string,
   userToken?: string,
   userId?: string,
   userEmail?: string
@@ -106,7 +106,8 @@ export async function addExpanderPermission(
     })
 
     return result
-  } catch (error) {
+  }
+  catch (error) {
     logger.error('Failed to grant permission', {
       entity: entityId,
       person: personId,
@@ -120,7 +121,7 @@ export async function addExpanderPermission(
  * Grant _expander permissions to multiple people on an entity in a single API call
  * Much more efficient than calling addExpanderPermission multiple times
  * Reduces API calls and webhook triggers (1 call instead of N calls)
- * 
+ *
  * @param entityId - The entity to grant permissions on (e.g., task ID)
  * @param personIds - Array of person IDs to grant permission to
  * @param userToken - Optional JWT token from webhook user (not usable due to IP restrictions)
@@ -128,9 +129,9 @@ export async function addExpanderPermission(
  * @param userEmail - Optional user email for attribution logging
  * @returns API response from Entu
  */
-export async function addMultipleExpanderPermissions(
-  entityId: string, 
-  personIds: string[], 
+export async function addMultipleExpanderPermissions (
+  entityId: string,
+  personIds: string[],
   userToken?: string,
   userId?: string,
   userEmail?: string
@@ -145,7 +146,7 @@ export async function addMultipleExpanderPermissions(
 
   try {
     // Build array of permission objects - one for each person
-    const properties = personIds.map(personId => ({
+    const properties = personIds.map((personId) => ({
       type: '_expander',
       reference: personId
     }))
@@ -165,7 +166,8 @@ export async function addMultipleExpanderPermissions(
     })
 
     return result
-  } catch (error) {
+  }
+  catch (error) {
     logger.error('Failed to grant multiple permissions', {
       entity: entityId,
       personCount: personIds.length,
@@ -179,7 +181,7 @@ export async function addMultipleExpanderPermissions(
  * Batch grant _expander permissions to multiple people on multiple entities
  * Optimized to use bulk permission grants per entity (1 API call per entity)
  * Includes idempotency check to skip persons who already have permission
- * 
+ *
  * @param entityIds - Array of entity IDs (e.g., task IDs)
  * @param personIds - Array of person IDs (e.g., student IDs)
  * @param userToken - Optional JWT token from webhook user (not usable due to IP restrictions)
@@ -187,7 +189,7 @@ export async function addMultipleExpanderPermissions(
  * @param userEmail - Optional user email for attribution logging
  * @returns Summary of grant operations
  */
-export async function batchGrantPermissions(
+export async function batchGrantPermissions (
   entityIds: string[],
   personIds: string[],
   userToken?: string,
@@ -198,7 +200,7 @@ export async function batchGrantPermissions(
   successful: number
   failed: number
   skipped: number
-  details: Array<{ entity: string; person: string; status: 'success' | 'failed' | 'skipped'; error?: string }>
+  details: Array<{ entity: string, person: string, status: 'success' | 'failed' | 'skipped', error?: string }>
 }> {
   logger.info('Starting batch permission grant', {
     entities: entityIds.length,
@@ -211,20 +213,20 @@ export async function batchGrantPermissions(
     successful: 0,
     failed: 0,
     skipped: 0,
-    details: [] as Array<{ entity: string; person: string; status: 'success' | 'failed' | 'skipped'; error?: string }>
+    details: [] as Array<{ entity: string, person: string, status: 'success' | 'failed' | 'skipped', error?: string }>
   }
 
   // Process each entity
   for (const entityId of entityIds) {
     // Check which persons already have permission (idempotency)
     const personsToGrant: string[] = []
-    
+
     for (const personId of personIds) {
       results.total++
-      
+
       try {
         const exists = await hasExpanderPermission(entityId, personId, userToken, userId, userEmail)
-        
+
         if (exists) {
           logger.debug('Permission already exists, skipping', { entity: entityId, person: personId })
           results.skipped++
@@ -233,10 +235,12 @@ export async function batchGrantPermissions(
             person: personId,
             status: 'skipped'
           })
-        } else {
+        }
+        else {
           personsToGrant.push(personId)
         }
-      } catch (error: any) {
+      }
+      catch (error: any) {
         logger.error('Failed to check existing permission', {
           entity: entityId,
           person: personId,
@@ -251,7 +255,7 @@ export async function batchGrantPermissions(
     if (personsToGrant.length > 0) {
       try {
         await addMultipleExpanderPermissions(entityId, personsToGrant, userToken, userId, userEmail)
-        
+
         // Mark all as successful
         for (const personId of personsToGrant) {
           results.successful++
@@ -261,13 +265,14 @@ export async function batchGrantPermissions(
             status: 'success'
           })
         }
-      } catch (error: any) {
+      }
+      catch (error: any) {
         logger.error('Failed to grant permissions in bulk', {
           entity: entityId,
           personCount: personsToGrant.length,
           error: error.message
         })
-        
+
         // Mark all as failed
         for (const personId of personsToGrant) {
           results.failed++
@@ -294,11 +299,11 @@ export async function batchGrantPermissions(
 
 /**
  * Get all tasks (ulesanne) assigned to a specific group (grupp)
- * 
+ *
  * @param gruppId - The group ID to search for
  * @returns Array of task entities
  */
-export async function getTasksByGroup(gruppId: string, userToken?: string, userId?: string, userEmail?: string) {
+export async function getTasksByGroup (gruppId: string, userToken?: string, userId?: string, userEmail?: string) {
   const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
 
   logger.debug('Fetching tasks for group', { gruppId })
@@ -308,13 +313,13 @@ export async function getTasksByGroup(gruppId: string, userToken?: string, userI
       {
         '_type.string': 'ulesanne',
         'grupp.reference': gruppId,
-        'props': '_id,name.string,grupp.reference'
+        props: '_id,name.string,grupp.reference'
       },
       apiConfig
     )
 
     const tasks = result.entities || []
-    
+
     logger.info('Found tasks for group', {
       gruppId,
       count: tasks.length,
@@ -322,7 +327,8 @@ export async function getTasksByGroup(gruppId: string, userToken?: string, userI
     })
 
     return tasks
-  } catch (error) {
+  }
+  catch (error) {
     logger.error('Failed to fetch tasks by group', { gruppId, error })
     throw error
   }
@@ -330,13 +336,13 @@ export async function getTasksByGroup(gruppId: string, userToken?: string, userI
 
 /**
  * Get all students (person) that belong to a specific group (grupp)
- * 
+ *
  * Students are linked to groups via _parent property
- * 
+ *
  * @param gruppId - The group ID to search for
  * @returns Array of person entities
  */
-export async function getStudentsByGroup(gruppId: string, userToken?: string, userId?: string, userEmail?: string) {
+export async function getStudentsByGroup (gruppId: string, userToken?: string, userId?: string, userEmail?: string) {
   const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
 
   logger.debug('Fetching students for group', { gruppId })
@@ -346,13 +352,13 @@ export async function getStudentsByGroup(gruppId: string, userToken?: string, us
       {
         '_type.string': 'person',
         '_parent.reference': gruppId,
-        'props': '_id,name.string,forename.string,surname.string'
+        props: '_id,name.string,forename.string,surname.string'
       },
       apiConfig
     )
 
     const students = result.entities || []
-    
+
     logger.info('Found students in group', {
       gruppId,
       count: students.length,
@@ -360,7 +366,8 @@ export async function getStudentsByGroup(gruppId: string, userToken?: string, us
     })
 
     return students
-  } catch (error) {
+  }
+  catch (error) {
     logger.error('Failed to fetch students by group', { gruppId, error })
     throw error
   }
@@ -369,21 +376,21 @@ export async function getStudentsByGroup(gruppId: string, userToken?: string, us
 /**
  * Fetch entity details from Entu
  * Used by webhooks to determine what changed and what actions to take
- * 
+ *
  * @param entityId - The entity ID to fetch
  * @returns Full entity object
  */
-export async function getEntityDetails(entityId: string, userToken?: string, userId?: string, userEmail?: string): Promise<any> {
+export async function getEntityDetails (entityId: string, userToken?: string, userId?: string, userEmail?: string): Promise<any> {
   const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
 
   logger.debug('Fetching entity details', { entityId })
 
   try {
     const result = await callEntuApi(`/entity/${entityId}`, {}, apiConfig)
-    
+
     // Entu API wraps entity in { entity: {...} }
     const entity = result.entity || result
-    
+
     if (!entity) {
       throw new Error('Entity not found')
     }
@@ -393,9 +400,10 @@ export async function getEntityDetails(entityId: string, userToken?: string, use
       type: entity._type?.[0]?.string,
       hasEntity: !!result.entity
     })
-    
+
     return entity
-  } catch (error: any) {
+  }
+  catch (error: any) {
     logger.error('Failed to fetch entity details', {
       entityId,
       error: error.message
@@ -407,11 +415,11 @@ export async function getEntityDetails(entityId: string, userToken?: string, use
 /**
  * Extract all group IDs from a person's _parent references
  * Only returns groups of type 'grupp'
- * 
+ *
  * @param entity - Person entity object
  * @returns Array of group IDs
  */
-export function extractGroupsFromPerson(entity: any): string[] {
+export function extractGroupsFromPerson (entity: any): string[] {
   // Verify entity is a person
   const entityType = entity._type?.[0]?.string
   if (entityType !== 'person') {
@@ -447,11 +455,11 @@ export function extractGroupsFromPerson(entity: any): string[] {
 /**
  * Extract group ID from a task's grupp property
  * Returns the first group reference if multiple exist
- * 
+ *
  * @param entity - Task (ulesanne) entity object
  * @returns Group ID or null if not found
  */
-export function extractGroupFromTask(entity: any): string | null {
+export function extractGroupFromTask (entity: any): string | null {
   // Verify entity is a task
   const entityType = entity._type?.[0]?.string
   if (entityType !== 'ulesanne') {
@@ -461,7 +469,7 @@ export function extractGroupFromTask(entity: any): string | null {
 
   // Get grupp property
   const groups = entity.grupp || []
-  
+
   logger.debug('Checking task for group assignment', {
     taskId: entity._id,
     hasGruppProperty: !!entity.grupp,
@@ -469,7 +477,7 @@ export function extractGroupFromTask(entity: any): string | null {
     gruppLength: groups.length,
     firstGroup: groups[0]
   })
-  
+
   if (!Array.isArray(groups) || groups.length === 0) {
     logger.debug('Task has no group assignment', { entityId: entity._id })
     return null
@@ -494,14 +502,14 @@ export function extractGroupFromTask(entity: any): string | null {
 
 /**
  * Check if a person already has _expander permission on an entity
- * 
+ *
  * This helps avoid duplicate permission grants and provides idempotency
- * 
+ *
  * @param entityId - The entity to check
  * @param personId - The person to check for
  * @returns Boolean indicating if permission exists
  */
-export async function hasExpanderPermission(entityId: string, personId: string, userToken?: string, userId?: string, userEmail?: string): Promise<boolean> {
+export async function hasExpanderPermission (entityId: string, personId: string, userToken?: string, userId?: string, userEmail?: string): Promise<boolean> {
   const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
 
   logger.debug('Checking existing permission', {
@@ -512,7 +520,7 @@ export async function hasExpanderPermission(entityId: string, personId: string, 
   try {
     // Get full entity data including permission arrays
     const result = await callEntuApi(`/entity/${entityId}`, {}, apiConfig)
-    
+
     const entity = result.entity
     if (!entity) {
       return false
@@ -529,7 +537,8 @@ export async function hasExpanderPermission(entityId: string, personId: string, 
     })
 
     return hasPermission
-  } catch (error) {
+  }
+  catch (error) {
     logger.warn('Failed to check permission, assuming not exists', {
       entity: entityId,
       person: personId,

@@ -16,11 +16,11 @@ const globalInitialized = ref(false) // Track if initial load has been attempted
 export const useTaskWorkspace = () => {
   const router = useRouter()
   const route = useRoute()
-  
+
   // Authentication
   const { user, token } = useEntuAuth()
   const { searchEntities, getEntity } = useEntuApi()
-  
+
   // Use global state
   const tasks = globalTasks
   const selectedTaskId = globalSelectedTaskId
@@ -28,7 +28,7 @@ export const useTaskWorkspace = () => {
   const loading = globalLoading
   const error = globalError
   const initialized = globalInitialized
-  
+
   // Computed properties
   const selectedTask = computed(() => {
     return tasks.value.find((task: any) => task._id === selectedTaskId.value)
@@ -41,7 +41,7 @@ export const useTaskWorkspace = () => {
     // 🔍 EVENT TRACKING: Task loading start
     const startTime = performance.now()
     console.log('📋 [EVENT] useTaskWorkspace - loadTasks started', new Date().toISOString())
-    
+
     const currentUser = user.value as EntuUser | null
     if (!currentUser?._id) {
       console.warn('No user ID available for loading tasks')
@@ -87,23 +87,25 @@ export const useTaskWorkspace = () => {
           // Client-side version (F015 migration) - ACTIVE
           const groupTasks = await searchEntities({
             '_type.string': 'ulesanne',
-            'grupp.reference': parentGroup.reference,  // Filter tasks assigned to this specific group
-            'limit': 1000
+            'grupp.reference': parentGroup.reference, // Filter tasks assigned to this specific group
+            limit: 1000
           })
 
-          if (groupTasks.entities && groupTasks.entities.length > 0) {            allTasks.push(...groupTasks.entities.map((task: any) => ({
+          if (groupTasks.entities && groupTasks.entities.length > 0) {
+            allTasks.push(...groupTasks.entities.map((task: any) => ({
               ...task,
               groupId: parentGroup.reference,
               groupName: parentGroup.string || 'Unknown Group'
             })))
           }
-        } catch (err) {
+        }
+        catch (err) {
           console.error(`Failed to load tasks for group ${parentGroup.reference}:`, err)
         }
       }
 
       tasks.value = allTasks
-      
+
       // 🔍 EVENT TRACKING: Task loading complete
       const endTime = performance.now()
       console.log('📋 [EVENT] useTaskWorkspace - loadTasks completed', {
@@ -111,11 +113,12 @@ export const useTaskWorkspace = () => {
         taskCount: allTasks.length,
         duration: `${(endTime - startTime).toFixed(2)}ms`
       })
-
-    } catch (err: unknown) {
+    }
+    catch (err: unknown) {
       console.error('Failed to load tasks:', err)
       error.value = err instanceof Error ? err.message : 'Failed to load tasks'
-    } finally {
+    }
+    finally {
       loading.value = false
     }
   }
@@ -130,32 +133,32 @@ export const useTaskWorkspace = () => {
   const navigateToTask = (taskId: string) => {
     // First select the task (update state)
     selectTask(taskId)
-    
+
     // Then navigate (preserving existing query parameters like ?debug)
     router.push({
       path: '/',
       query: {
-        ...route.query,  // Preserve existing parameters like ?debug
-        task: taskId     // Update/add task parameter
+        ...route.query, // Preserve existing parameters like ?debug
+        task: taskId // Update/add task parameter
       }
     })
   }
 
   const clearSelection = () => {
     selectedTaskId.value = null
-    
+
     // Remove task parameter while preserving others (like ?debug)
     const { task, ...otherQuery } = route.query
-    router.push({ 
-      path: '/', 
-      query: otherQuery 
+    router.push({
+      path: '/',
+      query: otherQuery
     })
   }
 
   // User response persistence
   const saveUserResponse = (taskId: string, response: any) => {
     userResponses.value.set(taskId, response)
-    
+
     // Persist to localStorage
     const stored = JSON.parse(localStorage.getItem('taskResponses') || '{}')
     stored[taskId] = response
@@ -182,12 +185,13 @@ export const useTaskWorkspace = () => {
           Authorization: `Bearer ${token.value}`
         }
       })
-      
+
       if (response) {
         userResponses.value.set(taskId, response)
         return response
       }
-    } catch (err) {
+    }
+    catch (err) {
       console.log('No saved response found for task:', taskId)
     }
 
@@ -208,7 +212,8 @@ export const useTaskWorkspace = () => {
       // Route sync should only update state, not trigger another navigation
       console.log('🔄 [EVENT] useTaskWorkspace - Route sync selecting task', taskId)
       selectedTaskId.value = taskId
-    } else if (!taskId) {
+    }
+    else if (!taskId) {
       selectedTaskId.value = null
     }
   })
@@ -221,7 +226,7 @@ export const useTaskWorkspace = () => {
       await loadTasks()
     }
   }
-  
+
   // Auto-initialize when tasks are first accessed
   const tasksWithInit = computed(() => {
     if (!initialized.value) {
@@ -240,11 +245,11 @@ export const useTaskWorkspace = () => {
     loading: readonly(loading),
     error: readonly(error),
     initialized: readonly(initialized),
-    
+
     // Actions
     loadTasks,
-    selectTask,      // State-only task selection
-    navigateToTask,  // User-initiated navigation with URL update
+    selectTask, // State-only task selection
+    navigateToTask, // User-initiated navigation with URL update
     clearSelection,
     saveUserResponse,
     loadUserResponse,
