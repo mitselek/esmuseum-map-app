@@ -1,4 +1,62 @@
-# Optimization Opportunities Index
+# Optimization ## ✅ F025 - Expired Token Handling (COMPLETED October 5-6, 2025)
+
+**Feature**: F025 - Expired Token Handling  
+**Status**: ✅ **PRODUCTION READY** - Initial testing passed, awaiting team testing
+
+### Implementation Summary
+
+**Problem Solved**: Users getting stuck on 403 error pages after token expiry during browser tab restore
+
+**Solution Delivered**:
+- ✅ Proactive token validation in `auth.ts` middleware (checks BEFORE route loads)
+- ✅ 60-second expiry buffer prevents mid-request failures
+- ✅ Automatic redirect to `/login` with return URL preservation
+- ✅ User-friendly i18n notifications (Estonian, English, Ukrainian)
+- ✅ Smart error handling: distinguishes auth errors from network errors
+- ✅ Naive UI notification integration with discrete API
+- ✅ Auth callback instant redirect (<100ms, minimal UI flash)
+
+### New Files Created
+
+1. **`app/utils/token-validation.ts`** - JWT decoder with 60s buffer
+2. **`app/utils/error-handling.ts`** - Smart error analyzer
+3. **`docs/testing/F025-TESTING-GUIDE.md`** - 564 lines, 23 test scenarios
+4. **`docs/testing/token-test-helper.html`** - 410 lines, interactive testing tool
+
+### Bugs Discovered & Fixed During Testing
+
+**Testing Phase**: Manual desktop testing revealed 4 critical issues
+
+1. **Bug #1**: 500 Error - `useI18n()` in middleware context
+   - **Fix**: Use `useNuxtApp().$i18n` instead (commit 1918cf0)
+   - **Impact**: Notifications now work in middleware context
+
+2. **Bug #2**: Redirect loop with expired token
+   - **Fix**: Reordered middleware checks - expiry FIRST, auth SECOND (commit 23f8966)
+   - **Impact**: Clean single redirect, no loops
+
+3. **Bug #3**: Translation keys showing instead of translated text
+   - **Fix**: Type cast for `$i18n.t()` method (commit 401ab7c)
+   - **Impact**: Proper Estonian translations displayed
+
+4. **Bug #4**: "Already logged in" message with no valid token
+   - **Root Cause**: Middleware cleared localStorage but reactive refs stayed populated
+   - **Fix**: Use `logout()` composable method for proper state cleanup (commit 72bcfd0)
+   - **Impact**: Login page shows correct OAuth buttons after expiry
+
+### Testing Infrastructure
+
+- **Comprehensive guide**: 23 test scenarios (9 desktop, 4 mobile, 5 edge cases, 5 i18n)
+- **Helper scripts**: `checkToken()`, `expireToken()`, `checkAuthStorage()`
+- **Interactive tool**: HTML test helper with buttons (cross-origin limitation documented)
+
+### Optimization Opportunities Identified
+
+See sections #15-19 below for potential future improvements discovered during F025 development
+
+---
+
+## 🐛 Historical Bug Trackings Index
 
 **Created**: October 3, 2025  
 **Purpose**: Track potential improvements discovered during refactoring
