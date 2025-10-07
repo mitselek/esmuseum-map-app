@@ -8,6 +8,9 @@
 
 import SunCalc from 'suncalc'
 import type { MapStyle } from './useMapStyles'
+import { useMapStyles } from './useMapStyles'
+import { useLocation } from './useLocation'
+import { useBackgroundPulse } from './useBackgroundPulse'
 
 export interface StyleRule {
   id: string
@@ -18,9 +21,50 @@ export interface StyleRule {
   check: () => boolean | Promise<boolean>
 }
 
+/**
+ * F028 - DST Detection Functions (exported for testing)
+ * Calculate the last Sunday of October for DST "fall back" transition
+ * 
+ * @param year - The year to calculate for (e.g., 2025)
+ * @returns Date object representing the last Sunday of October at midnight
+ */
+export const getLastSundayOfOctober = (year: number): Date => {
+  // Start at October 31 and work backwards to find Sunday
+  let date = new Date(year, 9, 31) // October = month 9 (0-indexed)
+  
+  // Walk backwards until we find a Sunday (day 0)
+  while (date.getDay() !== 0) {
+    date.setDate(date.getDate() - 1)
+  }
+  
+  return date
+}
+
+/**
+ * F028 - Check if currently during DST "fall back" transition
+ * The repeated hour (3:00 AM - 4:00 AM occurs twice) on last Sunday of October
+ * 
+ * @returns true if currently in the repeated hour period, false otherwise
+ */
+export const isDSTTransition = (): boolean => {
+  const now = new Date()
+  const year = now.getFullYear()
+  const lastSunday = getLastSundayOfOctober(year)
+
+  // Check if today is the DST transition day
+  if (now.toDateString() !== lastSunday.toDateString()) {
+    return false
+  }
+
+  // Check if time is between 3:00 AM and 3:59:59 AM (both occurrences of repeated hour)
+  const hour = now.getHours()
+  return hour === 3
+}
+
 export function useMapStyleScheduler () {
   const { setStyle, getCurrentStyle } = useMapStyles()
   const { userPosition } = useLocation() // Get user's GPS location
+  const { isDSTActive, activatePulse, deactivatePulse } = useBackgroundPulse() // DST background pulse
   const currentRule = ref<string | null>(null)
 
   /**
@@ -128,6 +172,14 @@ export function useMapStyleScheduler () {
    */
   const styleRules: StyleRule[] = [
     {
+      id: 'dst-transition',
+      name: 'Evil DST Transition',
+      description: 'Black & white toner + red pulse during fall DST transition (3-4 AM repeated hour)',
+      styleId: 'toner',
+      priority: 100, // HIGH priority - overrides all other rules
+      check: isDSTTransition
+    },
+    {
       id: 'independence-day',
       name: 'Estonian Independence Day',
       description: 'Vintage watercolor style on Feb 24 during daylight (sunrise to sunset)',
@@ -189,6 +241,7 @@ export function useMapStyleScheduler () {
    * Apply the appropriate style based on current rules
    */
   const applyScheduledStyle = async (): Promise<void> => {
+    const previousRule = currentRule.value
     const matchingRule = await evaluateRules()
 
     if (matchingRule && matchingRule.id !== currentRule.value) {
@@ -196,6 +249,20 @@ export function useMapStyleScheduler () {
       console.log(`   ${matchingRule.description}`)
       setStyle(matchingRule.styleId)
       currentRule.value = matchingRule.id
+
+      // Handle DST transition background pulsation
+      if (matchingRule.id === 'dst-transition') {
+        activatePulse()
+        const timestamp = new Date().toISOString()
+        console.log(`[${timestamp}] DST activated`)
+      }
+    }
+
+    // Deactivate DST pulse if we were in DST but no longer
+    if (previousRule === 'dst-transition' && matchingRule?.id !== 'dst-transition') {
+      deactivatePulse()
+      const timestamp = new Date().toISOString()
+      console.log(`[${timestamp}] DST deactivated`)
     }
   }
 

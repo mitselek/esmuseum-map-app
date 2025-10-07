@@ -13,6 +13,10 @@ export default defineConfig({
       NUXT_ENTU_KEY: 'test-key-not-real'
     }
   },
+  define: {
+    'import.meta.client': 'true',
+    'import.meta.server': 'false'
+  },
   resolve: {
     alias: {
       '~': fileURLToPath(new URL('./', import.meta.url)),

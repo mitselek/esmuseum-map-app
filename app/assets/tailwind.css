@@ -3,3 +3,22 @@
 @tailwind utilities;
 
 /* Custom styles can be added here */
+
+/* Default page background */
+body {
+  background-color: rgb(249, 250, 251); /* gray-50 */
+}
+
+/* Evil DST Transition - Red Pulsating Background */
+@keyframes evil-dst-pulse {
+  0%, 100% {
+    background-color: rgb(15, 15, 15); /* Very dark gray base */
+  }
+  50% {
+    background-color: rgb(60, 15, 15); /* Dark red tint */
+  }
+}
+
+.evil-dst-active {
+  animation: evil-dst-pulse 1.0s ease-in-out infinite;
+}
