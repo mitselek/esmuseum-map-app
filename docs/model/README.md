@@ -22,13 +22,13 @@ Use the built-in data explorer tool to view and copy the latest data model:
 
 ### Method 2: Automated Script
 
-Run the fetch script to automatically update the model files:
+Run the fetch script (if available):
 
 ```bash
 node scripts/fetch-entu-model.js
 ```
 
-The script will use your environment variables for authentication and output the results to this `docs/model/` folder.
+The script will use your environment variables for authentication and output the results here.
 
 ## Data Model Overview
 
@@ -51,4 +51,16 @@ The current data model includes these main entity types:
 - Responses (vastus) are submitted for tasks and can reference locations (asukoht)
 - Locations can be imported via KML plugins and associated with maps
 - Comprehensive person profiles support the user management system
-- Groups organize users and manage access to tasks and content
+
+## Usage in Development
+
+This data model informs:
+
+1. **Form generation**: Property definitions drive dynamic form creation
+2. **Type validation**: Property types ensure data integrity
+3. **Reference handling**: Entity relationships enable proper data linking
+4. **Feature planning**: Understanding the model guides new feature development
+
+## Last Updated
+
+Check git history for the most recent updates to these files. The data explorer provides real-time access to the current state of the Entu database.
