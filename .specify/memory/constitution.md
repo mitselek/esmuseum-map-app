@@ -236,4 +236,4 @@ Any solution adding significant complexity must justify:
 
 Prefer boring, well-understood solutions over clever optimizations.
 
-**Version**: 0.0.0 | **Ratified**: 2025-xx-xx | **Last Amended**: 2025-xx-xx
+**Version**: 1.0.0 | **Ratified**: 2025-10-07 | **Last Amended**: 2025-10-07
