@@ -18,7 +18,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-SPEC_KIT_REPO="https://github.com/codeium/spec-kit.git"
+SPEC_KIT_REPO="https://github.com/github/spec-kit.git"
 TEMP_DIR="/tmp/spec-kit-sync-$$"
 CUSTOMIZATIONS_FILE=".specify/CUSTOMIZATIONS.md"
 SYNC_LOG=".specify/memory/sync-history.log"

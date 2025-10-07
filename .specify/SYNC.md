@@ -3,7 +3,7 @@
 **Purpose**: Keep spec-kit scripts and command templates up-to-date while preserving esmuseum-map-app customizations.
 
 **Last Sync**: Never (initial integration)  
-**Upstream**: <https://github.com/codeium/spec-kit>
+**Upstream**: <https://github.com/github/spec-kit>
 
 ---
 
@@ -275,7 +275,7 @@ echo "[$(date)] ROLLBACK: Synced version broke workflow - reverted" >> .specify/
 ```bash
 # Try again later
 # Or manually clone:
-git clone --depth 1 https://github.com/codeium/spec-kit.git /tmp/spec-kit-manual
+git clone --depth 1 https://github.com/github/spec-kit.git /tmp/spec-kit-manual
 cd /tmp/spec-kit-manual
 # Manually copy files from there
 ```
@@ -361,7 +361,9 @@ Track all sync events in `.specify/memory/sync-history.log`:
 
 ```bash
 # See if upstream has new releases
-curl -s https://api.github.com/repos/codeium/spec-kit/releases/latest | grep tag_name
+```bash
+curl -s https://api.github.com/repos/github/spec-kit/releases/latest | grep tag_name
+```
 ```
 
 ### Quarterly: Full Sync

@@ -508,7 +508,7 @@ This integration inherits spec-kit's license. See upstream repository for detail
 
 ---
 
-**Spec-Kit Upstream**: <https://github.com/codeium/spec-kit>  
+**Spec-Kit Upstream**: <https://github.com/github/spec-kit>  
 **Integration Date**: October 6, 2025  
 **Customization Level**: Heavy (Vue 3 + Nuxt 3 specialization)  
 **Maintenance**: Weekly sync checks, monthly full sync, quarterly audit

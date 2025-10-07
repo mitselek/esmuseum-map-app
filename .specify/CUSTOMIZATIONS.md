@@ -384,7 +384,7 @@
 
 **Initial Integration**: October 6, 2025
 **Spec-Kit Commit**: Latest main branch (no specific SHA tracked initially)
-**Repository**: <https://github.com/codeium/spec-kit>
+**Repository**: <https://github.com/github/spec-kit>
 
 **Files Copied As-Is** (No Modifications):
 
