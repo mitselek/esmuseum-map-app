@@ -109,12 +109,8 @@
                   <h3 class="font-medium">
                     {{ getLocationName(location) }}
                   </h3>
-                  <p
-                    v-if="getLocationDescription(location)"
-                    class="mt-1 text-sm text-gray-600"
-                  >
-                    {{ getLocationDescription(location) }}
-                  </p>
+                  <!-- eslint-disable-next-line vue/no-v-html -->
+                  <div v-html="convertMarkdownLinksToHtml(getLocationDescription(location) || '')" />
                 </div>
                 <div
                   v-if="isLocationVisited(location)"
@@ -308,6 +304,33 @@ const mapOptions = {
 const tileOptions = {
   maxZoom: 18,
   minZoom: 3
+}
+
+// Convert markdown links to safe HTML
+const convertMarkdownLinksToHtml = (text: string): string => {
+  if (!text) return ''
+
+  // Simple and safe markdown link regex: [text](url)
+  // This regex specifically looks for the markdown link pattern
+  const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g
+
+  return text.replace(markdownLinkRegex, (match, linkText, url) => {
+    // Basic URL validation - must start with http:// or https://
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      return match // Return original if URL is not safe
+    }
+
+    // Escape HTML in link text to prevent XSS
+    const escapedText = linkText
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+
+    // Create safe HTML link
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline">${escapedText}</a>`
+  })
 }
 
 // Custom icons
