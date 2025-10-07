@@ -176,15 +176,18 @@ const getLocationOptions = (retryCount = 0, options: GeolocationOptions = {}): G
  * Get user-friendly error message for geolocation errors
  */
 const getLocationErrorMessage = (error: GeolocationPositionError): string => {
+  // Get translation function - this works in composables
+  const { t } = useI18n()
+  
   switch (error.code) {
     case error.PERMISSION_DENIED:
-      return 'Location access was denied. Please enable location permissions and try again.'
+      return t('gps.error.permissionDenied')
     case error.POSITION_UNAVAILABLE:
-      return 'Your location is currently unavailable. This may be due to poor GPS signal or disabled location services. Try moving to a location with better signal or enable location services on your device.'
+      return t('gps.error.positionUnavailable')
     case error.TIMEOUT:
-      return 'Location request timed out. Please try again or ensure you have a good GPS signal.'
+      return t('gps.error.timeout')
     default:
-      return 'Unable to determine your location. Please try again later.'
+      return t('gps.error.unknown')
   }
 }
 
@@ -496,16 +499,18 @@ export const useLocation = (): UseLocationReturn => {
         // Increment retry count for next attempt
         globalRetryCount.value += 1
         
-        // Use our helper function for consistent error messages
+        // Use translation function for consistent error messages
+        const { t } = useI18n()
+        
         if (error instanceof Error && error.message.includes('POSITION_UNAVAILABLE')) {
-          globalLocationError.value = 'Your location is currently unavailable. This may be due to poor GPS signal or disabled location services. Try moving to a location with better signal or enable location services on your device.'
+          globalLocationError.value = t('gps.error.positionUnavailable')
         } else if (error instanceof Error && error.message.includes('PERMISSION_DENIED')) {
-          globalLocationError.value = 'Location access was denied. Please enable location permissions and try again.'
+          globalLocationError.value = t('gps.error.permissionDenied')
           globalPermissionDenied.value = true
         } else if (error instanceof Error && error.message.includes('TIMEOUT')) {
-          globalLocationError.value = 'Location request timed out. Please try again or ensure you have a good GPS signal.'
+          globalLocationError.value = t('gps.error.timeout')
         } else {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+          const errorMessage = error instanceof Error ? error.message : t('gps.error.unknown')
           globalLocationError.value = errorMessage
         }
         
