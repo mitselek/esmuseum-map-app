@@ -53,7 +53,7 @@
             class="rounded border border-amber-400 px-3 py-1 text-xs text-amber-100 hover:bg-amber-500"
             @click="handleDismiss"
           >
-            {{ locationError ? 'Continue without GPS' : $t('gps.dismiss') }}
+            {{ locationError ? $t('gps.error.continueWithoutGPS') : $t('gps.dismiss') }}
           </button>
         </div>
       </div>
@@ -70,6 +70,9 @@ const {
   checkGeolocationPermission,
   dismissGPSPrompt
 } = useLocation()
+
+// Get translation function
+const { t } = useI18n()
 
 // Check if user can retry (permission state is still 'prompt' not permanently 'denied')
 const canRetry = ref<boolean>(false)
@@ -97,10 +100,10 @@ const getErrorIcon = (): string => {
 }
 
 const getErrorTitle = (): string => {
-  if (isPermissionError.value) return 'Location Permission Required'
-  if (isPositionUnavailable.value) return 'Location Unavailable'
-  if (isTimeout.value) return 'Location Request Timed Out'
-  return 'Location Issue'
+  if (isPermissionError.value) return t('gps.error.permissionTitle')
+  if (isPositionUnavailable.value) return t('gps.error.unavailableTitle')
+  if (isTimeout.value) return t('gps.error.timeoutTitle')
+  return t('gps.error.genericTitle')
 }
 
 const getErrorMessage = (): string => {
@@ -109,10 +112,10 @@ const getErrorMessage = (): string => {
   }
   if (permissionDenied.value) {
     return canRetry.value
-      ? 'Please allow location access to enable GPS features.'
-      : 'Location access is blocked. You can continue without GPS or enable it in browser settings.'
+      ? t('gps.error.permissionRetry')
+      : t('gps.error.permissionBlocked')
   }
-  return 'There was an issue with location services.'
+  return t('gps.error.serviceIssue')
 }
 
 // Check permission state when component mounts

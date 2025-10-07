@@ -60,11 +60,26 @@ export default defineI18nConfig(() => ({
         notNow: 'Mitte praegu',
         requesting: 'Küsin asukohta',
         locationRequiredTitle: 'Asukoht on vajalik',
-        locationRequiredRetry: 'See kaardirakendu vajab asukohta. Proovi uuesti?',
+        locationRequiredRetry: 'See kaardirakendus vajab asukohta. Proovi uuesti?',
         locationRequiredInstructions: 'Asukoht on blokeeritud. Luba see brauseri seadetes.',
         tryAgain: 'Proovi uuesti',
         howToEnable: 'Kuidas lubada?',
-        dismiss: 'Sulge'
+        dismiss: 'Sulge',
+        // New error message translations
+        error: {
+          permissionTitle: 'Asukoha luba on vajalik',
+          unavailableTitle: 'Asukoht pole saadaval',
+          timeoutTitle: 'Asukoha päring aegus',
+          genericTitle: 'Asukoha probleem',
+          permissionDenied: 'Ligipääs asukohale keelati. Palun luba asukohaõigused ja proovi uuesti.',
+          positionUnavailable: 'Sinu asukoht pole praegu saadaval. See võib olla tingitud halvast GPS-signaalist või keelatud asukohateenustest. Proovi minna paremasse signaali kohta või luba seadme asukohateenused.',
+          timeout: 'Asukoha päring aegus. Palun proovi uuesti või veendu, et sul on hea GPS-signaal.',
+          unknown: 'Ei saa sinu asukohta määrata. Palun proovi hiljem uuesti.',
+          permissionRetry: 'Palun luba juurdepääs asukohale GPS-funktsioonide kasutamiseks.',
+          permissionBlocked: 'Ligipääs asukohale on blokeeritud. Saad jätkata ilma GPS-ita või lubada selle brauseri seadetes.',
+          continueWithoutGPS: 'Jätka ilma GPS-ita',
+          serviceIssue: 'Asukohateenustega tekkis probleem.'
+        }
       },
       taskDetail: {
         map: 'Kaart',
@@ -200,7 +215,22 @@ export default defineI18nConfig(() => ({
         locationRequiredInstructions: 'Location is blocked. Please enable it in your browser settings.',
         tryAgain: 'Try Again',
         howToEnable: 'How to Enable?',
-        dismiss: 'Dismiss'
+        dismiss: 'Dismiss',
+        // New error message translations
+        error: {
+          permissionTitle: 'Location Permission Required',
+          unavailableTitle: 'Location Unavailable',
+          timeoutTitle: 'Location Request Timed Out',
+          genericTitle: 'Location Issue',
+          permissionDenied: 'Location access was denied. Please enable location permissions and try again.',
+          positionUnavailable: 'Your location is currently unavailable. This may be due to poor GPS signal or disabled location services. Try moving to a location with better signal or enable location services on your device.',
+          timeout: 'Location request timed out. Please try again or ensure you have a good GPS signal.',
+          unknown: 'Unable to determine your location. Please try again later.',
+          permissionRetry: 'Please allow location access to enable GPS features.',
+          permissionBlocked: 'Location access is blocked. You can continue without GPS or enable it in browser settings.',
+          continueWithoutGPS: 'Continue without GPS',
+          serviceIssue: 'There was an issue with location services.'
+        }
       },
       taskDetail: {
         map: 'Map',
@@ -334,7 +364,22 @@ export default defineI18nConfig(() => ({
         locationRequiredInstructions: 'Локацію заблоковано. Будь ласка, увімкніть її в налаштуваннях браузера.',
         tryAgain: 'Спробувати знову',
         howToEnable: 'Як увімкнути?',
-        dismiss: 'Закрити'
+        dismiss: 'Закрити',
+        // New error message translations
+        error: {
+          permissionTitle: 'Потрібен дозвіл на місцезнаходження',
+          unavailableTitle: 'Місцезнаходження недоступне',
+          timeoutTitle: 'Час очікування місцезнаходження закінчився',
+          genericTitle: 'Проблема з місцезнаходженням',
+          permissionDenied: 'Доступ до місцезнаходження заборонено. Будь ласка, увімкніть дозволи на місцезнаходження та спробуйте знову.',
+          positionUnavailable: 'Ваше місцезнаходження наразі недоступне. Це може бути через поганий GPS-сигнал або вимкнені служби місцезнаходження. Спробуйте перейти в місце з кращим сигналом або увімкніть служби місцезнаходження на пристрої.',
+          timeout: 'Час очікування запиту місцезнаходження закінчився. Будь ласка, спробуйте знову або переконайтеся, що у вас хороший GPS-сигнал.',
+          unknown: 'Неможливо визначити ваше місцезнаходження. Будь ласка, спробуйте пізніше.',
+          permissionRetry: 'Будь ласка, дозвольте доступ до місцезнаходження для увімкнення GPS-функцій.',
+          permissionBlocked: 'Доступ до місцезнаходження заблоковано. Ви можете продовжити без GPS або увімкнути його в налаштуваннях браузера.',
+          continueWithoutGPS: 'Продовжити без GPS',
+          serviceIssue: 'Виникла проблема зі службами місцезнаходження.'
+        }
       },
       taskDetail: {
         map: 'Карта',
