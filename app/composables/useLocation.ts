@@ -135,6 +135,60 @@ interface UseLocationReturn {
 }
 
 // ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Get smart geolocation options based on context and previous failures
+ */
+const getLocationOptions = (retryCount = 0, options: GeolocationOptions = {}): GeolocationOptions => {
+  const baseOptions = {
+    enableHighAccuracy: true,
+    timeout: 10000,
+    maximumAge: 0, // Always get fresh position by default
+    ...options
+  }
+
+  // On first retry after failure, be more lenient
+  if (retryCount === 1) {
+    return {
+      ...baseOptions,
+      enableHighAccuracy: false, // Use network-based location
+      timeout: 15000, // Longer timeout
+      maximumAge: 300000 // Accept 5-minute old position
+    }
+  }
+
+  // On subsequent retries, be very lenient
+  if (retryCount >= 2) {
+    return {
+      ...baseOptions,
+      enableHighAccuracy: false, // Use network/WiFi positioning
+      timeout: 20000, // Very long timeout
+      maximumAge: 600000 // Accept 10-minute old position
+    }
+  }
+
+  return baseOptions
+}
+
+/**
+ * Get user-friendly error message for geolocation errors
+ */
+const getLocationErrorMessage = (error: GeolocationPositionError): string => {
+  switch (error.code) {
+    case error.PERMISSION_DENIED:
+      return 'Location access was denied. Please enable location permissions and try again.'
+    case error.POSITION_UNAVAILABLE:
+      return 'Your location is currently unavailable. This may be due to poor GPS signal or disabled location services. Try moving to a location with better signal or enable location services on your device.'
+    case error.TIMEOUT:
+      return 'Location request timed out. Please try again or ensure you have a good GPS signal.'
+    default:
+      return 'Unable to determine your location. Please try again later.'
+  }
+}
+
+// ============================================================================
 // Global State (Singleton Pattern)
 // ============================================================================
 
@@ -146,6 +200,7 @@ const globalLastRequestTime = ref<number | null>(null)
 const globalManualOverride = ref<boolean>(false)
 const globalShowGPSPrompt = ref<boolean>(false) // Start hidden, will show based on permission check
 const globalPermissionDenied = ref<boolean>(false)
+const globalRetryCount = ref<number>(0) // Track failed attempts for smart retry logic
 let globalUpdateInterval: ReturnType<typeof setInterval> | null = null
 let globalPendingRequest: Promise<UserPosition> | null = null
 
@@ -333,6 +388,7 @@ export const useLocation = (): UseLocationReturn => {
     console.log('🌍 [EVENT] useLocation - Calling navigator.geolocation.getCurrentPosition directly')
 
     // Call native API directly within user gesture
+    const locationOptions = getLocationOptions(globalRetryCount.value)
     navigator.geolocation.getCurrentPosition(
       (position: GeolocationPosition) => {
         console.log('🌍 [EVENT] useLocation - Native GPS success', JSON.stringify({
@@ -350,6 +406,8 @@ export const useLocation = (): UseLocationReturn => {
         globalLastRequestTime.value = Date.now()
         globalPermissionDenied.value = false
         globalGettingLocation.value = false
+        globalRetryCount.value = 0 // Reset on success
+        globalLocationError.value = null
 
         // Start continuous updates
         startGPSUpdates()
@@ -363,14 +421,23 @@ export const useLocation = (): UseLocationReturn => {
           TIMEOUT: error.TIMEOUT
         }))
 
-        globalPermissionDenied.value = true
+        // Increment retry count
+        globalRetryCount.value += 1
+
+        // Only mark permission as denied for actual permission errors
+        // POSITION_UNAVAILABLE (code 2) and TIMEOUT (code 3) are technical issues, not permission issues
+        if (error.code === error.PERMISSION_DENIED) {
+          globalPermissionDenied.value = true
+          globalShowGPSPrompt.value = false
+        } else {
+          // For POSITION_UNAVAILABLE or TIMEOUT, keep permission state but show error
+          globalLocationError.value = getLocationErrorMessage(error)
+          // Don't mark as permission denied - this allows user to retry
+        }
+        
         globalGettingLocation.value = false
       },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000, // Longer timeout for mobile
-        maximumAge: 0 // Always get fresh position
-      }
+      locationOptions
     )
 
     // Set loading state
@@ -402,12 +469,8 @@ export const useLocation = (): UseLocationReturn => {
       globalLocationError.value = null
 
       try {
-        const position = await getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0, // Always get fresh position
-          ...options
-        }) as UserPosition
+        const locationOptions = getLocationOptions(globalRetryCount.value, options)
+        const position = await getCurrentPosition(locationOptions) as UserPosition
 
         // Only update if position has changed significantly
         const hasSignificantChange = !globalUserPosition.value
@@ -422,12 +485,30 @@ export const useLocation = (): UseLocationReturn => {
           globalLastRequestTime.value = Date.now() // Update timestamp even if position unchanged
         }
 
+        // Reset retry count on success
+        globalRetryCount.value = 0
+        globalLocationError.value = null
+
         // Guaranteed to be non-null at this point
         return globalUserPosition.value!
       }
       catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-        globalLocationError.value = errorMessage
+        // Increment retry count for next attempt
+        globalRetryCount.value += 1
+        
+        // Use our helper function for consistent error messages
+        if (error instanceof Error && error.message.includes('POSITION_UNAVAILABLE')) {
+          globalLocationError.value = 'Your location is currently unavailable. This may be due to poor GPS signal or disabled location services. Try moving to a location with better signal or enable location services on your device.'
+        } else if (error instanceof Error && error.message.includes('PERMISSION_DENIED')) {
+          globalLocationError.value = 'Location access was denied. Please enable location permissions and try again.'
+          globalPermissionDenied.value = true
+        } else if (error instanceof Error && error.message.includes('TIMEOUT')) {
+          globalLocationError.value = 'Location request timed out. Please try again or ensure you have a good GPS signal.'
+        } else {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+          globalLocationError.value = errorMessage
+        }
+        
         console.error('Error getting GPS position:', error)
         throw error
       }
@@ -552,7 +633,10 @@ export const useLocation = (): UseLocationReturn => {
     // This untyped JavaScript utility doesn't have TypeScript definitions. The cast is necessary
     // to interface between our typed composable and the legacy JS utility function.
     // TODO: Consider migrating utils/distance.js to TypeScript to eliminate this cast
-    const result = sortLocationsByDistance(locations, pos || null as any) as LocationEntity[] | LocationWithDistance[]
+    if (!pos) {
+      return locations // Return unsorted if no GPS position
+    }
+    const result = sortLocationsByDistance(locations, pos) as LocationEntity[] | LocationWithDistance[]
     return result
   }
 
@@ -653,6 +737,7 @@ export const useLocation = (): UseLocationReturn => {
     globalUserPosition.value = null
     globalLocationError.value = null
     globalLastRequestTime.value = null
+    globalRetryCount.value = 0 // Reset retry counter
     stopGPSUpdates()
   }
 
