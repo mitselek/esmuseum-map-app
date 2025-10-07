@@ -361,9 +361,7 @@ Track all sync events in `.specify/memory/sync-history.log`:
 
 ```bash
 # See if upstream has new releases
-```bash
 curl -s https://api.github.com/repos/github/spec-kit/releases/latest | grep tag_name
-```
 ```
 
 ### Quarterly: Full Sync
