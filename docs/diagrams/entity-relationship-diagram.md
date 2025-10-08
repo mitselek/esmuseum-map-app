@@ -37,6 +37,8 @@ erDiagram
         reference asukoht
         text kirjeldus
         image photo
+        string geopunkt
+        string vastaja
     }
     
     PERSON {
@@ -93,6 +95,8 @@ erDiagram
   - asukoht: Reference to Asukoht - Associated location
   - kirjeldus: Text - Description of the response
   - photo: Image - Picture associated with the response
+  - geopunkt: String - GPS coordinates of the device at the time of submitting the response
+  - vastaja: String - Information about the person who submitted the response
 
 ## Relationships
 

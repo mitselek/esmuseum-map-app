@@ -36,6 +36,8 @@ Ulesanne : Reference grupp
 Vastus : Reference asukoht
 Vastus : Text kirjeldus
 Vastus : Image photo
+Vastus : String geopunkt
+Vastus : String vastaja
 
 Person : String name
 
