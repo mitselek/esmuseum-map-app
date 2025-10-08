@@ -69,9 +69,25 @@ export const notifyInfo = (options: NotificationOptions | string) => {
  *
  * Note: Uses useNuxtApp() instead of useI18n() because this can be
  * called from middleware context where useI18n() is not available
+ *
+ * Includes debouncing to prevent multiple notifications when several
+ * API calls fail simultaneously
  */
+
+// Track last notification time to prevent duplicates
+let lastSessionExpiredNotification = 0
+const SESSION_NOTIFICATION_COOLDOWN = 3000 // 3 seconds
+
 export const notifySessionExpired = () => {
   if (!import.meta.client) return
+
+  // Debounce: Don't show multiple notifications within cooldown period
+  const now = Date.now()
+  if (now - lastSessionExpiredNotification < SESSION_NOTIFICATION_COOLDOWN) {
+    console.log('🔔 Skipping duplicate session expired notification (cooldown active)')
+    return
+  }
+  lastSessionExpiredNotification = now
 
   const { $i18n } = useNuxtApp()
 
@@ -87,9 +103,25 @@ export const notifySessionExpired = () => {
  *
  * Note: Uses useNuxtApp() instead of useI18n() because this can be
  * called from middleware context where useI18n() is not available
+ *
+ * Includes debouncing to prevent multiple notifications when several
+ * API calls fail simultaneously
  */
+
+// Track last notification time to prevent duplicates
+let lastAuthNotification = 0
+const AUTH_NOTIFICATION_COOLDOWN = 3000 // 3 seconds
+
 export const notifyAuthRequired = () => {
   if (!import.meta.client) return
+
+  // Debounce: Don't show multiple notifications within cooldown period
+  const now = Date.now()
+  if (now - lastAuthNotification < AUTH_NOTIFICATION_COOLDOWN) {
+    console.log('🔔 Skipping duplicate auth notification (cooldown active)')
+    return
+  }
+  lastAuthNotification = now
 
   const { $i18n } = useNuxtApp()
 
