@@ -30,7 +30,7 @@
 
           <!-- Login Link -->
           <NuxtLink
-            v-else
+            v-else-if="!isLoginPage"
             to="/login"
             class="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700"
           >
@@ -68,6 +68,10 @@ withDefaults(defineProps<Props>(), {
 // Composables
 const { locale, setLocale } = useI18n()
 const { isAuthenticated, user, logout: authLogout } = useEntuAuth()
+const route = useRoute()
+
+// Check if we're on login page
+const isLoginPage = computed(() => route.path === '/login')
 
 // Language interface
 interface Language {
