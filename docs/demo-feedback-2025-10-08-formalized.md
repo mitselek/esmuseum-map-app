@@ -6,6 +6,7 @@
 
 - Annemai Mägi (Eesti Sõjamuuseum)
 - Eli Pilve (Eesti Sõjamuuseum)
+- Patrick Rang (Eesti Sõjamuuseum)
 - Argo Roots (Entu tooteomanik)
 - Mihkel Putrinš (kaardirakenduse arendaja)
 
