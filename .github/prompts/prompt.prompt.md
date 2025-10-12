@@ -37,7 +37,7 @@ Example use cases:
   - Give examples: "For example: 'Create a prompt for code review' or 'Generate a prompt that helps write documentation'"
   - Do NOT proceed with the workflow below
   
-- **If not empty**: Proceed with steps 0-7 below
+- **If not empty**: Proceed with steps 0-8 below
 
 Given a prompt request from the user, do this:
 
@@ -281,7 +281,38 @@ Given a prompt request from the user, do this:
    - `email-rewriter-gpt4.md`
    - `technical-doc-writer.md`
 
-7. **Provide usage guidance**:
+7. **Fix markdown linting errors** (if any occur after saving):
+   
+   When creating prompts, markdown linters may flag formatting issues. Common linting errors and fixes:
+   
+   **MD032/blanks-around-lists**: Lists should be surrounded by blank lines
+   - **Fix**: Add blank line before and after each list
+   
+   **MD022/blanks-around-headings**: Headings should be surrounded by blank lines
+   - **Fix**: Add blank line before and after each heading
+   
+   **MD031/blanks-around-fences**: Fenced code blocks should be surrounded by blank lines
+   - **Fix**: Add blank line before and after each code block
+   
+   **MD033/no-inline-html**: Inline HTML detected
+   - **Context**: For Claude prompts using XML tags, this is intentional and acceptable
+   - **Fix**: Either ignore (XML tags are a feature), or use code blocks to escape XML
+   
+   **MD026/no-trailing-punctuation**: Trailing punctuation in heading
+   - **Fix**: Remove trailing colons, periods, or question marks from headings
+   
+   **When to fix vs ignore**:
+   - **Always fix**: Spacing issues (MD032, MD022, MD031) - improves readability
+   - **Consider ignoring**: Inline HTML (MD033) if XML tags are essential to the prompt (e.g., Claude prompts)
+   - **Context-dependent**: Heading punctuation (MD026) - fix unless punctuation is semantically important
+   
+   **After saving**, if linting errors appear:
+   1. Review the errors reported by the tool
+   2. Offer to fix formatting issues automatically
+   3. Explain any intentional violations (e.g., XML tags in Claude prompts)
+   4. Let user decide whether to fix or accept the warnings
+
+8. **Provide usage guidance**:
    
    Explain how to use the prompt:
    - Copy/paste as system message (ChatGPT custom instructions)
