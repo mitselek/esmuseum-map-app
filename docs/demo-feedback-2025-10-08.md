@@ -7,10 +7,10 @@ Käsitsi kirjutatud märkmed demo sessiooni tagasisidest.
 ### UUS kasutaja kaardirakendusse
 
 > Logib sisse kasutaja, kes pole varem kaardirakendust kasutanud
-  
+
 - Entus luuakse uus kasutaja (uute kasutajate kausta)
 - Kasutaja näeb tühja ülesannete loendit
-- Kasutajale kuvatakse link Entusse, kus ta saab soovi korral ise õpetajaks (grupijuhiks) hakata
+- Kasutajale kuvatakse link ESM kodukale, kus ta saab infot kaardirakenduse kohta
 
 ## 2. Login lehele toetajate logod
 
@@ -21,9 +21,6 @@ Annemai saadab logod
 Demo käigus selgus, et kui ülesandele lisada vastus, ja siis minna tagasi ülesannete valikusse, siis seal pole statsid uuenenud. Refresh uuendas.
 
 ## 4. Läti keel lisada toetatud keelte sekka
-
-- GPS täpsuse/kaardi suuruse probleem?
-- Võimalik optimeerimise vajadus
 
 ## 5. Geopunkt
 
@@ -36,7 +33,7 @@ Probleem selles, et välja nimed on segased ja kasutajaliideses pole selget eris
 
 Samuti peaks vastuse "kirjeldus" olema "vastus"
 
-## 6. Ülesande kirljeldus
+## 6. Ülesande kirjeldus
 
 ### "ülesande kirjeldus" olgu → "ülesande kirjeldus"
 
