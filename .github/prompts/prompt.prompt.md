@@ -301,8 +301,11 @@ Given a prompt request from the user, do this:
    **MD026/no-trailing-punctuation**: Trailing punctuation in heading
    - **Fix**: Remove trailing colons, periods, or question marks from headings
    
+   **MD009/no-trailing-spaces**: Trailing spaces at end of lines
+   - **Fix**: Remove trailing spaces (except when intentional for markdown line breaks)
+   
    **When to fix vs ignore**:
-   - **Always fix**: Spacing issues (MD032, MD022, MD031) - improves readability
+   - **Always fix**: Spacing issues (MD032, MD022, MD031, MD009) - improves readability
    - **Consider ignoring**: Inline HTML (MD033) if XML tags are essential to the prompt (e.g., Claude prompts)
    - **Context-dependent**: Heading punctuation (MD026) - fix unless punctuation is semantically important
    
@@ -311,6 +314,74 @@ Given a prompt request from the user, do this:
    2. Offer to fix formatting issues automatically
    3. Explain any intentional violations (e.g., XML tags in Claude prompts)
    4. Let user decide whether to fix or accept the warnings
+   
+   **RECURSIVE REQUIREMENT - CRITICAL**:
+   
+   **If the prompt you're creating will itself generate markdown output** (like a documentation generator, feedback formalizer, report creator, or any prompt-generating prompt), you MUST ensure the linting requirement propagates through ALL levels of recursion:
+   
+   1. **Include linting requirements in the generated prompt**:
+      - Add a "Markdown Formatting Requirements" section in the prompt's output format specification
+      - Specify markdown best practices (blank lines around lists, headings, code blocks)
+      - Include examples of properly formatted markdown
+   
+   2. **Teach the prompt to generate lint-compliant output**:
+      - In the "Output Structure" or "Format Requirements" section, add:
+        - "Use blank lines before and after all lists"
+        - "Use blank lines before and after all headings"
+        - "Use blank lines before and after all code blocks"
+        - "Remove trailing spaces from lines"
+        - "Avoid inline HTML unless necessary"
+        - "Avoid emojis or non-standard markdown syntax unless essential"
+   
+   3. **Add validation step to the workflow**:
+      - If the prompt has a workflow (steps 1, 2, 3...), add a final step:
+        - "Review output for markdown linting issues and fix before presenting"
+   
+   4. **Include in examples**:
+      - Show properly formatted markdown in all example outputs
+      - Demonstrate correct spacing in sample responses
+   
+   5. **PROPAGATE THE RECURSIVE REQUIREMENT ITSELF** (Critical for infinite recursion):
+      - If the prompt you're creating might be used to generate OTHER prompts that generate markdown, include this instruction in the prompt:
+        - "If you generate a prompt that itself generates markdown output, you MUST include these same markdown formatting requirements in that prompt, ensuring this linting standard propagates recursively through all levels."
+      - This creates a self-propagating linting requirement that works at any depth
+   
+   **Example of fully recursive linting requirement**:
+   
+   If creating a prompt that generates reports, include this in its format section:
+   
+   ```markdown
+   **Markdown Formatting Requirements** (CRITICAL):
+   
+   To ensure clean, lint-compliant output:
+   
+   - Add blank line before and after each heading
+   - Add blank line before and after each list (bullet or numbered)
+   - Add blank line before and after each code block
+   - Remove trailing spaces from all lines
+   - Avoid inline HTML unless necessary for tables
+   
+   Before presenting final output:
+   
+   - Review document for proper spacing around all lists
+   - Verify all headings have blank lines before and after
+   - Check that all code blocks have blank lines before and after
+   - Remove any trailing whitespace
+   - Ensure consistent markdown syntax throughout
+   
+   **RECURSIVE REQUIREMENT**: If this prompt generates output that itself creates markdown content (such as documentation generators, report templates, or other prompts), those outputs MUST also include these same markdown formatting requirements to ensure linting standards propagate through all levels of generation.
+   ```
+   
+   **Why this matters**:
+   
+   Without the recursive propagation clause, linting requirements stop after one generation. With it, any prompt created by a prompt you create will also enforce linting, creating a self-sustaining chain of quality standards that works at infinite depth.
+   
+   **Test for recursion completeness**:
+   
+   Ask yourself: "If someone uses the prompt I'm creating to make another prompt, and that prompt is used to make another prompt, will markdown linting still be enforced at level 3, 4, or N?"
+   
+   - If NO: Add the recursive propagation clause
+   - If YES: The recursive requirement is complete
 
 8. **Provide usage guidance**:
    
