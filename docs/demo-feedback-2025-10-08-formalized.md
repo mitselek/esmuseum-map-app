@@ -94,11 +94,24 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
   - **Kasu**: Vastab projekti visuaalsetele nõuetele, tunnustab toetajaid
   - **Märkused**: Logo failid on juba projekti kopeeritud: `public/interreg-estonia-latvia.png`
 
-- **[FEAT-006] Vastuse salvestamise ajatempel**
-  - **Kirjeldus**: Vastuse objektile Entus lisada ajatempel
-  - **Kasutaja Vajadus**: Vajadus teada, millal vastus salvestati
-  - **Soovitatud Lahendus**: Lisada timestamp väli vastuse objektile Entu andmemudelis
-  - **Kasu**: Parem andmete jälgimine, võimaldab ajapõhist analüüsi
+- **[FEAT-006] Vastuse salvestamise ajatemplit tabelivaates**
+  - **Kirjeldus**: Õpetajad vajavad võimalust näha ja sorteerida vastuseid loomise aja järgi Entu tabelivaates
+  - **Kasutaja Vajadus**: Õpetaja peab nägema, millal on vastused esitatud, ja soovib neid ajatempli järgi ka sorteerida
+  - **Tehniline Analüüs**:
+    - Entu salvestab `_created` automaatselt kõigile entiteetidele (süsteemi omadus)
+    - `_created` süsteemiomadus eksisteerib ja töötab korrektselt
+    - **Probleem**: Süsteemiomadused (väljad alakriipsuga `_`) ei ole vaikimisi nähtavad Entu tabelivaates
+    - **Lahendus**: Luua formula property, mis eksponeerib `_created` süsteemiomaduse
+  - **Formula Property Konfiguratsioon**:
+    - **Tüüp**: `string`
+    - **Valem**: `_created`
+    - **On tabelvaates**: Jah
+  - **Vastutav**: Entu administraatorid (konfiguratsioon)
+  - **Kasu**:
+    - Õpetajad näevad vastuste esitamise aegu
+    - Võimalik sorteerida õpilaste vastuseid kronoloogiliselt
+    - Parem ülevaade õpilaste aktiivsusest ja vastuste ajastusest
+  - **Märkus**: See EI vaja koodi muudatusi käesolevas projektis - TypeScript tüübid toetavad juba `_created` omadust läbi `EntuEntity` baasliidese
 
 ### UX/UI Parandused
 
@@ -146,6 +159,22 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
    - **Lahendus**: Logo lisatud `/app/pages/login/index.vue` faili login vormi allossa
    - **Fail**: `public/interreg-estonia-latvia.png` (42KB)
 
+3. ✅ **[Keskmine]** Luua formula property `_created` ajatempli näitamiseks vastuse tabelivaates (FEAT-006) - _Omanik: Entu Administraatorid_ - _Hinnanguline: 15-30 minutit_
+   - **Lahendatud**: 13. oktoober 2025
+   - **Lahendus**: Loodud formula property Entu admin paneeli kaudu
+     - **Property Name**: `vastus_esitatud`
+     - **Property Type**: `string`
+     - **Formula**: `_created` (ekspoonib süsteemiomaduse)
+     - **Display Labels**:
+       - ET: "Vastus esitatud"
+       - EN: "Time of Response"
+     - **Visible in Tables**: ✓ Aktiveeritud
+   - **Tulemus**:
+     - Uutel vastustel kuvatakse ajatempel ISO formaadis (nt. `2025-10-13T16:05:12.474Z`)
+     - Õpetajad saavad sorteerida vastuseid ajatempli järgi
+     - Vanad vastused (enne formula loomist) ei oma ajatemplit nähtaval
+   - **Märkus**: Kood projektis ei vajanud muudatusi - TypeScript tüübid toetasid juba `_created` omadust
+
 ### Ootel
 
 1. **[Kõrge]** Implementeerida uue kasutaja onboarding flow (FEAT-001) - _Omanik: UX/Arendusmeeskond_ - _Hinnanguline: 2-3 päeva_
@@ -158,11 +187,9 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
 
 5. **[Keskmine]** Refaktoorida geopunkt/asukoht andmemudel (BUG-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
 
-6. **[Keskmine]** Lisada ajatempel vastuse objektile (FEAT-006) - _Omanik: Arendusmeeskond/Entu_ - _Hinnanguline: 1-2 tundi_
+6. **[Madal]** Parandada UI tekstid (UX-001, UX-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 1-2 tundi_
 
-7. **[Madal]** Parandada UI tekstid (UX-001, UX-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 1-2 tundi_
-
-8. **[Madal]** Luua õpetajate kasutusjuhend (DOC-001) - _Omanik: Tehnilise kirjutaja/Arendaja_ - _Hinnanguline: 4-6 tundi_
+7. **[Madal]** Luua õpetajate kasutusjuhend (DOC-001) - _Omanik: Tehnilise kirjutaja/Arendaja_ - _Hinnanguline: 4-6 tundi_
 
 ## Lisandmärkused
 
