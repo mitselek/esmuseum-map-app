@@ -134,25 +134,35 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
 
 ## Tegevuskava
 
-1. **[Kriitiline]** Parandada kaardi statistika automaatse värskendamise viga (BUG-001) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 4-6 tundi_
+### Valminud
 
-2. **[Kõrge]** Implementeerida uue kasutaja onboarding flow (FEAT-001) - _Omanik: UX/Arendusmeeskond_ - _Hinnanguline: 2-3 päeva_
+1. ✅ **[Kriitiline]** Parandada kaardi statistika automaatse värskendamise viga (BUG-001) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 4-6 tundi_
+   - **Lahendatud**: PR #7 (13. oktoober 2025)
+   - **Lahendus**: Lisatud `watch(userResponses)` TaskSidebar komponenti, mis värskendab statistikat automaatselt peale vastuse lisamist
+   - **Testimine**: Kinnitatud töökorras nii arvutis kui mobiilis (iOS Safari, Chrome)
 
-3. **[Kõrge]** Lisada e-posti põhine autentimine (FEAT-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
+2. ✅ **[Keskmine]** Lisada Interreg logo login lehele (FEAT-005) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 1 tund_
+   - **Lahendatud**: 12. oktoober 2025
+   - **Lahendus**: Logo lisatud `/app/pages/login/index.vue` faili login vormi allossa
+   - **Fail**: `public/interreg-estonia-latvia.png` (42KB)
 
-4. **[Kõrge]** Disainida õpetaja registreerumise ja õpilaste kutsumise workflow (FEAT-003) - _Omanik: UX/Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
+### Ootel
 
-5. **[Kõrge]** Lisada läti keele tugi (FEAT-004) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 2-3 tundi_
+1. **[Kõrge]** Implementeerida uue kasutaja onboarding flow (FEAT-001) - _Omanik: UX/Arendusmeeskond_ - _Hinnanguline: 2-3 päeva_
 
-6. **[Keskmine]** Lisada Interreg logo login lehele (FEAT-005) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 1 tund_
+2. **[Kõrge]** Lisada e-posti põhine autentimine (FEAT-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
 
-7. **[Keskmine]** Refaktoorida geopunkt/asukoht andmemudel (BUG-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
+3. **[Kõrge]** Disainida õpetaja registreerumise ja õpilaste kutsumise workflow (FEAT-003) - _Omanik: UX/Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
 
-8. **[Keskmine]** Lisada ajatempel vastuse objektile (FEAT-006) - _Omanik: Arendusmeeskond/Entu_ - _Hinnanguline: 1-2 tundi_
+4. **[Kõrge]** Lisada läti keele tugi (FEAT-004) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 2-3 tundi_
 
-9. **[Madal]** Parandada UI tekstid (UX-001, UX-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 1-2 tundi_
+5. **[Keskmine]** Refaktoorida geopunkt/asukoht andmemudel (BUG-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
 
-10. **[Madal]** Luua õpetajate kasutusjuhend (DOC-001) - _Omanik: Tehnilise kirjutaja/Arendaja_ - _Hinnanguline: 4-6 tundi_
+6. **[Keskmine]** Lisada ajatempel vastuse objektile (FEAT-006) - _Omanik: Arendusmeeskond/Entu_ - _Hinnanguline: 1-2 tundi_
+
+7. **[Madal]** Parandada UI tekstid (UX-001, UX-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 1-2 tundi_
+
+8. **[Madal]** Luua õpetajate kasutusjuhend (DOC-001) - _Omanik: Tehnilise kirjutaja/Arendaja_ - _Hinnanguline: 4-6 tundi_
 
 ## Lisandmärkused
 
