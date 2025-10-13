@@ -18,6 +18,8 @@
 
 Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujääke. Peamised teemad hõlmavad uute kasutajate onboarding'ut, andmemudeli segasust (geopunkt vs asukoht), reaalajas statistika värskendamist ning läti keele tuge. Vaja on toetajate logo lisada login lehele.
 
+**Olek**: 5 ülesannet 10-st lahendatud (50% valminud)
+
 ## Tagasiside Kategooriate Kaupa
 
 ### Vead
@@ -189,6 +191,24 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
    - **Testimine**: Manuaalne testimine läbitud, vastuste loomine töötab korrektselt
    - **Märkus**: Koodi muudatused ei mõjuta olemasolevaid vastuseid (andmeid polnud)
 
+5. ✅ **[Kõrge]** Lisada läti keele tugi (FEAT-004) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 2-3 tundi_
+   - **Lahendatud**: PR #9 (13. oktoober 2025)
+   - **Lahendus**:
+     - Eeltöö: Tõlgete audit ja puhastus (3 puuduvat lisatud, 20 kasutamata eemaldatud)
+     - Lisatud 105 läti keele tõlget (`lv`) kõigile UI elementidele
+     - Tõlkimise strateegia: Eesti keelest lähtudes (Balti kultuuriline kontekst)
+     - Nuxt i18n konfiguratsioon: `'lv'` lisatud keelte loendisse
+     - Läti lipp 🇱🇻 lisatud mõlemasse keelevahetajasse
+   - **Muudatused**:
+     - `.config/i18n.config.ts`: 105 läti keele tõlget
+     - `.config/nuxt.config.ts`: Locale `'lv'` ja kuupäeva vormingud
+     - `app/components/AppHeader.vue`: LanguageCode type ja läti lipp
+     - `app/components/TaskWorkspaceHeader.vue`: LanguageCode type ja läti lipp
+   - **Katvus**: 105 defineeritud = 105 kasutatud (100% katvus)
+   - **Verifikatsioon**: `node scripts/analyze-translations.cjs`
+   - **Tulemus**: Rakendus toetab nüüd 4 keelt (et, en, uk, lv)
+   - **Projekti nõue**: Täidab Interreg Estonia-Latvia projekti keeletugi nõuded
+
 ### Ootel
 
 1. **[Kõrge]** Implementeerida uue kasutaja onboarding flow (FEAT-001) - _Omanik: UX/Arendusmeeskond_ - _Hinnanguline: 2-3 päeva_
@@ -197,11 +217,9 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
 
 3. **[Kõrge]** Disainida õpetaja registreerumise ja õpilaste kutsumise workflow (FEAT-003) - _Omanik: UX/Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
 
-4. **[Kõrge]** Lisada läti keele tugi (FEAT-004) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 2-3 tundi_
+4. **[Keskmine]** Refaktoorida geopunkt/asukoht andmemudel (BUG-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
 
-5. **[Keskmine]** Refaktoorida geopunkt/asukoht andmemudel (BUG-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
-
-6. **[Madal]** Luua õpetajate kasutusjuhend (DOC-001) - _Omanik: Tehnilise kirjutaja/Arendaja_ - _Hinnanguline: 4-6 tundi_
+5. **[Madal]** Luua õpetajate kasutusjuhend (DOC-001) - _Omanik: Tehnilise kirjutaja/Arendaja_ - _Hinnanguline: 4-6 tundi_
 
 ## Lisandmärkused
 
