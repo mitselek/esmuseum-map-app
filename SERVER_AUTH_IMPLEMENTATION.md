@@ -12,7 +12,7 @@ We've implemented a **server-side OAuth proxy** that ensures all interactions wi
 
 ### 1. Server-Side OAuth Flow
 
-**Client → Server → Entu → Server → Client**
+**Client → Server → Entu → Server → Client**  
 
 1. Client calls `/api/auth/start` with provider choice
 2. Server redirects to Entu OAuth (Entu sees server IP)
@@ -23,22 +23,26 @@ We've implemented a **server-side OAuth proxy** that ensures all interactions wi
 ### 2. New API Endpoints
 
 #### `/api/auth/start` (POST)
+
 - **Purpose**: Start OAuth flow from server-side
 - **Input**: `{ provider: 'google'|'apple'|etc, redirectUrl?: string }`
 - **Output**: `{ authUrl: string }` - Client redirects to this URL
 - **Key**: Server IP becomes the callback origin
 
 #### `/api/auth/callback` (GET)
+
 - **Purpose**: Handle OAuth callback from Entu
 - **Process**: Validates JWT token and creates session cookie
 - **Key**: JWT audience matches server IP ✅
 
 #### `/api/auth/status` (GET)
+
 - **Purpose**: Check current authentication status
 - **Output**: `{ authenticated: boolean, user: object|null }`
 - **Uses**: Server-side session cookies
 
 #### `/api/auth/logout` (POST)
+
 - **Purpose**: Clear authentication session
 - **Process**: Removes session cookie
 
@@ -47,27 +51,23 @@ We've implemented a **server-side OAuth proxy** that ensures all interactions wi
 **Client-side composable for server-side authentication:**
 
 ```typescript
-const { 
-  isAuthenticated, 
-  user, 
-  startAuthFlow, 
-  logout, 
-  checkAuthStatus 
-} = useServerAuth()
+const { isAuthenticated, user, startAuthFlow, logout, checkAuthStatus } =
+  useServerAuth();
 
 // Login
-await startAuthFlow('google')
+await startAuthFlow("google");
 
 // Check status
-await checkAuthStatus()
+await checkAuthStatus();
 
 // Logout
-await logout()
+await logout();
 ```
 
 ### 4. Updated Auth Utility
 
 **Enhanced `server/utils/auth.ts`**:
+
 - **Session-first**: Checks session cookies before JWT tokens
 - **Fallback**: Still supports direct JWT if needed
 - **Consistent**: Works for all API endpoints
@@ -79,9 +79,10 @@ await logout()
 ## Authentication Flow Comparison
 
 ### ❌ Old Flow (Client-bound JWT)
-```
-User Browser (IP: 82.131.122.238) 
-  → Entu OAuth 
+
+```text
+User Browser (IP: 82.131.122.238)
+  → Entu OAuth
   → JWT (audience: 82.131.122.238)
   → Client stores JWT
   → Client sends JWT to Server
@@ -90,10 +91,11 @@ User Browser (IP: 82.131.122.238)
 ```
 
 ### ✅ New Flow (Server-bound JWT + Sessions)
-```
-User Browser 
+
+```text
+User Browser
   → Your Server (IP: 209.38.213.121)
-  → Server → Entu OAuth 
+  → Server → Entu OAuth
   → JWT (audience: 209.38.213.121)
   → Server validates JWT & creates session
   → Client gets session cookie
@@ -104,12 +106,14 @@ User Browser
 ## Migration Strategy
 
 ### Immediate Benefits
+
 - ✅ **Fixes production authentication errors**
 - ✅ **Consistent IP-based audience validation**
 - ✅ **Scalable across different deployment environments**
 - ✅ **Better security** (httpOnly session cookies)
 
 ### Migration Path
+
 1. **Test the new flow** using `/auth-test` page
 2. **Update login/logout components** to use `useServerAuth`
 3. **Verify API calls work** with session-based auth
