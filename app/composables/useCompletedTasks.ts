@@ -79,8 +79,8 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
       // Type assertion: we know these are response entities
       const responses = (responsesResult.entities || []) as EntuResponse[]
 
-      // 🔍 LOG: Track response data updates for BUG-001 debugging
-      console.log('📊 [useCompletedTasks] loadCompletedTasks - Responses loaded from API', {
+      // LOG: Track response data updates for BUG-001 debugging
+      console.log('[useCompletedTasks] loadCompletedTasks - Responses loaded from API', {
         timestamp: new Date().toISOString(),
         responseCount: responses.length,
         previousCount: userResponses.value.length,
@@ -90,7 +90,7 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
       // Store all responses for later stats calculation
       userResponses.value = responses
 
-      console.log('📊 [useCompletedTasks] loadCompletedTasks - userResponses ref updated', {
+      console.log('[useCompletedTasks] loadCompletedTasks - userResponses ref updated', {
         timestamp: new Date().toISOString(),
         newResponseCount: userResponses.value.length
       })

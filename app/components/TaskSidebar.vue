@@ -334,12 +334,12 @@ watch(tasks, async (newTasks) => {
   }
 }, { immediate: false })
 
-// 🔧 BUG FIX (BUG-001): Watch userResponses for statistics updates
+// BUG FIX (BUG-001): Watch userResponses for statistics updates
 // When a user submits a response, useCompletedTasks.userResponses updates
 // This watch ensures TaskSidebar's cache is refreshed automatically
 watch(userResponses, (newResponses, oldResponses) => {
-  // 🔍 LOG: Track statistics update trigger
-  console.log('📊 [BUG-001 FIX] TaskSidebar - userResponses watch triggered', {
+  // LOG: Track statistics update trigger
+  console.log('[BUG-001 FIX] TaskSidebar - userResponses watch triggered', {
     timestamp: new Date().toISOString(),
     responseCount: newResponses?.length || 0,
     oldResponseCount: oldResponses?.length || 0,
@@ -350,20 +350,20 @@ watch(userResponses, (newResponses, oldResponses) => {
 
   // Only refresh if responses actually changed
   if (newResponses && (newResponses !== oldResponses || newResponses.length !== oldResponses?.length)) {
-    console.log('📊 [BUG-001 FIX] TaskSidebar - Responses changed, refreshing stats cache')
+    console.log('[BUG-001 FIX] TaskSidebar - Responses changed, refreshing stats cache')
     
     // Recompute stats for all visible tasks when user responses change
     if (tasks.value && tasks.value.length > 0) {
       for (const task of tasks.value) {
         loadTaskResponseStats(task)
       }
-      console.log('📊 [BUG-001 FIX] TaskSidebar - stats cache refreshed', {
+      console.log('[BUG-001 FIX] TaskSidebar - stats cache refreshed', {
         timestamp: new Date().toISOString(),
         cacheSize: taskResponseStatsCache.value.size
       })
     }
   } else {
-    console.log('📊 [BUG-001 FIX] TaskSidebar - Watch fired but no actual change detected')
+    console.log('[BUG-001 FIX] TaskSidebar - Watch fired but no actual change detected')
   }
 })
 
@@ -374,7 +374,7 @@ watch(userResponses, (newResponses, oldResponses) => {
 watch(isTaskSelected, (taskSelected, wasTaskSelected) => {
   // Detect transition from task selected (sidebar hidden) to no task (sidebar visible)
   if (wasTaskSelected === true && taskSelected === false) {
-    console.log('📱 [MOBILE FIX] TaskSidebar - Became visible, refreshing stats', {
+    console.log('[MOBILE FIX] TaskSidebar - Became visible, refreshing stats', {
       timestamp: new Date().toISOString(),
       taskCount: tasks.value?.length || 0
     })
@@ -386,7 +386,7 @@ watch(isTaskSelected, (taskSelected, wasTaskSelected) => {
         for (const task of tasks.value) {
           loadTaskResponseStats(task)
         }
-        console.log('📱 [MOBILE FIX] TaskSidebar - Stats refreshed after becoming visible', {
+        console.log('[MOBILE FIX] TaskSidebar - Stats refreshed after becoming visible', {
           timestamp: new Date().toISOString(),
           cacheSize: taskResponseStatsCache.value.size
         })
@@ -395,9 +395,9 @@ watch(isTaskSelected, (taskSelected, wasTaskSelected) => {
   }
 })
 
-// �🚀 PHASE 1: Non-blocking initialization
+// PHASE 1: Non-blocking initialization
 onMounted(() => {
-  console.log('🏢 [EVENT] TaskSidebar - Component mounted, UI ready immediately', new Date().toISOString())
+  console.log('[EVENT] TaskSidebar - Component mounted, UI ready immediately', new Date().toISOString())
   // Tasks will auto-load when accessed via computed property
   // Completed tasks will load when tasks are ready (via watch above)
   // No blocking calls here - UI shows immediately!
