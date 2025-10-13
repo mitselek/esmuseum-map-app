@@ -19,7 +19,7 @@ export default defineNuxtConfig({
   // Fix mobile hydration issues
   vue: {
     compilerOptions: {
-      isCustomElement: (tag) => false
+      isCustomElement: (_tag) => false
     }
   },
   spaLoadingTemplate: false,
@@ -73,7 +73,7 @@ export default defineNuxtConfig({
     vueI18n: '~~/.config/i18n.config.ts',
     defaultLocale: 'et',
     strategy: 'no_prefix',
-    locales: ['et', 'en', 'uk'],
+    locales: ['et', 'en', 'uk', 'lv'],
     detectBrowserLanguage: {
       useCookie: true,
       cookieKey: 'i18n_locale',

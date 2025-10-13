@@ -1,4 +1,4 @@
-// @ts-ignore - defineI18nConfig is auto-imported by Nuxt i18n
+// @ts-expect-error - defineI18nConfig is auto-imported by Nuxt i18n
 export default defineI18nConfig(() => ({
   legacy: false,
   strategy: 'no_prefix',
@@ -9,12 +9,10 @@ export default defineI18nConfig(() => ({
       // Authentication
       alreadyLoggedIn: 'Sa oled juba sisse logitud',
       loggingIn: 'Sisselogimine...',
-      loginWithOAuth: 'Logi sisse OAuth-ga',
-      selectProvider: 'Vali autentimisteenuse pakkuja',
+
       continue: 'Jätka rakendusega',
       user: 'Kasutaja',
-      loginMethod: 'Sisselogimise meetod',
-      oauthMethod: 'OAuth autentimine',
+
       // Authentication notifications
       auth: {
         sessionExpired: 'Sessioon aegunud',
@@ -33,13 +31,16 @@ export default defineI18nConfig(() => ({
       logout: 'Logi välja',
       appName: 'ESMuseum Kaardid',
       description: 'Avasta Eesti sõjaajalugu interaktiivsete asukohal põhinevate missioonide ja ajalooliste avastuste kaudu. Autentimiseks alusta oma teekonda.',
-      loading: 'Laadimine...',
+
       title: 'Tere tulemast Eesti Sõjamuuseumisse',
       redirecting: 'Suunamine...',
       hello: 'Tere',
       student: 'õpilane',
+      clickHere: 'Vajutage siia, kui automaatset ümbersuunamist ei toimu',
       tasks: {
         loading: 'Ülesannete laadimine...',
+        initializing: 'Alustan...',
+        loadingTasks: 'Laadin ülesandeid',
         selectTask: 'Vali ülesanne',
         selectTaskDescription: 'Palun vali ülesanne alustamiseks',
         title: 'Ülesanded',
@@ -54,14 +55,9 @@ export default defineI18nConfig(() => ({
         open: 'Ava →'
       },
       gps: {
-        enableLocationTitle: 'Luba asukoht parema kasutuskogemuse jaoks',
-        enableLocationDescription: 'Aitab sortida asukohti kauguse järgi ja täita asukohaväljad automaatselt',
-        allowLocation: 'Luba asukoht',
-        notNow: 'Mitte praegu',
+
         requesting: 'Küsin asukohta',
-        locationRequiredTitle: 'Asukoht on vajalik',
-        locationRequiredRetry: 'See kaardirakendus vajab asukohta. Proovi uuesti?',
-        locationRequiredInstructions: 'Asukoht on blokeeritud. Luba see brauseri seadetes.',
+
         tryAgain: 'Proovi uuesti',
         howToEnable: 'Kuidas lubada?',
         dismiss: 'Sulge',
@@ -82,13 +78,12 @@ export default defineI18nConfig(() => ({
         }
       },
       taskDetail: {
-        map: 'Kaart',
+
         responsesProgress: '{actual} / {expected} vastust',
         totalResponses: '{count} vastust kokku',
         geolocationError: 'Asukoha määramisel tekkis viga: {error}',
         noTitle: 'Nimetu ülesanne',
         selectLocation: 'Vali asukoht ({count} saadaval)',
-        pleaseSelectLocation: 'Palun vali asukoht, et jätkata vastuse sisestamist',
 
         yourResponse: 'Sinu vastus',
         addFile: 'Lisa fail (valikuline)',
@@ -99,8 +94,7 @@ export default defineI18nConfig(() => ({
         fileTooLarge: 'Fail {name} on liiga suur. Maksimaalne suurus on {maxSize}.',
         fileTypeNotAllowed: 'Failitüüp pole lubatud: {name}',
         preparing: 'Valmistan ette...',
-        creating: 'Loon entiteeti...',
-        uploading: 'Laadin üles...',
+
         uploadComplete: '✅ Üleslaaditud',
         uploadFailed: '❌ Ebaõnnestus',
         location: 'Asukoht',
@@ -145,23 +139,17 @@ export default defineI18nConfig(() => ({
         remove: 'Eemalda'
       },
       map: {
-        loading: 'Kaardi laadimine...',
-        yourLocation: 'Sinu asukoht',
-        visited: 'Külastatud',
-        enterFullscreen: 'Ava täisekraan',
-        exitFullscreen: 'Sulge täisekraan'
+        yourLocation: 'Sinu asukoht'
       }
     },
     en: {
       // Authentication
       alreadyLoggedIn: 'You are already logged in',
       loggingIn: 'Logging in...',
-      loginWithOAuth: 'Login with OAuth',
-      selectProvider: 'Select Authentication Provider',
+
       continue: 'Continue to application',
       user: 'User',
-      loginMethod: 'Login Method',
-      oauthMethod: 'OAuth Authentication',
+
       // Authentication notifications
       auth: {
         sessionExpired: 'Session Expired',
@@ -180,13 +168,16 @@ export default defineI18nConfig(() => ({
       logout: 'Logout',
       appName: 'ESMuseum Maps',
       description: 'Explore Estonia\'s military history through interactive location-based missions and historical discoveries. Authenticate to begin your journey.',
-      loading: 'Loading...',
+
       title: 'Welcome to Estonian War Museum',
       redirecting: 'Redirecting...',
       hello: 'Hello',
       student: 'student',
+      clickHere: 'Click here if not redirected automatically',
       tasks: {
         loading: 'Loading tasks...',
+        initializing: 'Initializing...',
+        loadingTasks: 'Loading tasks',
         selectTask: 'Select a task',
         selectTaskDescription: 'Please select a task to get started',
         title: 'Tasks',
@@ -205,14 +196,9 @@ export default defineI18nConfig(() => ({
         open: 'Open →'
       },
       gps: {
-        enableLocationTitle: 'Enable location for better experience',
-        enableLocationDescription: 'Helps sort locations by distance and auto-fill location fields',
-        allowLocation: 'Allow location',
-        notNow: 'Not now',
+
         requesting: 'Requesting location',
-        locationRequiredTitle: 'Location Required',
-        locationRequiredRetry: 'This map app requires location access. Try again?',
-        locationRequiredInstructions: 'Location is blocked. Please enable it in your browser settings.',
+
         tryAgain: 'Try Again',
         howToEnable: 'How to Enable?',
         dismiss: 'Dismiss',
@@ -233,13 +219,12 @@ export default defineI18nConfig(() => ({
         }
       },
       taskDetail: {
-        map: 'Map',
+
         responsesProgress: '{actual} / {expected} responses',
         totalResponses: '{count} total responses',
         geolocationError: 'Geolocation error: {error}',
         noTitle: 'Untitled Task',
         selectLocation: 'Select location ({count} available)',
-        pleaseSelectLocation: 'Please select a location to continue entering your response',
 
         yourResponse: 'Your Response',
         addFile: 'Add file (optional)',
@@ -250,8 +235,7 @@ export default defineI18nConfig(() => ({
         fileTooLarge: 'File {name} is too large. Maximum size is {maxSize}.',
         fileTypeNotAllowed: 'File type not allowed: {name}',
         preparing: 'Preparing...',
-        creating: 'Creating entity...',
-        uploading: 'Uploading...',
+
         uploadComplete: '✅ Uploaded',
         uploadFailed: '❌ Failed',
         location: 'Location',
@@ -298,23 +282,17 @@ export default defineI18nConfig(() => ({
         remove: 'Remove'
       },
       map: {
-        loading: 'Loading map...',
-        yourLocation: 'Your location',
-        visited: 'Visited',
-        enterFullscreen: 'Enter fullscreen',
-        exitFullscreen: 'Exit fullscreen'
+        yourLocation: 'Your location'
       }
     },
     uk: {
       // Authentication
       alreadyLoggedIn: 'Ви вже увійшли в систему',
       loggingIn: 'Вхід...',
-      loginWithOAuth: 'Увійти через OAuth',
-      selectProvider: 'Оберіть провайдера автентифікації',
+
       continue: 'Продовжити до додатку',
       user: 'Користувач',
-      loginMethod: 'Метод входу',
-      oauthMethod: 'OAuth автентифікація',
+
       // Authentication notifications
       auth: {
         sessionExpired: 'Сесія закінчилася',
@@ -333,13 +311,16 @@ export default defineI18nConfig(() => ({
       logout: 'Вийти',
       appName: 'ESMuseum Карти',
       description: 'Досліджуйте військову історію Естонії через інтерактивні місцеві місії та історичні відкриття. Автентифікуйтеся, щоб розпочати свою подорож.',
-      loading: 'Завантаження...',
+
       title: 'Ласкаво просимо до Естонського військового музею',
       redirecting: 'Перенаправлення...',
       hello: 'Привіт',
       student: 'студент',
+      clickHere: 'Натисніть тут, якщо автоматичне перенаправлення не відбувається',
       tasks: {
         loading: 'Завантаження завдань...',
+        initializing: 'Ініціалізація...',
+        loadingTasks: 'Завантаження завдань',
         selectTask: 'Вибрати завдання',
         selectTaskDescription: 'Будь ласка, виберіть завдання для початку',
         title: 'Завдання',
@@ -354,14 +335,9 @@ export default defineI18nConfig(() => ({
         open: 'Відкрити →'
       },
       gps: {
-        enableLocationTitle: 'Увімкніть локацію для кращого досвіду',
-        enableLocationDescription: 'Допомагає сортувати локації за відстанню та автоматично заповнювати поля місцезнаходження',
-        allowLocation: 'Дозволити локацію',
-        notNow: 'Не зараз',
+
         requesting: 'Запит місцезнаходження',
-        locationRequiredTitle: 'Потрібна локація',
-        locationRequiredRetry: 'Цьому додатку карт потрібен доступ до локації. Спробувати знову?',
-        locationRequiredInstructions: 'Локацію заблоковано. Будь ласка, увімкніть її в налаштуваннях браузера.',
+
         tryAgain: 'Спробувати знову',
         howToEnable: 'Як увімкнути?',
         dismiss: 'Закрити',
@@ -382,13 +358,12 @@ export default defineI18nConfig(() => ({
         }
       },
       taskDetail: {
-        map: 'Карта',
+
         responsesProgress: '{actual} / {expected} відповідей',
         totalResponses: '{count} всього відповідей',
         geolocationError: 'Помилка геолокації: {error}',
         noTitle: 'Завдання без назви',
         selectLocation: 'Виберіть місцезнаходження ({count} доступно)',
-        pleaseSelectLocation: 'Будь ласка, виберіть місцезнаходження, щоб продовжити введення відповіді',
 
         yourResponse: 'Ваша відповідь',
         addFile: 'Додати файл (необов\'язково)',
@@ -399,8 +374,7 @@ export default defineI18nConfig(() => ({
         fileTooLarge: 'Файл {name} занадто великий. Максимальний розмір {maxSize}.',
         fileTypeNotAllowed: 'Тип файлу не дозволений: {name}',
         preparing: 'Підготовка...',
-        creating: 'Створення сутності...',
-        uploading: 'Завантаження...',
+
         uploadComplete: '✅ Завантажено',
         uploadFailed: '❌ Помилка',
         location: 'Розташування',
@@ -447,11 +421,144 @@ export default defineI18nConfig(() => ({
         remove: 'Видалити'
       },
       map: {
-        loading: 'Завантаження карти...',
-        yourLocation: 'Ваше місцезнаходження',
-        visited: 'Відвідано',
-        enterFullscreen: 'Відкрити на весь екран',
-        exitFullscreen: 'Вийти з повноекранного режиму'
+        yourLocation: 'Ваше місцезнаходження'
+      }
+    },
+    lv: {
+      // Authentication
+      alreadyLoggedIn: 'Jūs jau esat pieteicies',
+      loggingIn: 'Piesakos...',
+
+      continue: 'Turpināt uz lietotni',
+      user: 'Lietotājs',
+
+      // Authentication notifications
+      auth: {
+        sessionExpired: 'Sesija beigusies',
+        sessionExpiredMessage: 'Lūdzu, piesakieties vēlreiz',
+        authRequired: 'Nepieciešama autentifikācija',
+        authRequiredMessage: 'Pārvirza uz pieteikšanās lapu...'
+      },
+      // Common
+      common: {
+        noData: 'Nav datu',
+        reload: 'Pārlādēt',
+        error: 'Kļūda',
+        retry: 'Mēģināt vēlreiz'
+      },
+      login: 'Pieteikties',
+      logout: 'Izrakstīties',
+      appName: 'ESMuseum Kartes',
+      description: 'Izpētiet Igaunijas militāro vēsturi, izmantojot interaktīvās uz atrašanās vietu balstītās misijas un vēsturiskos atklājumus. Autentificējieties, lai sāktu savu ceļojumu.',
+
+      title: 'Laipni lūdzam Igaunijas Kara muzejā',
+      redirecting: 'Pārvirza...',
+      hello: 'Sveiki',
+      student: 'skolēns',
+      clickHere: 'Noklikšķiniet šeit, ja automātiskā pārvirzīšana nenotiek',
+      tasks: {
+        loading: 'Ielādē uzdevumus...',
+        initializing: 'Inicializē...',
+        loadingTasks: 'Ielādē uzdevumus',
+        selectTask: 'Izvēlieties uzdevumu',
+        selectTaskDescription: 'Lūdzu, izvēlieties uzdevumu, lai sāktu',
+        title: 'Uzdevumi',
+        noTasks: 'Pagaidām nav neviena piešķirta uzdevuma',
+        searchTasks: 'Meklēt uzdevumus...',
+        tasksFound: '{count} uzdevums atrasts | {count} uzdevumi atrasti',
+        noTasksMatchSearch: 'Neviens uzdevums neatbilst jūsu meklēšanai',
+        tryDifferentSearch: 'Mēģiniet citu meklēšanas terminu',
+        noTasksDescription: 'Uzdevumi parādīsies šeit, kad tie tiks piešķirti',
+        responses: 'atbildes',
+        group: 'Grupa',
+        open: 'Atvērt →'
+      },
+      gps: {
+
+        requesting: 'Pieprasa atrašanās vietu',
+
+        tryAgain: 'Mēģināt vēlreiz',
+        howToEnable: 'Kā iespējot?',
+        dismiss: 'Aizvērt',
+        // New error message translations
+        error: {
+          permissionTitle: 'Nepieciešama atrašanās vietas atļauja',
+          unavailableTitle: 'Atrašanās vieta nav pieejama',
+          timeoutTitle: 'Atrašanās vietas pieprasījuma laiks iztecējis',
+          genericTitle: 'Atrašanās vietas problēma',
+          permissionDenied: 'Piekļuve atrašanās vietai tika liegta. Lūdzu, iespējojiet atrašanās vietas atļaujas un mēģiniet vēlreiz.',
+          positionUnavailable: 'Jūsu atrašanās vieta pašlaik nav pieejama. Tas var būt slikta GPS signāla vai atspējotu atrašanās vietas pakalpojumu dēļ. Mēģiniet pāriet uz vietu ar labāku signālu vai iespējojiet atrašanās vietas pakalpojumus savā ierīcē.',
+          timeout: 'Atrašanās vietas pieprasījuma laiks iztecējis. Lūdzu, mēģiniet vēlreiz vai pārliecinieties, ka jums ir labs GPS signāls.',
+          unknown: 'Nevar noteikt jūsu atrašanās vietu. Lūdzu, mēģiniet vēlāk.',
+          permissionRetry: 'Lūdzu, atļaujiet piekļuvi atrašanās vietai, lai iespējotu GPS funkcijas.',
+          permissionBlocked: 'Piekļuve atrašanās vietai ir bloķēta. Varat turpināt bez GPS vai iespējot to pārlūkprogrammas iestatījumos.',
+          continueWithoutGPS: 'Turpināt bez GPS',
+          serviceIssue: 'Radās problēma ar atrašanās vietas pakalpojumiem.'
+        }
+      },
+      taskDetail: {
+
+        responsesProgress: '{actual} / {expected} atbildes',
+        totalResponses: '{count} atbildes kopā',
+        geolocationError: 'Ģeolokācijas kļūda: {error}',
+        noTitle: 'Uzdevums bez nosaukuma',
+        selectLocation: 'Izvēlieties atrašanās vietu ({count} pieejamas)',
+
+        yourResponse: 'Jūsu atbilde',
+        addFile: 'Pievienot failu (neobligāti)',
+        allowedFiles: 'Atļauti: attēli, PDF, Word dokumenti',
+        dragDropFiles: 'Velciet failus šeit vai noklikšķiniet, lai izvēlētos',
+        maxFileSize: 'Maksimālais faila izmērs: 10MB',
+        clickToAddMore: 'Noklikšķiniet, lai pievienotu vēl failus',
+        fileTooLarge: 'Fails {name} ir pārāk liels. Maksimālais izmērs ir {maxSize}.',
+        fileTypeNotAllowed: 'Faila tips nav atļauts: {name}',
+        preparing: 'Sagatavo...',
+
+        uploadComplete: '✅ Augšupielādēts',
+        uploadFailed: '❌ Neizdevās',
+        location: 'Atrašanās vieta',
+        manualCoordinates: 'Manuālās koordinātas',
+        close: '← Aizvērt',
+        coordinatesFormat: 'Koordinātas (lat,lng formāts)',
+        coordinatesExample: 'piemēram: 59.4370, 24.7536',
+        searchingLocation: 'Meklē atrašanās vietu...',
+        useCurrentLocation: 'Izmantot pašreizējo atrašanās vietu',
+        useTheseCoordinates: 'Izmantot šīs koordinātas',
+        response: 'Atbilde',
+        responsePlaceholder: 'Rakstiet savu atbildi šeit...',
+        submitting: 'Iesniedz...',
+        submitResponseBtn: 'Iesniegt atbildi',
+        canUpdateUntilDeadline: 'Varat atjaunināt savu atbildi līdz termiņa beigām',
+        responseAlreadySubmitted: '✅ Jūsu atbilde ir iesniegta',
+        geolocationNotSupported: 'Ģeolokācija netiek atbalstīta šajā pārlūkprogrammā',
+        checkingPermissions: 'Pārbauda atļaujas...',
+        noPermission: 'Nav atļaujas',
+        noPermissionDescription: 'Jums nav atļaujas atbildēt uz šo uzdevumu. Sazinieties ar skolotāju, ja domājat, ka tas ir kļūda.',
+        // Submission modal translations
+        modalSubmitting: 'Iesniedz atbildi...',
+        modalSubmitSuccess: 'Atbilde iesniegta!',
+        modalSubmitError: 'Iesniegšanas kļūda',
+        // LocationPicker translations
+        selectedLocation: 'Izvēlētā atrašanās vieta',
+        changeLocation: 'Mainīt',
+        loadingLocationsList: 'Ielādē atrašanās vietas...',
+        searchingLocationGPS: '🔍 Meklē atrašanās vietu...',
+        searchLocations: 'Meklēt atrašanās vietas...',
+        noLocationsForTask: 'Šim uzdevumam nav definētas atrašanās vietas',
+        unnamedLocation: 'Atrašanās vieta bez nosaukuma',
+        // User location override translations
+
+        manualLocationOverride: 'Manuāla atrašanās vietas pārrakstīšana',
+        enterManually: 'Ievadīt manuāli',
+        cancel: 'Atcelt',
+        manualLocationHelp: 'Tas pārrakstīs jūsu atrašanās vietu kartes kārtošanai',
+        applyLocation: 'Lietot atrašanās vietu',
+        clearOverride: 'Notīrīt pārrakstīšanu',
+        manualLocationActive: 'Manuāla atrašanās vietas pārrakstīšana aktīva',
+        remove: 'Noņemt'
+      },
+      map: {
+        yourLocation: 'Jūsu atrašanās vieta'
       }
     }
   },
@@ -478,6 +585,16 @@ export default defineI18nConfig(() => ({
       }
     },
     uk: {
+      date: { year: 'numeric', month: '2-digit', day: '2-digit' },
+      datetime: {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }
+    },
+    lv: {
       date: { year: 'numeric', month: '2-digit', day: '2-digit' },
       datetime: {
         year: 'numeric',
