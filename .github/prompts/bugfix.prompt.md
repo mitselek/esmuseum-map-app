@@ -47,6 +47,34 @@ When a user brings a bug report (from email, chat, or any format):
 - Analyze data flow and transformations
 - Identify logic errors or data integrity issues
 
+### Constitutional Compliance
+
+**Before proceeding with the fix**, check if the project has a constitution (`.specify/memory/constitution.md`):
+
+**If constitution exists:**
+- Read and understand the core development principles
+- Ensure the bug fix approach aligns with:
+  - **Type Safety First**: Fix should not introduce `any` types or weaken type safety
+  - **Test-First Development**: Write failing test before implementing fix (this is already TDD, but constitution reinforces it)
+  - **Composable-First**: If refactoring is needed, extract to composables with single responsibility
+  - **Observable Development**: Add logging/error boundaries if the bug relates to error handling
+  - **Pragmatic Simplicity**: Fix should be simple and maintainable, not clever
+  - **Strategic Integration Testing**: Add integration tests only for critical paths
+
+**When creating GitHub issues for the bug:**
+- Tag with constitutional implications (e.g., "type-safety", "test-coverage", "refactoring-needed")
+- Reference constitutional violations if the bug was caused by non-compliance
+- Suggest constitutional-compliant fixes in the issue description
+
+**When fixing the bug:**
+- Ensure fix doesn't violate constitutional principles
+- If existing code violates constitution (e.g., excessive `any` usage), document as separate improvement issue
+- Add comments referencing constitutional principles where relevant
+
+**If no constitution exists:**
+- Proceed with general best practices
+- Follow TDD, type safety, and clean code principles
+
 ### Test-Driven Development Approach
 
 1. **Write failing tests first** that reproduce the bug
@@ -101,6 +129,7 @@ After bug fix and tests pass:
 ### Key Principles
 
 - **Always start with a GitHub issue** as the source of truth
+- **Check project constitution** before proceeding (`.specify/memory/constitution.md`)
 - **Root cause first** - understand before fixing
 - **Tests before implementation** - TDD discipline
 - **Document side effects** - don't let technical debt hide

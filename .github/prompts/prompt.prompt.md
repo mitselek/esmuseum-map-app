@@ -63,6 +63,34 @@ Given a prompt request from the user, do this:
    - Are there constraints? (tone, length, style, safety requirements)
    - **SPECIAL CASE**: If the request mentions creating a "slash-command" or references commands like `/test`, `/review`, etc., recognize this as Scenario 4 (Slash-Command Creation) and follow that workflow instead
 
+1b. **Check for project constitution** (if task is code-related):
+   
+   **Before drafting any code-related prompt**, check if the project has a constitution:
+   
+   - Look for `.specify/memory/constitution.md` in the repository
+   - If it exists, read and understand the core principles:
+     - Development principles (Type Safety, Test-First, Composable-First, etc.)
+     - Tech stack governance (approved dependencies, patterns)
+     - Workflow requirements (spec-kit processes, code review)
+     - Quality standards (testing coverage, documentation)
+   
+   **Determine if constitutional principles apply**:
+   - **Code generation/review**: YES - must follow Type Safety, Composable-First, Test-First
+   - **Bug fixing**: YES - must follow Test-First (write failing test first), Observable Development
+   - **Architecture/design**: YES - must follow Pragmatic Simplicity, tech stack governance
+   - **Documentation**: MAYBE - if technical docs, follow project conventions
+   - **Email writing/content**: NO - constitution doesn't apply to non-code tasks
+   
+   **If constitution applies**, the generated prompt MUST:
+   - Reference the constitution file explicitly
+   - Embed relevant constitutional principles in the prompt's guidelines
+   - Add a validation step to check constitutional compliance
+   - Include the recursive constitution requirement (see step 7, point 6)
+   
+   **If no constitution exists**:
+   - Proceed with general best practices
+   - Optionally suggest creating a constitution if project is code-heavy
+
 2. **Research best practices**:
    
    Always research and consider prompt engineering principles for the target AI model and task type (as of the current date determined in step 0). **Present findings BEFORE drafting the prompt.**
@@ -342,9 +370,45 @@ Given a prompt request from the user, do this:
       - Demonstrate correct spacing in sample responses
    
    5. **PROPAGATE THE RECURSIVE REQUIREMENT ITSELF** (Critical for infinite recursion):
-      - If the prompt you're creating might be used to generate OTHER prompts that generate markdown, include this instruction in the prompt:
-        - "If you generate a prompt that itself generates markdown output, you MUST include these same markdown formatting requirements in that prompt, ensuring this linting standard propagates recursively through all levels."
+      - If the prompt you're creating might be used to generate OTHER prompts include this instruction in the prompt:
+        - "If you generate a prompt, you MUST include these same markdown formatting requirements in that prompt, ensuring this linting standard propagates recursively through all levels."
       - This creates a self-propagating linting requirement that works at any depth
+   
+   6. **PROPAGATE CONSTITUTION AWARENESS** (Critical for project alignment):
+      - **When creating prompts for code-related tasks** (code review, implementation, refactoring, bug fixing, etc.), ensure constitutional compliance:
+        - Include reference to project constitution if available (`.specify/memory/constitution.md`)
+        - Embed key constitutional principles in the prompt (Type Safety, Composable-First, Test-First, Observable Development, Pragmatic Simplicity)
+        - Add validation step: "Verify output complies with project constitution"
+      - **Recursive propagation clause**: If the prompt you're creating might generate OTHER prompts that affect code or architecture, include this instruction:
+        - "If you generate a prompt that itself generates code-related output (implementations, reviews, refactorings), that prompt MUST also reference and comply with the project's constitutional principles as defined in `.specify/memory/constitution.md`, ensuring governance standards propagate through all levels."
+      - **For this esmuseum-map-app project specifically**, always check if `.specify/memory/constitution.md` exists and include these principles:
+        - Type Safety First (avoid `any`, document TypeScript patterns)
+        - Composable-First Development (Vue 3 composables, single responsibility)
+        - Test-First Development (TDD, write tests before implementation)
+        - Observable Development (structured logging, error boundaries)
+        - Pragmatic Simplicity (YAGNI, optimize after measuring)
+        - Strategic Integration Testing (focus on critical paths)
+        - API-First Server Design (clean routes, proper error codes)
+      - **Example constitution-aware clause** to include in generated prompts:
+        ```markdown
+        **Constitutional Compliance** (if applicable):
+        
+        If this project has a constitution file (`.specify/memory/constitution.md`), ensure all generated output complies with:
+        
+        - Core development principles (Type Safety, Test-First, etc.)
+        - Tech stack governance (approved dependencies, upgrade policies)
+        - Code quality standards (testing coverage, type safety requirements)
+        - Workflow processes (feature specs, code review requirements)
+        
+        Before finalizing output:
+        
+        - Check if constitutional principles apply to this task
+        - Verify output aligns with documented standards
+        - Flag any deviations with justification
+        - Reference specific constitutional sections when relevant
+        
+        **RECURSIVE REQUIREMENT**: If this prompt generates other prompts that affect code or architecture, those prompts MUST also include this constitutional compliance requirement.
+        ```
    
    **Example of fully recursive linting requirement**:
    
@@ -409,23 +473,30 @@ Given a prompt request from the user, do this:
    - Examples of before/after rewrites
 4. Provide usage tips (paste original draft, review suggestions, maintain voice)
 
-### Scenario 2: Code Review Assistant
+### Scenario 2: Code Review Assistant (with Constitution)
 
 **User request**:
 "/prompt Create a prompt for reviewing Vue 3 components for best practices"
 
 **Response approach**:
-1. Research: Vue 3 best practices (as of October 2025), Composition API patterns, common pitfalls
-2. Present research findings (reactivity patterns, TypeScript usage, accessibility, note Vue 3 maturity status)
-3. Generate prompt covering:
-   - Reactivity patterns (ref vs reactive)
-   - Component composition (props, emits, slots)
-   - Performance (computed, watch, unnecessary re-renders)
-   - TypeScript usage (proper typing)
-   - Accessibility (ARIA labels, keyboard nav)
-   - Testing considerations
-4. Include checklist format for reviews
-5. Add examples of good/bad patterns
+1. **Check for constitution**: Read `.specify/memory/constitution.md` - found! Principles apply to code review.
+2. **Research**: Vue 3 best practices (as of October 2025), Composition API patterns, common pitfalls
+3. **Present research findings** (Vue 3 maturity status, Composition API patterns, TypeScript integration, note constitutional requirements)
+4. **Generate prompt** covering:
+   - **Constitutional principles first**:
+     - Type Safety First (check for `any` usage, TypeScript patterns)
+     - Composable-First (single responsibility, testability)
+     - Test-First Development (test coverage requirements)
+     - Observable Development (error boundaries, logging)
+   - **Vue 3 specific patterns**:
+     - Reactivity patterns (ref vs reactive)
+     - Component composition (props, emits, slots)
+     - Performance (computed, watch, unnecessary re-renders)
+     - Accessibility (ARIA labels, keyboard nav)
+   - **Validation step**: "Verify component complies with `.specify/memory/constitution.md` principles"
+   - **Recursive requirement**: Include constitutional compliance clause for any derivative prompts
+5. **Include checklist format** for reviews with constitutional gates
+6. **Add examples** of good/bad patterns that align with/violate constitution
 
 ### Scenario 3: Documentation Writer
 
