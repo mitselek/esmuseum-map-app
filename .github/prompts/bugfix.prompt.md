@@ -146,6 +146,7 @@ After bug fix and tests pass:
    - Add blank lines before and after all code blocks
    - Remove trailing spaces from lines
    - Avoid inline HTML unless necessary
+   - **Use emojis conservatively**: Avoid emojis in commit messages, code comments, console logs, and formal documentation (GitHub issues, PRs, technical docs). Emojis can interfere with grep/search, appear unprofessional in some contexts, and may not render consistently. Use clear text prefixes instead (e.g., `[ERROR]`, `[BUG-001]`, `[FIX]`).
 
 2. **Constitutional Compliance Propagation**:
    - If the bug fix or related issues involve code changes, ensure all generated content references constitutional principles
