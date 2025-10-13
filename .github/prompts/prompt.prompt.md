@@ -343,6 +343,13 @@ Given a prompt request from the user, do this:
    3. Explain any intentional violations (e.g., XML tags in Claude prompts)
    4. Let user decide whether to fix or accept the warnings
    
+   **Conservative Emoji Usage**:
+   - **Avoid emojis** in commit messages, code comments, console logs, and formal documentation (GitHub issues, PRs, technical docs)
+   - **Reason**: Emojis can interfere with grep/search, appear unprofessional in some contexts, and may not render consistently across platforms
+   - **Alternative**: Use clear text prefixes instead (e.g., `[ERROR]`, `[INFO]`, `[WARNING]`, `[BUG-001]`, `[FIX]`)
+   - **Exception**: Emojis may be acceptable in user-facing UI text, marketing content, or casual documentation where appropriate
+   - **When creating prompts**: Include this emoji guidance if the prompt will generate code, commits, logs, or formal documentation
+   
    **RECURSIVE REQUIREMENT - CRITICAL**:
    
    **If the prompt you're creating will itself generate markdown output** (like a documentation generator, feedback formalizer, report creator, or any prompt-generating prompt), you MUST ensure the linting requirement propagates through ALL levels of recursion:
@@ -359,7 +366,7 @@ Given a prompt request from the user, do this:
         - "Use blank lines before and after all code blocks"
         - "Remove trailing spaces from lines"
         - "Avoid inline HTML unless necessary"
-        - "Avoid emojis or non-standard markdown syntax unless essential"
+        - "Use emojis conservatively: avoid in commit messages, code comments, console logs, and formal documentation. Use clear text prefixes instead (e.g., [ERROR], [INFO], [WARNING])."
    
    3. **Add validation step to the workflow**:
       - If the prompt has a workflow (steps 1, 2, 3...), add a final step:

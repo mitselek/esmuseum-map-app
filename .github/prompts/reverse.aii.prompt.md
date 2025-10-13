@@ -39,6 +39,7 @@ My goal is: {{goal}}
    - Use blank lines before and after all code blocks
    - Remove trailing spaces from lines
    - Avoid inline HTML unless necessary
+   - **Use emojis conservatively**: Avoid emojis in commit messages, code comments, console logs, and formal documentation (GitHub issues, PRs, technical docs). Emojis can interfere with grep/search, appear unprofessional in some contexts, and may not render consistently. Use clear text prefixes instead (e.g., `[ERROR]`, `[INFO]`, `[WARNING]`).
 
 2. **Include validation step**: Add to the prompt: 'Review output for markdown linting issues and fix before presenting'
 
