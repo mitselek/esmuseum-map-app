@@ -30,14 +30,17 @@ export const ENTU_TYPE_IDS = {
 
 /**
  * Entu property names used in entity creation and queries
- * Usage: responseData[ENTU_PROPERTIES.KIRJELDUS] = 'description'
+ * Usage: responseData[ENTU_PROPERTIES.VASTUS] = 'answer text'
  */
 export const ENTU_PROPERTIES = {
   // Response entity properties
-  KIRJELDUS: 'kirjeldus', // Description/response text
+  VASTUS: 'vastus', // Response text/answer
   VASTAJA: 'vastaja', // Respondent name
   GEOPUNKT: 'geopunkt', // Geographic point (lat,lng)
   ASUKOHT: 'asukoht', // Location reference
+
+  // Task entity properties
+  KIRJELDUS: 'kirjeldus', // Task description
 
   // Location entity properties
   NAME_STRING: 'name.string', // Location name
