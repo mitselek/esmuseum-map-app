@@ -183,8 +183,8 @@ export interface EntuResponse extends EntuEntity {
   /** Location reference */
   asukoht?: EntuReferenceProperty[]
 
-  /** Response description/text */
-  kirjeldus?: EntuStringProperty[]
+  /** Response text/answer */
+  vastus?: EntuStringProperty[]
 
   /** Response photo */
   photo?: EntuFileProperty[]
