@@ -21,7 +21,7 @@ Example:
 
 My goal is: {{goal}}
 
-**Important**: Before finalizing the system prompt, check if this is for a code-related task (code generation, review, refactoring, bug fixing, implementation, etc.). If so:
+**Important - Constitutional Awareness**: Before finalizing the system prompt, check if this is for a code-related task (code generation, review, refactoring, bug fixing, implementation, etc.). If so:
 
 1. **Check for project constitution**: Look for `.specify/memory/constitution.md` in the repository
 2. **If constitution exists and applies to the task**:
@@ -31,7 +31,29 @@ My goal is: {{goal}}
    - Include reference to the constitution file in the final prompt
 3. **If no constitution or task is non-code-related**: Proceed with general best practices
 
-The final system prompt should ensure any code-related output complies with documented project standards and governance."
+**Important - Markdown Quality Standards**: If the system prompt will generate markdown output (documentation, reports, issues, PRs), include these requirements in the final prompt:
+
+1. **Markdown Formatting Requirements**:
+   - Use blank lines before and after all headings
+   - Use blank lines before and after all lists
+   - Use blank lines before and after all code blocks
+   - Remove trailing spaces from lines
+   - Avoid inline HTML unless necessary
+
+2. **Include validation step**: Add to the prompt: 'Review output for markdown linting issues and fix before presenting'
+
+3. **Show examples**: Include properly formatted markdown in any example outputs
+
+**Important - Recursive Requirement**: If the system prompt you're creating might itself be used to generate OTHER prompts or templates (meta-prompt generation), include this clause in the final prompt:
+
+'If you generate a prompt or template that itself produces markdown content or code, that output MUST also include:
+- These same markdown formatting requirements
+- Constitutional compliance requirements (if code-related)
+- This recursive propagation clause itself
+
+This ensures quality standards propagate through all levels of generation.'
+
+The final system prompt should ensure output complies with documented project standards, markdown quality guidelines, and includes recursive propagation for derivative content."
 
 ## Variable Substitution
 
