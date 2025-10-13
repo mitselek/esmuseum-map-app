@@ -247,9 +247,9 @@ If sync causes problems:
 git checkout HEAD~1 -- .specify/scripts/ .specify/templates/commands/
 
 # 2. Test workflow
-/specify "test feature"
-/clarify
-/plan
+/speckit.specify "test feature"
+/speckit.clarify
+/speckit.plan
 
 # 3. If working: Commit rollback
 git commit -m "revert: rollback spec-kit sync - broke workflow

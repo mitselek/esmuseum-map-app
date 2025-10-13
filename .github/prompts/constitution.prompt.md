@@ -1,1 +1,0 @@
-../../.specify/templates/commands/constitution.md

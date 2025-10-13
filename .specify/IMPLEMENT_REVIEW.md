@@ -376,8 +376,8 @@ export interface TaskPriority {
 
 ```bash
 # 1. Generate artifacts
-/specify "Add task priority badge"
-/clarify  # Answer questions
+/speckit.specify "Add task priority badge"
+/speckit.clarify  # Answer questions
 /plan     # Generate plan.md, research.md, data-model.md
 /tasks    # Generate tasks.md
 
@@ -392,14 +392,14 @@ export interface TaskPriority {
 # T003: Create app/components/TaskPriorityBadge.vue
 # # T004: Update useTaskDetail.ts (MANUAL - shared composable)
 
-/implement  # Will execute T001-T003, skip T004
+/speckit.implement  # Will execute T001-T003, skip T004
 
 # 4. Implement risky tasks manually
 # Review T001-T003 code quality
 # Manually implement T004 with testing
 
 # 5. Validate
-/analyze  # Check consistency
+/speckit.analyze  # Check consistency
 npm run test  # Run all tests
 ```
 
@@ -407,10 +407,10 @@ npm run test  # Run all tests
 
 ```bash
 # 1. Generate artifacts (same as Option A)
-/specify "Add task priority badge"
-/clarify
-/plan
-/tasks
+/speckit.specify "Add task priority badge"
+/speckit.clarify
+/speckit.plan
+/speckit.tasks
 
 # 2. Use tasks.md as CHECKLIST
 # Don't run /implement at all
@@ -421,7 +421,7 @@ npm run test  # Run all tests
 # Review, edit, commit
 
 # 4. Validate
-/analyze
+/speckit.analyze
 npm run test
 ```
 
@@ -434,10 +434,10 @@ npm run test
 # - Proof of concepts
 # - Throwaway experiments
 
-/specify "Feature description"
-/plan
-/tasks
-/implement  # 🔴 HIGH RISK - review everything carefully
+/speckit.specify "Feature description"
+/speckit.plan
+/speckit.tasks
+/speckit.implement  # 🔴 HIGH RISK - review everything carefully
 ```
 
 ## Quality Gates

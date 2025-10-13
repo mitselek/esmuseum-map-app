@@ -172,7 +172,7 @@ These are historical feature specifications from before spec-kit integration.
 Features **027+** are created using the spec-kit workflow:
 
 ```bash
-/specify "Add new feature description"
+/speckit.specify "Add new feature description"
 ```/bash
 
 This command will:
