@@ -23,7 +23,7 @@ interface TaskStats {
 interface UseCompletedTasksReturn {
   // Global state (all tasks)
   completedTaskIds: ComputedRef<string[]>
-  userResponses: ComputedRef<EntuResponse[]>
+  userResponses: Readonly<Ref<EntuResponse[]>> // Changed to Readonly<Ref> for proper reactivity
   loading: Readonly<Ref<boolean>>
   error: Readonly<Ref<string | null>>
 
@@ -79,8 +79,21 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
       // Type assertion: we know these are response entities
       const responses = (responsesResult.entities || []) as EntuResponse[]
 
+      // 🔍 LOG: Track response data updates for BUG-001 debugging
+      console.log('📊 [useCompletedTasks] loadCompletedTasks - Responses loaded from API', {
+        timestamp: new Date().toISOString(),
+        responseCount: responses.length,
+        previousCount: userResponses.value.length,
+        userId
+      })
+
       // Store all responses for later stats calculation
       userResponses.value = responses
+
+      console.log('📊 [useCompletedTasks] loadCompletedTasks - userResponses ref updated', {
+        timestamp: new Date().toISOString(),
+        newResponseCount: userResponses.value.length
+      })
 
       // Extract unique task IDs from user responses
       const taskIds: string[] = []
@@ -167,7 +180,7 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
 
   return {
     completedTaskIds: computed(() => Array.from(completedTaskIds.value)),
-    userResponses: computed(() => userResponses.value),
+    userResponses: readonly(userResponses) as Readonly<Ref<EntuResponse[]>>, // Return ref directly for proper watch reactivity
     loading: readonly(loading),
     error: readonly(error),
     loadCompletedTasks,
