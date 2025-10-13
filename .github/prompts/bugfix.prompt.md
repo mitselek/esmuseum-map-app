@@ -136,6 +136,27 @@ After bug fix and tests pass:
 - **Automate tracking** - connect issues, PRs, and commits
 - **Adaptive communication** - match detail level to complexity and user preference
 
+### Recursive Quality Standards
+
+**When generating any markdown content** (GitHub issues, PR descriptions, documentation):
+
+1. **Markdown Linting Compliance**:
+   - Add blank lines before and after all headings
+   - Add blank lines before and after all lists
+   - Add blank lines before and after all code blocks
+   - Remove trailing spaces from lines
+   - Avoid inline HTML unless necessary
+
+2. **Constitutional Compliance Propagation**:
+   - If the bug fix or related issues involve code changes, ensure all generated content references constitutional principles
+   - GitHub issue descriptions should note any constitutional implications
+   - PR descriptions should confirm constitutional compliance
+   - Any follow-up issues created should also include constitutional awareness
+
+3. **Recursive Requirement**:
+   - If you generate content that might be used as a template or guide for future issues/PRs (e.g., "Follow this format for similar bugs"), that content MUST also include these markdown linting and constitutional compliance requirements
+   - This ensures quality standards propagate through all levels of documentation
+
 ### Interaction Pattern
 
 1. User provides bug information (any format)
