@@ -168,12 +168,26 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
      - **Display Labels**:
        - ET: "Vastus esitatud"
        - EN: "Time of Response"
-     - **Visible in Tables**: ✓ Aktiveeritud
+     - **Visible in Tables**: Aktiveeritud
    - **Tulemus**:
      - Uutel vastustel kuvatakse ajatempel ISO formaadis (nt. `2025-10-13T16:05:12.474Z`)
      - Õpetajad saavad sorteerida vastuseid ajatempli järgi
      - Vanad vastused (enne formula loomist) ei oma ajatemplit nähtaval
    - **Märkus**: Kood projektis ei vajanud muudatusi - TypeScript tüübid toetasid juba `_created` omadust
+
+4. ✅ **[Madal]** Parandada UI tekstid - vastuse ja ülesande väljad (UX-001, UX-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 1-2 tundi_
+   - **Lahendatud**: PR #8 (13. oktoober 2025)
+   - **Lahendus**:
+     - **UX-001**: Vastuse väli ümber nimetatud `kirjeldus` → `vastus`
+     - **UX-002**: Ülesande välja sildid täpsustatud Entus
+   - **Muudatused**:
+     - Entu konfiguratsioon: Response property `kirjeldus` → `vastus`
+     - Entu konfiguratsioon: Task labels EN="Assignment", ET="Ülesande kirjeldus"
+     - TypeScript: `EntuResponse` interface updated
+     - Constants: `ENTU_PROPERTIES.VASTUS` added for responses
+     - Composable: `useTaskResponseCreation` uses new property
+   - **Testimine**: Manuaalne testimine läbitud, vastuste loomine töötab korrektselt
+   - **Märkus**: Koodi muudatused ei mõjuta olemasolevaid vastuseid (andmeid polnud)
 
 ### Ootel
 
@@ -187,9 +201,7 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
 
 5. **[Keskmine]** Refaktoorida geopunkt/asukoht andmemudel (BUG-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
 
-6. **[Madal]** Parandada UI tekstid (UX-001, UX-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 1-2 tundi_
-
-7. **[Madal]** Luua õpetajate kasutusjuhend (DOC-001) - _Omanik: Tehnilise kirjutaja/Arendaja_ - _Hinnanguline: 4-6 tundi_
+6. **[Madal]** Luua õpetajate kasutusjuhend (DOC-001) - _Omanik: Tehnilise kirjutaja/Arendaja_ - _Hinnanguline: 4-6 tundi_
 
 ## Lisandmärkused
 
