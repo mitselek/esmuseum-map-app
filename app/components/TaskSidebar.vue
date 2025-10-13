@@ -215,7 +215,7 @@ const {
   loadTasks,
   navigateToTask // Use navigateToTask for user clicks (preserves URL params like ?debug)
 } = useTaskWorkspace()
-const { loadCompletedTasks, getTaskStats } = useCompletedTasks()
+const { loadCompletedTasks, getTaskStats, userResponses } = useCompletedTasks()
 const { t } = useI18n()
 
 // Response stats cache for all tasks (stores actual and expected counts)
@@ -322,6 +322,29 @@ watch(tasks, async (newTasks) => {
     }
   }
 }, { immediate: false })
+
+// 🔧 BUG FIX (BUG-001): Watch userResponses for statistics updates
+// When a user submits a response, useCompletedTasks.userResponses updates
+// This watch ensures TaskSidebar's cache is refreshed automatically
+watch(userResponses, (newResponses) => {
+  // 🔍 LOG: Track statistics update trigger
+  console.log('📊 [BUG-001 FIX] TaskSidebar - userResponses changed, refreshing stats cache', {
+    timestamp: new Date().toISOString(),
+    responseCount: newResponses?.length || 0,
+    taskCount: tasks.value?.length || 0
+  })
+
+  // Recompute stats for all visible tasks when user responses change
+  if (tasks.value && tasks.value.length > 0) {
+    for (const task of tasks.value) {
+      loadTaskResponseStats(task)
+    }
+    console.log('📊 [BUG-001 FIX] TaskSidebar - stats cache refreshed', {
+      timestamp: new Date().toISOString(),
+      cacheSize: taskResponseStatsCache.value.size
+    })
+  }
+}, { deep: true })
 
 // 🚀 PHASE 1: Non-blocking initialization
 onMounted(() => {
