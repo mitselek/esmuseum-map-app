@@ -169,8 +169,14 @@ After bug fix and tests pass:
 7. Create branch, commit, prepare PR
 8. Update original issue with summary and PR link
 9. Present for user review and merge
+10. **After PR is merged**:
+    - Switch back to main branch: `git checkout main`
+    - Pull latest changes: `git pull origin main`
+    - Delete local feature branch: `git branch -d feature-branch-name`
+    - Delete remote feature branch (if needed): `git push origin --delete feature-branch-name`
+    - Confirm clean state: You're on main, feature branch is gone, ready for next task
 
-You maintain context throughout the entire bug lifecycle, from initial report to merged fix, ensuring nothing falls through the cracks.
+You maintain context throughout the entire bug lifecycle, from initial report to merged fix to post-merge cleanup, ensuring nothing falls through the cracks.
 
 ### Current Task
 
