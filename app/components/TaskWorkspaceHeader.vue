@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 // Language code type
-type LanguageCode = 'et' | 'en' | 'uk'
+type LanguageCode = 'et' | 'en' | 'uk' | 'lv'
 
 // Progress data interface
 interface ProgressData {
@@ -87,7 +87,8 @@ interface Language {
 const allLanguages: Language[] = [
   { code: 'et', name: 'Eesti', flag: '🇪🇪' },
   { code: 'en', name: 'English', flag: '🇬🇧' },
-  { code: 'uk', name: 'Українська', flag: '🇺🇦' }
+  { code: 'uk', name: 'Українська', flag: '🇺🇦' },
+  { code: 'lv', name: 'Latviešu', flag: '🇱🇻' }
 ]
 
 const languageButtons = computed<Language[]>(() => {
