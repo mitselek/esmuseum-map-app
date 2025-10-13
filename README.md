@@ -25,19 +25,24 @@ For structured feature development, use our integrated spec-kit workflow:
 
 ```bash
 # 1. Define feature
-/specify "Add task priority badges"
+/speckit.specify "Add task priority badges"
 
 # 2. Create implementation plan
-/plan
+/speckit.plan
 
 # 3. Generate task breakdown
-/tasks
+/speckit.tasks
 
-# 4. Execute implementation
-/implement "Execute safe tasks only"
+# 4. (Optional) Generate requirements quality checklist
+/speckit.checklist "Create UX checklist for task priority feature"
+
+# 5. Execute implementation
+/speckit.implement "Execute safe tasks only"
 ```
 
-**Available commands**: `/specify`, `/plan`, `/tasks`, `/implement`, `/clarify`, `/analyze`, `/constitution`
+**Available commands**: `/speckit.specify`, `/speckit.plan`, `/speckit.tasks`, `/speckit.implement`, `/speckit.clarify`, `/speckit.analyze`, `/speckit.constitution`, `/speckit.checklist`
+
+**New in v0.0.19**: `/speckit.checklist` - Validates requirements quality (completeness, clarity, consistency) like "unit tests for English"
 
 **Full documentation**: See [.specify/README.md](./.specify/README.md) for detailed workflow examples, troubleshooting, and customization details.
 

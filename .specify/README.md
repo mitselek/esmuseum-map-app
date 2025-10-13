@@ -22,19 +22,19 @@ All commands work directly in VS Code chat via `.github/prompts/*.prompt.md` sym
 
 ```bash
 # 1. Define feature
-/specify "Add user profile page with avatar upload"
+/speckit.specify "Add user profile page with avatar upload"
 
 # 2. Create plan (generates .specify/memory/plan.md)
-/plan
+/speckit.plan
 
 # 3. Generate tasks (generates .specify/memory/tasks.md)
-/tasks
+/speckit.tasks
 
 # 4. Execute implementation
-/implement "Execute all tasks"
+/speckit.implement "Execute all tasks"
 
 # Optional: Ask questions anytime
-/clarify "Should we use Naive UI's NUpload or custom component?"
+/speckit.clarify "Should we use Naive UI's NUpload or custom component?"
 ```
 
 ## Architecture
@@ -103,7 +103,7 @@ Our heavily customized templates include:
 **Usage**:
 
 ```text
-/specify "Add task priority system with High/Medium/Low badges"
+/speckit.specify "Add task priority system with High/Medium/Low badges"
 ```
 
 **Output**: `.specify/memory/spec.md` with:
@@ -125,7 +125,7 @@ Our heavily customized templates include:
 **Usage**:
 
 ```text
-/plan
+/speckit.plan
 ```
 
 **Requires**: Must run after `/specify`
@@ -155,7 +155,7 @@ Our heavily customized templates include:
 **Usage**:
 
 ```text
-/tasks
+/speckit.tasks
 ```
 
 **Requires**: Must run after `/plan`
@@ -180,9 +180,9 @@ Our heavily customized templates include:
 **Usage**:
 
 ```text
-/implement "Execute all tasks"
-/implement "Execute tasks T001-T005"
-/implement "Execute safe tasks only"  # Skips HIGH risk tasks
+/speckit.implement "Execute all tasks"
+/speckit.implement "Execute tasks T001-T005"
+/speckit.implement "Execute safe tasks only"  # Skips HIGH risk tasks
 ```
 
 **Requires**: Must run after `/tasks`
@@ -211,8 +211,8 @@ Our heavily customized templates include:
 **Usage**:
 
 ```text
-/clarify
-/clarify "Should we use NTable or custom component?"
+/speckit.clarify
+/speckit.clarify "Should we use NTable or custom component?"
 ```
 
 **Use when**:
@@ -231,9 +231,9 @@ Our heavily customized templates include:
 **Usage**:
 
 ```text
-/analyze
-/analyze "How do we handle authentication?"
-/analyze "What's our composable pattern?"
+/speckit.analyze
+/speckit.analyze "How do we handle authentication?"
+/speckit.analyze "What's our composable pattern?"
 ```
 
 **Use during**:
@@ -252,7 +252,7 @@ Our heavily customized templates include:
 **Usage**:
 
 ```text
-/constitution
+/speckit.constitution
 ```
 
 **Our 7 Principles** (see [constitution.md](./memory/constitution.md)):
@@ -271,17 +271,17 @@ Our heavily customized templates include:
 
 ```bash
 # 1. Specify
-/specify "Create TaskPriorityBadge component showing High/Medium/Low priority with colors"
+/speckit.specify "Create TaskPriorityBadge component showing High/Medium/Low priority with colors"
 
 # 2. Plan
-/plan
+/speckit.plan
 # Output: .specify/memory/plan.md
 # - Research: Naive UI NBadge patterns
 # - Design: Props interface, color variants
 # - Tasks: Type definition, component, tests, integration
 
 # 3. Tasks
-/tasks
+/speckit.tasks
 # Output: .specify/memory/tasks.md
 # [T001] Create TaskPriority type (Low risk)
 # [T002] Create TaskPriorityBadge component (Low risk)
@@ -289,7 +289,7 @@ Our heavily customized templates include:
 # [T004] Integrate into TaskCard (Medium risk - shared component)
 
 # 4. Implement
-/implement "Execute safe tasks only"
+/speckit.implement "Execute safe tasks only"
 # Executes T001-T003, asks about T004
 ```
 
@@ -297,22 +297,22 @@ Our heavily customized templates include:
 
 ```bash
 # 1. Specify
-/specify "Create useTaskFiltering composable for filtering tasks by priority, status, and assignee"
+/speckit.specify "Create useTaskFiltering composable for filtering tasks by priority, status, and assignee"
 
 # 2. Plan
-/plan
+/speckit.plan
 # Research: Vue 3 computed patterns, filter composition
 # Design: Input refs, computed filters, TypeScript generics
 
 # 3. Tasks
-/tasks
+/speckit.tasks
 # [T001] Define filter types (Low risk)
 # [T002] Create useTaskFiltering composable (Low risk)
 # [T003] Add unit tests (Low risk)
 # [T004] Integrate into TaskWorkspace (High risk - core component)
 
 # 4. Implement
-/implement "Execute tasks T001-T003"
+/speckit.implement "Execute tasks T001-T003"
 # Manual review for T004 integration
 ```
 
@@ -320,27 +320,27 @@ Our heavily customized templates include:
 
 ```bash
 # 1. Specify
-/specify "Add task export feature: export tasks to PDF with map snapshots"
+/speckit.specify "Add task export feature: export tasks to PDF with map snapshots"
 
 # 2. Plan
-/plan
+/speckit.plan
 # Research: PDF libraries (jsPDF, pdfmake), Leaflet static maps
 # Design: Export service, UI trigger, progress indicator
 # Architecture: Server-side rendering vs client-side
 
 # 3. Tasks
-/tasks
+/speckit.tasks
 # Phase 3A (Frontend):
 # [T001-T005] Types, composable, UI components, tests
 # Phase 3B (Backend):
 # [T006-T008] Server endpoint, PDF generation, map rendering
 
 # 4. Implement (iterative)
-/implement "Execute tasks T001-T002"  # Types and composable
+/speckit.implement "Execute tasks T001-T002"  # Types and composable
 # Test, validate
-/implement "Execute tasks T003-T005"  # UI and tests
+/speckit.implement "Execute tasks T003-T005"  # UI and tests
 # Test, validate
-/implement "Execute tasks T006-T008"  # Backend
+/speckit.implement "Execute tasks T006-T008"  # Backend
 # Full integration test
 ```
 
@@ -363,10 +363,10 @@ We maintain sync with spec-kit upstream while preserving customizations.
 .specify/scripts/sync-from-upstream.sh
 
 # 4. Test
-/specify "test feature"
-/plan
-/tasks
-/implement "Execute safe tasks only"
+/speckit.specify "test feature"
+/speckit.plan
+/speckit.tasks
+/speckit.implement "Execute safe tasks only"
 
 # 5. Commit
 git commit -m "chore: sync spec-kit updates from upstream"
