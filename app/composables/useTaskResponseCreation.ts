@@ -106,7 +106,7 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
 
     const responseData: ResponseData = {
       [ENTU_PROPERTIES.PARENT]: taskId,
-      [ENTU_PROPERTIES.KIRJELDUS]: responses[0]?.value || ''
+      [ENTU_PROPERTIES.VASTUS]: responses[0]?.value || ''
     }
 
     if (respondentName) {

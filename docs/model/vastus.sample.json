@@ -51,10 +51,10 @@
         "entity_type": "database"
       }
     ],
-    "kirjeldus": [
+    "vastus": [
       {
         "_id": "68c7332985a9d472cca35cf9",
-        "string": "näidis kirjeldus"
+        "string": "näidis vastus"
       }
     ],
     "photo": [
