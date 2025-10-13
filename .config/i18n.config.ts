@@ -1,4 +1,4 @@
-// @ts-ignore - defineI18nConfig is auto-imported by Nuxt i18n
+// @ts-expect-error - defineI18nConfig is auto-imported by Nuxt i18n
 export default defineI18nConfig(() => ({
   legacy: false,
   strategy: 'no_prefix',
@@ -423,6 +423,143 @@ export default defineI18nConfig(() => ({
       map: {
         yourLocation: 'Ваше місцезнаходження'
       }
+    },
+    lv: {
+      // Authentication
+      alreadyLoggedIn: 'Jūs jau esat pieteicies',
+      loggingIn: 'Piesakos...',
+
+      continue: 'Turpināt uz lietotni',
+      user: 'Lietotājs',
+
+      // Authentication notifications
+      auth: {
+        sessionExpired: 'Sesija beigusies',
+        sessionExpiredMessage: 'Lūdzu, piesakieties vēlreiz',
+        authRequired: 'Nepieciešama autentifikācija',
+        authRequiredMessage: 'Pārvirza uz pieteikšanās lapu...'
+      },
+      // Common
+      common: {
+        noData: 'Nav datu',
+        reload: 'Pārlādēt',
+        error: 'Kļūda',
+        retry: 'Mēģināt vēlreiz'
+      },
+      login: 'Pieteikties',
+      logout: 'Izrakstīties',
+      appName: 'ESMuseum Kartes',
+      description: 'Izpētiet Igaunijas militāro vēsturi, izmantojot interaktīvās uz atrašanās vietu balstītās misijas un vēsturiskos atklājumus. Autentificējieties, lai sāktu savu ceļojumu.',
+
+      title: 'Laipni lūdzam Igaunijas Kara muzejā',
+      redirecting: 'Pārvirza...',
+      hello: 'Sveiki',
+      student: 'skolēns',
+      clickHere: 'Noklikšķiniet šeit, ja automātiskā pārvirzīšana nenotiek',
+      tasks: {
+        loading: 'Ielādē uzdevumus...',
+        initializing: 'Inicializē...',
+        loadingTasks: 'Ielādē uzdevumus',
+        selectTask: 'Izvēlieties uzdevumu',
+        selectTaskDescription: 'Lūdzu, izvēlieties uzdevumu, lai sāktu',
+        title: 'Uzdevumi',
+        noTasks: 'Pagaidām nav neviena piešķirta uzdevuma',
+        searchTasks: 'Meklēt uzdevumus...',
+        tasksFound: '{count} uzdevums atrasts | {count} uzdevumi atrasti',
+        noTasksMatchSearch: 'Neviens uzdevums neatbilst jūsu meklēšanai',
+        tryDifferentSearch: 'Mēģiniet citu meklēšanas terminu',
+        noTasksDescription: 'Uzdevumi parādīsies šeit, kad tie tiks piešķirti',
+        responses: 'atbildes',
+        group: 'Grupa',
+        open: 'Atvērt →'
+      },
+      gps: {
+
+        requesting: 'Pieprasa atrašanās vietu',
+
+        tryAgain: 'Mēģināt vēlreiz',
+        howToEnable: 'Kā iespējot?',
+        dismiss: 'Aizvērt',
+        // New error message translations
+        error: {
+          permissionTitle: 'Nepieciešama atrašanās vietas atļauja',
+          unavailableTitle: 'Atrašanās vieta nav pieejama',
+          timeoutTitle: 'Atrašanās vietas pieprasījuma laiks iztecējis',
+          genericTitle: 'Atrašanās vietas problēma',
+          permissionDenied: 'Piekļuve atrašanās vietai tika liegta. Lūdzu, iespējojiet atrašanās vietas atļaujas un mēģiniet vēlreiz.',
+          positionUnavailable: 'Jūsu atrašanās vieta pašlaik nav pieejama. Tas var būt slikta GPS signāla vai atspējotu atrašanās vietas pakalpojumu dēļ. Mēģiniet pāriet uz vietu ar labāku signālu vai iespējojiet atrašanās vietas pakalpojumus savā ierīcē.',
+          timeout: 'Atrašanās vietas pieprasījuma laiks iztecējis. Lūdzu, mēģiniet vēlreiz vai pārliecinieties, ka jums ir labs GPS signāls.',
+          unknown: 'Nevar noteikt jūsu atrašanās vietu. Lūdzu, mēģiniet vēlāk.',
+          permissionRetry: 'Lūdzu, atļaujiet piekļuvi atrašanās vietai, lai iespējotu GPS funkcijas.',
+          permissionBlocked: 'Piekļuve atrašanās vietai ir bloķēta. Varat turpināt bez GPS vai iespējot to pārlūkprogrammas iestatījumos.',
+          continueWithoutGPS: 'Turpināt bez GPS',
+          serviceIssue: 'Radās problēma ar atrašanās vietas pakalpojumiem.'
+        }
+      },
+      taskDetail: {
+
+        responsesProgress: '{actual} / {expected} atbildes',
+        totalResponses: '{count} atbildes kopā',
+        geolocationError: 'Ģeolokācijas kļūda: {error}',
+        noTitle: 'Uzdevums bez nosaukuma',
+        selectLocation: 'Izvēlieties atrašanās vietu ({count} pieejamas)',
+
+        yourResponse: 'Jūsu atbilde',
+        addFile: 'Pievienot failu (neobligāti)',
+        allowedFiles: 'Atļauti: attēli, PDF, Word dokumenti',
+        dragDropFiles: 'Velciet failus šeit vai noklikšķiniet, lai izvēlētos',
+        maxFileSize: 'Maksimālais faila izmērs: 10MB',
+        clickToAddMore: 'Noklikšķiniet, lai pievienotu vēl failus',
+        fileTooLarge: 'Fails {name} ir pārāk liels. Maksimālais izmērs ir {maxSize}.',
+        fileTypeNotAllowed: 'Faila tips nav atļauts: {name}',
+        preparing: 'Sagatavo...',
+
+        uploadComplete: '✅ Augšupielādēts',
+        uploadFailed: '❌ Neizdevās',
+        location: 'Atrašanās vieta',
+        manualCoordinates: 'Manuālās koordinātas',
+        close: '← Aizvērt',
+        coordinatesFormat: 'Koordinātas (lat,lng formāts)',
+        coordinatesExample: 'piemēram: 59.4370, 24.7536',
+        searchingLocation: 'Meklē atrašanās vietu...',
+        useCurrentLocation: 'Izmantot pašreizējo atrašanās vietu',
+        useTheseCoordinates: 'Izmantot šīs koordinātas',
+        response: 'Atbilde',
+        responsePlaceholder: 'Rakstiet savu atbildi šeit...',
+        submitting: 'Iesniedz...',
+        submitResponseBtn: 'Iesniegt atbildi',
+        canUpdateUntilDeadline: 'Varat atjaunināt savu atbildi līdz termiņa beigām',
+        responseAlreadySubmitted: '✅ Jūsu atbilde ir iesniegta',
+        geolocationNotSupported: 'Ģeolokācija netiek atbalstīta šajā pārlūkprogrammā',
+        checkingPermissions: 'Pārbauda atļaujas...',
+        noPermission: 'Nav atļaujas',
+        noPermissionDescription: 'Jums nav atļaujas atbildēt uz šo uzdevumu. Sazinieties ar skolotāju, ja domājat, ka tas ir kļūda.',
+        // Submission modal translations
+        modalSubmitting: 'Iesniedz atbildi...',
+        modalSubmitSuccess: 'Atbilde iesniegta!',
+        modalSubmitError: 'Iesniegšanas kļūda',
+        // LocationPicker translations
+        selectedLocation: 'Izvēlētā atrašanās vieta',
+        changeLocation: 'Mainīt',
+        loadingLocationsList: 'Ielādē atrašanās vietas...',
+        searchingLocationGPS: '🔍 Meklē atrašanās vietu...',
+        searchLocations: 'Meklēt atrašanās vietas...',
+        noLocationsForTask: 'Šim uzdevumam nav definētas atrašanās vietas',
+        unnamedLocation: 'Atrašanās vieta bez nosaukuma',
+        // User location override translations
+
+        manualLocationOverride: 'Manuāla atrašanās vietas pārrakstīšana',
+        enterManually: 'Ievadīt manuāli',
+        cancel: 'Atcelt',
+        manualLocationHelp: 'Tas pārrakstīs jūsu atrašanās vietu kartes kārtošanai',
+        applyLocation: 'Lietot atrašanās vietu',
+        clearOverride: 'Notīrīt pārrakstīšanu',
+        manualLocationActive: 'Manuāla atrašanās vietas pārrakstīšana aktīva',
+        remove: 'Noņemt'
+      },
+      map: {
+        yourLocation: 'Jūsu atrašanās vieta'
+      }
     }
   },
   datetimeFormats: {
@@ -448,6 +585,16 @@ export default defineI18nConfig(() => ({
       }
     },
     uk: {
+      date: { year: 'numeric', month: '2-digit', day: '2-digit' },
+      datetime: {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }
+    },
+    lv: {
       date: { year: 'numeric', month: '2-digit', day: '2-digit' },
       datetime: {
         year: 'numeric',
