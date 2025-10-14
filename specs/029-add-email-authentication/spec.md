@@ -35,13 +35,13 @@
 
 ---
 
-## User Scenarios & Testing
+## User Stories
 
 ### Primary User Story
 
-**As a** museum visitor without Google/Apple accounts or Estonian digital ID  
-**I want to** log in to the Sports Museum Map Application using my email address  
-**So that** I can access the application and participate in activities without requiring third-party accounts
+**As a** museum visitor without a Google account, Apple ID, or Estonian national digital identity (Smart-ID, Mobile-ID, ID-card)  
+**I want to** authenticate to the War Museum Map Application using my email address  
+**So that** I can access interactive location-based missions and educational content without creating accounts on third-party platforms
 
 ### Acceptance Scenarios
 
