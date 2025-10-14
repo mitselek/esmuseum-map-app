@@ -1,6 +1,66 @@
 {
   "recommendations": [
+    // Vue/Nuxt
+    "vue.volar",
+    "sdras.vue-vscode-snippets",
+    
+    // TypeScript/JavaScript
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "xabikos.javascriptsnippets",
+    "steoates.autoimport",
+    
+    // CSS/Tailwind
     "bradlc.vscode-tailwindcss",
-    "dbaeumer.vscode-eslint"
+    "stylelint.vscode-stylelint",
+    
+    // Git
+    "eamodio.gitlens",
+    "github.vscode-pull-request-github",
+    
+    // GitHub Copilot
+    "github.copilot",
+    "github.copilot-chat",
+    
+    // Testing
+    "hbenl.vscode-test-explorer",
+    
+    // Markdown
+    "davidanson.vscode-markdownlint",
+    "yzhang.markdown-all-in-one",
+    
+    // Utilities
+    "editorconfig.editorconfig",
+    "christian-kohler.path-intellisense",
+    "mikestead.dotenv",
+    "formulahendry.auto-close-tag",
+    "formulahendry.auto-rename-tag",
+    
+    // Theme/Icons
+    "pkief.material-icon-theme"
+  ],
+  "unwantedRecommendations": [
+    // Music notation
+    "jeandeaual.lilypond-syntax",
+    "lhl2617.lilypond-formatter",
+    "lhl2617.vslilypond",
+    "maddyw.lilypond-assist",
+    "truefire.lilypond",
+    
+    // Hardware/Embedded
+    "espressif.esp-idf-extension",
+    "platformio.platformio-ide",
+    "antyos.openscad",
+    
+    // C/C++
+    "ms-vscode.cpptools",
+    "vadimcn.vscode-lldb",
+    
+    // Duplicate Vue
+    "wscats.vue",
+    
+    // Duplicate AI
+    "aminer.codegeex",
+    "saoudrizwan.claude-dev"
   ]
 }
