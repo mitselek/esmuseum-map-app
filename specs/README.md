@@ -32,6 +32,7 @@ Features **027+** are created using the spec-kit workflow:
 ```
 
 This command will:
+
 1. Find the highest feature number (e.g., 026)
 2. Create next number directory (e.g., `specs/027-feature-name/`)
 3. Generate `spec.md` from template
