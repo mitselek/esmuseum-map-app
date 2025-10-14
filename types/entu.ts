@@ -180,8 +180,8 @@ export interface EntuTask extends EntuEntity {
  * Submissions and responses to assignments, can include location data and photos
  */
 export interface EntuResponse extends EntuEntity {
-  /** Location reference */
-  asukoht?: EntuReferenceProperty[]
+  /** Selected location reference (which location the student chose to respond about) */
+  valitud_asukoht?: EntuReferenceProperty[]
 
   /** Response text/answer */
   vastus?: EntuStringProperty[]
@@ -189,8 +189,8 @@ export interface EntuResponse extends EntuEntity {
   /** Response photo */
   photo?: EntuFileProperty[]
 
-  /** GPS coordinates (lat,lng format) */
-  geopunkt?: EntuStringProperty[]
+  /** Device GPS coordinates at submission time (where the student was physically located) */
+  seadme_gps?: EntuStringProperty[]
 }
 
 /**

@@ -68,7 +68,7 @@ describe('BUG-001: Statistics Update After Submission', () => {
         'Open a task in the map application',
         'Add a response to the task',
         'Return to the task selection view',
-        'Observe the statistics',
+        'Observe the statistics'
       ],
       expected: 'Statistics should update immediately to reflect new response count',
       actual: 'Statistics remain unchanged until manual page refresh',
@@ -76,8 +76,8 @@ describe('BUG-001: Statistics Update After Submission', () => {
         'app/components/TaskSidebar.vue (lines 218-334)',
         'app/components/TaskDetailPanel.vue (line 248-278)',
         'app/composables/useCompletedTasks.ts',
-        'app/composables/useOptimisticTaskUpdate.ts',
-      ],
+        'app/composables/useOptimisticTaskUpdate.ts'
+      ]
     }
 
     expect(bugDocumentation.severity).toBe('Critical')
@@ -168,16 +168,15 @@ describe('BUG-001: Statistics Update After Submission', () => {
       constitutionalAlignment: [
         'Composable-First Development (Principle II)',
         'Observable Development (Principle IV)',
-        'Pragmatic Simplicity (Principle V)',
+        'Pragmatic Simplicity (Principle V)'
       ],
       estimatedEffort: '1-2 hours',
       testingRequired: [
         'Unit test: useCompletedTasks reactivity',
-        'Integration test: TaskSidebar updates after submission',
-      ],
+        'Integration test: TaskSidebar updates after submission'
+      ]
     }
 
     expect(recommendedFix.option).toBe('Watch userResponses')
   })
 })
-

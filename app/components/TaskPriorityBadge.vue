@@ -1,7 +1,7 @@
 <template>
-  <n-tag 
-    v-if="priority" 
-    :type="tagType" 
+  <n-tag
+    v-if="priority"
+    :type="tagType"
     :size="size || 'small'"
     :aria-label="`Priority: ${priority}`"
   >
@@ -12,16 +12,16 @@
 <script setup lang="ts">
 /**
  * TaskPriorityBadge Component
- * 
+ *
  * Displays a color-coded badge representing task priority level.
  * Uses Naive UI's n-tag component for consistent theming.
- * 
+ *
  * @example
  * ```vue
  * <TaskPriorityBadge priority="high" />
  * <TaskPriorityBadge priority="medium" size="large" />
  * ```
- * 
+ *
  * Color Mapping:
  * - low: Green (success)
  * - medium: Yellow (warning)
@@ -37,7 +37,7 @@ interface Props {
    * Maps to Naive UI tag types: low=success(green), medium=warning(yellow), high=error(red)
    */
   priority: TaskPriority
-  
+
   /**
    * Optional badge size
    * @default 'small'
@@ -54,7 +54,7 @@ const tagType = computed<PriorityTagType>(() => {
   const typeMap: Record<TaskPriority, PriorityTagType> = {
     low: 'success',
     medium: 'warning',
-    high: 'error',
+    high: 'error'
   }
   return typeMap[props.priority]
 })
@@ -66,7 +66,7 @@ const displayText = computed<string>(() => {
   const textMap: Record<TaskPriority, string> = {
     low: 'Low',
     medium: 'Medium',
-    high: 'High',
+    high: 'High'
   }
   return textMap[props.priority]
 })

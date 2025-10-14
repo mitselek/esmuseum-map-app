@@ -88,7 +88,7 @@ interface TaskLocation {
 
 interface ResponseFormData {
   text: string
-  geopunkt: string | null
+  seadmeGps: string | null // Device GPS location at submission
   file: File | null
 }
 
@@ -146,7 +146,7 @@ const { user: entuUser } = useEntuAuth()
 // Form state
 const responseForm = ref<ResponseFormData>({
   text: '',
-  geopunkt: null,
+  seadmeGps: null,
   file: null
 })
 
@@ -224,9 +224,9 @@ const submitResponse = async () => {
             // Include location reference if available
             locationId: props.selectedLocation?.reference || props.selectedLocation?._id,
             // Include coordinates if available (rounded to 6 decimal places)
-            coordinates: responseForm.value.geopunkt
+            coordinates: responseForm.value.seadmeGps
               ? ((): { lat: number, lng: number } | undefined => {
-                  const coords = responseForm.value.geopunkt?.split(',') || []
+                  const coords = responseForm.value.seadmeGps?.split(',') || []
                   const lat = parseFloat(coords[0]?.trim() || '')
                   const lng = parseFloat(coords[1]?.trim() || '')
                   if (!isNaN(lat) && !isNaN(lng)) {
@@ -289,7 +289,7 @@ const submitResponse = async () => {
 
     // Reset form after successful submission
     responseForm.value.text = ''
-    responseForm.value.geopunkt = null
+    responseForm.value.seadmeGps = null
     responseForm.value.file = null
     uploadedFiles.value = []
 
@@ -311,19 +311,19 @@ defineExpose({
   responseForm,
   setLocation: (coordinates: string | { lat: number, lng: number } | null): void => {
     if (typeof coordinates === 'string') {
-      responseForm.value.geopunkt = coordinates
+      responseForm.value.seadmeGps = coordinates
     }
     else if (coordinates && typeof coordinates === 'object') {
-      responseForm.value.geopunkt = `${coordinates.lat}, ${coordinates.lng}`
+      responseForm.value.seadmeGps = `${coordinates.lat}, ${coordinates.lng}`
     }
     else {
-      responseForm.value.geopunkt = null
+      responseForm.value.seadmeGps = null
     }
   },
   resetForm: (): void => {
     // Clear form fields
     responseForm.value.text = ''
-    responseForm.value.geopunkt = null
+    responseForm.value.seadmeGps = null
     responseForm.value.file = null
 
     // Clear uploaded files

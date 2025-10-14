@@ -1,7 +1,7 @@
 /**
  * Contract for TaskPriorityBadge Component
  * Feature: 027-add-taskprioritybadge-component
- * 
+ *
  * This contract defines the TypeScript interface for the TaskPriorityBadge component.
  */
 
@@ -24,7 +24,7 @@ export interface TaskPriorityBadgeProps {
    * Maps to Naive UI tag types: low=success(green), medium=warning(yellow), high=error(red)
    */
   priority: TaskPriority
-  
+
   /**
    * Optional badge size
    * @default 'small'
@@ -52,7 +52,7 @@ export type PriorityTagType = 'success' | 'warning' | 'error'
 export const PRIORITY_DISPLAY_MAP: Record<TaskPriority, string> = {
   low: 'Low',
   medium: 'Medium',
-  high: 'High',
+  high: 'High'
 } as const
 
 /**
@@ -62,5 +62,5 @@ export const PRIORITY_DISPLAY_MAP: Record<TaskPriority, string> = {
 export const PRIORITY_TAG_TYPE_MAP: Record<TaskPriority, PriorityTagType> = {
   low: 'success',
   medium: 'warning',
-  high: 'error',
+  high: 'error'
 } as const
