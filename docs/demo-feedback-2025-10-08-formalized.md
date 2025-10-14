@@ -59,7 +59,7 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
     - UI komponendid (TaskResponseForm)
     - Serveri pool (server/utils/entu)
     - Dokumentatsioon (specs, näidised)
-  - **Boonusparandused**: Parandatud 2 juhtu `response.kirjeldus` → `response.vastus` (UX-001 järeleküsimus)
+  - **Boonusparandused**: Eemaldatud kasutamata `getResponseText()` funktsioon ja parandatud näidisfail `test-f022-types.ts` (UX-001 järeleküsimus)
   - **Verifikatsioon**: 0 TypeScript vigu, 78 testi läbis, lint pass
 
 ### Funktsionaalsuse Soovid

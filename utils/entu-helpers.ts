@@ -214,13 +214,6 @@ export function getTaskGroupReference (task: EntuTask): string | undefined {
 }
 
 /**
- * Get response text from response entity
- */
-export function getResponseText (response: EntuResponse): string | undefined {
-  return getStringValue(response.vastus)
-}
-
-/**
  * Get response location reference from response entity
  */
 export function getResponseLocationReference (response: EntuResponse): string | undefined {
