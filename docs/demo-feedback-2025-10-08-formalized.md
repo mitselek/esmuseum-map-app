@@ -18,7 +18,7 @@
 
 Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujääke. Peamised teemad hõlmavad uute kasutajate onboarding'ut, andmemudeli segasust (geopunkt vs asukoht), reaalajas statistika värskendamist ning läti keele tuge. Vaja on toetajate logo lisada login lehele.
 
-**Olek**: 5 ülesannet 10-st lahendatud (50% valminud)
+**Olek**: 6 ülesannet 10-st lahendatud (60% valminud)
 
 ## Tagasiside Kategooriate Kaupa
 
@@ -40,7 +40,7 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
 
 #### Keskmine
 
-- **[BUG-002] Geopunkti ja asukoha väljad on segased**
+- **[BUG-002] Geopunkti ja asukoha väljad on segased** - LAHENDATUD (14. oktoober 2025, PR #11)
   - **Kirjeldus**: Vastuse objektil on kaks erinevat koordinaatide välja ebaselge nimetusega
   - **Detailid**:
     - `geopunkt: String` - GPS koordinaadid seadme asukohast vastuse esitamise ajal
@@ -48,7 +48,19 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
   - **Oodatud käitumine**: Selged ja eristavad väljanimed, mis näitavad erinevust seadme asukoha ja valitud asukoha vahel
   - **Tegelik Käitumine**: Kasutajaliideses ja Entu andmebaasis pole selget eristust, mis väli on mis
   - **Mõju**: Segadus arendajate ja kasutajate seas, andmete vale tõlgendamine
-  - **Märkused**: Vajab andmemudeli refaktoorimist ja UI tekstide täpsustamist
+  - **Lahendus**:
+    - `geopunkt` → `seadme_gps` (Seadme GPS koordinaadid)
+    - `asukoht` → `valitud_asukoht` (Valitud asukoht ülesande nimekirjast)
+  - **Muudatused**:
+    - TypeScript tüübid (EntuResponse interface)
+    - Konstantid (ENTU_PROPERTIES)
+    - Vastuse loomise loogika (useTaskResponseCreation)
+    - Abilised funktsioonid (entu-helpers)
+    - UI komponendid (TaskResponseForm)
+    - Serveri pool (server/utils/entu)
+    - Dokumentatsioon (specs, näidised)
+  - **Boonusparandused**: Parandatud 2 juhtu `response.kirjeldus` → `response.vastus` (UX-001 järeleküsimus)
+  - **Verifikatsioon**: 0 TypeScript vigu, 78 testi läbis, lint pass
 
 ### Funktsionaalsuse Soovid
 
@@ -217,9 +229,7 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
 
 3. **[Kõrge]** Disainida õpetaja registreerumise ja õpilaste kutsumise workflow (FEAT-003) - _Omanik: UX/Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
 
-4. **[Keskmine]** Refaktoorida geopunkt/asukoht andmemudel (BUG-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
-
-5. **[Madal]** Luua õpetajate kasutusjuhend (DOC-001) - _Omanik: Tehnilise kirjutaja/Arendaja_ - _Hinnanguline: 4-6 tundi_
+4. **[Madal]** Luua õpetajate kasutusjuhend (DOC-001) - _Omanik: Tehnilise kirjutaja/Arendaja_ - _Hinnanguline: 4-6 tundi_
 
 ## Lisandmärkused
 
