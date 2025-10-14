@@ -22,7 +22,8 @@ export const OAUTH_PROVIDERS = {
   APPLE: 'apple',
   SMART_ID: 'smart-id',
   MOBILE_ID: 'mobile-id',
-  ID_CARD: 'id-card'
+  ID_CARD: 'id-card',
+  EMAIL: 'e-mail'
 } as const
 
 export type OAuthProvider = typeof OAUTH_PROVIDERS[keyof typeof OAUTH_PROVIDERS]

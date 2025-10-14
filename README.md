@@ -1,6 +1,10 @@
 # ESMuseum Map App
 
-A Nuxt.js 3 application for the Estonian Museum interactive map, displaying museum information with KML import capabilities.
+**Estonian War Museum** (Eesti Sõjamuuseum) interactive map application.
+
+> **Note**: "ES" = "Eesti Sõja" (Estonian **War**), not "Estonian Sports". See [docs/PROJECT-NAMING.md](docs/PROJECT-NAMING.md) for naming context.
+
+A Nuxt.js 3 application for the Estonian War Museum interactive map, displaying museum information with KML import capabilities.
 
 ## Quick Start
 

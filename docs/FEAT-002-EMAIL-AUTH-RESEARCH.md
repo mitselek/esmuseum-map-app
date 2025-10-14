@@ -262,7 +262,7 @@ The confusion arose from researching the wrong layer:
 >
 > Hello,
 >
-> We are using Entu OAuth for the Estonian Sports Museum Map Application. We would like to enable the `e-mail` and `phone` authentication providers that OAuth.ee supports.
+> We are using Entu OAuth for the Estonian War Museum Map Application. We would like to enable the `e-mail` and `phone` authentication providers that OAuth.ee supports.
 >
 > Current setup:
 >

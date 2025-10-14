@@ -13,7 +13,8 @@ const oauthProviders = [
   { id: 'apple', label: 'Apple' },
   { id: 'smart-id', label: 'Smart-ID' },
   { id: 'mobile-id', label: 'Mobile-ID' },
-  { id: 'id-card', label: 'ID-Card' }
+  { id: 'id-card', label: 'ID-Card' },
+  { id: 'e-mail', label: 'Email' }
 ]
 
 onMounted(() => {
