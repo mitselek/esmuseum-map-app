@@ -18,7 +18,7 @@
 
 Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujääke. Peamised teemad hõlmavad uute kasutajate onboarding'ut, andmemudeli segasust (geopunkt vs asukoht), reaalajas statistika värskendamist ning läti keele tuge. Vaja on toetajate logo lisada login lehele.
 
-**Olek**: 6 ülesannet 10-st lahendatud (60% valminud)
+**Olek**: 7 ülesannet 10-st lahendatud (70% valminud)
 
 ## Tagasiside Kategooriate Kaupa
 
@@ -26,7 +26,7 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
 
 #### Kriitiline
 
-- **[BUG-001] Kaardi statistika ei värskenda automaatselt**
+- **[BUG-001] ✅ Kaardi statistika ei värskenda automaatselt**
   - **Kirjeldus**: Kui kasutaja lisab ülesandele vastuse ja naaseb seejärel ülesannete valikusse, ei ole statistika seal uuenenud
   - **Reprodutseerimise Sammud**:
     1. Ava ülesanne kaardirakendusse
@@ -40,7 +40,7 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
 
 #### Keskmine
 
-- **[BUG-002] Geopunkti ja asukoha väljad on segased** - LAHENDATUD (14. oktoober 2025, PR #11)
+- **[BUG-002] ✅ Geopunkti ja asukoha väljad on segased** - LAHENDATUD (14. oktoober 2025, PR #11)
   - **Kirjeldus**: Vastuse objektil on kaks erinevat koordinaatide välja ebaselge nimetusega
   - **Detailid**:
     - `geopunkt: String` - GPS koordinaadid seadme asukohast vastuse esitamise ajal
@@ -76,11 +76,19 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
   - **Kasu**: Vähendab kasutajate segadust, parandab esimest kasutuskogemust
   - **Märkused**: Vajab welcome screen'i või onboarding flow'i disaini
 
-- **[FEAT-002] E-posti põhine autentimine**
+- **[FEAT-002] ✅ E-posti põhine autentimine** - LAHENDATUD (14. oktoober 2025)
   - **Kirjeldus**: Implementeerida e-posti põhine autentimine Entu OAuth kaudu
   - **Kasutaja Vajadus**: Lihtsustab kasutajate autentimist, võimaldab mitmeid sisselogimise viise
-  - **Soovitatud Lahendus**: Email auth provider lisamine Entu OAuth süsteemi
+  - **Lahendus**: Email auth provider lisatud Entu OAuth süsteemi
   - **Kasu**: Parem kasutajakogemus, rohkem sisselogimise võimalusi
+  - **Muudatused**:
+    - Lisatud `EMAIL: 'e-mail'` konstant `OAUTH_PROVIDERS`-sse
+    - Lisatud Email nupp login lehele (kuues provider)
+    - OAuth voog identne teiste provideritega: `https://entu.app/api/auth/e-mail?account=esmuuseum&next=...`
+    - Loodud 11 testi (6 composable + 5 component testi, 1 skipped env limitation)
+  - **Väline sõltuvus**: Entu administraator lubasid e-mail provideri OAuth.ee-s
+  - **Verifikatsioon**: 88/88 testi läbis (100% pass rate), feature testitud töötavas OAuth voos
+  - **Testimine**: Kinnitatud end-to-end: email sisestamine → kood emailile → koodi sisestamine → edukas sisselogimine
 
 - **[FEAT-003] Õpetaja registreerumine ja õpilaste kutsumine**
   - **Kirjeldus**: Vajadus struktureeritud õpetaja registreerumise ja õpilaste klassi kutsumise workflow'i järele
@@ -93,7 +101,7 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
   - **Kasu**: Lihtsustab klasside haldamist, parandab onboarding'ut
   - **Märkused**: Vajab kasutusjuhendit ja dokumentatsiooni
 
-- **[FEAT-004] Läti keele tugi**
+- **[FEAT-004] ✅ Läti keele tugi**
   - **Kirjeldus**: Lisada läti keel toetatud keelte hulka
   - **Kasutaja Vajadus**: Projekt on Interreg Estonia-Latvia raames, vajab läti keele tuge
   - **Soovitatud Lahendus**: Lisada läti keele tõlked i18n süsteemi
@@ -101,14 +109,14 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
 
 #### Keskmine Prioriteet
 
-- **[FEAT-005] Toetajate logod login lehele**
+- **[FEAT-005] ✅ Toetajate logod login lehele**
   - **Kirjeldus**: Login lehele lisada Interreg ja teiste toetajate logod
   - **Kasutaja Vajadus**: Näidata projekti toetajaid ja täita rahastamise nõudeid
   - **Soovitatud Lahendus**: Lisada logod login lehele
   - **Kasu**: Vastab projekti visuaalsetele nõuetele, tunnustab toetajaid
   - **Märkused**: Logo failid on juba projekti kopeeritud: `public/interreg-estonia-latvia.png`
 
-- **[FEAT-006] Vastuse salvestamise ajatemplit tabelivaates**
+- **[FEAT-006] ✅ Vastuse salvestamise ajatemplit tabelivaates**
   - **Kirjeldus**: Õpetajad vajavad võimalust näha ja sorteerida vastuseid loomise aja järgi Entu tabelivaates
   - **Kasutaja Vajadus**: Õpetaja peab nägema, millal on vastused esitatud, ja soovib neid ajatempli järgi ka sorteerida
   - **Tehniline Analüüs**:
@@ -129,13 +137,13 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
 
 ### UX/UI Parandused
 
-- **[UX-001] "Kirjeldus" välja nimetuse segadus**
+- **[UX-001] ✅ "Kirjeldus" välja nimetuse segadus**
   - **Praegune Olukord**: Vastuse teksti väli on nimetatud "kirjeldus"
   - **Probleem**: Nimi on ebakohane, peaks olema "vastus"
   - **Soovitus**: Muuta välja nimi "kirjeldus" → "vastus"
   - **Kasutaja Mõju**: Selgem UI tekst, parem arusaadavus
 
-- **[UX-002] Ülesande kirjelduse välja nimetuse segadus**
+- **[UX-002] ✅ Ülesande kirjelduse välja nimetuse segadus**
   - **Praegune Olukord**: Ülesande kirjeldus väli on nimetatud lihtsalt "kirjeldus"
   - **Probleem**: Nimi on ebakohane, peaks olema "ülesande kirjeldus"
   - **Soovitus**: Muuta välja nimi "kirjeldus" → "ülesande kirjeldus"
@@ -151,7 +159,7 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
 
 ### Küsimused & Selgitused
 
-- **[Q-001] Andmemudeli ümberstruktureerimine**
+- **[Q-001] ✅ Andmemudeli ümberstruktureerimine**
   - **Kontekst**: Geopunkt ja asukoht väljad vajavad selget eristust
   - **Vajab Otsust**: Arendusmeeskond, andmebaasi arhitekt
   - **Variandid**:
@@ -221,15 +229,27 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
    - **Tulemus**: Rakendus toetab nüüd 4 keelt (et, en, uk, lv)
    - **Projekti nõue**: Täidab Interreg Estonia-Latvia projekti keeletugi nõuded
 
+6. ✅ **[Kõrge]** Lisada e-posti põhine autentimine (FEAT-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
+   - **Lahendatud**: PR #12 (14. oktoober 2025)
+   - **Lahendus**: Lisatud email authentication provider Entu OAuth süsteemi
+   - **Muudatused**:
+     - `app/composables/useEntuOAuth.ts`: Lisatud `EMAIL: 'e-mail'` konstant
+     - `app/pages/login/index.vue`: Lisatud Email nupp providerite loendisse
+     - `tests/composables/useEntuOAuth.test.ts`: 6 testi (5 passing, 1 skipped)
+     - `tests/component/LoginPage.spec.ts`: 5 testi (kõik passing)
+   - **OAuth URL**: `https://entu.app/api/auth/e-mail?account=esmuuseum&next=...`
+   - **Testimine**: End-to-end OAuth voog töötab - email → verification code → login
+   - **Väline sõltuvus**: Entu administrator lubasid e-mail provider OAuth.ee-s (Argo Roots)
+   - **Test Results**: 88/88 passing (100%), 2 skipped
+   - **Ajakulu**: ~30 minutit (84% kiirem kui hinnang 3-5h)
+
 ### Ootel
 
 1. **[Kõrge]** Implementeerida uue kasutaja onboarding flow (FEAT-001) - _Omanik: UX/Arendusmeeskond_ - _Hinnanguline: 2-3 päeva_
 
-2. **[Kõrge]** Lisada e-posti põhine autentimine (FEAT-002) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
+2. **[Kõrge]** Disainida õpetaja registreerumise ja õpilaste kutsumise workflow (FEAT-003) - _Omanik: UX/Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
 
-3. **[Kõrge]** Disainida õpetaja registreerumise ja õpilaste kutsumise workflow (FEAT-003) - _Omanik: UX/Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
-
-4. **[Madal]** Luua õpetajate kasutusjuhend (DOC-001) - _Omanik: Tehnilise kirjutaja/Arendaja_ - _Hinnanguline: 4-6 tundi_
+3. **[Madal]** Luua õpetajate kasutusjuhend (DOC-001) - _Omanik: Tehnilise kirjutaja/Arendaja_ - _Hinnanguline: 4-6 tundi_
 
 ## Lisandmärkused
 
