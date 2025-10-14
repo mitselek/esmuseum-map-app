@@ -36,8 +36,8 @@ export const ENTU_PROPERTIES = {
   // Response entity properties
   VASTUS: 'vastus', // Response text/answer
   VASTAJA: 'vastaja', // Respondent name
-  GEOPUNKT: 'geopunkt', // Geographic point (lat,lng)
-  ASUKOHT: 'asukoht', // Location reference
+  SEADME_GPS: 'seadme_gps', // Device GPS coordinates (where student was physically located)
+  VALITUD_ASUKOHT: 'valitud_asukoht', // Selected location reference (which location they chose)
 
   // Task entity properties
   KIRJELDUS: 'kirjeldus', // Task description

@@ -114,12 +114,12 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
     }
 
     if (responses[0]?.metadata?.locationId) {
-      responseData[ENTU_PROPERTIES.ASUKOHT] = responses[0].metadata.locationId
+      responseData[ENTU_PROPERTIES.VALITUD_ASUKOHT] = responses[0].metadata.locationId
     }
 
     const coords = responses[0]?.metadata?.coordinates
     if (coords && coords.lat && coords.lng) {
-      responseData[ENTU_PROPERTIES.GEOPUNKT] = `${coords.lat},${coords.lng}`
+      responseData[ENTU_PROPERTIES.SEADME_GPS] = `${coords.lat},${coords.lng}`
     }
 
     const entuProperties: EntuProperty[] = [
@@ -129,7 +129,7 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
 
     for (const [key, value] of Object.entries(responseData)) {
       if (value !== null && value !== undefined) {
-        if (key === ENTU_PROPERTIES.PARENT || key === ENTU_PROPERTIES.ASUKOHT) {
+        if (key === ENTU_PROPERTIES.PARENT || key === ENTU_PROPERTIES.VALITUD_ASUKOHT) {
           entuProperties.push({ type: key, reference: value as string })
         }
         else if (typeof value === 'string') {
