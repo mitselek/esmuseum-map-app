@@ -73,7 +73,7 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
         '_type.string': ENTU_TYPES.VASTUS,
         '_owner.reference': userId,
         limit: 100,
-        props: '_parent,asukoht,vastused,esitamisaeg,muutmisaeg,staatus'
+        props: '_parent,valitud_asukoht,vastused,esitamisaeg,muutmisaeg,staatus'
       })
 
       // Type assertion: we know these are response entities
@@ -130,10 +130,10 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
       return response._parent?.[0]?.reference === taskId
     })
 
-    // Count unique locations visited (by asukoht reference)
+    // Count unique locations visited (by valitud_asukoht reference)
     const uniqueLocations = new Set<string>()
     for (const response of taskResponses) {
-      const locationRef = response.asukoht?.[0]?.reference
+      const locationRef = response.valitud_asukoht?.[0]?.reference
       if (locationRef) {
         uniqueLocations.add(locationRef)
       }
@@ -158,7 +158,7 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
 
     const locations = new Set<string>()
     for (const response of taskResponses) {
-      const locationRef = response.asukoht?.[0]?.reference
+      const locationRef = response.valitud_asukoht?.[0]?.reference
       if (locationRef) {
         locations.add(locationRef)
       }

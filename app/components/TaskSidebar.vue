@@ -351,7 +351,7 @@ watch(userResponses, (newResponses, oldResponses) => {
   // Only refresh if responses actually changed
   if (newResponses && (newResponses !== oldResponses || newResponses.length !== oldResponses?.length)) {
     console.log('[BUG-001 FIX] TaskSidebar - Responses changed, refreshing stats cache')
-    
+
     // Recompute stats for all visible tasks when user responses change
     if (tasks.value && tasks.value.length > 0) {
       for (const task of tasks.value) {
@@ -362,7 +362,8 @@ watch(userResponses, (newResponses, oldResponses) => {
         cacheSize: taskResponseStatsCache.value.size
       })
     }
-  } else {
+  }
+  else {
     console.log('[BUG-001 FIX] TaskSidebar - Watch fired but no actual change detected')
   }
 })
@@ -378,7 +379,7 @@ watch(isTaskSelected, (taskSelected, wasTaskSelected) => {
       timestamp: new Date().toISOString(),
       taskCount: tasks.value?.length || 0
     })
-    
+
     // Reload completed tasks to ensure we have latest data
     loadCompletedTasks().then(() => {
       // Then refresh all task stats

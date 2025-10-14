@@ -217,24 +217,24 @@ export function getTaskGroupReference (task: EntuTask): string | undefined {
  * Get response text from response entity
  */
 export function getResponseText (response: EntuResponse): string | undefined {
-  return getStringValue(response.kirjeldus)
+  return getStringValue(response.vastus)
 }
 
 /**
  * Get response location reference from response entity
  */
 export function getResponseLocationReference (response: EntuResponse): string | undefined {
-  return getReferenceValue(response.asukoht)
+  return getReferenceValue(response.valitud_asukoht)
 }
 
 /**
- * Get response coordinates from response entity
+ * Get response coordinates from response entity (device GPS at submission time)
  */
 export function getResponseCoordinates (response: EntuResponse): { lat: number, lng: number } | undefined {
-  const geopunkt = getStringValue(response.geopunkt)
-  if (!geopunkt) return undefined
+  const seadmeGps = getStringValue(response.seadme_gps)
+  if (!seadmeGps) return undefined
 
-  const coords = geopunkt.split(',').map((coord) => parseFloat(coord.trim()))
+  const coords = seadmeGps.split(',').map((coord) => parseFloat(coord.trim()))
   const lat = coords[0]
   const lng = coords[1]
 

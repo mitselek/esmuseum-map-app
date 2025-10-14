@@ -95,10 +95,10 @@ interface EntuTask extends EntuEntity {
 
 // Response (vastus)
 interface EntuResponse extends EntuEntity {
-  asukoht?: EntuReferenceProperty[]; // Location reference
-  kirjeldus?: EntuStringProperty[]; // Text response
+  valitud_asukoht?: EntuReferenceProperty[]; // Selected location reference (which location was chosen)
+  vastus?: EntuStringProperty[]; // Text response
   photo?: EntuFileProperty[]; // Photo file
-  geopunkt?: EntuStringProperty[]; // GPS coordinates
+  seadme_gps?: EntuStringProperty[]; // Device GPS coordinates (where student was at submission)
 }
 
 // Location (asukoht)

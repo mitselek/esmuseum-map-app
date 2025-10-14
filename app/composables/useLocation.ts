@@ -178,7 +178,7 @@ const getLocationOptions = (retryCount = 0, options: GeolocationOptions = {}): G
 const getLocationErrorMessage = (error: GeolocationPositionError): string => {
   // Get translation function - this works in composables
   const { t } = useI18n()
-  
+
   switch (error.code) {
     case error.PERMISSION_DENIED:
       return t('gps.error.permissionDenied')
@@ -432,12 +432,13 @@ export const useLocation = (): UseLocationReturn => {
         if (error.code === error.PERMISSION_DENIED) {
           globalPermissionDenied.value = true
           globalShowGPSPrompt.value = false
-        } else {
+        }
+        else {
           // For POSITION_UNAVAILABLE or TIMEOUT, keep permission state but show error
           globalLocationError.value = getLocationErrorMessage(error)
           // Don't mark as permission denied - this allows user to retry
         }
-        
+
         globalGettingLocation.value = false
       },
       locationOptions
@@ -498,22 +499,25 @@ export const useLocation = (): UseLocationReturn => {
       catch (error) {
         // Increment retry count for next attempt
         globalRetryCount.value += 1
-        
+
         // Use translation function for consistent error messages
         const { t } = useI18n()
-        
+
         if (error instanceof Error && error.message.includes('POSITION_UNAVAILABLE')) {
           globalLocationError.value = t('gps.error.positionUnavailable')
-        } else if (error instanceof Error && error.message.includes('PERMISSION_DENIED')) {
+        }
+        else if (error instanceof Error && error.message.includes('PERMISSION_DENIED')) {
           globalLocationError.value = t('gps.error.permissionDenied')
           globalPermissionDenied.value = true
-        } else if (error instanceof Error && error.message.includes('TIMEOUT')) {
+        }
+        else if (error instanceof Error && error.message.includes('TIMEOUT')) {
           globalLocationError.value = t('gps.error.timeout')
-        } else {
+        }
+        else {
           const errorMessage = error instanceof Error ? error.message : t('gps.error.unknown')
           globalLocationError.value = errorMessage
         }
-        
+
         console.error('Error getting GPS position:', error)
         throw error
       }

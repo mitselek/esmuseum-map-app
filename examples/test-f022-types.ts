@@ -81,18 +81,18 @@ const sampleResponse: EntuResponse = {
     string: 'vastus',
     entity_type: 'entity'
   }],
-  kirjeldus: [{
+  vastus: [{
     _id: '68c7332985a9d472cca35cf9',
     string: 'näidis kirjeldus'
   }],
-  geopunkt: [{
+  seadme_gps: [{
     _id: '68c7335885a9d472cca35cfb',
     string: '24.45,64.56'
   }],
-  asukoht: [{
+  valitud_asukoht: [{
     _id: '68c7331a85a9d472cca35cea',
     reference: '688260755d95233e69c2a5e3',
-    property_type: 'asukoht',
+    property_type: 'valitud_asukoht',
     string: 'AEGNA RAUDTEE',
     entity_type: 'asukoht'
   }]

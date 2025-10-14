@@ -129,8 +129,8 @@ export async function createEntuEntity (entityType: string, entityData: any, api
         // Reference properties
         properties.push({ type: key, reference: value as string })
       }
-      else if (key === 'asukoht') {
-        // Location reference - special handling to include proper structure
+      else if (key === 'valitud_asukoht') {
+        // Selected location reference - special handling to include proper structure
         properties.push({ type: key, reference: value as string })
       }
       else if (typeof value === 'string') {
