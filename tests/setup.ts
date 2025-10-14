@@ -1,7 +1,13 @@
-import { beforeAll, afterEach, afterAll } from 'vitest'
+import { beforeAll, afterEach, afterAll, vi } from 'vitest'
 import { setupServer } from 'msw/node'
 import { authApiMocks } from './mocks/entu-auth-api'
 import { taskApiMocks } from './mocks/task-api'
+import { ref, computed, watch } from 'vue'
+
+// Make Vue reactivity available globally for composable tests
+;(global as any).ref = ref
+;(global as any).computed = computed
+;(global as any).watch = watch
 
 // Setup MSW server with all API mocks
 const server = setupServer(...authApiMocks, ...taskApiMocks)
