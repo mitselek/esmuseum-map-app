@@ -28,7 +28,7 @@ const pinoLogger = pino({
           colorize: true,
           translateTime: 'HH:MM:ss.l',
           ignore: 'pid,hostname',
-          messageFormat: '{levelLabel} [{module}] {msg}'
+          messageFormat: '[{module}] {msg}'
         }
       }
     : undefined,

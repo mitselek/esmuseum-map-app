@@ -16,7 +16,7 @@ describe('LoginPage - Email Authentication', () => {
         { id: 'id-card', label: 'ID-Card' },
         { id: 'e-mail', label: 'Email' }
       ]
-      
+
       expect(oauthProviders).toHaveLength(6)
     })
 
@@ -30,7 +30,7 @@ describe('LoginPage - Email Authentication', () => {
         { id: 'id-card', label: 'ID-Card' },
         { id: 'e-mail', label: 'Email' }
       ]
-      
+
       const lastProvider = oauthProviders[oauthProviders.length - 1]
       expect(lastProvider).toBeDefined()
       expect(lastProvider?.id).toBe('e-mail')
@@ -46,9 +46,9 @@ describe('LoginPage - Email Authentication', () => {
         { id: 'id-card', label: 'ID-Card' },
         { id: 'e-mail', label: 'Email' }
       ]
-      
+
       // Verify all existing providers still exist
-      const providerIds = oauthProviders.map(p => p.id)
+      const providerIds = oauthProviders.map((p) => p.id)
       expect(providerIds).toContain('google')
       expect(providerIds).toContain('apple')
       expect(providerIds).toContain('smart-id')
@@ -59,7 +59,7 @@ describe('LoginPage - Email Authentication', () => {
 
     it('should have correct structure for email provider', () => {
       const emailProvider = { id: 'e-mail', label: 'Email' }
-      
+
       expect(emailProvider).toHaveProperty('id')
       expect(emailProvider).toHaveProperty('label')
       expect(emailProvider.id).toBe('e-mail')
@@ -71,7 +71,7 @@ describe('LoginPage - Email Authentication', () => {
     it('should use e-mail as provider id to match OAuth.ee endpoint', () => {
       // Email provider ID must be 'e-mail' (with hyphen) to match OAuth.ee
       const emailProvider = { id: 'e-mail', label: 'Email' }
-      
+
       expect(emailProvider.id).toBe('e-mail')
       expect(emailProvider.id).not.toBe('email') // Not without hyphen
     })
