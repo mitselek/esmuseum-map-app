@@ -392,6 +392,18 @@ function handleRetry () {
 }
 
 /**
+ * Clear stale authentication and show name collection form
+ * Helper function to reduce code duplication (Copilot review)
+ */
+function clearStaleAuthAndShowNameForm () {
+  const { logout } = useEntuAuth()
+  logout()
+  needsName.value = true
+  formData.value.forename = ''
+  formData.value.surname = ''
+}
+
+/**
  * On mount, check if we're returning from OAuth and whether to start flow
  * 
  * FIX #21: Check membership even for authenticated users without pendingGroupId
@@ -402,7 +414,6 @@ onMounted(async () => {
   fetchGroupInfo()
 
   const pendingGroupId = localStorage.getItem('pending_group_id')
-  const { logout } = useEntuAuth()
 
   // If user is authenticated and has complete profile, validate and check membership
   if (token.value && user.value) {
@@ -428,20 +439,14 @@ onMounted(async () => {
       if (!validationCheck.exists) {
         // User entity was deleted - clear stale auth and show name form
         console.warn('[AUTH-STALE] User entity not found, clearing stale authentication', { userId })
-        logout()
-        needsName.value = true
-        formData.value.forename = ''
-        formData.value.surname = ''
+        clearStaleAuthAndShowNameForm()
         return
       }
     }
     catch (error) {
       console.warn('[AUTH-VALIDATE-ERROR] Failed to validate user entity:', error)
       // On validation error, clear auth to be safe and let user restart
-      logout()
-      needsName.value = true
-      formData.value.forename = ''
-      formData.value.surname = ''
+      clearStaleAuthAndShowNameForm()
       return
     }
 

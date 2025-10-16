@@ -4,12 +4,13 @@
  * Validates if a user entity exists in Entu
  * Used to detect stale authentication when user entity has been deleted
  *
+ * Performance: Uses direct entity fetch instead of search (Copilot review)
+ *
  * @see https://github.com/mitselek/esmuseum-map-app/issues/23
  */
 
-import { getEntuApiConfig, searchEntuEntities, exchangeApiKeyForToken } from '../../utils/entu'
+import { getEntuApiConfig, getEntuEntity, exchangeApiKeyForToken } from '../../utils/entu'
 import { createLogger } from '../../utils/logger'
-import type { EntuPerson, EntuEntityListResponse } from '../../../types/entu'
 
 const logger = createLogger('validate-user')
 
@@ -34,23 +35,21 @@ export default defineEventHandler(async (event) => {
     const jwtToken = await exchangeApiKeyForToken(config.entuManagerKey as string)
     const apiConfig = getEntuApiConfig(jwtToken)
 
-    // Search for the user entity by ID
-    const searchResults = await searchEntuEntities({
-      '_type.string': 'person',
-      '_id': userId
-    }, apiConfig) as EntuEntityListResponse<EntuPerson>
-
-    const exists = searchResults.entities && searchResults.entities.length > 0
-
-    if (exists) {
+    // Direct entity fetch - more efficient than search
+    try {
+      await getEntuEntity(userId, apiConfig)
+      // If no error thrown, entity exists
       logger.info('[AUTH-VALID] User entity confirmed', { userId })
+      return {
+        exists: true
+      }
     }
-    else {
+    catch (fetchError: unknown) {
+      // 404 or other error means entity doesn't exist or is inaccessible
       logger.warn('[AUTH-STALE] User entity not found', { userId })
-    }
-
-    return {
-      exists
+      return {
+        exists: false
+      }
     }
   }
   catch (error: unknown) {
