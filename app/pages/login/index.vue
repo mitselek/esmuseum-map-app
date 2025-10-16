@@ -9,12 +9,12 @@ const activeProvider = ref(null) // Track which provider button is loading
 
 // OAuth provider options - ensure they match the values in useEntuOAuth.js
 const oauthProviders = [
+  { id: 'e-mail', label: 'Email' },
   { id: 'google', label: 'Google' },
   { id: 'apple', label: 'Apple' },
   { id: 'smart-id', label: 'Smart-ID' },
   { id: 'mobile-id', label: 'Mobile-ID' },
-  { id: 'id-card', label: 'ID-Card' },
-  { id: 'e-mail', label: 'Email' }
+  { id: 'id-card', label: 'ID-Card' }
 ]
 
 onMounted(() => {
