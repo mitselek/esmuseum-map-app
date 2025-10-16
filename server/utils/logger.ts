@@ -53,6 +53,12 @@ const pinoLogger = pino({
  * Create a logger for a specific module
  * Maintains backward compatibility with existing logger interface
  *
+ * Constitutional: Logger data parameters use `any` for maximum flexibility
+ * This is a debugging utility that should accept any data type without friction.
+ * The logger safely serializes all types (Pino handles this internally).
+ * Principle I: Type Safety First - documented exception for debugging utilities
+ * where strict typing would hinder developer experience without safety benefit.
+ *
  * @param moduleName - Module identifier (e.g., 'webhook', 'entu-admin')
  * @returns Logger instance with debug, info, warn, error methods
  */

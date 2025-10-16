@@ -34,7 +34,9 @@ export const useServerAuth = () => {
 
       return response
     }
-    catch (error: any) {
+    // Constitutional: Error type is unknown - we catch and validate errors at boundaries
+    // Principle I: Type Safety First - documented exception for error handling
+    catch (error: unknown) {
       console.error('Failed to check auth status:', error)
       isAuthenticated.value = false
       user.value = null
@@ -81,8 +83,11 @@ export const useServerAuth = () => {
 
       return true
     }
-    catch (err: any) {
-      error.value = err.message || 'Failed to start authentication'
+    // Constitutional: Error type is unknown - we catch and validate errors at boundaries
+    // Principle I: Type Safety First - documented exception for error handling
+    catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to start authentication'
+      error.value = errorMessage
       isLoading.value = false
       console.error('Authentication flow error:', err)
       return false
@@ -109,8 +114,11 @@ export const useServerAuth = () => {
       // Redirect to home or login page
       await navigateTo('/')
     }
-    catch (err: any) {
-      error.value = err.message || 'Failed to logout'
+    // Constitutional: Error type is unknown - we catch and validate errors at boundaries
+    // Principle I: Type Safety First - documented exception for error handling
+    catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to logout'
+      error.value = errorMessage
       console.error('Logout error:', err)
     }
     finally {

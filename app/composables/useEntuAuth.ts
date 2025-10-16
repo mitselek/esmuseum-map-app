@@ -17,6 +17,10 @@ import type { Ref, ComputedRef } from 'vue'
 
 /**
  * User object structure from Entu auth response
+ * 
+ * Constitutional: Uses index signature for additional user properties from Entu
+ * User objects may contain custom fields defined in Entu schema.
+ * Principle I: Type Safety First - documented exception for external API flexibility
  */
 export interface EntuUser {
   _id: string
@@ -27,6 +31,10 @@ export interface EntuUser {
 
 /**
  * Auth response structure from Entu API
+ * 
+ * Constitutional: Uses index signatures for flexible Entu auth response structure
+ * Auth responses contain nested objects with dynamic properties.
+ * Principle I: Type Safety First - documented exception for authentication API responses
  */
 export interface EntuAuthResponse {
   token: string
