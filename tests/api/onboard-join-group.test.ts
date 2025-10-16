@@ -3,6 +3,9 @@
 /**
  * Tests for /api/onboard/join-group server endpoint (FEAT-001)
  * TDD: Write tests FIRST, then implement the endpoint
+ * 
+ * NOTE: Using 'any' types for test mocks to prioritize test readability
+ * over strict typing. Test code focuses on behavior verification, not type safety.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -223,7 +226,7 @@ describe('/api/onboard/join-group endpoint', () => {
     // Mock Entu API failure
     callEntuApi.mockRejectedValueOnce(new Error('Entu API error'))
 
-    const handler = await import('~/server/api/onboard/join-group.post')
+    const handler = await import('../../server/api/onboard/join-group.post')
     const mockEvent = {
       node: {
         req: {
@@ -253,10 +256,10 @@ describe('/api/onboard/join-group endpoint', () => {
     // Mock successful operation
     callEntuApi.mockResolvedValueOnce({ _id: '686a6c011749f351b9c83124' })
 
-    const loggerModule = await import('~/server/utils/logger')
-    const logger = loggerModule.createLogger()
+    const loggerModule = await import('../../server/utils/logger')
+    const logger = loggerModule.createLogger('onboard-join-group')
 
-    const handler = await import('~/server/api/onboard/join-group.post')
+    const handler = await import('../../server/api/onboard/join-group.post')
     const mockEvent = {
       node: {
         req: {
