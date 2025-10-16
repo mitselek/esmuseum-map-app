@@ -9,7 +9,9 @@
 export const useServerAuth = () => {
   // State
   const isAuthenticated = ref(false)
-  const user = ref<any>(null)
+  // Constitutional: User object structure from server is unknown until validated
+  // Principle I: Type Safety First - documented exception for server response
+  const user = ref<unknown>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
@@ -27,7 +29,9 @@ export const useServerAuth = () => {
    */
   const checkAuthStatus = async () => {
     try {
-      const response = await $fetch('/api/auth/status') as { authenticated: boolean, user: any }
+      // Constitutional: Response user field is unknown - structure varies by auth provider
+      // Principle I: Type Safety First - documented exception for flexible auth responses
+      const response = await $fetch('/api/auth/status') as { authenticated: boolean, user: unknown }
 
       isAuthenticated.value = response.authenticated
       user.value = response.user

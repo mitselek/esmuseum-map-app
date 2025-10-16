@@ -98,8 +98,13 @@ export async function getEntuEntity (entityId: string, apiConfig: EntuApiOptions
 
 /**
  * Create entity in Entu
+ * 
+ * Constitutional: entityData uses Record<string, unknown> for flexible entity creation
+ * Entity properties are dynamic based on entity type and Entu schema.
+ * We validate and transform the data at this boundary.
+ * Principle I: Type Safety First - documented exception for dynamic entity operations
  */
-export async function createEntuEntity (entityType: string, entityData: any, apiConfig: EntuApiOptions) {
+export async function createEntuEntity (entityType: string, entityData: Record<string, unknown>, apiConfig: EntuApiOptions) {
   // Convert flat object to Entu property array format
   const properties: EntuProperty[] = [
     { type: '_type', reference: getEntityTypeReference(entityType) }, // Use proper reference
@@ -155,8 +160,12 @@ function getEntityTypeReference (entityType: string): string {
 
 /**
  * Update entity in Entu
+ * 
+ * Constitutional: entityData uses Record<string, unknown> for flexible entity updates
+ * Update data structure is dynamic based on entity type and Entu schema.
+ * Principle I: Type Safety First - documented exception for dynamic entity operations
  */
-export async function updateEntuEntity (entityId: string, entityData: any, apiConfig: EntuApiOptions) {
+export async function updateEntuEntity (entityId: string, entityData: Record<string, unknown>, apiConfig: EntuApiOptions) {
   return callEntuApi(`/entity/${entityId}`, {
     method: 'POST',
     body: JSON.stringify(entityData)

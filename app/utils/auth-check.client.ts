@@ -4,7 +4,9 @@
 export function getStoredAuth () {
   const token = localStorage.getItem('esm_token')
   const userRaw = localStorage.getItem('esm_user')
-  let user: any = null
+  // Constitutional: User data from localStorage has unknown structure until parsed
+  // Principle I: Type Safety First - documented exception for localStorage parsing
+  let user: unknown = null
   if (userRaw) {
     try { user = JSON.parse(userRaw) }
     catch { user = null }

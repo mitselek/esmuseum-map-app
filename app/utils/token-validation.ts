@@ -8,6 +8,10 @@
 
 /**
  * JWT token payload structure
+ * 
+ * Constitutional: Uses index signature for flexible JWT claims
+ * JWT tokens may contain additional custom claims beyond standard fields.
+ * Principle I: Type Safety First - documented exception for JWT flexibility
  */
 export interface TokenPayload {
   exp: number // Unix timestamp (seconds since epoch)

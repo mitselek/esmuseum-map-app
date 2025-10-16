@@ -6,6 +6,7 @@
  * to all students in that group
  */
 
+import type { EntuEntity } from '../../../types/entu'
 import { defineEventHandler, readBody } from 'h3'
 import { createLogger } from '../../utils/logger'
 import {
@@ -72,7 +73,7 @@ async function processTaskWebhook (entityId: string, userToken?: string, userId?
     }
   }
 
-  const studentIds = students.map((student: any) => student._id)
+  const studentIds = students.map((student: EntuEntity) => student._id)
 
   logger.info('Found students in group', {
     taskId: entityId,
@@ -194,17 +195,24 @@ export default defineEventHandler(async (event) => {
       duration_ms: Date.now() - startTime
     }
   }
-  catch (error: any) {
+  // Constitutional: Error type is unknown - we catch and validate errors at boundaries
+  // Principle I: Type Safety First - documented exception for error handling
+  catch (error: unknown) {
     const duration = Date.now() - startTime
 
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const statusCode = typeof error === 'object' && error !== null && 'statusCode' in error 
+      ? (error as { statusCode: number }).statusCode 
+      : undefined
+
     logger.error('Webhook processing failed', {
-      error: error.message,
-      statusCode: error.statusCode,
+      error: errorMessage,
+      statusCode,
       duration
     })
 
     // Return appropriate error response
-    if (error.statusCode) {
+    if (statusCode) {
       throw error
     }
 

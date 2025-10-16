@@ -49,13 +49,17 @@ interface ResponseData {
 
 /**
  * Created response result
+ * 
+ * Constitutional: data field uses unknown for flexible response data from Entu
+ * Response data structure varies based on entity type and properties submitted.
+ * Principle I: Type Safety First - documented exception for API response flexibility
  */
 interface CreateResponseResult {
   success: boolean
   id: string
   message: string
   submittedAt: string
-  data: any
+  data: unknown
 }
 
 /**
