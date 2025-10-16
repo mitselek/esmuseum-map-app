@@ -1,5 +1,5 @@
 /**
- * Server Endpoint: POST /api/onboard/check-membership (FEAT-001)
+ * Server Endpoint: GET /api/onboard/check-membership (FEAT-001)
  * 
  * Checks if a user is a member of a group
  * Used by polling logic to confirm membership after assignment
@@ -7,17 +7,18 @@
  * @see specs/030-student-onboarding-flow/spec.md
  */
 
-import { getEntuApiConfig, searchEntuEntities } from '../../utils/entu'
+import { getEntuApiConfig, searchEntuEntities, exchangeApiKeyForToken } from '../../utils/entu'
 import { createLogger } from '../../utils/logger'
+import type { EntuPerson, EntuEntityListResponse } from '../../../types/entu'
 
 const logger = createLogger('check-membership')
 
 export default defineEventHandler(async (event) => {
   try {
     const config = useRuntimeConfig()
-    const body = await readBody<{ groupId: string; userId: string }>(event)
+    const query = getQuery(event)
     
-    if (!body || !body.groupId || !body.userId) {
+    if (!query.groupId || !query.userId || typeof query.groupId !== 'string' || typeof query.userId !== 'string') {
       setResponseStatus(event, 400)
       return {
         isMember: false,
@@ -25,22 +26,18 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const { groupId, userId } = body
+    const { groupId, userId } = query
 
-    const apiConfig = getEntuApiConfig(config.NUXT_ENTU_API_KEY as string)
+    // Exchange API key for JWT token
+    const jwtToken = await exchangeApiKeyForToken(config.entuManagerKey as string)
+    const apiConfig = getEntuApiConfig(jwtToken)
 
-    const existingMembers = await searchEntuEntities({
+    const searchResults = await searchEntuEntities({
       '_type.string': 'person',
       '_parent.reference': groupId,
-    }, apiConfig)
+    }, apiConfig) as EntuEntityListResponse<EntuPerson>
 
-    const isMember = existingMembers?.entities?.some((entity: { _id: string }) => entity._id === userId) || false
-
-    logger.debug('Membership check', {
-      groupId,
-      userId,
-      isMember,
-    })
+    const isMember = searchResults.entities?.some(entity => entity._id === userId) || false
 
     return {
       isMember,

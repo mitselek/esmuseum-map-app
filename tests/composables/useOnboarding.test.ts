@@ -156,13 +156,9 @@ describe('useOnboarding', () => {
     await vi.advanceTimersByTimeAsync(2000)
 
     // Should query Entu for person with _parent = groupId
-    expect(mockFetch).toHaveBeenCalledWith('/api/onboard/check-membership', {
-      method: 'POST',
-      body: {
-        groupId: '686a6c011749f351b9c83124',
-        userId: '66b6245c7efc9ac06a437b97'
-      }
-    })
+    expect(mockFetch).toHaveBeenCalledWith(
+      '/api/onboard/check-membership?groupId=686a6c011749f351b9c83124&userId=66b6245c7efc9ac06a437b97'
+    )
 
     cleanup()
   })

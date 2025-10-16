@@ -1,14 +1,77 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
-      <!-- Header -->
+      <!-- Header with Language Selector -->
       <div class="text-center">
+        <!-- Language Selector -->
+        <div class="flex justify-end mb-4 space-x-2">
+          <button
+            v-for="lang in availableLanguages"
+            :key="lang.code"
+            class="text-2xl transition-transform hover:scale-110"
+            :title="lang.name"
+            @click="switchLanguage(lang.code)"
+          >
+            {{ lang.flag }}
+          </button>
+        </div>
+
         <h1 class="text-3xl font-extrabold text-gray-900">
           {{ $t('onboarding.title') }}
         </h1>
+        <p v-if="groupName" class="mt-2 text-lg font-medium text-blue-600">
+          {{ groupName }}
+        </p>
         <p class="mt-2 text-sm text-gray-600">
           {{ $t('onboarding.subtitle') }}
         </p>
+      </div>
+
+      <!-- Name Collection Form (shown if user has no name) -->
+      <div v-if="needsName && !state.isWaiting" class="space-y-6">
+        <div>
+          <p class="text-sm text-gray-700 mb-4">
+            {{ $t('onboarding.nameRequired') }}
+          </p>
+        </div>
+        
+        <form @submit.prevent="handleNameSubmit" class="space-y-4">
+          <div>
+            <label for="forename" class="block text-sm font-medium text-gray-700">
+              {{ $t('onboarding.forename') }} *
+            </label>
+            <input
+              id="forename"
+              v-model="formData.forename"
+              type="text"
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              :placeholder="$t('onboarding.forenamePlaceholder')"
+            />
+          </div>
+
+          <div>
+            <label for="surname" class="block text-sm font-medium text-gray-700">
+              {{ $t('onboarding.surname') }} *
+            </label>
+            <input
+              id="surname"
+              v-model="formData.surname"
+              type="text"
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              :placeholder="$t('onboarding.surnamePlaceholder')"
+            />
+          </div>
+
+          <button
+            type="submit"
+            :disabled="isSubmitting || !formData.forename || !formData.surname"
+            class="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ isSubmitting ? $t('onboarding.submitting') : $t('onboarding.submitName') }}
+          </button>
+        </form>
       </div>
 
       <!-- Waiting Screen -->
@@ -89,68 +152,172 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useEntuAuth } from '../../composables/useEntuAuth'
 import { useEntuOAuth } from '../../composables/useEntuOAuth'
 import { useOnboarding } from '../../composables/useOnboarding'
 
+// Language code type
+type LanguageCode = 'et' | 'en' | 'uk' | 'lv'
+
+// Language interface
+interface Language {
+  code: LanguageCode
+  name: string
+  flag: string
+}
+
 const route = useRoute()
 const router = useRouter()
+const { locale, setLocale } = useI18n()
 const { token, user } = useEntuAuth()
 const { startOAuthFlow } = useEntuOAuth()
 const { state, joinGroup, pollGroupMembership, reset } = useOnboarding()
 
 const isLoading = ref(false)
 
+// Name collection state
+const needsName = ref(false)
+const isSubmitting = ref(false)
+const formData = ref({ forename: '', surname: '' })
+
+// Group information state
+const groupName = ref<string | null>(null)
+
 // Get groupId from route params
 const groupId = computed(() => route.params.groupId as string)
 
+// Language configuration
+const allLanguages: Language[] = [
+  { code: 'et', name: 'Eesti', flag: '🇪🇪' },
+  { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'uk', name: 'Українська', flag: '🇺🇦' },
+  { code: 'lv', name: 'Latviešu', flag: '🇱🇻' }
+]
+
+// Computed property for available languages (excluding current)
+const availableLanguages = computed<Language[]>(() => {
+  return allLanguages.filter((lang) => lang.code !== locale.value)
+})
+
+// Language switching method
+const switchLanguage = (langCode: LanguageCode): void => {
+  setLocale(langCode)
+}
+
 /**
- * Handle OAuth authentication and join group flow
+ * Fetch group information to display group name
+ */
+async function fetchGroupInfo() {
+  if (!groupId.value) return
+  
+  try {
+    const res = await $fetch<{ success: boolean; groupId: string; groupName: string }>(
+      `/api/onboard/get-group-info?groupId=${groupId.value}`
+    )
+    
+    if (res.success && res.groupName) {
+      groupName.value = res.groupName
+    }
+  } catch (error) {
+    // Silent fail - group name is nice-to-have, not critical
+    console.warn('Failed to fetch group info:', error)
+  }
+}
+
+/**
+ * Submit name to server (sets Entu person forename/surname)
+ */
+async function handleNameSubmit() {
+  if (!token.value || !user.value) return
+
+  isSubmitting.value = true
+  state.value.error = null
+
+  try {
+    const userId = user.value._id
+
+    const res = await $fetch<{ success: boolean; message?: string }>('/api/onboard/set-name', {
+      method: 'POST',
+      body: {
+        userId,
+        forename: formData.value.forename,
+        surname: formData.value.surname,
+      },
+    })
+
+    if (!res || res.success === false) {
+      state.value.error = (res && res.message) || 'Failed to set name'
+      isSubmitting.value = false
+      return
+    }
+
+    // Name set successfully - clear flag and continue join flow
+    needsName.value = false
+
+    // Proceed to join group and poll membership
+    await startJoinAndPoll()
+  } catch (error: unknown) {
+    state.value.error = error instanceof Error ? error.message : 'Unknown error'
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+/**
+ * Shared start flow: call joinGroup then poll
+ */
+async function startJoinAndPoll() {
+  if (!token.value || !user.value) return
+  isLoading.value = true
+
+  try {
+    const userId = user.value._id
+
+    const response = await joinGroup(groupId.value, userId)
+    if (!response.success) return
+
+    const confirmed = await pollGroupMembership(groupId.value, userId)
+    if (confirmed) {
+      localStorage.removeItem('pending_group_id')
+      localStorage.removeItem('auth_callback_url')
+      router.push('/dashboard')
+    }
+  } catch (error: unknown) {
+    state.value.error = error instanceof Error ? error.message : 'Unknown error'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+/**
+ * Handle OAuth authentication and join group flow (entrypoint)
  */
 async function handleJoinGroup() {
-  // Check if user is authenticated
+  // If not authenticated, start OAuth and persist state
   if (!token.value || !user.value) {
-    // Store callback URL and groupId for after OAuth
     const callbackUrl = `/signup/${groupId.value}`
     localStorage.setItem('auth_callback_url', callbackUrl)
     localStorage.setItem('pending_group_id', groupId.value)
-    
-    // Initiate OAuth login (using Google provider)
+
     startOAuthFlow('google')
     return
   }
 
-  // User is authenticated, proceed with group assignment
-  isLoading.value = true
-  
-  try {
-    const userId = user.value._id
+  // Authenticated - check if user has names; if not, show name form
+  const hasForename = Boolean(user.value.forename)
+  const hasSurname = Boolean(user.value.surname)
 
-    // Step 1: Call server endpoint to assign user to group
-    const response = await joinGroup(groupId.value, userId)
-
-    if (!response.success) {
-      isLoading.value = false
-      return
-    }
-
-    // Step 2: Poll for membership confirmation
-    const confirmed = await pollGroupMembership(groupId.value, userId)
-
-    if (confirmed) {
-      // Success! Clear localStorage and redirect
-      localStorage.removeItem('pending_group_id')
-      localStorage.removeItem('auth_callback_url')
-      
-      // Redirect to dashboard or success page
-      router.push('/dashboard')
-    }
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    state.value.error = errorMessage
-  } finally {
-    isLoading.value = false
+  if (!hasForename || !hasSurname) {
+    needsName.value = true
+    // Pre-fill form if one of the fields exists
+    formData.value.forename = user.value.forename || ''
+    formData.value.surname = user.value.surname || ''
+    return
   }
+
+  // Otherwise proceed with join + poll
+  await startJoinAndPoll()
 }
 
 /**
@@ -162,14 +329,26 @@ function handleRetry() {
 }
 
 /**
- * On mount, check if we're returning from OAuth
+ * On mount, check if we're returning from OAuth and whether to start flow
  */
 onMounted(() => {
-  const pendingGroupId = localStorage.getItem('pending_group_id')
+  // Fetch group name to display in header
+  fetchGroupInfo()
   
-  // If user is authenticated and has pending groupId, auto-start join flow
+  const pendingGroupId = localStorage.getItem('pending_group_id')
+
   if (token.value && user.value && pendingGroupId && pendingGroupId === groupId.value) {
-    handleJoinGroup()
+    // If user lacks names, show form; otherwise start join flow
+    const hasForename = Boolean(user.value.forename)
+    const hasSurname = Boolean(user.value.surname)
+
+    if (!hasForename || !hasSurname) {
+      needsName.value = true
+      formData.value.forename = user.value.forename || ''
+      formData.value.surname = user.value.surname || ''
+    } else {
+      handleJoinGroup()
+    }
   }
 })
 </script>

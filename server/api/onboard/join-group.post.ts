@@ -2,32 +2,23 @@
  * Server Endpoint: POST /api/onboard/join-group (FEAT-001)
  * 
  * Assigns a student (user) to a group (class) in Entu
- * Requires NUXT_WEBHOOK_KEY for authentication
+ * Server-side only (called from client composables)
  * 
  * @see specs/030-student-onboarding-flow/spec.md
  */
 
 import type { GroupAssignmentRequest, GroupAssignmentResponse } from '../../../types/onboarding'
-import { callEntuApi, getEntuApiConfig, searchEntuEntities } from '../../utils/entu'
+import { callEntuApi, getEntuApiConfig, searchEntuEntities, exchangeApiKeyForToken } from '../../utils/entu'
 import { createLogger } from '../../utils/logger'
+import type { EntuPerson, EntuEntityListResponse } from '../../../types/entu'
 
 const logger = createLogger('onboard-join-group')
 
 export default defineEventHandler(async (event): Promise<GroupAssignmentResponse> => {
   try {
-    // 1. Validate webhook key
     const config = useRuntimeConfig()
-    const providedKey = getHeader(event, 'x-webhook-key')
-    
-    if (!providedKey || providedKey !== config.NUXT_WEBHOOK_KEY) {
-      setResponseStatus(event, 401)
-      return {
-        success: false,
-        error: 'Unauthorized: Invalid webhook key',
-      }
-    }
 
-    // 2. Parse and validate request body
+    // Parse and validate request body
     const body = await readBody<GroupAssignmentRequest>(event)
     
     if (!body || !body.groupId || !body.userId) {
@@ -46,17 +37,18 @@ export default defineEventHandler(async (event): Promise<GroupAssignmentResponse
       timestamp: new Date().toISOString(),
     })
 
-    // Get API config with admin API key
-    const apiConfig = getEntuApiConfig(config.NUXT_ENTU_API_KEY as string)
+    // Exchange API key for JWT token
+    const jwtToken = await exchangeApiKeyForToken(config.entuManagerKey as string)
+    const apiConfig = getEntuApiConfig(jwtToken)
 
     // 3. Check if user is already a member
     try {
-      const existingMembers = await searchEntuEntities({
+      const searchResults = await searchEntuEntities({
         '_type.string': 'person',
         '_parent.reference': groupId,
-      }, apiConfig)
+      }, apiConfig) as EntuEntityListResponse<EntuPerson>
 
-      const isMember = existingMembers?.entities?.some((entity: { _id: string }) => entity._id === userId)
+      const isMember = searchResults.entities?.some(entity => entity._id === userId)
 
       if (isMember) {
         logger.info('User already member of group', { groupId, userId })

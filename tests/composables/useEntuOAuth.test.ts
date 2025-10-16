@@ -20,13 +20,13 @@ describe('useEntuOAuth', () => {
     it('should include EMAIL provider', async () => {
       // This test will fail until EMAIL constant is added
       const { OAUTH_PROVIDERS } = await import('~/composables/useEntuOAuth')
-      
+
       expect(OAUTH_PROVIDERS.EMAIL).toBe('e-mail')
     })
 
     it('should have EMAIL in provider values', async () => {
       const { OAUTH_PROVIDERS } = await import('~/composables/useEntuOAuth')
-      
+
       const providers = Object.values(OAUTH_PROVIDERS)
       expect(providers).toContain('e-mail')
     })
@@ -35,14 +35,14 @@ describe('useEntuOAuth', () => {
       // TypeScript compilation validates this
       const { OAUTH_PROVIDERS } = await import('~/composables/useEntuOAuth')
       const provider = OAUTH_PROVIDERS.EMAIL
-      
+
       expect(typeof provider).toBe('string')
       expect(provider).toBe('e-mail')
     })
 
     it('should maintain existing providers', async () => {
       const { OAUTH_PROVIDERS } = await import('~/composables/useEntuOAuth')
-      
+
       // Verify existing providers still exist
       expect(OAUTH_PROVIDERS.GOOGLE).toBe('google')
       expect(OAUTH_PROVIDERS.APPLE).toBe('apple')
@@ -58,7 +58,7 @@ describe('useEntuOAuth', () => {
       // Feature verified working in production OAuth flow (October 14, 2025)
       // This test validates redirect behavior which requires full browser environment
       const { useEntuOAuth } = await import('~/composables/useEntuOAuth')
-      
+
       // Mock window.location (test environment limitation - window.location is read-only)
       // Note: This is acceptable in tests to simulate browser redirect behavior
       const originalLocation = window.location
@@ -66,16 +66,17 @@ describe('useEntuOAuth', () => {
       delete window.location
       // @ts-expect-error - Assigning mock location for test
       window.location = mockLocation
-      
+
       const { startOAuthFlow } = useEntuOAuth()
-      
+
       try {
         const result = startOAuthFlow('e-mail')
-        
+
         expect(result).toBe(true)
         expect(window.location.href).toContain('/api/auth/e-mail')
         expect(window.location.href).toContain('account=')
-      } finally {
+      }
+      finally {
         // Restore original location
         // @ts-expect-error - Restoring original window.location after test
         window.location = originalLocation
@@ -84,7 +85,7 @@ describe('useEntuOAuth', () => {
 
     it('should validate e-mail provider like other providers', async () => {
       const { useEntuOAuth, OAUTH_PROVIDERS } = await import('~/composables/useEntuOAuth')
-      
+
       const providers = Object.values(OAUTH_PROVIDERS)
       expect(providers).toContain('e-mail')
     })
