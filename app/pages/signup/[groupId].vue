@@ -145,6 +145,15 @@
           {{ $t('onboarding.retryButton') }}
         </button>
       </div>
+
+      <!-- Interreg Logo -->
+      <div class="mt-8 flex justify-center border-t border-gray-200 pt-6">
+        <img
+          src="/interreg-estonia-latvia.png"
+          alt="Interreg Estonia-Latvia - Co-funded by the European Union"
+          class="h-auto w-full max-w-xs"
+        >
+      </div>
     </div>
   </div>
 </template>
