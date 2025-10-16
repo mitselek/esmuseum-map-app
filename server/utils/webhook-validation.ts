@@ -31,7 +31,7 @@ export function validateWebhookRequest (event: H3Event): boolean {
  * @returns Validation result with errors if any
  */
 export function validateWebhookPayload (
-  payload: any
+  payload: unknown
 ): { valid: boolean, errors: string[] } {
   const errors: string[] = []
 
@@ -41,19 +41,27 @@ export function validateWebhookPayload (
     return { valid: false, errors }
   }
 
+  // Constitutional: Webhook payload structure is validated at this boundary
+  // Using type assertions after runtime checks
+  // Principle I: Type Safety First - documented validation boundary
+  const payloadObj = payload as Record<string, unknown>
+
   // Validate Entu webhook format
-  if (!payload.db) {
+  if (!payloadObj.db) {
     errors.push('Missing db field in payload')
   }
 
-  if (!payload.entity || typeof payload.entity !== 'object') {
+  if (!payloadObj.entity || typeof payloadObj.entity !== 'object') {
     errors.push('Missing entity object in payload')
   }
-  else if (!payload.entity._id) {
-    errors.push('Missing entity._id in payload')
+  else {
+    const entity = payloadObj.entity as Record<string, unknown>
+    if (!entity._id) {
+      errors.push('Missing entity._id in payload')
+    }
   }
 
-  if (!payload.token || typeof payload.token !== 'string') {
+  if (!payloadObj.token || typeof payloadObj.token !== 'string') {
     errors.push('Missing token field in payload')
   }
 
@@ -75,8 +83,20 @@ export function validateWebhookPayload (
  * @param payload - The webhook payload
  * @returns Extracted entity ID
  */
-export function extractEntityId (payload: any): string | null {
-  const entityId = payload.entity?._id || null
+export function extractEntityId (payload: unknown): string | null {
+  if (!payload || typeof payload !== 'object') {
+    return null
+  }
+
+  const payloadObj = payload as Record<string, unknown>
+  const entity = payloadObj.entity
+
+  if (!entity || typeof entity !== 'object') {
+    return null
+  }
+
+  const entityObj = entity as Record<string, unknown>
+  const entityId = typeof entityObj._id === 'string' ? entityObj._id : null
 
   logger.debug('Extracted entity ID from payload', { entityId })
 
@@ -92,12 +112,17 @@ export function extractEntityId (payload: any): string | null {
  * @param payload - The webhook payload
  * @returns Extracted JWT token and decoded user info
  */
-export function extractUserToken (payload: any): {
+export function extractUserToken (payload: unknown): {
   token: string | null
   userId: string | null
   userEmail: string | null
 } {
-  const token = payload.token || null
+  if (!payload || typeof payload !== 'object') {
+    return { token: null, userId: null, userEmail: null }
+  }
+
+  const payloadObj = payload as Record<string, unknown>
+  const token = typeof payloadObj.token === 'string' ? payloadObj.token : null
 
   if (!token) {
     logger.warn('No token found in webhook payload')
@@ -113,14 +138,17 @@ export function extractUserToken (payload: any): {
     }
 
     // Decode the payload (second part)
-    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString())
-    const userId = payload.accounts?.[payload.db] || payload.accounts?.esmuuseum || null
-    const userEmail = payload.user?.email || null
+    const decodedPayload = JSON.parse(Buffer.from(parts[1]!, 'base64').toString())
+    const userId = decodedPayload.accounts?.[decodedPayload.db] || decodedPayload.accounts?.esmuuseum || null
+    const userEmail = decodedPayload.user?.email || null
 
     return { token, userId, userEmail }
   }
-  catch (error: any) {
-    logger.error('Failed to decode JWT token', { error: error.message })
+  // Constitutional: Error type is unknown - we catch and validate errors at boundaries
+  // Principle I: Type Safety First - documented exception for error handling
+  catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    logger.error('Failed to decode JWT token', { error: errorMessage })
     return { token, userId: null, userEmail: null }
   }
 }
@@ -187,13 +215,17 @@ export function checkRateLimit (
  * @param payload - The payload to sanitize
  * @returns Sanitized payload safe for logging
  */
-export function sanitizePayloadForLogging (payload: any): any {
+export function sanitizePayloadForLogging (payload: unknown): unknown {
   if (!payload || typeof payload !== 'object') {
     return payload
   }
 
+  // Constitutional: Payload can be any object structure - we sanitize at this boundary
+  // Principle I: Type Safety First - documented exception for flexible logging utility
+  const payloadObj = payload as Record<string, unknown>
+
   // Create shallow copy
-  const sanitized = { ...payload }
+  const sanitized = { ...payloadObj }
 
   // Remove potentially sensitive fields
   const sensitiveFields = ['token', 'api_key', 'apiKey', 'secret', 'password']

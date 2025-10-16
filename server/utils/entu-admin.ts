@@ -4,6 +4,7 @@
  * Operations for managing student access permissions using user JWT tokens from webhooks
  */
 
+import type { EntuEntity } from '../../types/entu'
 import { createLogger } from './logger'
 import { callEntuApi, searchEntuEntities, getEntuApiConfig, type EntuApiOptions } from './entu'
 
@@ -240,11 +241,14 @@ export async function batchGrantPermissions (
           personsToGrant.push(personId)
         }
       }
-      catch (error: any) {
+      // Constitutional: Error type is unknown - we catch and validate errors at boundaries
+      // Principle I: Type Safety First - documented exception for error handling
+      catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
         logger.error('Failed to check existing permission', {
           entity: entityId,
           person: personId,
-          error: error.message
+          error: errorMessage
         })
         // Assume doesn't exist and try to grant
         personsToGrant.push(personId)
@@ -266,11 +270,14 @@ export async function batchGrantPermissions (
           })
         }
       }
-      catch (error: any) {
+      // Constitutional: Error type is unknown - we catch and validate errors at boundaries
+      // Principle I: Type Safety First - documented exception for error handling
+      catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
         logger.error('Failed to grant permissions in bulk', {
           entity: entityId,
           personCount: personsToGrant.length,
-          error: error.message
+          error: errorMessage
         })
 
         // Mark all as failed
@@ -280,7 +287,7 @@ export async function batchGrantPermissions (
             entity: entityId,
             person: personId,
             status: 'failed',
-            error: error.message || 'Unknown error'
+            error: errorMessage
           })
         }
       }
@@ -323,7 +330,7 @@ export async function getTasksByGroup (gruppId: string, userToken?: string, user
     logger.info('Found tasks for group', {
       gruppId,
       count: tasks.length,
-      taskIds: tasks.map((t: any) => t._id)
+      taskIds: tasks.map((t: EntuEntity) => t._id)
     })
 
     return tasks
@@ -362,7 +369,7 @@ export async function getStudentsByGroup (gruppId: string, userToken?: string, u
     logger.info('Found students in group', {
       gruppId,
       count: students.length,
-      studentIds: students.map((s: any) => s._id)
+      studentIds: students.map((s: EntuEntity) => s._id)
     })
 
     return students
@@ -403,10 +410,13 @@ export async function getEntityDetails (entityId: string, userToken?: string, us
 
     return entity
   }
-  catch (error: any) {
+  // Constitutional: Error type is unknown - we catch and validate errors at boundaries
+  // Principle I: Type Safety First - documented exception for error handling
+  catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     logger.error('Failed to fetch entity details', {
       entityId,
-      error: error.message
+      error: errorMessage
     })
     throw error
   }
@@ -419,7 +429,7 @@ export async function getEntityDetails (entityId: string, userToken?: string, us
  * @param entity - Person entity object
  * @returns Array of group IDs
  */
-export function extractGroupsFromPerson (entity: any): string[] {
+export function extractGroupsFromPerson (entity: EntuEntity): string[] {
   // Verify entity is a person
   const entityType = entity._type?.[0]?.string
   if (entityType !== 'person') {
@@ -459,7 +469,7 @@ export function extractGroupsFromPerson (entity: any): string[] {
  * @param entity - Task (ulesanne) entity object
  * @returns Group ID or null if not found
  */
-export function extractGroupFromTask (entity: any): string | null {
+export function extractGroupFromTask (entity: EntuEntity): string | null {
   // Verify entity is a task
   const entityType = entity._type?.[0]?.string
   if (entityType !== 'ulesanne') {
@@ -467,15 +477,19 @@ export function extractGroupFromTask (entity: any): string | null {
     return null
   }
 
+  // Constitutional: After verifying entity_type, we know this has grupp property
+  // Principle I: Type Safety First - documented type narrowing at runtime check boundary
+  const taskEntity = entity as EntuEntity & { grupp?: unknown }
+  
   // Get grupp property
-  const groups = entity.grupp || []
+  const groups = taskEntity.grupp || []
 
   logger.debug('Checking task for group assignment', {
     taskId: entity._id,
-    hasGruppProperty: !!entity.grupp,
+    hasGruppProperty: !!taskEntity.grupp,
     gruppIsArray: Array.isArray(groups),
-    gruppLength: groups.length,
-    firstGroup: groups[0]
+    gruppLength: Array.isArray(groups) ? groups.length : 0,
+    firstGroup: Array.isArray(groups) && groups.length > 0 ? groups[0] : null
   })
 
   if (!Array.isArray(groups) || groups.length === 0) {
@@ -528,7 +542,15 @@ export async function hasExpanderPermission (entityId: string, personId: string,
 
     // Check _expander array for this person reference
     const expanders = entity._expander || []
-    const hasPermission = expanders.some((exp: any) => exp.reference === personId)
+    // Constitutional: Expander permission objects from Entu API have dynamic structure
+    // We validate the properties we need (reference) at this boundary
+    // Principle I: Type Safety First - documented exception for external API data
+    const hasPermission = expanders.some((exp: unknown) =>
+      typeof exp === 'object' &&
+      exp !== null &&
+      'reference' in exp &&
+      exp.reference === personId
+    )
 
     logger.debug('Permission check result', {
       entity: entityId,
