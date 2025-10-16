@@ -28,12 +28,6 @@ interface EntuProperty {
 export async function callEntuApi (endpoint: string, options: Partial<RequestInit> = {}, apiConfig: EntuApiOptions) {
   const url = `${apiConfig.apiUrl}/api/${apiConfig.accountName}${endpoint}`
 
-  logger.debug(`Making API call to: ${endpoint}`, {
-    method: options.method || 'GET',
-    url,
-    hasBody: !!options.body
-  })
-
   const requestOptions: RequestInit = {
     headers: {
       Authorization: `Bearer ${apiConfig.token}`,
@@ -47,21 +41,12 @@ export async function callEntuApi (endpoint: string, options: Partial<RequestIni
   try {
     const response = await fetch(url, requestOptions)
 
-    // Log response status - more concise for successful calls
     if (!response.ok) {
       logger.warn('Entu API call failed', {
         endpoint,
         method: options.method || 'GET',
         status: response.status,
         statusText: response.statusText,
-        url
-      })
-    }
-    else {
-      logger.debug('Entu API call successful', {
-        endpoint,
-        status: response.status,
-        contentLength: response.headers.get('content-length')
       })
     }
 
@@ -104,7 +89,6 @@ export async function callEntuApi (endpoint: string, options: Partial<RequestIni
  * Get entity by ID from Entu
  */
 export async function getEntuEntity (entityId: string, apiConfig: EntuApiOptions, properties?: string) {
-  logger.debug(`Getting entity: ${entityId}`, { properties })
   let endpoint = `/entity/${entityId}`
   if (properties) {
     endpoint += `?props=${encodeURIComponent(properties)}`
@@ -148,14 +132,6 @@ export async function createEntuEntity (entityType: string, entityData: any, api
     }
   }
 
-  logger.debug(`Creating entity of type: ${entityType}`, { properties })
-
-  // COMPARISON DEBUG: Log exact properties array being sent
-  console.log('🔍 SERVER-SIDE PROPERTIES ARRAY:')
-  console.log('Entity Type:', entityType)
-  console.log('Properties Array:', JSON.stringify(properties, null, 2))
-  console.log('Properties Stringified:', JSON.stringify(properties))
-
   return callEntuApi('/entity', {
     method: 'POST',
     body: JSON.stringify(properties)
@@ -181,7 +157,6 @@ function getEntityTypeReference (entityType: string): string {
  * Update entity in Entu
  */
 export async function updateEntuEntity (entityId: string, entityData: any, apiConfig: EntuApiOptions) {
-  logger.debug(`Updating entity: ${entityId}`, { entityData })
   return callEntuApi(`/entity/${entityId}`, {
     method: 'POST',
     body: JSON.stringify(entityData)
@@ -192,7 +167,6 @@ export async function updateEntuEntity (entityId: string, entityData: any, apiCo
  * Search entities in Entu
  */
 export async function searchEntuEntities (query: Record<string, any>, apiConfig: EntuApiOptions) {
-  logger.debug('Searching entities', { query })
   const queryString = Object.entries(query)
     .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
     .join('&')
@@ -206,27 +180,67 @@ export async function searchEntuEntities (query: Record<string, any>, apiConfig:
 export function getEntuApiConfig (token: string): EntuApiOptions {
   const config = useRuntimeConfig()
 
-  const apiConfig = {
+  return {
     token,
     apiUrl: (config.entuApiUrl as string) || 'https://entu.app',
     accountName: (config.entuClientId as string) || 'esmuuseum'
   }
+}
 
-  logger.debug('Created API config', {
-    url: apiConfig.apiUrl,
-    account: apiConfig.accountName,
-    hasToken: !!token
-  })
-
-  return apiConfig
+/**
+ * Exchange API key for JWT token
+ * The manager key is an API key that needs to be exchanged for a JWT token before use
+ */
+export async function exchangeApiKeyForToken (apiKey: string): Promise<string> {
+  const config = useRuntimeConfig()
+  const apiUrl = (config.entuApiUrl as string) || 'https://entu.app'
+  const accountName = (config.entuClientId as string) || 'esmuuseum'
+  
+  const authUrl = `${apiUrl}/api/auth?account=${accountName}`
+  
+  try {
+    const response = await fetch(authUrl, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Accept-Encoding': 'deflate'
+      }
+    })
+    
+    if (!response.ok) {
+      const errorBody = await response.text()
+      logger.error('Failed to exchange API key for token', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody
+      })
+      throw createError({
+        statusCode: response.status,
+        statusMessage: `Token exchange failed: ${response.status} ${response.statusText}`
+      })
+    }
+    
+    const data = await response.json()
+    
+    if (!data.token) {
+      logger.error('No token in auth response', { data })
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'No token returned from auth endpoint'
+      })
+    }
+    
+    return data.token
+  } catch (error) {
+    logger.error('Token exchange error', error)
+    throw error
+  }
 }
 
 /**
  * Get file upload URL for an entity
  */
 export async function getFileUploadUrl (entityId: string, fileInfo: { type: string, filename: string, filesize: number, filetype: string }, apiConfig: EntuApiOptions) {
-  logger.debug(`Getting file upload URL for entity: ${entityId}`, { fileInfo })
-
   const properties = [fileInfo]
 
   return callEntuApi(`/entity/${entityId}`, {
@@ -239,12 +253,6 @@ export async function getFileUploadUrl (entityId: string, fileInfo: { type: stri
  * Upload file to provided URL
  */
 export async function uploadFileToUrl (uploadUrl: string, file: Buffer | Uint8Array, headers: Record<string, string> = {}) {
-  logger.debug('Uploading file to external URL', {
-    url: uploadUrl,
-    fileSize: file.length,
-    headers: Object.keys(headers)
-  })
-
   try {
     const response = await fetch(uploadUrl, {
       method: 'PUT',
@@ -253,14 +261,16 @@ export async function uploadFileToUrl (uploadUrl: string, file: Buffer | Uint8Ar
     })
 
     if (!response.ok) {
-      logger.warn(`File upload failed: ${response.status} ${response.statusText}`)
+      logger.warn('File upload failed', {
+        status: response.status,
+        statusText: response.statusText
+      })
       throw createError({
         statusCode: response.status,
         statusMessage: `File upload failed: ${response.status} ${response.statusText}`
       })
     }
 
-    logger.debug('File upload successful')
     return response
   }
   catch (error) {

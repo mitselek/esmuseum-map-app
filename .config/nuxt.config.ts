@@ -29,6 +29,8 @@ export default defineNuxtConfig({
     entuClientId: '',
     // F020: Webhook security secret
     webhookSecret: '',
+    // FEAT-001: Entu manager key for admin operations (group assignment, etc.)
+    entuManagerKey: '',
     public: {
       callbackOrigin: '',
       // F015 Feature Flags

@@ -151,7 +151,14 @@ export default defineI18nConfig(() => ({
         error: 'Viga',
         timeout: 'Aeg sai otsa',
         timeoutMessage: 'Grupi liikmelisuse kinnitamine võttis liiga kaua aega. Palun proovi uuesti või võta ühendust õpetajaga.',
-        retryButton: 'Proovi uuesti'
+        retryButton: 'Proovi uuesti',
+        nameRequired: 'Enne jätkamist vajame sinu nime',
+        forename: 'Eesnimi',
+        surname: 'Perekonnanimi',
+        forenamePlaceholder: 'Sisesta eesnimi',
+        surnamePlaceholder: 'Sisesta perekonnanimi',
+        submitName: 'Jätka',
+        submitting: 'Salvestamine...'
       }
     },
     en: {
@@ -306,7 +313,14 @@ export default defineI18nConfig(() => ({
         error: 'Error',
         timeout: 'Timed Out',
         timeoutMessage: 'Confirming group membership took too long. Please try again or contact your teacher.',
-        retryButton: 'Try Again'
+        retryButton: 'Try Again',
+        nameRequired: 'We need your name before continuing',
+        forename: 'First Name',
+        surname: 'Last Name',
+        forenamePlaceholder: 'Enter your first name',
+        surnamePlaceholder: 'Enter your last name',
+        submitName: 'Continue',
+        submitting: 'Saving...'
       }
     },
     uk: {
@@ -457,7 +471,14 @@ export default defineI18nConfig(() => ({
         error: 'Помилка',
         timeout: 'Час очікування вичерпано',
         timeoutMessage: 'Підтвердження членства в групі зайняло занадто багато часу. Будь ласка, спробуйте ще раз або зверніться до вчителя.',
-        retryButton: 'Спробувати ще раз'
+        retryButton: 'Спробувати ще раз',
+        nameRequired: 'Нам потрібно ваше ім\'я перед продовженням',
+        forename: 'Ім\'я',
+        surname: 'Прізвище',
+        forenamePlaceholder: 'Введіть ваше ім\'я',
+        surnamePlaceholder: 'Введіть ваше прізвище',
+        submitName: 'Продовжити',
+        submitting: 'Збереження...'
       }
     },
     lv: {
@@ -606,7 +627,14 @@ export default defineI18nConfig(() => ({
         error: 'Kļūda',
         timeout: 'Laiks iztecējis',
         timeoutMessage: 'Dalības grupā apstiprināšana ilga pārāk ilgi. Lūdzu, mēģiniet vēlreiz vai sazinieties ar skolotāju.',
-        retryButton: 'Mēģināt vēlreiz'
+        retryButton: 'Mēģināt vēlreiz',
+        nameRequired: 'Mums ir nepieciešams jūsu vārds pirms turpināšanas',
+        forename: 'Vārds',
+        surname: 'Uzvārds',
+        forenamePlaceholder: 'Ievadiet savu vārdu',
+        surnamePlaceholder: 'Ievadiet savu uzvārdu',
+        submitName: 'Turpināt',
+        submitting: 'Saglabā...'
       }
     }
   },

@@ -288,6 +288,22 @@ export interface EntuPerson extends EntuEntity {
 // ============================================================================
 
 /**
+ * Entu API response wrapper for single entity
+ * The API returns entities wrapped in an "entity" property
+ */
+export interface EntuEntityResponse<T extends EntuEntity = EntuEntity> {
+  entity: T
+}
+
+/**
+ * Entu API response wrapper for entity list
+ */
+export interface EntuEntityListResponse<T extends EntuEntity = EntuEntity> {
+  entities: T[]
+  count?: number
+}
+
+/**
  * Helper type to extract the first element from an Entu property array
  */
 export type FirstProperty<T extends any[]> = T extends [infer First, ...any[]] ? First : T[0] | undefined

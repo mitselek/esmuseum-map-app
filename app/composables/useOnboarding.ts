@@ -79,13 +79,9 @@ export function useOnboarding() {
       pollingInterval = setInterval(async () => {
         try {
           // Check membership via server endpoint
-          const response = await $fetch<{ isMember: boolean }>('/api/onboard/check-membership', {
-            method: 'POST',
-            body: {
-              groupId,
-              userId,
-            },
-          })
+          const response = await $fetch<{ isMember: boolean }>(
+            `/api/onboard/check-membership?groupId=${groupId}&userId=${userId}`
+          )
 
           if (response.isMember) {
             cleanup()
