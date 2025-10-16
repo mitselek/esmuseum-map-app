@@ -1,22 +1,22 @@
 /**
  * Student Onboarding Composable (FEAT-001)
- * 
+ *
  * Manages the student group joining flow:
  * 1. Call server endpoint to assign student to group
  * 2. Poll Entu API to confirm membership
  * 3. Handle timeout and errors
- * 
+ *
  * @see specs/030-student-onboarding-flow/spec.md
  */
 
 import { ref, onUnmounted } from 'vue'
 import type { OnboardingState, GroupAssignmentResponse } from '../../types/onboarding'
 
-export function useOnboarding() {
+export function useOnboarding () {
   const state = ref<OnboardingState>({
     isWaiting: false,
     error: null,
-    hasTimedOut: false,
+    hasTimedOut: false
   })
 
   let pollingInterval: NodeJS.Timeout | null = null
@@ -29,7 +29,7 @@ export function useOnboarding() {
    * @param userId Entu user ID (from auth token)
    * @returns Promise<GroupAssignmentResponse>
    */
-  async function joinGroup(groupId: string, userId: string): Promise<GroupAssignmentResponse> {
+  async function joinGroup (groupId: string, userId: string): Promise<GroupAssignmentResponse> {
     try {
       state.value.isWaiting = true
       state.value.error = null
@@ -39,27 +39,29 @@ export function useOnboarding() {
         method: 'POST',
         body: {
           groupId,
-          userId,
-        },
+          userId
+        }
       })
 
       if (!response.success) {
         state.value.error = response.error || 'Failed to join group'
         state.value.isWaiting = false
-      } else {
+      }
+      else {
         // Success: reset isWaiting (will be set again during polling if needed)
         state.value.isWaiting = false
       }
 
       return response
-    } catch (error: unknown) {
+    }
+    catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
       state.value.error = errorMessage
       state.value.isWaiting = false
-      
+
       return {
         success: false,
-        error: errorMessage,
+        error: errorMessage
       }
     }
   }
@@ -67,12 +69,12 @@ export function useOnboarding() {
   /**
    * Poll the server to check if the user has been added to the group
    * Checks every 2 seconds for up to 30 seconds
-   * 
+   *
    * @param groupId Entu group ID
    * @param userId Entu user ID
    * @returns Promise<boolean> - true if membership confirmed, false if timeout
    */
-  async function pollGroupMembership(groupId: string, userId: string): Promise<boolean> {
+  async function pollGroupMembership (groupId: string, userId: string): Promise<boolean> {
     return new Promise((resolve) => {
       const startTime = Date.now()
 
@@ -89,7 +91,8 @@ export function useOnboarding() {
             resolve(true)
             return
           }
-        } catch (error: unknown) {
+        }
+        catch (error: unknown) {
           // Continue polling on errors (network issues, etc.)
           console.warn('Polling error:', error)
         }
@@ -112,7 +115,7 @@ export function useOnboarding() {
   /**
    * Clean up polling interval
    */
-  function cleanup() {
+  function cleanup () {
     if (pollingInterval) {
       clearInterval(pollingInterval)
       pollingInterval = null
@@ -122,12 +125,12 @@ export function useOnboarding() {
   /**
    * Reset state (for testing or re-trying)
    */
-  function reset() {
+  function reset () {
     cleanup()
     state.value = {
       isWaiting: false,
       error: null,
-      hasTimedOut: false,
+      hasTimedOut: false
     }
   }
 
@@ -143,6 +146,6 @@ export function useOnboarding() {
     joinGroup,
     pollGroupMembership,
     cleanup,
-    reset,
+    reset
   }
 }
