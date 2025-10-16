@@ -140,6 +140,18 @@ export default defineI18nConfig(() => ({
       },
       map: {
         yourLocation: 'Sinu asukoht'
+      },
+      // Onboarding
+      onboarding: {
+        title: 'Liitu Grupiga',
+        subtitle: 'Alusta oma õppimisreisi',
+        startButton: 'Alusta',
+        waiting: 'Palun oota...',
+        waitingSubtext: 'Kontrollime sinu liikmelisust grupis',
+        error: 'Viga',
+        timeout: 'Aeg sai otsa',
+        timeoutMessage: 'Grupi liikmelisuse kinnitamine võttis liiga kaua aega. Palun proovi uuesti või võta ühendust õpetajaga.',
+        retryButton: 'Proovi uuesti'
       }
     },
     en: {
@@ -283,6 +295,18 @@ export default defineI18nConfig(() => ({
       },
       map: {
         yourLocation: 'Your location'
+      },
+      // Onboarding
+      onboarding: {
+        title: 'Join Group',
+        subtitle: 'Start your learning journey',
+        startButton: 'Get Started',
+        waiting: 'Please wait...',
+        waitingSubtext: 'We are verifying your group membership',
+        error: 'Error',
+        timeout: 'Timed Out',
+        timeoutMessage: 'Confirming group membership took too long. Please try again or contact your teacher.',
+        retryButton: 'Try Again'
       }
     },
     uk: {
@@ -422,6 +446,18 @@ export default defineI18nConfig(() => ({
       },
       map: {
         yourLocation: 'Ваше місцезнаходження'
+      },
+      // Onboarding
+      onboarding: {
+        title: 'Приєднатися до групи',
+        subtitle: 'Розпочніть свій навчальний шлях',
+        startButton: 'Розпочати',
+        waiting: 'Будь ласка, зачекайте...',
+        waitingSubtext: 'Ми перевіряємо ваше членство в групі',
+        error: 'Помилка',
+        timeout: 'Час очікування вичерпано',
+        timeoutMessage: 'Підтвердження членства в групі зайняло занадто багато часу. Будь ласка, спробуйте ще раз або зверніться до вчителя.',
+        retryButton: 'Спробувати ще раз'
       }
     },
     lv: {
@@ -559,6 +595,18 @@ export default defineI18nConfig(() => ({
       },
       map: {
         yourLocation: 'Jūsu atrašanās vieta'
+      },
+      // Onboarding
+      onboarding: {
+        title: 'Pievienoties grupai',
+        subtitle: 'Sāciet savu mācību ceļojumu',
+        startButton: 'Sākt',
+        waiting: 'Lūdzu, uzgaidiet...',
+        waitingSubtext: 'Mēs pārbaudām jūsu dalību grupā',
+        error: 'Kļūda',
+        timeout: 'Laiks iztecējis',
+        timeoutMessage: 'Dalības grupā apstiprināšana ilga pārāk ilgi. Lūdzu, mēģiniet vēlreiz vai sazinieties ar skolotāju.',
+        retryButton: 'Mēģināt vēlreiz'
       }
     }
   },
