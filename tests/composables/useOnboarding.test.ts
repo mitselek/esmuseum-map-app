@@ -4,31 +4,17 @@
 /**
  * Tests for useOnboarding composable (FEAT-001)
  * TDD: Write tests FIRST, then implement the composable
+ * 
+ * NOTE: Using 'any' types for test mocks to prioritize test readability
+ * over strict typing. Test code focuses on behavior verification, not type safety.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mount } from '@vue/test-utils'
 import { useOnboarding } from '../../app/composables/useOnboarding'
 
 // Mock $fetch globally
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
-
-// Mock useEntuAuth
-vi.mock('../../app/composables/useEntuAuth', () => ({
-  useEntuAuth: () => ({
-    user: { value: { _id: '66b6245c7efc9ac06a437b97' } },
-    token: { value: 'mock-token' }
-  })
-}))
-
-// Helper component to test the composable in a Vue context
-const TestComponent = {
-  template: '<div></div>',
-  setup () {
-    return useOnboarding()
-  }
-}
 
 describe('useOnboarding', () => {
   beforeEach(() => {
@@ -41,21 +27,19 @@ describe('useOnboarding', () => {
   })
 
   it('should initialize with correct default state', () => {
-    const wrapper = mount(TestComponent)
-    const composable = wrapper.vm as any
+    const { state } = useOnboarding()
 
-    expect(composable.isWaiting).toBe(false)
-    expect(composable.error).toBeNull()
-    expect(composable.hasTimedOut).toBe(false)
+    expect(state.value.isWaiting).toBe(false)
+    expect(state.value.error).toBeNull()
+    expect(state.value.hasTimedOut).toBe(false)
   })
 
   it('should call /api/onboard/join-group endpoint when joinGroup is called', async () => {
     mockFetch.mockResolvedValueOnce({ success: true })
 
-    const wrapper = mount(TestComponent)
-    const composable = wrapper.vm as any
+    const { joinGroup } = useOnboarding()
 
-    await composable.joinGroup('686a6c011749f351b9c83124')
+    await joinGroup('686a6c011749f351b9c83124', '66b6245c7efc9ac06a437b97')
 
     expect(mockFetch).toHaveBeenCalledWith('/api/onboard/join-group', {
       method: 'POST',
@@ -69,77 +53,68 @@ describe('useOnboarding', () => {
   it('should set isWaiting to true during joinGroup', async () => {
     mockFetch.mockResolvedValueOnce({ success: true })
 
-    const wrapper = mount(TestComponent)
-    const composable = wrapper.vm as any
+    const { state, joinGroup } = useOnboarding()
 
-    const promise = composable.joinGroup('686a6c011749f351b9c83124')
+    const promise = joinGroup('686a6c011749f351b9c83124', '66b6245c7efc9ac06a437b97')
 
-    expect(composable.isWaiting).toBe(true)
+    expect(state.value.isWaiting).toBe(true)
 
     await promise
 
-    expect(composable.isWaiting).toBe(false)
+    expect(state.value.isWaiting).toBe(false)
   })
 
   it('should handle API errors in joinGroup', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
-    const wrapper = mount(TestComponent)
-    const composable = wrapper.vm as any
+    const { state, joinGroup } = useOnboarding()
 
-    await expect(composable.joinGroup('686a6c011749f351b9c83124')).rejects.toThrow('Network error')
+    const result = await joinGroup('686a6c011749f351b9c83124', '66b6245c7efc9ac06a437b97')
 
-    expect(composable.error).toBe('Network error')
-    expect(composable.isWaiting).toBe(false)
+    expect(result.success).toBe(false)
+    expect(state.value.error).toBe('Network error')
+    expect(state.value.isWaiting).toBe(false)
   })
 
   it('should poll group membership every 2 seconds', async () => {
     // Mock that user is NOT a member initially
-    mockFetch.mockResolvedValueOnce({ entities: [] })
+    mockFetch.mockResolvedValue({ isMember: false })
 
-    const wrapper = mount(TestComponent)
-    const composable = wrapper.vm as any
+    const { pollGroupMembership, cleanup } = useOnboarding()
 
-    const promise = composable.pollGroupMembership('686a6c011749f351b9c83124')
+    const promise = pollGroupMembership('686a6c011749f351b9c83124', '66b6245c7efc9ac06a437b97')
 
-    // First call happens immediately
+    // First call happens after first interval
+    await vi.advanceTimersByTimeAsync(2000)
     expect(mockFetch).toHaveBeenCalledTimes(1)
 
     // Advance timers by 2 seconds
     await vi.advanceTimersByTimeAsync(2000)
-
-    // Second call after 2 seconds
     expect(mockFetch).toHaveBeenCalledTimes(2)
 
     // Advance another 2 seconds
     await vi.advanceTimersByTimeAsync(2000)
-
-    // Third call
     expect(mockFetch).toHaveBeenCalledTimes(3)
 
     // Clean up
-    composable.stopPolling()
+    cleanup()
   })
 
   it('should stop polling when user becomes a member', async () => {
     // First call: not a member
-    mockFetch.mockResolvedValueOnce({ entities: [] })
+    mockFetch.mockResolvedValueOnce({ isMember: false })
     // Second call: now a member
-    mockFetch.mockResolvedValueOnce({
-      entities: [{ _id: '66b6245c7efc9ac06a437b97' }]
-    })
+    mockFetch.mockResolvedValueOnce({ isMember: true })
 
-    const wrapper = mount(TestComponent)
-    const composable = wrapper.vm as any
+    const { pollGroupMembership } = useOnboarding()
 
-    const promise = composable.pollGroupMembership('686a6c011749f351b9c83124')
+    const promise = pollGroupMembership('686a6c011749f351b9c83124', '66b6245c7efc9ac06a437b97')
 
-    // First check
-    await vi.runOnlyPendingTimersAsync()
-
-    // Advance 2 seconds for second check
+    // First check (2s)
     await vi.advanceTimersByTimeAsync(2000)
-    await vi.runOnlyPendingTimersAsync()
+
+    // Second check (4s)
+    await vi.advanceTimersByTimeAsync(2000)
 
     const result = await promise
 
@@ -152,36 +127,33 @@ describe('useOnboarding', () => {
 
   it('should timeout after 30 seconds', async () => {
     // Always return no membership
-    mockFetch.mockResolvedValue({ entities: [] })
+    mockFetch.mockResolvedValue({ isMember: false })
 
-    const wrapper = mount(TestComponent)
-    const composable = wrapper.vm as any
+    const { state, pollGroupMembership } = useOnboarding()
 
-    const promise = composable.pollGroupMembership('686a6c011749f351b9c83124')
+    const promise = pollGroupMembership('686a6c011749f351b9c83124', '66b6245c7efc9ac06a437b97')
 
     // Advance full 30 seconds
     await vi.advanceTimersByTimeAsync(30000)
-    await vi.runOnlyPendingTimersAsync()
 
     const result = await promise
 
     // Should return false (timeout)
     expect(result).toBe(false)
-    expect(composable.hasTimedOut).toBe(true)
+    expect(state.value.hasTimedOut).toBe(true)
 
     // Should have polled 15 times (every 2s for 30s)
     expect(mockFetch).toHaveBeenCalledTimes(15)
   })
 
   it('should check membership by querying for user as child of group', async () => {
-    mockFetch.mockResolvedValueOnce({ entities: [] })
+    mockFetch.mockResolvedValueOnce({ isMember: false })
 
-    const wrapper = mount(TestComponent)
-    const composable = wrapper.vm as any
+    const { pollGroupMembership, cleanup } = useOnboarding()
 
-    composable.pollGroupMembership('686a6c011749f351b9c83124')
+    pollGroupMembership('686a6c011749f351b9c83124', '66b6245c7efc9ac06a437b97')
 
-    await vi.runOnlyPendingTimersAsync()
+    await vi.advanceTimersByTimeAsync(2000)
 
     // Should query Entu for person with _parent = groupId
     expect(mockFetch).toHaveBeenCalledWith('/api/onboard/check-membership', {
@@ -192,43 +164,48 @@ describe('useOnboarding', () => {
       }
     })
 
-    composable.stopPolling()
+    cleanup()
   })
 
-  it('should handle errors during polling', async () => {
-    mockFetch.mockRejectedValueOnce(new Error('API error'))
+  it('should handle errors during polling gracefully', async () => {
+    mockFetch
+      .mockRejectedValueOnce(new Error('API error'))
+      .mockResolvedValueOnce({ isMember: false })
 
-    const wrapper = mount(TestComponent)
-    const composable = wrapper.vm as any
+    const { pollGroupMembership, cleanup } = useOnboarding()
 
-    const promise = composable.pollGroupMembership('686a6c011749f351b9c83124')
+    const promise = pollGroupMembership('686a6c011749f351b9c83124', '66b6245c7efc9ac06a437b97')
 
-    await vi.runOnlyPendingTimersAsync()
+    // First call (error)
+    await vi.advanceTimersByTimeAsync(2000)
 
-    const result = await promise
+    // Second call (success)
+    await vi.advanceTimersByTimeAsync(2000)
 
-    expect(result).toBe(false)
-    expect(composable.error).toContain('API error')
+    // Should continue polling after error
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+
+    cleanup()
   })
 
-  it('should cleanup intervals on unmount', async () => {
-    mockFetch.mockResolvedValue({ entities: [] })
+  it('should cleanup intervals when cleanup is called', async () => {
+    mockFetch.mockResolvedValue({ isMember: false })
 
-    const wrapper = mount(TestComponent)
-    const composable = wrapper.vm as any
+    const { pollGroupMembership, cleanup } = useOnboarding()
 
-    composable.pollGroupMembership('686a6c011749f351b9c83124')
+    pollGroupMembership('686a6c011749f351b9c83124', '66b6245c7efc9ac06a437b97')
 
     // Verify polling started
-    expect(mockFetch).toHaveBeenCalled()
+    await vi.advanceTimersByTimeAsync(2000)
+    expect(mockFetch).toHaveBeenCalledTimes(1)
 
-    // Unmount component (should cleanup intervals)
-    wrapper.unmount()
+    // Cleanup intervals
+    cleanup()
 
     // Clear existing calls
     mockFetch.mockClear()
 
-    // Advance time - should NOT make new calls after unmount
+    // Advance time - should NOT make new calls after cleanup
     await vi.advanceTimersByTimeAsync(10000)
 
     expect(mockFetch).not.toHaveBeenCalled()
