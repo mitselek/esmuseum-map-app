@@ -393,24 +393,50 @@ function handleRetry () {
 
 /**
  * On mount, check if we're returning from OAuth and whether to start flow
+ * 
+ * FIX #21: Check membership even for authenticated users without pendingGroupId
  */
-onMounted(() => {
+onMounted(async () => {
   // Fetch group name to display in header
   fetchGroupInfo()
 
   const pendingGroupId = localStorage.getItem('pending_group_id')
 
-  if (token.value && user.value && pendingGroupId && pendingGroupId === groupId.value) {
-    // If user lacks names, show form; otherwise start join flow
+  // If user is authenticated and has complete profile, check membership
+  if (token.value && user.value) {
     const hasForename = Boolean(user.value.forename)
     const hasSurname = Boolean(user.value.surname)
 
+    // If names are missing, show the name collection form
     if (!hasForename || !hasSurname) {
       needsName.value = true
       formData.value.forename = user.value.forename || ''
       formData.value.surname = user.value.surname || ''
+      return
     }
-    else {
+
+    // User has complete profile - check if already a member
+    try {
+      const userId = user.value._id
+      const membershipCheck = await $fetch<{ isMember: boolean }>(
+        `/api/onboard/check-membership?groupId=${groupId.value}&userId=${userId}`
+      )
+
+      if (membershipCheck.isMember) {
+        // Already a member - redirect to main workspace
+        localStorage.removeItem('pending_group_id')
+        localStorage.removeItem('auth_redirect')
+        router.push('/')
+        return
+      }
+    }
+    catch (error) {
+      console.warn('Failed to check membership on mount:', error)
+      // Continue with normal flow if check fails
+    }
+
+    // If pendingGroupId matches, auto-start the join flow
+    if (pendingGroupId && pendingGroupId === groupId.value) {
       handleJoinGroup()
     }
   }
