@@ -28,7 +28,10 @@ export default defineNuxtPlugin(() => {
 
       // Suppress devtools console errors
       const originalError = console.error
-      console.error = (...args: any[]) => {
+      // Constitutional: Console args use unknown[] for flexible error message handling
+      // Console.error accepts any number and type of arguments for debugging flexibility
+      // Principle I: Type Safety First - documented exception for console utility
+      console.error = (...args: unknown[]) => {
         const message = String(args[0])
         if (message.includes('devtools')
           || message.includes('__vrv_devtools')

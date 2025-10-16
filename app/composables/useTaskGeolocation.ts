@@ -18,6 +18,10 @@ export interface UserPosition {
 
 /**
  * Task location with Entu entity structure
+ * 
+ * Constitutional: Uses index signature for flexible Entu location entity properties
+ * Location entities may have additional custom fields from Entu schema.
+ * Principle I: Type Safety First - documented exception for external API flexibility
  */
 export interface TaskLocation {
   _id: string

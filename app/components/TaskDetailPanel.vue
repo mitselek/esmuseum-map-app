@@ -167,6 +167,9 @@ const checkingPermissions = ref<boolean>(false)
 const hasResponsePermission = ref<boolean>(false)
 
 // Task locations state
+// Constitutional: Uses index signature for flexible Entu location entity properties
+// Location entities may have additional custom fields from Entu schema.
+// Principle I: Type Safety First - documented exception for external API flexibility
 interface TaskLocation {
   _id: string
   reference?: string
@@ -181,8 +184,10 @@ const loadingTaskLocations = ref<boolean>(false)
 const selectedLocation = ref<TaskLocation | null>(null)
 
 // Map event handlers
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const onMapLocationClick = (location: any): void => {
+// Constitutional: Location data from map click events has flexible structure
+// We validate and extract needed properties at this boundary
+// Principle I: Type Safety First - documented exception for map event data
+const onMapLocationClick = (location: TaskLocation): void => {
   // Handle location click from map
   console.log('[TaskDetailPanel] Map location clicked:', getLocationIdentifier(location))
   console.log('[TaskDetailPanel] Setting selectedLocation to:', location)
