@@ -9,6 +9,7 @@
 
 import type { EntuTask } from '../../types/entu'
 import type { EntuUser } from './useEntuAuth'
+import type { UserResponseData } from '../../types/workspace'
 import { ENTU_TYPES } from '../constants/entu'
 import {
   getTaskName,
@@ -33,8 +34,11 @@ interface GeolocationCoords {
 }
 
 interface TaskInitOptions {
-  responseFormRef?: any
-  getCurrentLocation?: (ref?: any) => Promise<void>
+  // Constitutional: Form ref type is unknown - it's an optional external component reference
+  // Could be FormInst from Naive UI but not required to type strictly here
+  // Principle I: Type Safety First - documented exception for optional component ref
+  responseFormRef?: unknown
+  getCurrentLocation?: (ref?: unknown) => Promise<void>
   needsLocation?: { value: boolean }
   checkPermissions?: (taskId: string) => Promise<void>
   loadTaskLocations?: () => Promise<void>
@@ -45,9 +49,14 @@ interface TaskInitResult {
   success: boolean
   reason?: string
   hasExistingResponse?: boolean
-  response?: any
+  // Constitutional: Response can be either an Entu entity (from old API) or UserResponseData (from new API)
+  // This is a transition type during migration - will be cleaned up when old endpoints are removed
+  // Principle I: Type Safety First - documented transition state
+  response?: unknown
   authenticated?: boolean
-  error?: any
+  // Constitutional: Error type is unknown - we catch and validate errors at boundaries
+  // Principle I: Type Safety First - documented exception for error handling
+  error?: unknown
 }
 
 export const useTaskDetail = () => {
@@ -114,7 +123,13 @@ export const useTaskDetail = () => {
       for (const permissionArray of permissionArrays) {
         if (Array.isArray(permissionArray)) {
           const userId = user.value?._id
-          const hasPermission = permissionArray.some((permission: any) =>
+          // Constitutional: Permission objects from Entu API have dynamic structure
+          // We validate the properties we need (reference) at this boundary
+          // Principle I: Type Safety First - documented exception for external API data
+          const hasPermission = permissionArray.some((permission: unknown) =>
+            typeof permission === 'object' &&
+            permission !== null &&
+            'reference' in permission &&
             permission.reference === userId
           )
           if (hasPermission) {
@@ -136,11 +151,26 @@ export const useTaskDetail = () => {
   /**
    * Extract coordinates from location object
    */
-  const getLocationCoordinates = (location: any): string | null => {
-    if (location?.coordinates) {
+  const getLocationCoordinates = (location: unknown): string | null => {
+    // Constitutional: Location data comes from various sources (localStorage, API, map clicks)
+    // We validate the structure we need at this boundary
+    // Principle I: Type Safety First - documented exception for flexible location data
+    if (
+      typeof location === 'object' &&
+      location !== null &&
+      'coordinates' in location &&
+      typeof location.coordinates === 'string'
+    ) {
       return location.coordinates
     }
-    if (location?.lat && location?.lng) {
+    if (
+      typeof location === 'object' &&
+      location !== null &&
+      'lat' in location &&
+      'lng' in location &&
+      typeof location.lat === 'number' &&
+      typeof location.lng === 'number'
+    ) {
       return `${location.lat},${location.lng}`
     }
     return null
@@ -258,20 +288,33 @@ export const useTaskDetail = () => {
    * Load existing response data for a task
    * @deprecated This uses old server endpoint, consider migrating to client-side
    */
-  const loadExistingResponse = async (taskId: string): Promise<any | null> => {
+  const loadExistingResponse = async (taskId: string): Promise<unknown | null> => {
     if (!taskId) return null
 
     try {
       const { token } = useEntuAuth()
       if (!token.value) return null
 
-      const response: any = await $fetch(`/api/tasks/${taskId}/response`, {
+      // Constitutional: API response structure is dynamic and in transition
+      // Using unknown until full migration to typed responses is complete
+      // Principle I: Type Safety First - documented transition state
+      const response: unknown = await $fetch(`/api/tasks/${taskId}/response`, {
         headers: {
           Authorization: `Bearer ${token.value}`
         }
       })
 
-      return response.success ? response.response : null
+      // Type guard to check response structure
+      if (
+        typeof response === 'object' &&
+        response !== null &&
+        'success' in response &&
+        response.success &&
+        'response' in response
+      ) {
+        return response.response
+      }
+      return null
     }
     catch (error) {
       console.warn('Failed to load existing response:', error)
@@ -373,8 +416,8 @@ export const useTaskDetail = () => {
    */
   const handleAutoGeolocation = async (
     needsLocation: { value: boolean } | undefined,
-    getCurrentLocation: ((ref?: any) => Promise<void>) | undefined,
-    responseFormRef: any
+    getCurrentLocation: ((ref?: unknown) => Promise<void>) | undefined,
+    responseFormRef: unknown
   ): Promise<void> => {
     if (needsLocation?.value && getCurrentLocation) {
       try {

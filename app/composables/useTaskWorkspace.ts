@@ -4,11 +4,13 @@
  */
 import { ref, computed, watch, readonly, nextTick } from 'vue'
 import type { EntuUser } from './useEntuAuth'
+import type { EntuTask } from '../../types/entu'
+import type { UserResponseData } from '../../types/workspace'
 
 // Global state outside the composable to persist across navigation
-const globalTasks = ref<any[]>([])
+const globalTasks = ref<EntuTask[]>([])
 const globalSelectedTaskId = ref<string | null>(null)
-const globalUserResponses = ref(new Map<string, any>())
+const globalUserResponses = ref(new Map<string, UserResponseData>())
 const globalLoading = ref(false) // 🚀 PHASE 1: Start with non-blocking state
 const globalError = ref<string | null>(null)
 const globalInitialized = ref(false) // Track if initial load has been attempted
@@ -31,7 +33,7 @@ export const useTaskWorkspace = () => {
 
   // Computed properties
   const selectedTask = computed(() => {
-    return tasks.value.find((task: any) => task._id === selectedTaskId.value)
+    return tasks.value.find((task: EntuTask) => task._id === selectedTaskId.value)
   })
 
   const isTaskSelected = computed(() => !!selectedTaskId.value)
@@ -71,7 +73,16 @@ export const useTaskWorkspace = () => {
       const userProfileResponse = await getEntity(currentUser._id)
 
       const userProfile = userProfileResponse.entity
-      const groupParents = userProfile._parent?.filter((parent: any) => parent.entity_type === 'grupp') || []
+      
+      // Constitutional: Using unknown for parent properties since structure is dynamic from Entu API
+      // This is a data boundary where we validate and extract what we need
+      // Principle I: Type Safety First - documented exception for external API data
+      const groupParents = userProfile._parent?.filter((parent: unknown) => 
+        typeof parent === 'object' && 
+        parent !== null && 
+        'entity_type' in parent && 
+        parent.entity_type === 'grupp'
+      ) || []
 
       if (groupParents.length === 0) {
         console.warn('No parent groups found for user')
@@ -79,7 +90,7 @@ export const useTaskWorkspace = () => {
         return
       }
 
-      const allTasks: any[] = []
+      const allTasks: EntuTask[] = []
 
       // Load tasks from each group
       for (const parentGroup of groupParents) {
@@ -92,8 +103,10 @@ export const useTaskWorkspace = () => {
           })
 
           if (groupTasks.entities && groupTasks.entities.length > 0) {
-            allTasks.push(...groupTasks.entities.map((task: any) => ({
-              ...task,
+            // Constitutional: Safe cast - we know these are tasks because we filtered by '_type.string': 'ulesanne'
+            // Principle I: Type Safety First - documented type narrowing at API boundary
+            allTasks.push(...groupTasks.entities.map((task) => ({
+              ...(task as EntuTask),
               groupId: parentGroup.reference,
               groupName: parentGroup.string || 'Unknown Group'
             })))
@@ -156,7 +169,7 @@ export const useTaskWorkspace = () => {
   }
 
   // User response persistence
-  const saveUserResponse = (taskId: string, response: any) => {
+  const saveUserResponse = (taskId: string, response: UserResponseData) => {
     userResponses.value.set(taskId, response)
 
     // Persist to localStorage
@@ -201,14 +214,14 @@ export const useTaskWorkspace = () => {
   // Initialize from URL
   const initializeFromRoute = () => {
     const taskId = route.query.task as string
-    if (taskId && tasks.value.some((task: any) => task._id === taskId)) {
+    if (taskId && tasks.value.some((task: EntuTask) => task._id === taskId)) {
       selectedTaskId.value = taskId
     }
   }
 
   // Watch route changes - Use selectTask (state only) for route sync
   watch(() => route.query.task, (taskId) => {
-    if (typeof taskId === 'string' && tasks.value.some((task: any) => task._id === taskId)) {
+    if (typeof taskId === 'string' && tasks.value.some((task: EntuTask) => task._id === taskId)) {
       // Route sync should only update state, not trigger another navigation
       console.log('🔄 [EVENT] useTaskWorkspace - Route sync selecting task', taskId)
       selectedTaskId.value = taskId
