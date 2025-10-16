@@ -8,7 +8,7 @@ Auto-generated from all feature plans. Last updated: 2025-10-14
 **Full Name**: Estonian War Museum (Eesti Sõjamuuseum) Map Application  
 **IMPORTANT**: "ES" = "Eesti Sõja" (Estonian **War**), NOT "Estonian Sports"
 
-This is an interactive map application for Estonia's military history museum. The project name is ambiguous - see [docs/PROJECT-NAMING.md](../docs/PROJECT-NAMING.md) for details.
+This is an interactive map application for Estonia's military history museum. The project name is ambiguous - see PROJECT-NAMING.md in the docs folder for details.
 
 ## Active Technologies
 
