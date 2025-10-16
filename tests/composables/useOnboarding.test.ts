@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 /**
  * Tests for useOnboarding composable (FEAT-001)
  * TDD: Write tests FIRST, then implement the composable
- * 
+ *
  * NOTE: Using 'any' types for test mocks to prioritize test readability
  * over strict typing. Test code focuses on behavior verification, not type safety.
  */

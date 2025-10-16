@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
+  <div class="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md space-y-8">
       <!-- Header with Language Selector -->
       <div class="text-center">
         <!-- Language Selector -->
-        <div class="flex justify-end mb-4 space-x-2">
+        <div class="mb-4 flex justify-end space-x-2">
           <button
             v-for="lang in availableLanguages"
             :key="lang.code"
@@ -19,7 +19,10 @@
         <h1 class="text-3xl font-extrabold text-gray-900">
           {{ $t('onboarding.title') }}
         </h1>
-        <p v-if="groupName" class="mt-2 text-lg font-medium text-blue-600">
+        <p
+          v-if="groupName"
+          class="mt-2 text-lg font-medium text-blue-600"
+        >
           {{ groupName }}
         </p>
         <p class="mt-2 text-sm text-gray-600">
@@ -28,16 +31,25 @@
       </div>
 
       <!-- Name Collection Form (shown if user has no name) -->
-      <div v-if="needsName && !state.isWaiting" class="space-y-6">
+      <div
+        v-if="needsName && !state.isWaiting"
+        class="space-y-6"
+      >
         <div>
-          <p class="text-sm text-gray-700 mb-4">
+          <p class="mb-4 text-sm text-gray-700">
             {{ $t('onboarding.nameRequired') }}
           </p>
         </div>
-        
-        <form @submit.prevent="handleNameSubmit" class="space-y-4">
+
+        <form
+          class="space-y-4"
+          @submit.prevent="handleNameSubmit"
+        >
           <div>
-            <label for="forename" class="block text-sm font-medium text-gray-700">
+            <label
+              for="forename"
+              class="block text-sm font-medium text-gray-700"
+            >
               {{ $t('onboarding.forename') }} *
             </label>
             <input
@@ -45,13 +57,16 @@
               v-model="formData.forename"
               type="text"
               required
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
               :placeholder="$t('onboarding.forenamePlaceholder')"
-            />
+            >
           </div>
 
           <div>
-            <label for="surname" class="block text-sm font-medium text-gray-700">
+            <label
+              for="surname"
+              class="block text-sm font-medium text-gray-700"
+            >
               {{ $t('onboarding.surname') }} *
             </label>
             <input
@@ -59,15 +74,15 @@
               v-model="formData.surname"
               type="text"
               required
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
               :placeholder="$t('onboarding.surnamePlaceholder')"
-            />
+            >
           </div>
 
           <button
             type="submit"
             :disabled="isSubmitting || !formData.forename || !formData.surname"
-            class="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {{ isSubmitting ? $t('onboarding.submitting') : $t('onboarding.submitName') }}
           </button>
@@ -75,13 +90,22 @@
       </div>
 
       <!-- Waiting Screen -->
-      <div v-if="state.isWaiting" class="text-center py-8" role="status" aria-live="polite">
-        <div 
-          class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"
+      <div
+        v-if="state.isWaiting"
+        class="py-8 text-center"
+        role="status"
+        aria-live="polite"
+      >
+        <div
+          class="mx-auto mb-4 size-16 animate-spin rounded-full border-b-2 border-blue-600"
           aria-label="Loading"
-        ></div>
-        <p class="text-lg font-medium text-gray-900">{{ $t('onboarding.waiting') }}</p>
-        <p class="mt-2 text-sm text-gray-600">{{ $t('onboarding.waitingSubtext') }}</p>
+        />
+        <p class="text-lg font-medium text-gray-900">
+          {{ $t('onboarding.waiting') }}
+        </p>
+        <p class="mt-2 text-sm text-gray-600">
+          {{ $t('onboarding.waitingSubtext') }}
+        </p>
         <span class="sr-only">{{ $t('onboarding.waiting') }} {{ $t('onboarding.waitingSubtext') }}</span>
       </div>
 
@@ -124,11 +148,14 @@
       </div>
 
       <!-- Start Button (only shown when not authenticated) -->
-      <div v-if="!token && !state.isWaiting && !state.error && !state.hasTimedOut && !needsName" class="text-center">
+      <div
+        v-if="!token && !state.isWaiting && !state.error && !state.hasTimedOut && !needsName"
+        class="text-center"
+      >
         <button
           type="button"
           :disabled="isLoading"
-          class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="group relative flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           @click="handleJoinGroup"
         >
           {{ $t('onboarding.startButton') }}
@@ -136,10 +163,13 @@
       </div>
 
       <!-- Retry Button (shown after error/timeout) -->
-      <div v-if="state.error || state.hasTimedOut" class="text-center">
+      <div
+        v-if="state.error || state.hasTimedOut"
+        class="text-center"
+      >
         <button
           type="button"
-          class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          class="group relative flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           @click="handleRetry"
         >
           {{ $t('onboarding.retryButton') }}
@@ -217,18 +247,19 @@ const switchLanguage = (langCode: LanguageCode): void => {
 /**
  * Fetch group information to display group name
  */
-async function fetchGroupInfo() {
+async function fetchGroupInfo () {
   if (!groupId.value) return
-  
+
   try {
-    const res = await $fetch<{ success: boolean; groupId: string; groupName: string }>(
+    const res = await $fetch<{ success: boolean, groupId: string, groupName: string }>(
       `/api/onboard/get-group-info?groupId=${groupId.value}`
     )
-    
+
     if (res.success && res.groupName) {
       groupName.value = res.groupName
     }
-  } catch (error) {
+  }
+  catch (error) {
     // Silent fail - group name is nice-to-have, not critical
     console.warn('Failed to fetch group info:', error)
   }
@@ -237,7 +268,7 @@ async function fetchGroupInfo() {
 /**
  * Submit name to server (sets Entu person forename/surname)
  */
-async function handleNameSubmit() {
+async function handleNameSubmit () {
   if (!token.value || !user.value) return
 
   isSubmitting.value = true
@@ -265,9 +296,11 @@ async function handleNameSubmit() {
 
     // Proceed to join group and poll membership
     await startJoinAndPoll()
-  } catch (error: unknown) {
+  }
+  catch (error: unknown) {
     state.value.error = error instanceof Error ? error.message : 'Unknown error'
-  } finally {
+  }
+  finally {
     isSubmitting.value = false
   }
 }
@@ -275,7 +308,7 @@ async function handleNameSubmit() {
 /**
  * Shared start flow: call joinGroup then poll
  */
-async function startJoinAndPoll() {
+async function startJoinAndPoll () {
   if (!token.value || !user.value) return
   isLoading.value = true
 
@@ -291,9 +324,11 @@ async function startJoinAndPoll() {
       localStorage.removeItem('auth_redirect')
       router.push('/') // Redirect to main task workspace
     }
-  } catch (error: unknown) {
+  }
+  catch (error: unknown) {
     state.value.error = error instanceof Error ? error.message : 'Unknown error'
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
@@ -301,11 +336,11 @@ async function startJoinAndPoll() {
 /**
  * Handle OAuth authentication and join group flow (entrypoint)
  */
-async function handleJoinGroup() {
+async function handleJoinGroup () {
   // If not authenticated, start OAuth and persist state
   if (!token.value || !user.value) {
     const callbackUrl = `/signup/${groupId.value}`
-    localStorage.setItem('auth_redirect', callbackUrl)  // Use REDIRECT_KEY constant value
+    localStorage.setItem('auth_redirect', callbackUrl) // Use REDIRECT_KEY constant value
     localStorage.setItem('pending_group_id', groupId.value)
 
     startOAuthFlow('google')
@@ -330,7 +365,7 @@ async function handleJoinGroup() {
     const membershipCheck = await $fetch<{ isMember: boolean }>(
       `/api/onboard/check-membership?groupId=${groupId.value}&userId=${userId}`
     )
-    
+
     if (membershipCheck.isMember) {
       // User is already in the group - redirect to main workspace
       localStorage.removeItem('pending_group_id')
@@ -338,7 +373,8 @@ async function handleJoinGroup() {
       router.push('/')
       return
     }
-  } catch (error) {
+  }
+  catch (error) {
     console.warn('Failed to check membership, will proceed with join:', error)
     // Continue with join flow even if check fails
   }
@@ -350,7 +386,7 @@ async function handleJoinGroup() {
 /**
  * Handle retry after error/timeout
  */
-function handleRetry() {
+function handleRetry () {
   reset()
   handleJoinGroup()
 }
@@ -361,7 +397,7 @@ function handleRetry() {
 onMounted(() => {
   // Fetch group name to display in header
   fetchGroupInfo()
-  
+
   const pendingGroupId = localStorage.getItem('pending_group_id')
 
   if (token.value && user.value && pendingGroupId && pendingGroupId === groupId.value) {
@@ -373,7 +409,8 @@ onMounted(() => {
       needsName.value = true
       formData.value.forename = user.value.forename || ''
       formData.value.surname = user.value.surname || ''
-    } else {
+    }
+    else {
       handleJoinGroup()
     }
   }

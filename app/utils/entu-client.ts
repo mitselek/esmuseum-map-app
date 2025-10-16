@@ -9,7 +9,7 @@ const ENTU_API_URL = 'https://entu.app/api/esmuuseum'
  * Update user's forename and surname
  * Must be called from client-side with user's JWT token
  */
-export async function updateUserName(
+export async function updateUserName (
   userId: string,
   forename: string,
   surname: string,
@@ -23,7 +23,7 @@ export async function updateUserName(
   const response = await fetch(`${ENTU_API_URL}/entity/${userId}`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(updatePayload)
@@ -39,7 +39,7 @@ export async function updateUserName(
  * Join a group by adding _parent reference to user's entity
  * Must be called from client-side with user's JWT token
  */
-export async function joinGroup(
+export async function joinGroup (
   userId: string,
   groupId: string,
   token: string
@@ -51,7 +51,7 @@ export async function joinGroup(
   const response = await fetch(`${ENTU_API_URL}/entity/${userId}`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(updatePayload)

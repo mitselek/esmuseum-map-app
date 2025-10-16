@@ -1,9 +1,9 @@
 /**
  * Server Endpoint: GET /api/onboard/check-membership (FEAT-001)
- * 
+ *
  * Checks if a user is a member of a group
  * Used by polling logic to confirm membership after assignment
- * 
+ *
  * @see specs/030-student-onboarding-flow/spec.md
  */
 
@@ -17,12 +17,12 @@ export default defineEventHandler(async (event) => {
   try {
     const config = useRuntimeConfig()
     const query = getQuery(event)
-    
+
     if (!query.groupId || !query.userId || typeof query.groupId !== 'string' || typeof query.userId !== 'string') {
       setResponseStatus(event, 400)
       return {
         isMember: false,
-        error: 'Missing groupId or userId',
+        error: 'Missing groupId or userId'
       }
     }
 
@@ -34,25 +34,26 @@ export default defineEventHandler(async (event) => {
 
     const searchResults = await searchEntuEntities({
       '_type.string': 'person',
-      '_parent.reference': groupId,
+      '_parent.reference': groupId
     }, apiConfig) as EntuEntityListResponse<EntuPerson>
 
-    const isMember = searchResults.entities?.some(entity => entity._id === userId) || false
+    const isMember = searchResults.entities?.some((entity) => entity._id === userId) || false
 
     return {
-      isMember,
+      isMember
     }
-  } catch (error: unknown) {
+  }
+  catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    
+
     logger.error('Error checking membership', {
-      error: errorMessage,
+      error: errorMessage
     })
 
     setResponseStatus(event, 500)
     return {
       isMember: false,
-      error: errorMessage,
+      error: errorMessage
     }
   }
 })

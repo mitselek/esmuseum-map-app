@@ -1,9 +1,9 @@
 /**
  * Server Endpoint: POST /api/onboard/join-group (FEAT-001)
- * 
+ *
  * Assigns a student (user) to a group (class) in Entu
  * Server-side only (called from client composables)
- * 
+ *
  * @see specs/030-student-onboarding-flow/spec.md
  */
 
@@ -20,12 +20,12 @@ export default defineEventHandler(async (event): Promise<GroupAssignmentResponse
 
     // Parse and validate request body
     const body = await readBody<GroupAssignmentRequest>(event)
-    
+
     if (!body || !body.groupId || !body.userId) {
       setResponseStatus(event, 400)
       return {
         success: false,
-        error: 'Bad Request: Missing groupId or userId',
+        error: 'Bad Request: Missing groupId or userId'
       }
     }
 
@@ -34,7 +34,7 @@ export default defineEventHandler(async (event): Promise<GroupAssignmentResponse
     logger.info('Group assignment request', {
       groupId,
       userId,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString()
     })
 
     // Exchange API key for JWT token
@@ -45,24 +45,25 @@ export default defineEventHandler(async (event): Promise<GroupAssignmentResponse
     try {
       const searchResults = await searchEntuEntities({
         '_type.string': 'person',
-        '_parent.reference': groupId,
+        '_parent.reference': groupId
       }, apiConfig) as EntuEntityListResponse<EntuPerson>
 
-      const isMember = searchResults.entities?.some(entity => entity._id === userId)
+      const isMember = searchResults.entities?.some((entity) => entity._id === userId)
 
       if (isMember) {
         logger.info('User already member of group', { groupId, userId })
         return {
           success: true,
-          message: 'User is already a member of this group',
+          message: 'User is already a member of this group'
         }
       }
-    } catch (error: unknown) {
+    }
+    catch (error: unknown) {
       // Log but continue - may be a new group with no members yet
       logger.warn('Error checking existing membership', {
         error: error instanceof Error ? error.message : String(error),
         groupId,
-        userId,
+        userId
       })
     }
 
@@ -73,47 +74,49 @@ export default defineEventHandler(async (event): Promise<GroupAssignmentResponse
         method: 'POST',
         body: JSON.stringify([{
           type: '_parent',
-          reference: groupId,
-        }]),
+          reference: groupId
+        }])
       }, apiConfig)
 
       logger.info('Successfully assigned user to group', {
         groupId,
         userId,
-        timestamp: new Date().toISOString(),
+        timestamp: new Date().toISOString()
       })
 
       return {
         success: true,
-        message: 'User successfully assigned to group',
+        message: 'User successfully assigned to group'
       }
-    } catch (apiError: unknown) {
+    }
+    catch (apiError: unknown) {
       const errorMessage = apiError instanceof Error ? apiError.message : 'Unknown Entu API error'
-      
+
       logger.error('Entu API error during group assignment', {
         error: errorMessage,
         groupId,
-        userId,
+        userId
       })
 
       setResponseStatus(event, 500)
       return {
         success: false,
-        error: `Entu API Error: ${errorMessage}`,
+        error: `Entu API Error: ${errorMessage}`
       }
     }
-  } catch (error: unknown) {
+  }
+  catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Internal server error'
-    
+
     logger.error('Unexpected error in join-group endpoint', {
       error: errorMessage,
-      stack: error instanceof Error ? error.stack : undefined,
+      stack: error instanceof Error ? error.stack : undefined
     })
 
     setResponseStatus(event, 500)
     return {
       success: false,
-      error: `Server Error: ${errorMessage}`,
+      error: `Server Error: ${errorMessage}`
     }
   }
 })

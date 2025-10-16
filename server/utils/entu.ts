@@ -46,7 +46,7 @@ export async function callEntuApi (endpoint: string, options: Partial<RequestIni
         endpoint,
         method: options.method || 'GET',
         status: response.status,
-        statusText: response.statusText,
+        statusText: response.statusText
       })
     }
 
@@ -195,9 +195,9 @@ export async function exchangeApiKeyForToken (apiKey: string): Promise<string> {
   const config = useRuntimeConfig()
   const apiUrl = (config.entuApiUrl as string) || 'https://entu.app'
   const accountName = (config.entuClientId as string) || 'esmuuseum'
-  
+
   const authUrl = `${apiUrl}/api/auth?account=${accountName}`
-  
+
   try {
     const response = await fetch(authUrl, {
       method: 'GET',
@@ -206,7 +206,7 @@ export async function exchangeApiKeyForToken (apiKey: string): Promise<string> {
         'Accept-Encoding': 'deflate'
       }
     })
-    
+
     if (!response.ok) {
       const errorBody = await response.text()
       logger.error('Failed to exchange API key for token', {
@@ -219,9 +219,9 @@ export async function exchangeApiKeyForToken (apiKey: string): Promise<string> {
         statusMessage: `Token exchange failed: ${response.status} ${response.statusText}`
       })
     }
-    
+
     const data = await response.json()
-    
+
     if (!data.token) {
       logger.error('No token in auth response', { data })
       throw createError({
@@ -229,9 +229,10 @@ export async function exchangeApiKeyForToken (apiKey: string): Promise<string> {
         statusMessage: 'No token returned from auth endpoint'
       })
     }
-    
+
     return data.token
-  } catch (error) {
+  }
+  catch (error) {
     logger.error('Token exchange error', error)
     throw error
   }

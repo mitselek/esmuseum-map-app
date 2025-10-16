@@ -1,9 +1,9 @@
 /**
  * Server Endpoint: GET /api/onboard/get-group-info (FEAT-001)
- * 
+ *
  * Fetches group information from Entu (name, etc.)
  * Server-side proxy - uses admin API key internally
- * 
+ *
  * @see specs/030-student-onboarding-flow/spec.md
  */
 
@@ -15,7 +15,7 @@ const logger = createLogger('onboard-get-group-info')
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  
+
   try {
     const config = useRuntimeConfig()
 
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
       setResponseStatus(event, 400)
       return {
         success: false,
-        error: 'Bad Request: Missing groupId',
+        error: 'Bad Request: Missing groupId'
       }
     }
 
@@ -36,9 +36,9 @@ export default defineEventHandler(async (event) => {
 
     // Fetch group entity from Entu
     const groupData = await callEntuApi(`/entity/${groupId}`, {
-      method: 'GET',
+      method: 'GET'
     }, apiConfig) as EntuEntityResponse<EntuGroup>
-    
+
     // Extract group name from entity.name[0].string (see docs/model/grupp.sample.json)
     const groupName = groupData.entity.name?.[0]?.string || 'Unknown Group'
 
@@ -47,20 +47,21 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       groupId,
-      groupName,
+      groupName
     }
-  } catch (error: unknown) {
+  }
+  catch (error: unknown) {
     logger.error('Failed to fetch group info', {
       error: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined,
-      groupId: query?.groupId,
+      groupId: query?.groupId
     })
-    
+
     setResponseStatus(event, 500)
     return {
       success: false,
       error: 'Failed to fetch group information',
-      details: error instanceof Error ? error.message : String(error),
+      details: error instanceof Error ? error.message : String(error)
     }
   }
 })

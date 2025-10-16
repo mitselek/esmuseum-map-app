@@ -202,12 +202,12 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
   const fetchFreshUserData = async (userId: string, jwtToken: string): Promise<EntuUser> => {
     const apiUrl = config.public.entuUrl || 'https://entu.app'
     const accountName = config.public.entuAccount || 'esmuuseum'
-    
+
     const response = await fetch(`${apiUrl}/api/${accountName}/entity/${userId}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${jwtToken}`,
-        'Accept': 'application/json'
+        Authorization: `Bearer ${jwtToken}`,
+        Accept: 'application/json'
       }
     })
 
@@ -216,7 +216,7 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
     }
 
     const data = await response.json()
-    
+
     // Extract user properties from Entu entity response
     return {
       _id: userId,
@@ -300,7 +300,8 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
             try {
               const freshUserData = await fetchFreshUserData(newUser._id, data.token)
               user.value = freshUserData
-            } catch (fetchError) {
+            }
+            catch (fetchError) {
               console.warn('Failed to fetch fresh user data, using OAuth response:', fetchError)
               user.value = newUser // Fallback to OAuth response user data
             }
