@@ -251,9 +251,13 @@ const submitResponse = async () => {
 
     // Debug: Check response structure and extract correct ID
     console.log('F015: Full response structure:', JSON.stringify(response, null, 2))
-    type ResponseWithId = { id?: string, _id?: string, data?: { id?: string, _id?: string } }
-    const responseAny = response as unknown as ResponseWithId
-    const responseId = response.data?.id || responseAny.id || responseAny._id || response.data?._id
+    
+    // Extract ID from response - use type guard for data property
+    let responseId = response.id
+    if (response.data && typeof response.data === 'object' && response.data !== null) {
+      const dataObj = response.data as Record<string, unknown>
+      responseId = responseId || (dataObj.id as string) || (dataObj._id as string)
+    }
     console.log('F015: Extracted response ID:', responseId)
 
     // Debug: Check file upload component state

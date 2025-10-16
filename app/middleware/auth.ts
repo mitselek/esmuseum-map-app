@@ -40,11 +40,17 @@ export default defineNuxtRouteMiddleware((to: RouteLocationNormalized, from: Rou
 
   // Get stored auth
   const { token, user } = getStoredAuth()
+  
+  // Type guard for user object with _id
+  const hasUserId = (u: unknown): u is { _id: string } => {
+    return Boolean(u && typeof u === 'object' && '_id' in u)
+  }
+  
   console.log('🔒 [EVENT] auth middleware - Auth check:', {
     hasToken: !!token,
     tokenLength: token?.length || 0,
     hasUser: !!user,
-    userId: user?._id || 'none',
+    userId: hasUserId(user) ? user._id : 'none',
     isAuthenticated: isClientAuthenticated()
   })
 

@@ -125,7 +125,6 @@ const progress = computed<ProgressData>(() => {
 
   const fallbackExpected
     = selectedTask.value?.vastuseid?.[0]?.number
-      || selectedTask.value?.responseStats?.expected
       || actual
 
   return {
@@ -187,13 +186,17 @@ const selectedLocation = ref<TaskLocation | null>(null)
 // Constitutional: Location data from map click events has flexible structure
 // We validate and extract needed properties at this boundary
 // Principle I: Type Safety First - documented exception for map event data
-const onMapLocationClick = (location: TaskLocation): void => {
-  // Handle location click from map
-  console.log('[TaskDetailPanel] Map location clicked:', getLocationIdentifier(location))
-  console.log('[TaskDetailPanel] Setting selectedLocation to:', location)
-  selectedLocation.value = location
-  if (responseFormRef.value) {
-    responseFormRef.value.setLocation(getLocationCoordinates(location))
+const onMapLocationClick = (location: unknown): void => {
+  // Handle location click from map - accept unknown and validate structure
+  console.log('[TaskDetailPanel] Map location clicked:', location)
+  
+  // Type guard: ensure location has expected structure
+  if (location && typeof location === 'object') {
+    console.log('[TaskDetailPanel] Setting selectedLocation to:', location)
+    selectedLocation.value = location as TaskLocation
+    if (responseFormRef.value) {
+      responseFormRef.value.setLocation(getLocationCoordinates(location))
+    }
   }
 }
 
@@ -338,8 +341,8 @@ watch(selectedTask, async (newTask) => {
     taskName: newTask?.name || 'null'
   })
 
-  // Use the task initialization function
-  await initializeTask(newTask, {
+  // Use the task initialization function (convert undefined to null for type compatibility)
+  await initializeTask(newTask ?? null, {
     responseFormRef,
     needsLocation,
     checkPermissions,
