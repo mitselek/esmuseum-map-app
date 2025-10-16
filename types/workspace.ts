@@ -55,16 +55,7 @@ export interface UploadedFile {
 }
 
 /**
- * Upload request headers for DigitalOcean Spaces
- * Used in server upload proxy
+ * Headers for DigitalOcean Spaces upload
+ * Compatible with fetch HeadersInit
  */
-export interface UploadHeaders {
-  /** Content type header */
-  'Content-Type'?: string
-  
-  /** Content length header */
-  'Content-Length'?: string
-  
-  /** Additional headers */
-  [key: string]: string | undefined
-}
+export type UploadHeaders = Record<string, string>
