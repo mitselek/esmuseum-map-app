@@ -123,8 +123,8 @@
         </div>
       </div>
 
-      <!-- Start Button -->
-      <div v-if="!state.isWaiting && !state.error && !state.hasTimedOut" class="text-center">
+      <!-- Start Button (only shown when not authenticated) -->
+      <div v-if="!token && !state.isWaiting && !state.error && !state.hasTimedOut && !needsName" class="text-center">
         <button
           type="button"
           :disabled="isLoading"
@@ -236,21 +236,20 @@ async function handleNameSubmit() {
 
   try {
     const userId = user.value._id
+    const userToken = token.value
 
-    const res = await $fetch<{ success: boolean; message?: string }>('/api/onboard/set-name', {
-      method: 'POST',
-      body: {
-        userId,
-        forename: formData.value.forename,
-        surname: formData.value.surname,
-      },
-    })
+    // Call Entu API directly from client-side with user's token
+    const { updateUserName } = await import('../../utils/entu-client')
+    await updateUserName(
+      userId,
+      formData.value.forename,
+      formData.value.surname,
+      userToken
+    )
 
-    if (!res || res.success === false) {
-      state.value.error = (res && res.message) || 'Failed to set name'
-      isSubmitting.value = false
-      return
-    }
+    // Refresh user data by calling getToken() which fetches fresh user info
+    const { getToken } = useEntuAuth()
+    await getToken() // This will update the user object with fresh data from Entu
 
     // Name set successfully - clear flag and continue join flow
     needsName.value = false
@@ -280,8 +279,8 @@ async function startJoinAndPoll() {
     const confirmed = await pollGroupMembership(groupId.value, userId)
     if (confirmed) {
       localStorage.removeItem('pending_group_id')
-      localStorage.removeItem('auth_callback_url')
-      router.push('/dashboard')
+      localStorage.removeItem('auth_redirect')
+      router.push('/') // Redirect to main task workspace
     }
   } catch (error: unknown) {
     state.value.error = error instanceof Error ? error.message : 'Unknown error'
@@ -297,7 +296,7 @@ async function handleJoinGroup() {
   // If not authenticated, start OAuth and persist state
   if (!token.value || !user.value) {
     const callbackUrl = `/signup/${groupId.value}`
-    localStorage.setItem('auth_callback_url', callbackUrl)
+    localStorage.setItem('auth_redirect', callbackUrl)  // Use REDIRECT_KEY constant value
     localStorage.setItem('pending_group_id', groupId.value)
 
     startOAuthFlow('google')
@@ -314,6 +313,25 @@ async function handleJoinGroup() {
     formData.value.forename = user.value.forename || ''
     formData.value.surname = user.value.surname || ''
     return
+  }
+
+  // Check if user is already a member of this group
+  try {
+    const userId = user.value._id
+    const membershipCheck = await $fetch<{ isMember: boolean }>(
+      `/api/onboard/check-membership?groupId=${groupId.value}&userId=${userId}`
+    )
+    
+    if (membershipCheck.isMember) {
+      // User is already in the group - redirect to main workspace
+      localStorage.removeItem('pending_group_id')
+      localStorage.removeItem('auth_redirect')
+      router.push('/')
+      return
+    }
+  } catch (error) {
+    console.warn('Failed to check membership, will proceed with join:', error)
+    // Continue with join flow even if check fails
   }
 
   // Otherwise proceed with join + poll
