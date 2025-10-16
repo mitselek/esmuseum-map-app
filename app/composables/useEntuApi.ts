@@ -35,6 +35,11 @@ export interface EntitySearchQuery {
 
 /**
  * Entu entity structure (generic)
+ * 
+ * Constitutional: Uses index signature for flexible Entu entity properties
+ * Entu entities have dynamic property structures based on entity type.
+ * The _id field is guaranteed, all other properties are type-specific.
+ * Principle I: Type Safety First - documented exception for external API with dynamic schema
  */
 export interface EntuEntity {
   _id: string
@@ -51,6 +56,10 @@ export interface EntityListResponse {
 
 /**
  * Entity data for creation/update
+ * 
+ * Constitutional: Uses index signature for flexible entity property updates
+ * Entity properties are dynamic based on Entu schema definitions.
+ * Principle I: Type Safety First - documented exception for dynamic entity operations
  */
 export interface EntityData {
   [key: string]: any
@@ -58,6 +67,10 @@ export interface EntityData {
 
 /**
  * File upload URL response
+ * 
+ * Constitutional: Uses index signature for additional Entu API response fields
+ * Upload response may contain metadata beyond the URL.
+ * Principle I: Type Safety First - documented exception for API response flexibility
  */
 export interface FileUploadResponse {
   url?: string
@@ -66,6 +79,10 @@ export interface FileUploadResponse {
 
 /**
  * Account information response
+ * 
+ * Constitutional: Uses index signature for additional account metadata
+ * Account info may include various configuration fields.
+ * Principle I: Type Safety First - documented exception for API response flexibility
  */
 export interface AccountInfo {
   account?: string

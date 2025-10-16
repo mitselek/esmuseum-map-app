@@ -78,7 +78,9 @@ export const useFormPersistence = (taskId: string) => {
   }
 
   // Update form field and trigger auto-save
-  const updateField = (field: keyof FormData, value: any) => {
+  // Constitutional: Using FormData[keyof FormData] ensures type safety for field values
+  // Principle I: Type Safety First - value type is inferred from FormData interface
+  const updateField = <K extends keyof FormData>(field: K, value: FormData[K]) => {
     formData.value[field] = value
     isDirty.value = true
     scheduleAutoSave()
