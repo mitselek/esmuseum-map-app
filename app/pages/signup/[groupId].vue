@@ -12,10 +12,14 @@
       </div>
 
       <!-- Waiting Screen -->
-      <div v-if="state.isWaiting" class="text-center py-8">
-        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <div v-if="state.isWaiting" class="text-center py-8" role="status" aria-live="polite">
+        <div 
+          class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"
+          aria-label="Loading"
+        ></div>
         <p class="text-lg font-medium text-gray-900">{{ $t('onboarding.waiting') }}</p>
         <p class="mt-2 text-sm text-gray-600">{{ $t('onboarding.waitingSubtext') }}</p>
+        <span class="sr-only">{{ $t('onboarding.waiting') }} {{ $t('onboarding.waitingSubtext') }}</span>
       </div>
 
       <!-- Error Message -->
@@ -62,7 +66,6 @@
           type="button"
           :disabled="isLoading"
           class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          :aria-label="$t('onboarding.startButton')"
           @click="handleJoinGroup"
         >
           {{ $t('onboarding.startButton') }}
@@ -74,7 +77,6 @@
         <button
           type="button"
           class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          :aria-label="$t('onboarding.retryButton')"
           @click="handleRetry"
         >
           {{ $t('onboarding.retryButton') }}
