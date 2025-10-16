@@ -21,6 +21,10 @@
         class="shrink-0"
         style="height: 40vh"
       >
+        <!-- Constitutional: Type cast needed due to incompatible TaskLocation definitions
+             TaskDetailPanel uses Entu entity format, TaskMapCard expects normalized format.
+             TODO: Consolidate TaskLocation types across components (see InteractiveMap.vue, TaskMapCard.vue, useTaskGeolocation.ts)
+             Principle I: Type Safety First - documented exception for component interface mismatch -->
         <TaskMapCard
           :task-locations="taskLocations as any"
           :user-position="userPosition"
@@ -38,6 +42,7 @@
       <!-- Scrollable content area -->
       <div class="flex-1 overflow-y-auto">
         <!-- Response Form -->
+        <!-- Constitutional: Same type cast issue as TaskMapCard above -->
         <TaskResponseForm
           ref="responseFormRef"
           :selected-task="selectedTask"
@@ -262,6 +267,10 @@ const handleResponseSubmitted = async (_responseData: unknown): Promise<void> =>
   try {
     // Reset the form
     const form = responseFormRef.value
+    // Constitutional: ResponseFormRef interface incomplete - resetForm method not typed
+    // TaskResponseForm component exposes resetForm but it's not in the interface definition
+    // TODO: Add resetForm() to ResponseFormRef interface or use component ref type
+    // Principle I: Type Safety First - documented exception for incomplete interface
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (form && typeof (form as any).resetForm === 'function') {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
