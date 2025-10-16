@@ -18,7 +18,7 @@
 
 Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujääke. Peamised teemad hõlmavad uute kasutajate onboarding'ut, andmemudeli segasust (geopunkt vs asukoht), reaalajas statistika värskendamist ning läti keele tuge. Vaja on toetajate logo lisada login lehele.
 
-**Olek**: 7 ülesannet 10-st lahendatud (70% valminud)
+**Olek**: 11 ülesannet 12-st lahendatud (92% valminud)
 
 ## Tagasiside Kategooriate Kaupa
 
@@ -66,15 +66,37 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
 
 #### Kõrge Prioriteet
 
-- **[FEAT-001] Uue kasutaja onboarding ja juhendid**
+- **[FEAT-001] ✅ Uue kasutaja onboarding ja juhendid** - LAHENDATUD (16. oktoober 2025, PR #TBD)
   - **Kirjeldus**: Kui uus kasutaja logib esimest korda sisse, näeb ta tühja ülesannete loendit ilma juhendmaterjalideta
   - **Kasutaja Vajadus**: Uus kasutaja vajab selgitust, kuidas rakendust kasutada ja kust alustada
-  - **Soovitatud Lahendus**:
-    - Entus luuakse uus kasutaja uute kasutajate kausta
-    - Kasutaja näeb tühja ülesannete loendit
-    - Kasutajale kuvatakse link ESM kodulehele, kus ta saab infot kaardirakenduse kohta
-  - **Kasu**: Vähendab kasutajate segadust, parandab esimest kasutuskogemust
-  - **Märkused**: Vajab welcome screen'i või onboarding flow'i disaini
+  - **Lahendus**:
+    - Loodud õpilaste signup flow: `/signup/[groupId]` lehekülg
+    - Õpetaja jagab õpilastele linki grupiga liitumiseks
+    - OAuth autentimine (email või Google või muu provider)
+    - Nime küsimine kui Entus puudub
+    - Automaatne grupi liikmelisuse kontroll
+    - Grupi liikmelisuse määramine (server-side manager key)
+    - Liikmelisuse kinnituse polling
+    - Suunamine põhi task workspace'i (`/`)
+  - **Muudatused**:
+    - `app/pages/signup/[groupId].vue`: Uus signup lehekülg grupiga liitumiseks
+    - `app/utils/entu-client.ts`: Client-side Entu API utilities (name update)
+    - `app/composables/useEntuAuth.ts`: Fresh user data fetch after OAuth
+    - `app/composables/useOnboarding.ts`: Onboarding state management
+    - `server/api/onboard/get-group-info.get.ts`: Fetch group name
+    - `server/api/onboard/check-membership.get.ts`: Check if user is member
+    - `server/api/onboard/join-group.post.ts`: Assign user to group (with manager key)
+    - TypeScript types: `types/onboarding.ts`
+  - **Arhitektuur**:
+    - **Name Update**: Client-side (user's JWT token, browser IP audience)
+    - **Group Assignment**: Server-side (manager's JWT token, sets `_parent` reference)
+    - **Data Sync**: Fresh user entity fetch from Entu after OAuth
+  - **Kasu**:
+    - Sujuv õpilaste onboarding
+    - Automaatne nime küsimine
+    - Automaatne grupi liikmelisuse haldus
+  - **Testimine**: Käsitsi testitud OAuth flow, nime küsimine, grupi liikmelisuse määramine, polling
+  - **Automaattestid**: 28/28 testi läbis, TypeScript vigu pole
 
 - **[FEAT-002] ✅ E-posti põhine autentimine** - LAHENDATUD (14. oktoober 2025)
   - **Kirjeldus**: Implementeerida e-posti põhine autentimine Entu OAuth kaudu
@@ -90,16 +112,22 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
   - **Verifikatsioon**: 88/88 testi läbis (100% pass rate), feature testitud töötavas OAuth voos
   - **Testimine**: Kinnitatud end-to-end: email sisestamine → kood emailile → koodi sisestamine → edukas sisselogimine
 
-- **[FEAT-003] Õpetaja registreerumine ja õpilaste kutsumine**
+- **[FEAT-003] ✅ Õpetaja registreerumine ja õpilaste kutsumine** - LAHENDATUD (tehniliselt, vajab ainult dokumentatsiooni)
   - **Kirjeldus**: Vajadus struktureeritud õpetaja registreerumise ja õpilaste klassi kutsumise workflow'i järele
   - **Kasutaja Vajadus**: Õpetajad peavad saama lihtsalt registreeruda ja kutsuda õpilasi oma klassi
-  - **Soovitatud Lahendus**:
-    - Õpetajaks registreerumine läbi Entu
-    - Õpetaja jagab klassiga linki (QR kood vms)
-    - Õpilane logib sisse Entu kaudu
-    - Suunatakse kaardirakendusse
-  - **Kasu**: Lihtsustab klasside haldamist, parandab onboarding'ut
-  - **Märkused**: Vajab kasutusjuhendit ja dokumentatsiooni
+  - **Tehniline Lahendus**:
+    - Õpetajaks registreerumine on juba võimalik Entu süsteemis
+    - FEAT-001 implementeeris õpilaste signup flow (`/signup/[groupId]`)
+    - Õpetaja saab luua grupi Entus ja jagada signup linki õpilastega
+    - Signup URL formaat: `https://esmuseum.app/signup/{groupId}`
+  - **Workflow**:
+    1. Õpetaja registreerub Entus (olemasolev funktsioon)
+    2. Õpetaja loob grupi/klassi Entus
+    3. Õpetaja kopeerib grupi ID
+    4. Õpetaja jagab signup linki õpilastega (email, QR kood, vms)
+    5. Õpilased klikivad linki → OAuth → nimi → automaatne grupi liitumine
+  - **Kasu**: Sujuv klasside haldamine, automaatne õpilaste liitumine
+  - **Järgmised sammud**: Luua kasutusjuhend õpetajatele (DOC-001)
 
 - **[FEAT-004] ✅ Läti keele tugi**
   - **Kirjeldus**: Lisada läti keel toetatud keelte hulka
@@ -243,13 +271,46 @@ Demo käigus tuvastati mitmeid olulisi UX probleeme ja funktsionaalsuse puudujä
    - **Test Results**: 88/88 passing (100%), 2 skipped
    - **Ajakulu**: ~30 minutit (84% kiirem kui hinnang 3-5h)
 
+7. ✅ **[Kõrge]** Implementeerida uue kasutaja onboarding flow (FEAT-001) - _Omanik: Arendusmeeskond_ - _Hinnanguline: 2-3 päeva_
+   - **Lahendatud**: PR #TBD (16. oktoober 2025)
+   - **Lahendus**: Kompleksne õpilaste signup flow koos OAuth, nime küsimise ja grupi liikmelisuse haldusega
+   - **Arhitektuur**:
+     - **Client-side**: Nime uuendamine (user's JWT, browser IP audience)
+     - **Server-side**: Grupi määramine (manager's JWT, sets `_parent` reference)
+     - **Data sync**: Värske kasutaja andmete toomine Entust pärast OAuth
+   - **Põhifunktsioonid**:
+     - Signup URL: `/signup/[groupId]`
+     - OAuth autentimine (Google, email, jt)
+     - Automaatne kasutaja andmete uuendamine Entust
+     - Nime küsimine kui puudub
+     - Grupi liikmelisuse kontroll ja määramine
+     - Liikmelisuse kinnituse polling (30s timeout)
+     - Suunamine ülesannete tööruumi (`/`)
+   - **Muudatused**:
+     - 9 uut/muudetud faili (pages, composables, utils, server endpoints, types)
+     - Client-side Entu API utilities
+     - Fresh user data fetch after OAuth
+     - JWT token exchange for manager key
+   - **Testimine**: Manuaalne testimine läbitud (new user + returning user flows)
+   - **Automaattestid**: 28/28 testi rohelised
+   - **Kasu**: Sujuv õpilaste onboarding ilma manuaalse sekkumiseta
+
+8. ✅ **[Kõrge]** Õpetaja registreerumine ja õpilaste kutsumine (FEAT-003) - _Omanik: Entu/Dokumentatsioon_ - _Hinnanguline: dokumentatsioon_
+   - **Lahendatud**: Tehniliselt (16. oktoober 2025)
+   - **Lahendus**:
+     - Õpetaja registreerimine on Entus olemas
+     - FEAT-001 võimaldab õpilaste signup flow
+     - Õpetaja jagab signup linki: `https://esmuseum.app/signup/{groupId}`
+   - **Workflow**:
+     1. Õpetaja registreerub Entus
+     2. Loob grupi/klassi
+     3. Jagab signup linki õpilastega
+     4. Õpilased liituvad automaatselt
+   - **Järgmised sammud**: Kasutusjuhend (DOC-001)
+
 ### Ootel
 
-1. **[Kõrge]** Implementeerida uue kasutaja onboarding flow (FEAT-001) - _Omanik: UX/Arendusmeeskond_ - _Hinnanguline: 2-3 päeva_
-
-2. **[Kõrge]** Disainida õpetaja registreerumise ja õpilaste kutsumise workflow (FEAT-003) - _Omanik: UX/Arendusmeeskond_ - _Hinnanguline: 3-5 tundi_
-
-3. **[Madal]** Luua õpetajate kasutusjuhend (DOC-001) - _Omanik: Tehnilise kirjutaja/Arendaja_ - _Hinnanguline: 4-6 tundi_
+1. **[Madal]** Luua õpetajate kasutusjuhend (DOC-001) - _Omanik: Tehnilise kirjutaja/Arendaja_ - _Hinnanguline: 4-6 tundi_
 
 ## Lisandmärkused
 

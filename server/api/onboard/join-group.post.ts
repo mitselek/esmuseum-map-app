@@ -66,7 +66,8 @@ export default defineEventHandler(async (event): Promise<GroupAssignmentResponse
       })
     }
 
-    // 4. Assign user to group by setting _parent property
+    // 4. Assign user to group by adding _parent reference to user entity
+    // Manager key must have permission to edit the user's _parent property
     try {
       await callEntuApi(`/entity/${userId}`, {
         method: 'POST',
