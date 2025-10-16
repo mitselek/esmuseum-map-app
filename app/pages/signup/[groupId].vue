@@ -392,9 +392,22 @@ function handleRetry () {
 }
 
 /**
+ * Clear stale authentication and show name collection form
+ * Helper function to reduce code duplication (Copilot review)
+ */
+function clearStaleAuthAndShowNameForm () {
+  const { logout } = useEntuAuth()
+  logout()
+  needsName.value = true
+  formData.value.forename = ''
+  formData.value.surname = ''
+}
+
+/**
  * On mount, check if we're returning from OAuth and whether to start flow
  * 
  * FIX #21: Check membership even for authenticated users without pendingGroupId
+ * FIX #23: Validate user entity exists before proceeding (detect stale auth)
  */
 onMounted(async () => {
   // Fetch group name to display in header
@@ -402,7 +415,7 @@ onMounted(async () => {
 
   const pendingGroupId = localStorage.getItem('pending_group_id')
 
-  // If user is authenticated and has complete profile, check membership
+  // If user is authenticated and has complete profile, validate and check membership
   if (token.value && user.value) {
     const hasForename = Boolean(user.value.forename)
     const hasSurname = Boolean(user.value.surname)
@@ -415,7 +428,29 @@ onMounted(async () => {
       return
     }
 
-    // User has complete profile - check if already a member
+    // FIX #23: Validate that user entity still exists in Entu
+    // This detects stale authentication (valid token but deleted entity)
+    try {
+      const userId = user.value._id
+      const validationCheck = await $fetch<{ exists: boolean }>(
+        `/api/onboard/validate-user?userId=${userId}`
+      )
+
+      if (!validationCheck.exists) {
+        // User entity was deleted - clear stale auth and show name form
+        console.warn('[AUTH-STALE] User entity not found, clearing stale authentication', { userId })
+        clearStaleAuthAndShowNameForm()
+        return
+      }
+    }
+    catch (error) {
+      console.warn('[AUTH-VALIDATE-ERROR] Failed to validate user entity:', error)
+      // On validation error, clear auth to be safe and let user restart
+      clearStaleAuthAndShowNameForm()
+      return
+    }
+
+    // User entity exists - check if already a member
     try {
       const userId = user.value._id
       const membershipCheck = await $fetch<{ isMember: boolean }>(
