@@ -196,6 +196,39 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
   // No auto-check needed on initialization
 
   /**
+   * Fetch fresh user data from Entu API
+   * This ensures we have the latest user information including any name changes
+   */
+  const fetchFreshUserData = async (userId: string, jwtToken: string): Promise<EntuUser> => {
+    const apiUrl = config.public.entuUrl || 'https://entu.app'
+    const accountName = config.public.entuAccount || 'esmuuseum'
+    
+    const response = await fetch(`${apiUrl}/api/${accountName}/entity/${userId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${jwtToken}`,
+        'Accept': 'application/json'
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user data: ${response.status}`)
+    }
+
+    const data = await response.json()
+    
+    // Extract user properties from Entu entity response
+    return {
+      _id: userId,
+      email: data.entity?.email?.[0]?.string || '',
+      name: data.entity?.name?.[0]?.string || '',
+      forename: data.entity?.forename?.[0]?.string || '',
+      surname: data.entity?.surname?.[0]?.string || '',
+      picture: data.entity?.picture?.[0]?.string || ''
+    }
+  }
+
+  /**
    * Get a new auth token from Entu API
    * @param oauthToken - Optional OAuth token from the callback
    */
@@ -262,8 +295,15 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
           }
 
           // Only set user if we have a valid _id
-          if (newUser._id) {
-            user.value = newUser
+          if (newUser._id && data.token) {
+            // Fetch fresh user data from Entu to ensure we have latest info (names, etc)
+            try {
+              const freshUserData = await fetchFreshUserData(newUser._id, data.token)
+              user.value = freshUserData
+            } catch (fetchError) {
+              console.warn('Failed to fetch fresh user data, using OAuth response:', fetchError)
+              user.value = newUser // Fallback to OAuth response user data
+            }
           }
           else {
             console.warn('User data received but no _id found', data)

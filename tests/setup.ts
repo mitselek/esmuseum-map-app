@@ -5,7 +5,9 @@ import { taskApiMocks } from './mocks/task-api'
 import { ref, computed, watch } from 'vue'
 
 // Make Vue reactivity available globally for composable tests
-;(global as any).ref = ref
+;
+
+(global as any).ref = ref
 ;(global as any).computed = computed
 ;(global as any).watch = watch
 
