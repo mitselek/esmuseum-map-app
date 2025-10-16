@@ -131,7 +131,7 @@
           <!-- Task Title with Open Button -->
           <div class="mb-2 flex items-start justify-between gap-2">
             <h3 class="line-clamp-2 flex-1 text-sm font-medium text-gray-900">
-              {{ getTaskTitle(task) }}
+              {{ getTaskTitle(asEntuTask(task)) }}
             </h3>
             <button
               class="shrink-0 text-xs font-medium text-blue-600 transition-colors hover:text-blue-700"
@@ -143,21 +143,11 @@
 
           <!-- Task Description (if available) -->
           <p
-            v-if="getTaskDescription(task)"
+            v-if="getTaskDescription(asEntuTask(task))"
             class="mb-2 line-clamp-2 text-xs text-gray-600"
           >
-            {{ getTaskDescription(task) }}
+            {{ getTaskDescription(asEntuTask(task)) }}
           </p>
-
-          <!-- Group Info -->
-          <div
-            v-if="task.groupName"
-            class="mb-2 flex items-center"
-          >
-            <div class="text-xs text-gray-500">
-              {{ task.groupName }}
-            </div>
-          </div>
 
           <!-- Response Count and Status -->
           <div class="flex items-center justify-between">
@@ -178,19 +168,19 @@
                   />
                 </svg>
                 <span v-if="taskResponseStatsCache.has(task._id)">
-                  {{ getResponseStatsText(task) }}
+                  {{ getResponseStatsText(asEntuTask(task)) }}
                 </span>
                 <span v-else>
-                  {{ getResponseCount(task) }} {{ $t('tasks.responses') }}
+                  {{ getResponseCount(asEntuTask(task)) }} {{ $t('tasks.responses') }}
                 </span>
               </div>
 
               <!-- Due Date (if available) -->
               <div
-                v-if="getTaskDueDate(task)"
+                v-if="getTaskDueDate(asEntuTask(task))"
                 class="text-xs text-orange-600"
               >
-                {{ getTaskDueDate(task) }}
+                {{ getTaskDueDate(asEntuTask(task)) }}
               </div>
             </div>
           </div>
@@ -219,6 +209,10 @@ const {
 const { loadCompletedTasks, getTaskStats, userResponses } = useCompletedTasks()
 const { t } = useI18n()
 
+// Helper to cast readonly arrays from Vue ref to mutable EntuTask for helper functions
+// Vue's reactivity makes arrays readonly in the type system, but our helper functions expect mutable types
+const asEntuTask = (task: typeof tasks.value[number]): EntuTask => task as EntuTask
+
 // Response stats cache for all tasks (stores actual and expected counts)
 interface TaskStats {
   actual: number
@@ -238,13 +232,11 @@ const filteredTasks = computed(() => {
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase().trim()
     taskList = taskList.filter((task) => {
-      const title = getTaskTitle(task).toLowerCase()
-      const description = getTaskDescription(task)?.toLowerCase() || ''
-      const groupName = task.groupName?.toLowerCase() || ''
+      const title = getTaskTitle(asEntuTask(task)).toLowerCase()
+      const description = getTaskDescription(asEntuTask(task))?.toLowerCase() || ''
 
       return title.includes(query)
         || description.includes(query)
-        || groupName.includes(query)
     })
   }
 
@@ -329,7 +321,7 @@ watch(tasks, async (newTasks) => {
     // Then update stats for each task
     for (const task of newTasks) {
       // Sync, no await needed
-      loadTaskResponseStats(task)
+      loadTaskResponseStats(asEntuTask(task))
     }
   }
 }, { immediate: false })
@@ -355,7 +347,7 @@ watch(userResponses, (newResponses, oldResponses) => {
     // Recompute stats for all visible tasks when user responses change
     if (tasks.value && tasks.value.length > 0) {
       for (const task of tasks.value) {
-        loadTaskResponseStats(task)
+        loadTaskResponseStats(asEntuTask(task))
       }
       console.log('[BUG-001 FIX] TaskSidebar - stats cache refreshed', {
         timestamp: new Date().toISOString(),
@@ -365,6 +357,34 @@ watch(userResponses, (newResponses, oldResponses) => {
   }
   else {
     console.log('[BUG-001 FIX] TaskSidebar - Watch fired but no actual change detected')
+  }
+})
+
+// 📱 MOBILE FIX: Refresh stats when sidebar becomes visible
+// On mobile, TaskSidebar is hidden (v-show) when a task is selected.
+// When user returns to task list, we need to refresh stats in case they were
+// updated while the sidebar was hidden (watch may not fire on hidden components)
+watch(isTaskSelected, (taskSelected, wasTaskSelected) => {
+  // Detect transition from task selected (sidebar hidden) to no task (sidebar visible)
+  if (wasTaskSelected === true && taskSelected === false) {
+    console.log('[MOBILE FIX] TaskSidebar - Became visible, refreshing stats', {
+      timestamp: new Date().toISOString(),
+      taskCount: tasks.value?.length || 0
+    })
+
+    // Reload completed tasks to ensure we have latest data
+    loadCompletedTasks().then(() => {
+      // Then refresh all task stats
+      if (tasks.value && tasks.value.length > 0) {
+        for (const task of tasks.value) {
+          loadTaskResponseStats(asEntuTask(task))
+        }
+        console.log('[MOBILE FIX] TaskSidebar - Stats refreshed after becoming visible', {
+          timestamp: new Date().toISOString(),
+          cacheSize: taskResponseStatsCache.value.size
+        })
+      }
+    })
   }
 })
 
@@ -385,7 +405,7 @@ watch(isTaskSelected, (taskSelected, wasTaskSelected) => {
       // Then refresh all task stats
       if (tasks.value && tasks.value.length > 0) {
         for (const task of tasks.value) {
-          loadTaskResponseStats(task)
+          loadTaskResponseStats(asEntuTask(task))
         }
         console.log('[MOBILE FIX] TaskSidebar - Stats refreshed after becoming visible', {
           timestamp: new Date().toISOString(),
