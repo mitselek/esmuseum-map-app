@@ -3,7 +3,7 @@
 /**
  * Tests for /api/onboard/join-group server endpoint (FEAT-001)
  * TDD: Write tests FIRST, then implement the endpoint
- * 
+ *
  * NOTE: Using 'any' types for test mocks to prioritize test readability
  * over strict typing. Test code focuses on behavior verification, not type safety.
  */

@@ -1,6 +1,10 @@
 /**
  * Server-side validation utilities for F006 API endpoints
  * Uses Nuxt's built-in validation and error handling
+ *
+ * Constitutional: Uses `unknown` for untrusted input validation
+ * All validation functions accept `unknown` to force explicit type checking
+ * and prevent accidental misuse of unvalidated data.
  */
 
 import { createLogger } from './logger'
@@ -45,7 +49,7 @@ export interface UpdateResponseRequest {
   }>
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: true
   data: T
 }
@@ -55,7 +59,7 @@ export interface ApiError {
   error: {
     code: string
     message: string
-    details?: any
+    details?: unknown
   }
 }
 
@@ -70,7 +74,7 @@ export interface LocationQuery {
 /**
  * Validate required string field
  */
-export function validateRequiredString (value: any, fieldName: string): string {
+export function validateRequiredString (value: unknown, fieldName: string): string {
   if (!value || typeof value !== 'string' || value.trim().length === 0) {
     throw createError({
       statusCode: 400,
@@ -83,7 +87,7 @@ export function validateRequiredString (value: any, fieldName: string): string {
 /**
  * Validate required array field
  */
-export function validateRequiredArray (value: any, fieldName: string): any[] {
+export function validateRequiredArray (value: unknown, fieldName: string): unknown[] {
   if (!Array.isArray(value) || value.length === 0) {
     throw createError({
       statusCode: 400,
@@ -96,21 +100,21 @@ export function validateRequiredArray (value: any, fieldName: string): any[] {
 /**
  * Validate response type enum
  */
-export function validateResponseType (type: any): 'text' | 'location' | 'file' {
-  const validTypes = ['text', 'location', 'file']
-  if (!validTypes.includes(type)) {
+export function validateResponseType (type: unknown): 'text' | 'location' | 'file' {
+  const validTypes = ['text', 'location', 'file'] as const
+  if (typeof type !== 'string' || !validTypes.includes(type as 'text' | 'location' | 'file')) {
     throw createError({
       statusCode: 400,
       statusMessage: `Response type must be one of: ${validTypes.join(', ')}`
     })
   }
-  return type
+  return type as 'text' | 'location' | 'file'
 }
 
 /**
  * Validate coordinates object
  */
-export function validateCoordinates (coords: any): { lat: number, lng: number } {
+export function validateCoordinates (coords: unknown): { lat: number, lng: number } {
   logger.debug('Validating coordinates', { coords })
 
   if (!coords || typeof coords !== 'object') {
@@ -121,11 +125,12 @@ export function validateCoordinates (coords: any): { lat: number, lng: number } 
     })
   }
 
-  const lat = parseFloat(coords.lat)
-  const lng = parseFloat(coords.lng)
+  const coordsObj = coords as Record<string, unknown>
+  const lat = parseFloat(coordsObj.lat as string)
+  const lng = parseFloat(coordsObj.lng as string)
 
   if (isNaN(lat) || isNaN(lng)) {
-    logger.warn('Invalid coordinate values', { lat: coords.lat, lng: coords.lng })
+    logger.warn('Invalid coordinate values', { lat: coordsObj.lat, lng: coordsObj.lng })
     throw createError({
       statusCode: 400,
       statusMessage: 'Coordinates lat and lng must be valid numbers'
@@ -155,7 +160,7 @@ export function validateCoordinates (coords: any): { lat: number, lng: number } 
 /**
  * Validate response item structure
  */
-export function validateResponseItem (item: any, index: number) {
+export function validateResponseItem (item: unknown, index: number) {
   if (!item || typeof item !== 'object') {
     throw createError({
       statusCode: 400,
@@ -163,9 +168,10 @@ export function validateResponseItem (item: any, index: number) {
     })
   }
 
-  const questionId = validateRequiredString(item.questionId, `responses[${index}].questionId`)
-  const value = validateRequiredString(item.value, `responses[${index}].value`)
-  const type = validateResponseType(item.type)
+  const itemObj = item as Record<string, unknown>
+  const questionId = validateRequiredString(itemObj.questionId, `responses[${index}].questionId`)
+  const value = validateRequiredString(itemObj.value, `responses[${index}].value`)
+  const type = validateResponseType(itemObj.type)
 
   const validatedItem: CreateResponseRequest['responses'][0] = {
     questionId,
@@ -174,19 +180,20 @@ export function validateResponseItem (item: any, index: number) {
   }
 
   // Validate metadata if present
-  if (item.metadata && typeof item.metadata === 'object') {
-    const metadata: any = {}
+  if (itemObj.metadata && typeof itemObj.metadata === 'object') {
+    const metadata: Record<string, unknown> = {}
+    const metadataObj = itemObj.metadata as Record<string, unknown>
 
-    if (item.metadata.fileName) {
-      metadata.fileName = validateRequiredString(item.metadata.fileName, `responses[${index}].metadata.fileName`)
+    if (metadataObj.fileName) {
+      metadata.fileName = validateRequiredString(metadataObj.fileName, `responses[${index}].metadata.fileName`)
     }
 
-    if (item.metadata.locationId) {
-      metadata.locationId = validateRequiredString(item.metadata.locationId, `responses[${index}].metadata.locationId`)
+    if (metadataObj.locationId) {
+      metadata.locationId = validateRequiredString(metadataObj.locationId, `responses[${index}].metadata.locationId`)
     }
 
-    if (item.metadata.fileSize !== undefined) {
-      const fileSize = parseInt(item.metadata.fileSize)
+    if (metadataObj.fileSize !== undefined) {
+      const fileSize = parseInt(metadataObj.fileSize as string)
       if (isNaN(fileSize) || fileSize < 0) {
         throw createError({
           statusCode: 400,
@@ -196,8 +203,8 @@ export function validateResponseItem (item: any, index: number) {
       metadata.fileSize = fileSize
     }
 
-    if (item.metadata.coordinates) {
-      metadata.coordinates = validateCoordinates(item.metadata.coordinates)
+    if (metadataObj.coordinates) {
+      metadata.coordinates = validateCoordinates(metadataObj.coordinates)
     }
 
     if (Object.keys(metadata).length > 0) {
@@ -211,7 +218,7 @@ export function validateResponseItem (item: any, index: number) {
 /**
  * Validate create response request body
  */
-export function validateCreateResponseRequest (body: any): CreateResponseRequest {
+export function validateCreateResponseRequest (body: unknown): CreateResponseRequest {
   logger.debug('Validating create response request', { hasBody: !!body })
 
   if (!body || typeof body !== 'object') {
@@ -222,15 +229,16 @@ export function validateCreateResponseRequest (body: any): CreateResponseRequest
     })
   }
 
-  const taskId = validateRequiredString(body.taskId, 'taskId')
-  const responsesArray = validateRequiredArray(body.responses, 'responses')
+  const bodyObj = body as Record<string, unknown>
+  const taskId = validateRequiredString(bodyObj.taskId, 'taskId')
+  const responsesArray = validateRequiredArray(bodyObj.responses, 'responses')
 
   logger.debug('Validating response items', { responseCount: responsesArray.length })
   const responses = responsesArray.map((item, index) => validateResponseItem(item, index))
 
   let respondentName: string | undefined
-  if (body.respondentName !== undefined && body.respondentName !== null) {
-    respondentName = validateRequiredString(body.respondentName, 'respondentName')
+  if (bodyObj.respondentName !== undefined && bodyObj.respondentName !== null) {
+    respondentName = validateRequiredString(bodyObj.respondentName, 'respondentName')
   }
 
   logger.debug('Create response request validated successfully', { taskId, responseCount: responses.length })
@@ -245,7 +253,7 @@ export function validateCreateResponseRequest (body: any): CreateResponseRequest
 /**
  * Validate update response request body
  */
-export function validateUpdateResponseRequest (body: any): UpdateResponseRequest {
+export function validateUpdateResponseRequest (body: unknown): UpdateResponseRequest {
   if (!body || typeof body !== 'object') {
     throw createError({
       statusCode: 400,
@@ -253,7 +261,8 @@ export function validateUpdateResponseRequest (body: any): UpdateResponseRequest
     })
   }
 
-  const responsesArray = validateRequiredArray(body.responses, 'responses')
+  const bodyObj = body as Record<string, unknown>
+  const responsesArray = validateRequiredArray(bodyObj.responses, 'responses')
   const responses = responsesArray.map((item, index) => validateResponseItem(item, index))
 
   return { responses }
@@ -272,7 +281,7 @@ export function createSuccessResponse<T> (data: T): ApiResponse<T> {
 /**
  * Validate entity ID parameter
  */
-export function validateEntityId (id: any): string {
+export function validateEntityId (id: unknown): string {
   logger.debug('Validating entity ID', { id })
 
   const entityId = validateRequiredString(id, 'id')
@@ -294,11 +303,17 @@ export function validateEntityId (id: any): string {
  * Validate optional lat/lng query parameters.
  * Returns an object with numeric lat/lng only if both are present and valid.
  */
-export function validateLocationQuery (query: any): LocationQuery {
+export function validateLocationQuery (query: unknown): LocationQuery {
   logger.debug('Validating location query', { query })
 
-  const latRaw = query?.lat ?? query?.latitude
-  const lngRaw = query?.lng ?? query?.long ?? query?.longitude
+  if (!query || typeof query !== 'object') {
+    logger.debug('No query object provided')
+    return {}
+  }
+
+  const queryObj = query as Record<string, unknown>
+  const latRaw = queryObj.lat ?? queryObj.latitude
+  const lngRaw = queryObj.lng ?? queryObj.long ?? queryObj.longitude
 
   if (latRaw === undefined && lngRaw === undefined) {
     logger.debug('No location parameters provided')
