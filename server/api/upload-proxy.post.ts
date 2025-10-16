@@ -1,4 +1,5 @@
 import { defineEventHandler, readMultipartFormData } from 'h3'
+import type { UploadedFile, UploadHeaders } from '../../types/workspace'
 
 /**
  * F015 Phase 3.2b: Upload Proxy Endpoint
@@ -18,9 +19,9 @@ export default defineEventHandler(async (event) => {
     }
 
     // Extract file and upload info from form data
-    let file: any = null
+    let file: UploadedFile | null = null
     let uploadUrl: string = ''
-    let headers: any = {}
+    let headers: UploadHeaders = {}
 
     for (const field of formData) {
       if (field.name === 'file' && field.data) {
@@ -43,9 +44,12 @@ export default defineEventHandler(async (event) => {
     try {
       validatedUrl = new URL(uploadUrl)
     }
-    catch (urlError: any) {
-      console.error('F015: Invalid upload URL:', urlError.message)
-      throw new Error(`Invalid upload URL: ${urlError.message}`)
+    // Constitutional: Error type is unknown - we catch and validate errors at boundaries
+    // Principle I: Type Safety First - documented exception for error handling
+    catch (urlError: unknown) {
+      const errorMessage = urlError instanceof Error ? urlError.message : 'Invalid URL format'
+      console.error('F015: Invalid upload URL:', errorMessage)
+      throw new Error(`Invalid upload URL: ${errorMessage}`)
     }
 
     console.log('F015: Upload proxy - uploading file:', {
@@ -54,10 +58,12 @@ export default defineEventHandler(async (event) => {
     })
 
     // Upload file to DigitalOcean using Entu's signed URL
+    // Constitutional: Buffer is valid BodyInit in Node.js but TypeScript doesn't recognize it
+    // Principle I: Type Safety First - documented exception for Node.js Buffer compatibility
     const uploadResponse = await fetch(uploadUrl, {
       method: 'PUT',
       headers: headers,
-      body: file.data
+      body: file.data as unknown as BodyInit
     })
 
     if (!uploadResponse.ok) {
@@ -82,13 +88,16 @@ export default defineEventHandler(async (event) => {
       size: file.data.length
     }
   }
-  catch (error: any) {
+  // Constitutional: Error type is unknown - we catch and validate errors at boundaries
+  // Principle I: Type Safety First - documented exception for error handling
+  catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown upload error'
     console.error('F015: Upload proxy error:', error)
 
     return {
       success: false,
       message: 'Upload proxy failed',
-      error: error.message
+      error: errorMessage
     }
   }
 })

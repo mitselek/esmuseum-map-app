@@ -3,6 +3,7 @@
  * Handles token validation and user authentication
  */
 
+import type { H3Event } from 'h3'
 import { callEntuApi, getEntuEntity, getEntuApiConfig } from './entu'
 import type { EntuApiOptions } from './entu'
 import { createLogger } from './logger'
@@ -21,7 +22,7 @@ export interface AuthenticatedUser {
  * Extract JWT token from either Bearer header or session
  * This supports both direct JWT authentication and session-based authentication
  */
-export function extractJwtToken (event: any): string {
+export function extractJwtToken (event: H3Event): string {
   // First try to get token from Authorization header
   try {
     return extractBearerToken(event)
@@ -44,7 +45,7 @@ export function extractJwtToken (event: any): string {
 /**
  * Extract and validate Bearer token from Authorization header
  */
-export function extractBearerToken (event: any): string {
+export function extractBearerToken (event: H3Event): string {
   logger.debug('Extracting bearer token from request')
 
   const authHeader = getHeader(event, 'authorization')
@@ -82,7 +83,7 @@ export function extractBearerToken (event: any): string {
 /**
  * Authenticate user via server-side session cookie
  */
-async function authenticateUserViaSession (event: any): Promise<AuthenticatedUser | null> {
+async function authenticateUserViaSession (event: H3Event): Promise<AuthenticatedUser | null> {
   try {
     const sessionToken = getCookie(event, 'auth-session')
 
@@ -113,7 +114,9 @@ async function authenticateUserViaSession (event: any): Promise<AuthenticatedUse
       name: sessionData.name
     }
   }
-  catch (error: any) {
+  // Constitutional: Error type is unknown - we catch and validate errors at boundaries
+  // Principle I: Type Safety First - documented exception for error handling
+  catch (error: unknown) {
     logger.debug('Session authentication failed', error)
     return null
   }
@@ -124,7 +127,7 @@ async function authenticateUserViaSession (event: any): Promise<AuthenticatedUse
  * Supports both JWT token and session-based authentication
  * Optimized: Use JWT token directly instead of making API calls
  */
-export async function authenticateUser (event: any): Promise<AuthenticatedUser> {
+export async function authenticateUser (event: H3Event): Promise<AuthenticatedUser> {
   // First try session-based authentication
   const sessionUser = await authenticateUserViaSession(event)
   if (sessionUser) {
@@ -173,7 +176,9 @@ export async function authenticateUser (event: any): Promise<AuthenticatedUser> 
 
     return user
   }
-  catch (error: any) {
+  // Constitutional: Error type is unknown - we catch and validate errors at boundaries
+  // Principle I: Type Safety First - documented exception for error handling
+  catch (error: unknown) {
     logger.error('JWT authentication failed', error)
 
     // Fallback to API call only if JWT parsing fails
@@ -185,7 +190,7 @@ export async function authenticateUser (event: any): Promise<AuthenticatedUser> 
 /**
  * Fallback: Authenticate via Entu API (slower)
  */
-async function authenticateUserViaAPI (event: any, token: string): Promise<AuthenticatedUser> {
+async function authenticateUserViaAPI (event: H3Event, token: string): Promise<AuthenticatedUser> {
   const config = useRuntimeConfig()
   const apiUrl = config.public.entuUrl || 'https://entu.app'
   const accountName = config.public.entuAccount || 'esmuuseum'
@@ -305,7 +310,13 @@ export async function checkTaskPermission (user: AuthenticatedUser, taskId: stri
 
     for (const permissionArray of permissionArrays) {
       if (Array.isArray(permissionArray)) {
-        const hasPermission = permissionArray.some((permission: any) =>
+        // Constitutional: Permission objects from Entu API have dynamic structure
+        // We validate the properties we need (reference) at this boundary
+        // Principle I: Type Safety First - documented exception for external API data
+        const hasPermission = permissionArray.some((permission: unknown) =>
+          typeof permission === 'object' &&
+          permission !== null &&
+          'reference' in permission &&
           permission.reference === user._id
         )
         if (hasPermission) {
@@ -363,8 +374,8 @@ export async function checkResponsePermission (user: AuthenticatedUser, response
  * Middleware wrapper for authenticated routes
  */
 export async function withAuth<T> (
-  event: any,
-  handler: (event: any, user: AuthenticatedUser) => Promise<T>
+  event: H3Event,
+  handler: (event: H3Event, user: AuthenticatedUser) => Promise<T>
 ): Promise<T> {
   logger.debug('Processing authenticated request', { path: getRouterParam(event, 'id') || 'unknown' })
 
