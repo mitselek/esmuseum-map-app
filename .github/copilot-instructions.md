@@ -10,29 +10,21 @@ Auto-generated from all feature plans. Last updated: 2025-10-14
 
 This is an interactive map application for Estonia's military history museum. The project name is ambiguous - see PROJECT-NAMING.md in the docs folder for details.
 
-## Active Technologies
+## Available Tools
 
-- (029-add-email-authentication)
+This project uses **Spec-Kit workflow** (see `.specify/` folder) and has a **Constitution** document defining architectural principles.
 
-## Project Structure
+**Custom Slash Commands** (in `.github/prompts/`):
+- `/speckit-analyze` - Analyze specs for completeness
+- `/speckit-checklist` - Generate implementation checklists
+- `/speckit-clarify` - Clarify spec requirements
+- `/speckit-constitution` - Check constitutional compliance
+- `/speckit-implement` - Generate implementation code
+- `/speckit-plan` - Create feature plans
+- `/speckit-specify` - Write new specifications
+- `/speckit-tasks` - Break down into tasks
+- `/bugfix` - Structured bug fixing workflow
+- `/reverse-aii` - Reverse engineering assistant
+- `/prompt` - General prompt helper
 
-```text
-backend/
-frontend/
-tests/
-```
-
-## Commands
-
-# Add commands for 
-
-## Code Style
-
-: Follow standard conventions
-
-## Recent Changes
-
-- 029-add-email-authentication: Added
-
-<!-- MANUAL ADDITIONS START -->
-<!-- MANUAL ADDITIONS END -->
+**Constitution** (in `.specify/memory/constitution.md`):
