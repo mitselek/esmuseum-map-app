@@ -310,6 +310,10 @@ export interface EntuTask extends EntuEntity {
 /**
  * Response entity (vastus)
  * Submissions and responses to assignments, can include location data and photos
+ *
+ * **Permissions**: When a response is created, the group leader (grupijuht) from the
+ * associated task's group is automatically added as _viewer to allow teachers to
+ * view student responses.
  */
 export interface EntuResponse extends EntuEntity {
   /** Selected location reference (which location the student chose to respond about) */
