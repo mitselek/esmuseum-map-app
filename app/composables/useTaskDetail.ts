@@ -368,7 +368,7 @@ export const useTaskDetail = () => {
           // Client-side version (F015 migration)
           const responses = await searchEntities({
             '_type.string': ENTU_TYPES.VASTUS,
-            '_parent.reference': taskId,
+            'ulesanne.reference': taskId, // Changed from '_parent.reference' - task is now reference property
             '_owner._id': user.value?._id,
             limit: 1
           })
