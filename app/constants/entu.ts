@@ -41,6 +41,10 @@ export const ENTU_PROPERTIES = {
 
   // Task entity properties
   KIRJELDUS: 'kirjeldus', // Task description
+  GRUPP: 'grupp', // Group reference on task
+
+  // Group entity properties
+  GRUPIJUHT: 'grupijuht', // Group leader/teacher reference
 
   // Location entity properties
   NAME_STRING: 'name.string', // Location name
@@ -51,7 +55,8 @@ export const ENTU_PROPERTIES = {
   // System properties
   PARENT: '_parent', // Parent entity reference
   TYPE_STRING: '_type.string', // Entity type string
-  INHERIT_RIGHTS: '_inheritrights' // Inherit parent rights
+  INHERIT_RIGHTS: '_inheritrights', // Inherit parent rights
+  VIEWER: '_viewer' // Viewer permission
 } as const
 
 /**

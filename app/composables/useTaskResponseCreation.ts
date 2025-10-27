@@ -1,5 +1,6 @@
 import { ENTU_TYPES, ENTU_TYPE_IDS, ENTU_PROPERTIES } from '../constants/entu'
 import type { Ref } from 'vue'
+import type { EntuTask, EntuGroup, EntuEntityResponse } from '../../types/entu'
 
 /**
  * Response metadata containing location and coordinates
@@ -77,9 +78,56 @@ export interface UseTaskResponseCreationReturn {
  */
 export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
   const { token } = useEntuAuth()
-  const { searchEntities } = useEntuApi()
+  const { searchEntities, getEntity } = useEntuApi()
 
   const useClientSideCreation = ref<boolean>(true)
+
+  /**
+   * Get group leader ID from a task's group
+   * Returns null if no group or no group leader found
+   */
+  const getGroupLeaderFromTask = async (taskId: string): Promise<string | null> => {
+    try {
+      // Fetch the task entity
+      const taskResponse = await getEntity(taskId) as unknown as EntuEntityResponse<EntuTask> | null
+      if (!taskResponse?.entity) {
+        console.warn('[Response Creation] Task not found:', taskId)
+        return null
+      }
+
+      const task = taskResponse.entity
+
+      // Get group reference from task
+      const groupRef = task.grupp?.[0]?.reference
+      if (!groupRef) {
+        console.warn('[Response Creation] Task has no group:', taskId)
+        return null
+      }
+
+      // Fetch the group entity
+      const groupResponse = await getEntity(groupRef) as unknown as EntuEntityResponse<EntuGroup> | null
+      if (!groupResponse?.entity) {
+        console.warn('[Response Creation] Group not found:', groupRef)
+        return null
+      }
+
+      const group = groupResponse.entity
+
+      // Get group leader reference
+      const leaderRef = group.grupijuht?.[0]?.reference
+      if (!leaderRef) {
+        console.warn('[Response Creation] Group has no leader:', groupRef)
+        return null
+      }
+
+      console.log('[Response Creation] Found group leader:', leaderRef, 'for task:', taskId)
+      return leaderRef
+    }
+    catch (error) {
+      console.error('[Response Creation] Error getting group leader:', error)
+      return null
+    }
+  }
 
   /**
    * Check if user has already submitted a response for this task
@@ -130,6 +178,19 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
       { type: '_type', reference: ENTU_TYPE_IDS.VASTUS },
       { type: '_inheritrights', boolean: true }
     ]
+
+    // Try to add group leader as viewer
+    try {
+      const groupLeaderId = await getGroupLeaderFromTask(taskId)
+      if (groupLeaderId) {
+        entuProperties.push({ type: ENTU_PROPERTIES.VIEWER, reference: groupLeaderId })
+        console.log('[Response Creation] Adding group leader as viewer:', groupLeaderId)
+      }
+    }
+    catch (error) {
+      // Non-critical: Continue creating response even if group leader lookup fails
+      console.warn('[Response Creation] Could not add group leader as viewer:', error)
+    }
 
     for (const [key, value] of Object.entries(responseData)) {
       if (value !== null && value !== undefined) {
