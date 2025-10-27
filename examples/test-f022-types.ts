@@ -6,14 +6,14 @@
  */
 
 import type { EntuTask, EntuResponse, EntuLocation } from '../types/entu'
-import { isTask, isResponse, isLocation } from '../types/entu'
+import { isTask, isResponse, isLocation, unsafeToEntuEntityId } from '../types/entu'
 import {
   getTaskName,
   getTaskResponseCount,
   getTaskMapReference,
   getResponseCoordinates,
   getLocationName,
-  getLocationCoordinates
+  getLocationCoordinates,
 } from '../utils/entu-helpers'
 
 console.log('🧪 Testing F022 TypeScript Types...\n')
@@ -25,29 +25,29 @@ console.log('🧪 Testing F022 TypeScript Types...\n')
 console.log('📋 TEST 1: Task Entity')
 
 const sampleTask: EntuTask = {
-  _id: '68bab85d43e4daafab199988',
+  _id: unsafeToEntuEntityId('68bab85d43e4daafab199988'),
   _type: [{
-    _id: '68bab85d43e4daafab19998a',
-    reference: '686917231749f351b9c82f4c',
+    _id: unsafeToEntuEntityId('68bab85d43e4daafab19998a'),
+    reference: unsafeToEntuEntityId('686917231749f351b9c82f4c'),
     property_type: '_type',
     string: 'ulesanne',
-    entity_type: 'entity'
+    entity_type: 'entity',
   }],
   name: [{
-    _id: '68bab85d43e4daafab199989',
-    string: 'proovikas'
+    _id: unsafeToEntuEntityId('68bab85d43e4daafab199989'),
+    string: 'proovikas',
   }],
   kaart: [{
-    _id: '68bab8d343e4daafab199990',
-    reference: '68823f8b5d95233e69c29a07',
+    _id: unsafeToEntuEntityId('68bab8d343e4daafab199990'),
+    reference: unsafeToEntuEntityId('68823f8b5d95233e69c29a07'),
     property_type: 'kaart',
     string: 'Peeter Suure Merekindlus',
-    entity_type: 'kaart'
+    entity_type: 'kaart',
   }],
   vastuseid: [{
-    _id: '68bae03f43e4daafab199a48',
-    number: 25
-  }]
+    _id: unsafeToEntuEntityId('68bae03f43e4daafab199a48'),
+    number: 25,
+  }],
 }
 
 // Test helper functions
@@ -73,29 +73,29 @@ console.log('')
 console.log('💬 TEST 2: Response Entity')
 
 const sampleResponse: EntuResponse = {
-  _id: '68c7331a85a9d472cca35ce9',
+  _id: unsafeToEntuEntityId('68c7331a85a9d472cca35ce9'),
   _type: [{
-    _id: '68c7331a85a9d472cca35cee',
-    reference: '686917401749f351b9c82f58',
+    _id: unsafeToEntuEntityId('68c7331a85a9d472cca35cee'),
+    reference: unsafeToEntuEntityId('686917401749f351b9c82f58'),
     property_type: '_type',
     string: 'vastus',
-    entity_type: 'entity'
+    entity_type: 'entity',
   }],
   vastus: [{
-    _id: '68c7332985a9d472cca35cf9',
-    string: 'näidis kirjeldus'
+    _id: unsafeToEntuEntityId('68c7332985a9d472cca35cf9'),
+    string: 'näidis kirjeldus',
   }],
   seadme_gps: [{
-    _id: '68c7335885a9d472cca35cfb',
-    string: '24.45,64.56'
+    _id: unsafeToEntuEntityId('68c7335885a9d472cca35cfb'),
+    string: '24.45,64.56',
   }],
   valitud_asukoht: [{
-    _id: '68c7331a85a9d472cca35cea',
-    reference: '688260755d95233e69c2a5e3',
+    _id: unsafeToEntuEntityId('68c7331a85a9d472cca35cea'),
+    reference: unsafeToEntuEntityId('688260755d95233e69c2a5e3'),
     property_type: 'valitud_asukoht',
     string: 'AEGNA RAUDTEE',
-    entity_type: 'asukoht'
-  }]
+    entity_type: 'asukoht',
+  }],
 }
 
 const coords = getResponseCoordinates(sampleResponse)
@@ -118,26 +118,26 @@ console.log('')
 console.log('📍 TEST 3: Location Entity')
 
 const sampleLocation: EntuLocation = {
-  _id: '688260755d95233e69c2a5e3',
+  _id: unsafeToEntuEntityId('688260755d95233e69c2a5e3'),
   _type: [{
-    _id: '688260755d95233e69c2a5e4',
-    reference: '687d27c9259fc48ba59cf726',
+    _id: unsafeToEntuEntityId('688260755d95233e69c2a5e4'),
+    reference: unsafeToEntuEntityId('687d27c9259fc48ba59cf726'),
     property_type: '_type',
     string: 'asukoht',
-    entity_type: 'entity'
+    entity_type: 'entity',
   }],
   name: [{
-    _id: '688260755d95233e69c2a5e6',
-    string: 'AEGNA RAUDTEE'
+    _id: unsafeToEntuEntityId('688260755d95233e69c2a5e6'),
+    string: 'AEGNA RAUDTEE',
   }],
   lat: [{
-    _id: '688260755d95233e69c2a5e7',
-    number: 59.580067
+    _id: unsafeToEntuEntityId('688260755d95233e69c2a5e7'),
+    number: 59.580067,
   }],
   long: [{
-    _id: '688260755d95233e69c2a5e8',
-    number: 24.763499
-  }]
+    _id: unsafeToEntuEntityId('688260755d95233e69c2a5e8'),
+    number: 24.763499,
+  }],
 }
 
 const locationName = getLocationName(sampleLocation)
