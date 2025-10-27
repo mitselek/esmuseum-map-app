@@ -168,7 +168,9 @@ const respondentName = computed(() => {
 
 // Computed properties
 const canSubmit = computed(() => {
-  return responseForm.value.text.trim().length > 0
+  // Allow submission with or without text (text is optional)
+  // User can submit just a location, just files, or combination
+  return true
 })
 
 // Debug: Watch selectedLocation changes
