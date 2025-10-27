@@ -63,6 +63,32 @@ export default defineNuxtConfig({
       __VUE_PROD_DEVTOOLS__: false,
       __VUE_OPTIONS_API__: true,
       __VUE_DEVTOOLS__: false
+    },
+    build: {
+      rollupOptions: {
+        onwarn (warning, warn) {
+          // Suppress "as" glob deprecation warning from dependencies
+          if (warning.message?.includes('glob option "as" has been deprecated')) {
+            return
+          }
+          warn(warning)
+        }
+      }
+    },
+    customLogger: {
+      warn (msg: string) {
+        // Suppress the glob deprecation warning from nuxt-icons
+        if (msg.includes('glob option "as" has been deprecated')) {
+          return
+        }
+        console.warn(msg)
+      },
+      info: console.info,
+      error: console.error,
+      warnOnce: console.warn,
+      hasWarned: false,
+      hasErrorLogged: () => false,
+      clearScreen () {}
     }
   },
   eslint: {
