@@ -103,16 +103,22 @@ export interface EntuPropertyBase {
 
 /**
  * String property value
+ * 
+ * Handles both 'string' (single-line) and 'text' (multi-line) schema types.
+ * Both types use the 'string' field in API responses.
  */
 export interface EntuStringProperty extends EntuPropertyBase {
+  propertyType?: 'string' | 'text'
   string: string
   language?: string
+  markdown?: boolean
 }
 
 /**
  * Reference property value - links to another entity
  */
 export interface EntuReferenceProperty extends EntuPropertyBase {
+  propertyType?: 'reference'
   reference: EntuEntityId
   property_type?: string
   string?: string
@@ -124,13 +130,16 @@ export interface EntuReferenceProperty extends EntuPropertyBase {
  * Number property value
  */
 export interface EntuNumberProperty extends EntuPropertyBase {
+  propertyType?: 'number'
   number: number
+  decimals?: number
 }
 
 /**
  * Boolean property value
  */
 export interface EntuBooleanProperty extends EntuPropertyBase {
+  propertyType?: 'boolean'
   boolean: boolean
 }
 
@@ -138,6 +147,7 @@ export interface EntuBooleanProperty extends EntuPropertyBase {
  * DateTime property value
  */
 export interface EntuDateTimeProperty extends EntuPropertyBase {
+  propertyType?: 'datetime'
   datetime: string
   reference?: EntuEntityId
   property_type?: string
@@ -149,6 +159,7 @@ export interface EntuDateTimeProperty extends EntuPropertyBase {
  * File property value
  */
 export interface EntuFileProperty extends EntuPropertyBase {
+  propertyType?: 'file'
   filename: string
   filesize: number
   filetype: string
@@ -158,6 +169,7 @@ export interface EntuFileProperty extends EntuPropertyBase {
  * Date property value (date without time)
  */
 export interface EntuDateProperty extends EntuPropertyBase {
+  propertyType?: 'date'
   date: string
 }
 
