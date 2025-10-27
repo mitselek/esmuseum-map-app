@@ -4,7 +4,91 @@
  *
  * Entu entities follow a specific pattern where all properties are arrays of objects
  * containing an _id and a value field (string, reference, number, boolean, datetime, etc.)
+ *
+ * **Type Safety**: All entity IDs (_id, reference) use the branded EntuEntityId type
+ * to prevent mixing entity IDs with regular strings.
+ *
+ * **Conversion**:
+ * - Use `toEntuEntityId(str)` to safely convert and validate strings
+ * - Use `isEntuEntityId(str)` for type guards and narrowing
+ * - Use `as EntuEntityId` for test fixtures and known-valid literals
  */
+
+// ============================================================================
+// Branded Types for Type Safety
+// ============================================================================
+
+/**
+ * Branded type for Entu entity IDs (MongoDB ObjectIds)
+ *
+ * Entu entity IDs are 24-character hexadecimal strings representing MongoDB ObjectIds.
+ * This branded type provides compile-time type safety to prevent mixing entity IDs
+ * with regular strings.
+ *
+ * Format: 24-character hexadecimal string (case-insensitive)
+ * Example: "6889db9a5d95233e69c2b490"
+ *
+ * Usage:
+ * ```typescript
+ * const entityId: EntuEntityId = toEntuEntityId("6889db9a5d95233e69c2b490")
+ * const taskId: string = "some-id" // Cannot be assigned to EntuEntityId without conversion
+ * ```
+ *
+ * Constitutional Alignment: Type Safety First (Principle I)
+ */
+export type EntuEntityId = string & { readonly __brand: 'EntuEntityId' }
+
+/**
+ * Validation regex for MongoDB ObjectId format (24-character hexadecimal)
+ */
+const ENTU_ENTITY_ID_REGEX = /^[a-f0-9]{24}$/i
+
+/**
+ * Type guard to check if a string is a valid Entu entity ID
+ *
+ * @param value - String to validate
+ * @returns True if value is a valid 24-character hex string
+ *
+ * @example
+ * ```typescript
+ * if (isEntuEntityId(someString)) {
+ *   // TypeScript knows someString is EntuEntityId here
+ *   const id: EntuEntityId = someString
+ * }
+ * ```
+ */
+export function isEntuEntityId (value: string): value is EntuEntityId {
+  return ENTU_ENTITY_ID_REGEX.test(value)
+}
+
+/**
+ * Safely convert a string to EntuEntityId with validation
+ *
+ * Validates the input string matches MongoDB ObjectId format (24-character hex).
+ * Throws an error if validation fails.
+ *
+ * @param value - String to convert
+ * @returns Branded EntuEntityId
+ * @throws {Error} If value is not a valid 24-character hex string
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   const entityId = toEntuEntityId("6889db9a5d95233e69c2b490") // ✅ Valid
+ *   const invalidId = toEntuEntityId("invalid") // ❌ Throws Error
+ * } catch (error) {
+ *   console.error("Invalid entity ID:", error.message)
+ * }
+ * ```
+ */
+export function toEntuEntityId (value: string): EntuEntityId {
+  if (!isEntuEntityId(value)) {
+    throw new Error(
+      `Invalid Entu entity ID format: "${value}". Expected 24-character hexadecimal string.`,
+    )
+  }
+  return value
+}
 
 // ============================================================================
 // Base Property Types
@@ -14,7 +98,7 @@
  * Base structure for all Entu property values
  */
 export interface EntuPropertyBase {
-  _id: string
+  _id: EntuEntityId
 }
 
 /**
@@ -29,7 +113,7 @@ export interface EntuStringProperty extends EntuPropertyBase {
  * Reference property value - links to another entity
  */
 export interface EntuReferenceProperty extends EntuPropertyBase {
-  reference: string
+  reference: EntuEntityId
   property_type?: string
   string?: string
   entity_type?: string
@@ -55,7 +139,7 @@ export interface EntuBooleanProperty extends EntuPropertyBase {
  */
 export interface EntuDateTimeProperty extends EntuPropertyBase {
   datetime: string
-  reference?: string
+  reference?: EntuEntityId
   property_type?: string
   string?: string
   entity_type?: string
@@ -99,7 +183,7 @@ export type EntuProperty
  */
 export interface EntuEntity {
   /** Unique entity identifier */
-  _id: string
+  _id: EntuEntityId
 
   /** Entity type definition */
   _type: EntuReferenceProperty[]
