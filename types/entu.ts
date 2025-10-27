@@ -427,43 +427,92 @@ export type PropertyValue<T> = T extends EntuStringProperty[]
 // Type Guards
 // ============================================================================
 
+// ============================================================================
+// Property Type Guards
+// ============================================================================
+
 /**
- * Type guard to check if a property is a string property
+ * Type guard for string/text properties
+ * 
+ * Checks for presence of 'string' field while excluding reference and datetime
+ * properties which also have optional string fields.
+ * 
+ * @param prop - Property to check
+ * @returns True if prop is a string/text property
+ * 
+ * @example
+ * if (isStringProperty(prop)) {
+ *   console.log(prop.string) // TypeScript knows this exists
+ *   if (prop.markdown) {
+ *     // Handle markdown rendering
+ *   }
+ * }
  */
 export function isStringProperty (prop: EntuProperty): prop is EntuStringProperty {
-  return 'string' in prop
+  return 'string' in prop && !('reference' in prop) && !('datetime' in prop)
 }
 
 /**
- * Type guard to check if a property is a reference property
+ * Type guard for reference properties
+ * 
+ * Checks for presence of 'reference' field while excluding datetime properties
+ * which also have optional reference fields.
+ * 
+ * @param prop - Property to check
+ * @returns True if prop is a reference property
  */
 export function isReferenceProperty (prop: EntuProperty): prop is EntuReferenceProperty {
-  return 'reference' in prop
+  return 'reference' in prop && !('datetime' in prop)
 }
 
 /**
- * Type guard to check if a property is a number property
+ * Type guard for number properties
+ * 
+ * Checks for presence of 'number' field while excluding boolean properties
+ * which might coexist in complex scenarios.
+ * 
+ * @param prop - Property to check
+ * @returns True if prop is a number property
  */
 export function isNumberProperty (prop: EntuProperty): prop is EntuNumberProperty {
-  return 'number' in prop
+  return 'number' in prop && !('boolean' in prop)
 }
 
 /**
- * Type guard to check if a property is a boolean property
+ * Type guard for boolean properties
+ * 
+ * @param prop - Property to check
+ * @returns True if prop is a boolean property
  */
 export function isBooleanProperty (prop: EntuProperty): prop is EntuBooleanProperty {
   return 'boolean' in prop
 }
 
 /**
- * Type guard to check if a property is a datetime property
+ * Type guard for datetime properties
+ * 
+ * @param prop - Property to check
+ * @returns True if prop is a datetime property
  */
 export function isDateTimeProperty (prop: EntuProperty): prop is EntuDateTimeProperty {
   return 'datetime' in prop
 }
 
 /**
- * Type guard to check if a property is a file property
+ * Type guard for date properties
+ * 
+ * @param prop - Property to check
+ * @returns True if prop is a date property
+ */
+export function isDateProperty (prop: EntuProperty): prop is EntuDateProperty {
+  return 'date' in prop
+}
+
+/**
+ * Type guard for file properties
+ * 
+ * @param prop - Property to check
+ * @returns True if prop is a file property
  */
 export function isFileProperty (prop: EntuProperty): prop is EntuFileProperty {
   return 'filename' in prop && 'filesize' in prop && 'filetype' in prop
