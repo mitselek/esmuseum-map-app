@@ -39,15 +39,15 @@
  * Entu schema types map to TypeScript interfaces as follows:
  * 
  * | Schema Type | Interface            | Value Field | Notes                    |
- * |-------------|---------------------|-------------|--------------------------|
- * | string      | EntuStringProperty  | string      | Single-line text         |
- * | text        | EntuStringProperty  | string      | Multi-line, markdown opt |
- * | number      | EntuNumberProperty  | number      | Numeric values           |
- * | boolean     | EntuBooleanProperty | boolean     | True/false               |
- * | reference   | EntuReferenceProperty| reference  | Entity ID reference      |
- * | datetime    | EntuDateTimeProperty | datetime   | ISO 8601 datetime        |
- * | date        | EntuDateProperty    | date        | ISO 8601 date            |
- * | file        | EntuFileProperty    | filename, filesize, filetype | File metadata |
+ * |-------------|----------------------|-------------|--------------------------|
+ * | string      | EntuStringProperty   | string      | Single-line text         |
+ * | text        | EntuStringProperty   | string      | Multi-line, markdown opt |
+ * | number      | EntuNumberProperty   | number      | Numeric values           |
+ * | boolean     | EntuBooleanProperty  | boolean     | True/false               |
+ * | reference   | EntuReferenceProperty| reference   | Entity ID reference      |
+ * | datetime    | EntuDateTimeProperty | datetime    | ISO 8601 datetime        |
+ * | date        | EntuDateProperty     | date        | ISO 8601 date            |
+ * | file        | EntuFileProperty     | filename, filesize, filetype | File metadata |
  */
 
 // ============================================================================
