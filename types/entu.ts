@@ -8,10 +8,46 @@
  * **Type Safety**: All entity IDs (_id, reference) use the branded EntuEntityId type
  * to prevent mixing entity IDs with regular strings.
  *
- * **Conversion**:
+ * **Entity ID Conversion**:
  * - Use `toEntuEntityId(str)` to safely convert and validate strings
  * - Use `isEntuEntityId(str)` for type guards and narrowing
  * - Use `as EntuEntityId` for test fixtures and known-valid literals
+ *
+ * **Property Type Guards**:
+ * Use type guards for runtime property type narrowing and safer property access:
+ * 
+ * @example
+ * // Type narrowing with property guards
+ * function processProperty(prop: EntuProperty) {
+ *   if (isStringProperty(prop)) {
+ *     console.log(prop.string)  // TypeScript knows this exists
+ *     if (prop.markdown) {
+ *       // Render as markdown
+ *     }
+ *   } else if (isNumberProperty(prop)) {
+ *     console.log(prop.number)
+ *     if (prop.decimals) {
+ *       // Format with specific decimal places
+ *     }
+ *   } else if (isReferenceProperty(prop)) {
+ *     const entityId: EntuEntityId = prop.reference
+ *     // Load referenced entity
+ *   }
+ * }
+ *
+ * **Schema Type Mapping**:
+ * Entu schema types map to TypeScript interfaces as follows:
+ * 
+ * | Schema Type | Interface            | Value Field | Notes                    |
+ * |-------------|---------------------|-------------|--------------------------|
+ * | string      | EntuStringProperty  | string      | Single-line text         |
+ * | text        | EntuStringProperty  | string      | Multi-line, markdown opt |
+ * | number      | EntuNumberProperty  | number      | Numeric values           |
+ * | boolean     | EntuBooleanProperty | boolean     | True/false               |
+ * | reference   | EntuReferenceProperty| reference  | Entity ID reference      |
+ * | datetime    | EntuDateTimeProperty | datetime   | ISO 8601 datetime        |
+ * | date        | EntuDateProperty    | date        | ISO 8601 date            |
+ * | file        | EntuFileProperty    | filename, filesize, filetype | File metadata |
  */
 
 // ============================================================================
