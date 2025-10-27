@@ -5,8 +5,8 @@
  * Run this to verify types work correctly.
  */
 
-import type { EntuTask, EntuResponse, EntuLocation } from '../types/entu'
-import { isTask, isResponse, isLocation, unsafeToEntuEntityId } from '../types/entu'
+import type { EntuTask, EntuResponse, EntuLocation, EntuEntityId } from '../types/entu'
+import { isTask, isResponse, isLocation } from '../types/entu'
 import {
   getTaskName,
   getTaskResponseCount,
@@ -25,27 +25,27 @@ console.log('🧪 Testing F022 TypeScript Types...\n')
 console.log('📋 TEST 1: Task Entity')
 
 const sampleTask: EntuTask = {
-  _id: unsafeToEntuEntityId('68bab85d43e4daafab199988'),
+  _id: '68bab85d43e4daafab199988' as EntuEntityId,
   _type: [{
-    _id: unsafeToEntuEntityId('68bab85d43e4daafab19998a'),
-    reference: unsafeToEntuEntityId('686917231749f351b9c82f4c'),
+    _id: '68bab85d43e4daafab19998a' as EntuEntityId,
+    reference: '686917231749f351b9c82f4c' as EntuEntityId,
     property_type: '_type',
     string: 'ulesanne',
     entity_type: 'entity',
   }],
   name: [{
-    _id: unsafeToEntuEntityId('68bab85d43e4daafab199989'),
+    _id: '68bab85d43e4daafab199989' as EntuEntityId,
     string: 'proovikas',
   }],
   kaart: [{
-    _id: unsafeToEntuEntityId('68bab8d343e4daafab199990'),
-    reference: unsafeToEntuEntityId('68823f8b5d95233e69c29a07'),
+    _id: '68bab8d343e4daafab199990' as EntuEntityId,
+    reference: '68823f8b5d95233e69c29a07' as EntuEntityId,
     property_type: 'kaart',
     string: 'Peeter Suure Merekindlus',
     entity_type: 'kaart',
   }],
   vastuseid: [{
-    _id: unsafeToEntuEntityId('68bae03f43e4daafab199a48'),
+    _id: '68bae03f43e4daafab199a48' as EntuEntityId,
     number: 25,
   }],
 }
@@ -73,25 +73,25 @@ console.log('')
 console.log('💬 TEST 2: Response Entity')
 
 const sampleResponse: EntuResponse = {
-  _id: unsafeToEntuEntityId('68c7331a85a9d472cca35ce9'),
+  _id: '68c7331a85a9d472cca35ce9' as EntuEntityId,
   _type: [{
-    _id: unsafeToEntuEntityId('68c7331a85a9d472cca35cee'),
-    reference: unsafeToEntuEntityId('686917401749f351b9c82f58'),
+    _id: '68c7331a85a9d472cca35cee' as EntuEntityId,
+    reference: '686917401749f351b9c82f58' as EntuEntityId,
     property_type: '_type',
     string: 'vastus',
     entity_type: 'entity',
   }],
   vastus: [{
-    _id: unsafeToEntuEntityId('68c7332985a9d472cca35cf9'),
+    _id: '68c7332985a9d472cca35cf9' as EntuEntityId,
     string: 'näidis kirjeldus',
   }],
   seadme_gps: [{
-    _id: unsafeToEntuEntityId('68c7335885a9d472cca35cfb'),
+    _id: '68c7335885a9d472cca35cfb' as EntuEntityId,
     string: '24.45,64.56',
   }],
   valitud_asukoht: [{
-    _id: unsafeToEntuEntityId('68c7331a85a9d472cca35cea'),
-    reference: unsafeToEntuEntityId('688260755d95233e69c2a5e3'),
+    _id: '68c7331a85a9d472cca35cea' as EntuEntityId,
+    reference: '688260755d95233e69c2a5e3' as EntuEntityId,
     property_type: 'valitud_asukoht',
     string: 'AEGNA RAUDTEE',
     entity_type: 'asukoht',
@@ -118,24 +118,24 @@ console.log('')
 console.log('📍 TEST 3: Location Entity')
 
 const sampleLocation: EntuLocation = {
-  _id: unsafeToEntuEntityId('688260755d95233e69c2a5e3'),
+  _id: '688260755d95233e69c2a5e3' as EntuEntityId,
   _type: [{
-    _id: unsafeToEntuEntityId('688260755d95233e69c2a5e4'),
-    reference: unsafeToEntuEntityId('687d27c9259fc48ba59cf726'),
+    _id: '688260755d95233e69c2a5e4' as EntuEntityId,
+    reference: '687d27c9259fc48ba59cf726' as EntuEntityId,
     property_type: '_type',
     string: 'asukoht',
     entity_type: 'entity',
   }],
   name: [{
-    _id: unsafeToEntuEntityId('688260755d95233e69c2a5e6'),
+    _id: '688260755d95233e69c2a5e6' as EntuEntityId,
     string: 'AEGNA RAUDTEE',
   }],
   lat: [{
-    _id: unsafeToEntuEntityId('688260755d95233e69c2a5e7'),
+    _id: '688260755d95233e69c2a5e7' as EntuEntityId,
     number: 59.580067,
   }],
   long: [{
-    _id: unsafeToEntuEntityId('688260755d95233e69c2a5e8'),
+    _id: '688260755d95233e69c2a5e8' as EntuEntityId,
     number: 24.763499,
   }],
 }

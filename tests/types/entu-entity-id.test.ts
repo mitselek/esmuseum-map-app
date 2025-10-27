@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { EntuEntityId } from '../../types/entu'
-import { isEntuEntityId, toEntuEntityId, unsafeToEntuEntityId } from '../../types/entu'
+import { isEntuEntityId, toEntuEntityId } from '../../types/entu'
 
 describe('EntuEntityId', () => {
   const validIds = [
@@ -73,30 +73,6 @@ describe('EntuEntityId', () => {
     it('should accept case-insensitive hex strings', () => {
       expect(() => toEntuEntityId('6889db9a5d95233e69c2b490')).not.toThrow()
       expect(() => toEntuEntityId('6889DB9A5D95233E69C2B490')).not.toThrow()
-    })
-  })
-
-  describe('unsafeToEntuEntityId', () => {
-    it('should convert valid IDs without validation', () => {
-      validIds.forEach((id) => {
-        expect(() => unsafeToEntuEntityId(id)).not.toThrow()
-        const result = unsafeToEntuEntityId(id)
-        expect(result).toBe(id)
-      })
-    })
-
-    it('should convert invalid IDs without throwing (intentionally unsafe)', () => {
-      invalidIds.forEach((id) => {
-        expect(() => unsafeToEntuEntityId(id)).not.toThrow()
-        const result = unsafeToEntuEntityId(id)
-        expect(result).toBe(id)
-      })
-    })
-
-    it('should not validate format at all', () => {
-      const extremelyInvalid = 'this-is-totally-not-a-valid-id!!!'
-      expect(() => unsafeToEntuEntityId(extremelyInvalid)).not.toThrow()
-      expect(unsafeToEntuEntityId(extremelyInvalid)).toBe(extremelyInvalid)
     })
   })
 

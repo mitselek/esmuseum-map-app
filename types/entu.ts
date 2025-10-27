@@ -6,8 +6,12 @@
  * containing an _id and a value field (string, reference, number, boolean, datetime, etc.)
  *
  * **Type Safety**: All entity IDs (_id, reference) use the branded EntuEntityId type
- * to prevent mixing entity IDs with regular strings. Use toEntuEntityId() or
- * isEntuEntityId() for safe conversions.
+ * to prevent mixing entity IDs with regular strings.
+ *
+ * **Conversion**:
+ * - Use `toEntuEntityId(str)` to safely convert and validate strings
+ * - Use `isEntuEntityId(str)` for type guards and narrowing
+ * - Use `as EntuEntityId` for test fixtures and known-valid literals
  */
 
 // ============================================================================
@@ -84,29 +88,6 @@ export function toEntuEntityId (value: string): EntuEntityId {
     )
   }
   return value
-}
-
-/**
- * Unsafely convert a string to EntuEntityId without validation
- *
- * ⚠️ WARNING: This function skips validation and trusts the caller.
- * Use only when you have certainty that the value is a valid entity ID
- * (e.g., already validated elsewhere, from trusted source like database).
- *
- * @param value - String to convert (assumed valid)
- * @returns Branded EntuEntityId
- *
- * @example
- * ```typescript
- * // Use when ID comes from trusted source (e.g., database response)
- * const entityId = unsafeToEntuEntityId(response.entity._id)
- *
- * // DON'T use for user input or untrusted sources
- * const userInput = unsafeToEntuEntityId(userProvidedId) // ❌ Bad practice
- * ```
- */
-export function unsafeToEntuEntityId (value: string): EntuEntityId {
-  return value as EntuEntityId
 }
 
 // ============================================================================
