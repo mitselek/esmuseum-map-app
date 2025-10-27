@@ -311,11 +311,18 @@ export interface EntuTask extends EntuEntity {
  * Response entity (vastus)
  * Submissions and responses to assignments, can include location data and photos
  *
+ * **Structure Change (Oct 2025)**:
+ * - Parent: Responses folder (configured via NUXT_RESPONSES_FOLDER_ID)
+ * - Task reference: Stored in `ulesanne` property (not _parent)
+ *
  * **Permissions**: When a response is created, the group leader (grupijuht) from the
  * associated task's group is automatically added as _viewer to allow teachers to
  * view student responses.
  */
 export interface EntuResponse extends EntuEntity {
+  /** Task reference - which task this response is for */
+  ulesanne?: EntuReferenceProperty[]
+
   /** Selected location reference (which location the student chose to respond about) */
   valitud_asukoht?: EntuReferenceProperty[]
 

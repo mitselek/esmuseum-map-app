@@ -38,6 +38,7 @@ export const ENTU_PROPERTIES = {
   VASTAJA: 'vastaja', // Respondent name
   SEADME_GPS: 'seadme_gps', // Device GPS coordinates (where student was physically located)
   VALITUD_ASUKOHT: 'valitud_asukoht', // Selected location reference (which location they chose)
+  ULESANNE: 'ulesanne', // Task reference (stored as property, not _parent)
 
   // Task entity properties
   KIRJELDUS: 'kirjeldus', // Task description

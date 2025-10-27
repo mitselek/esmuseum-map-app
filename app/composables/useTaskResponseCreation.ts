@@ -138,7 +138,7 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
     try {
       const result = await searchEntities({
         [ENTU_PROPERTIES.TYPE_STRING]: ENTU_TYPES.VASTUS,
-        '_parent.reference': taskId,
+        'ulesanne.reference': taskId, // Changed from '_parent.reference' - task is now reference property
         '_owner.reference': userId,
         limit: 1
       })
@@ -155,9 +155,11 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
    */
   const createResponseClientSide = async (requestData: TaskResponseRequest): Promise<CreateResponseResult> => {
     const { taskId, responses, respondentName } = requestData
+    const config = useRuntimeConfig()
 
     const responseData: ResponseData = {
-      [ENTU_PROPERTIES.PARENT]: taskId,
+      [ENTU_PROPERTIES.PARENT]: config.responsesFolderId, // Responses folder as parent
+      [ENTU_PROPERTIES.ULESANNE]: taskId, // Task as reference property
       [ENTU_PROPERTIES.VASTUS]: responses[0]?.value || ''
     }
 
@@ -194,7 +196,7 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
 
     for (const [key, value] of Object.entries(responseData)) {
       if (value !== null && value !== undefined) {
-        if (key === ENTU_PROPERTIES.PARENT || key === ENTU_PROPERTIES.VALITUD_ASUKOHT) {
+        if (key === ENTU_PROPERTIES.PARENT || key === ENTU_PROPERTIES.VALITUD_ASUKOHT || key === ENTU_PROPERTIES.ULESANNE) {
           entuProperties.push({ type: key, reference: value as string })
         }
         else if (typeof value === 'string') {
