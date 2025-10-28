@@ -31,8 +31,6 @@ export default defineNuxtConfig({
     webhookSecret: '',
     // FEAT-001: Entu manager key for admin operations (group assignment, etc.)
     entuManagerKey: '',
-    // Responses folder ID - parent folder for all response entities
-    responsesFolderId: '',
     public: {
       callbackOrigin: '',
       // F015 Feature Flags

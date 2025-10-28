@@ -152,13 +152,14 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
 
   /**
    * Create response directly via Entu API (client-side)
+   * 
+   * Note: Parent folder is configured in Entu entity type settings.
+   * We don't assign _parent here - Entu handles it based on type configuration.
    */
   const createResponseClientSide = async (requestData: TaskResponseRequest): Promise<CreateResponseResult> => {
     const { taskId, responses, respondentName } = requestData
-    const config = useRuntimeConfig()
 
     const responseData: ResponseData = {
-      [ENTU_PROPERTIES.PARENT]: config.responsesFolderId, // Responses folder as parent
       [ENTU_PROPERTIES.ULESANNE]: taskId, // Task as reference property
       [ENTU_PROPERTIES.VASTUS]: responses[0]?.value || ''
     }
@@ -196,7 +197,7 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
 
     for (const [key, value] of Object.entries(responseData)) {
       if (value !== null && value !== undefined) {
-        if (key === ENTU_PROPERTIES.PARENT || key === ENTU_PROPERTIES.VALITUD_ASUKOHT || key === ENTU_PROPERTIES.ULESANNE) {
+        if (key === ENTU_PROPERTIES.VALITUD_ASUKOHT || key === ENTU_PROPERTIES.ULESANNE) {
           entuProperties.push({ type: key, reference: value as string })
         }
         else if (typeof value === 'string') {

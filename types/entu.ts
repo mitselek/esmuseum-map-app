@@ -312,7 +312,7 @@ export interface EntuTask extends EntuEntity {
  * Submissions and responses to assignments, can include location data and photos
  *
  * **Structure Change (Oct 2025)**:
- * - Parent: Responses folder (configured via NUXT_RESPONSES_FOLDER_ID)
+ * - Parent: Automatically assigned by Entu based on entity type configuration
  * - Task reference: Stored in `ulesanne` property (not _parent)
  *
  * **Permissions**: When a response is created, the group leader (grupijuht) from the
