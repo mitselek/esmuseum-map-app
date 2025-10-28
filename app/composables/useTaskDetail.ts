@@ -11,6 +11,7 @@ import type { EntuTask } from '../../types/entu'
 import type { EntuUser } from './useEntuAuth'
 import type { UserResponseData } from '../../types/workspace'
 import { ENTU_TYPES } from '../constants/entu'
+import { buildResponsesByTaskQuery } from '../../utils/entu-query-builders'
 import {
   getTaskName,
   getTaskDescription as getTaskDescriptionHelper,
@@ -366,12 +367,11 @@ export const useTaskDetail = () => {
       if (token.value) {
         try {
           // Client-side version (F015 migration)
-          const responses = await searchEntities({
-            '_type.string': ENTU_TYPES.VASTUS,
-            'ulesanne.reference': taskId, // Changed from '_parent.reference' - task is now reference property
-            '_owner._id': user.value?._id,
-            limit: 1
-          })
+          // Note: Using _owner._id instead of _owner.reference for direct ID comparison
+          const query = buildResponsesByTaskQuery(taskId, undefined, 1)
+          query['_owner._id'] = user.value?._id
+          
+          const responses = await searchEntities(query)
 
           const responseData = {
             success: true,

@@ -1,4 +1,5 @@
 import { ENTU_TYPES, ENTU_TYPE_IDS, ENTU_PROPERTIES } from '../constants/entu'
+import { buildResponsesByTaskQuery } from '../../utils/entu-query-builders'
 import type { Ref } from 'vue'
 import type { EntuTask, EntuGroup, EntuEntityResponse } from '../../types/entu'
 
@@ -136,12 +137,8 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
     if (!userId || !taskId) return false
 
     try {
-      const result = await searchEntities({
-        [ENTU_PROPERTIES.TYPE_STRING]: ENTU_TYPES.VASTUS,
-        'ulesanne.reference': taskId, // Changed from '_parent.reference' - task is now reference property
-        '_owner.reference': userId,
-        limit: 1
-      })
+      const query = buildResponsesByTaskQuery(taskId, userId, 1)
+      const result = await searchEntities(query)
       return (result.entities?.length || 0) > 0
     }
     catch (error) {
