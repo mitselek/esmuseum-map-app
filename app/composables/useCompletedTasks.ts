@@ -73,7 +73,7 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
         '_type.string': ENTU_TYPES.VASTUS,
         '_owner.reference': userId,
         limit: 100,
-        props: '_parent,valitud_asukoht,vastused,esitamisaeg,muutmisaeg,staatus'
+        props: 'ulesanne,valitud_asukoht,vastused,esitamisaeg,muutmisaeg,staatus'
       })
 
       // Type assertion: we know these are response entities
@@ -96,11 +96,12 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
       })
 
       // Extract unique task IDs from user responses
+      // Note: Using ulesanne reference (not _parent) - responses link to tasks via ulesanne property
       const taskIds: string[] = []
       for (const response of responses) {
-        const parentRef = response._parent?.[0]?.reference
-        if (parentRef) {
-          taskIds.push(parentRef)
+        const taskRef = response.ulesanne?.[0]?.reference
+        if (taskRef) {
+          taskIds.push(taskRef)
         }
       }
 
@@ -126,8 +127,9 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
    */
   const getTaskStats = (taskId: string, expectedCount: number): TaskStats => {
     // Filter responses for this specific task
+    // Note: Using ulesanne reference (not _parent) - responses link to tasks via ulesanne property
     const taskResponses = userResponses.value.filter((response) => {
-      return response._parent?.[0]?.reference === taskId
+      return response.ulesanne?.[0]?.reference === taskId
     })
 
     // Count unique locations visited (by valitud_asukoht reference)
@@ -152,8 +154,9 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
    * @returns Set of location references that have been visited for this task
    */
   const getVisitedLocationsForTask = (taskId: string): Set<string> => {
+    // Note: Using ulesanne reference (not _parent) - responses link to tasks via ulesanne property
     const taskResponses = userResponses.value.filter((response) => {
-      return response._parent?.[0]?.reference === taskId
+      return response.ulesanne?.[0]?.reference === taskId
     })
 
     const locations = new Set<string>()
