@@ -1,5 +1,5 @@
 <script setup>
-const { isAuthenticated, error, user } = useEntuAuth()
+const { isAuthenticated, error, user, logout } = useEntuAuth()
 const { startOAuthFlow } = useEntuOAuth()
 const router = useRouter()
 
@@ -18,6 +18,10 @@ const oauthProviders = [
 ]
 
 onMounted(() => {
+  // Clear any existing session when landing on login page
+  // This ensures a fresh start for authentication
+  logout()
+
   if (import.meta.client) {
     // Get redirect URL from localStorage
     redirectPath.value = localStorage.getItem('auth_redirect') || '/'

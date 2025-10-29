@@ -337,10 +337,10 @@ async function startJoinAndPoll () {
  * Handle OAuth authentication and join group flow (entrypoint)
  */
 async function handleJoinGroup () {
-  // If not authenticated, start OAuth and persist state
+  // If not authenticated, start OAuth and redirect to home after auth
   if (!token.value || !user.value) {
-    const callbackUrl = `/signup/${groupId.value}`
-    localStorage.setItem('auth_redirect', callbackUrl) // Use REDIRECT_KEY constant value
+    // After successful authentication, redirect directly to home (not back here)
+    localStorage.setItem('auth_redirect', '/') // Redirect to home after OAuth
     localStorage.setItem('pending_group_id', groupId.value)
 
     startOAuthFlow('google')
@@ -404,76 +404,21 @@ function clearStaleAuthAndShowNameForm () {
 }
 
 /**
- * On mount, check if we're returning from OAuth and whether to start flow
+ * On mount, always clear any existing session for a fresh start
+ * 
+ * Since OAuth callback now redirects to home (not back here), we can
+ * safely logout without worrying about clearing a fresh session.
  * 
  * FIX #21: Check membership even for authenticated users without pendingGroupId
  * FIX #23: Validate user entity exists before proceeding (detect stale auth)
  */
 onMounted(async () => {
+  // Always clear any existing session when landing on signup page
+  // OAuth flow redirects to home after auth, never back here
+  const { logout } = useEntuAuth()
+  logout()
+
   // Fetch group name to display in header
   fetchGroupInfo()
-
-  const pendingGroupId = localStorage.getItem('pending_group_id')
-
-  // If user is authenticated and has complete profile, validate and check membership
-  if (token.value && user.value) {
-    const hasForename = Boolean(user.value.forename)
-    const hasSurname = Boolean(user.value.surname)
-
-    // If names are missing, show the name collection form
-    if (!hasForename || !hasSurname) {
-      needsName.value = true
-      formData.value.forename = user.value.forename || ''
-      formData.value.surname = user.value.surname || ''
-      return
-    }
-
-    // FIX #23: Validate that user entity still exists in Entu
-    // This detects stale authentication (valid token but deleted entity)
-    try {
-      const userId = user.value._id
-      const validationCheck = await $fetch<{ exists: boolean }>(
-        `/api/onboard/validate-user?userId=${userId}`
-      )
-
-      if (!validationCheck.exists) {
-        // User entity was deleted - clear stale auth and show name form
-        console.warn('[AUTH-STALE] User entity not found, clearing stale authentication', { userId })
-        clearStaleAuthAndShowNameForm()
-        return
-      }
-    }
-    catch (error) {
-      console.warn('[AUTH-VALIDATE-ERROR] Failed to validate user entity:', error)
-      // On validation error, clear auth to be safe and let user restart
-      clearStaleAuthAndShowNameForm()
-      return
-    }
-
-    // User entity exists - check if already a member
-    try {
-      const userId = user.value._id
-      const membershipCheck = await $fetch<{ isMember: boolean }>(
-        `/api/onboard/check-membership?groupId=${groupId.value}&userId=${userId}`
-      )
-
-      if (membershipCheck.isMember) {
-        // Already a member - redirect to main workspace
-        localStorage.removeItem('pending_group_id')
-        localStorage.removeItem('auth_redirect')
-        router.push('/')
-        return
-      }
-    }
-    catch (error) {
-      console.warn('Failed to check membership on mount:', error)
-      // Continue with normal flow if check fails
-    }
-
-    // If pendingGroupId matches, auto-start the join flow
-    if (pendingGroupId && pendingGroupId === groupId.value) {
-      handleJoinGroup()
-    }
-  }
 })
 </script>
