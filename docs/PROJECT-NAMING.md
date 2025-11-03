@@ -18,7 +18,7 @@ The project name **"ESMuseum"** is **highly ambiguous** and leads to consistent 
 
 - **ES** = **Eesti Sõja** (Estonian War)
 - **Museum** = Museum (English)
-- **Full Name**: Estonian War Museum (Eesti Sõjamuuseum)
+- **Full Name**: Estonian War Museum (Eesti sõjamuuseum)
 
 ### What People Think It Means
 
@@ -156,9 +156,3 @@ Add explicit disambiguation:
 | ---------- | ---------------------------------------- | ----------------------------------------------- |
 | 2025-10-14 | Document issue, no rename yet            | Low priority cosmetic issue, renaming has costs |
 | TBD        | Consider rename if brand not established | Evaluate branding vs. clarity tradeoff          |
-
----
-
-**Maintainer Note**: This is not a critical issue but causes consistent confusion. Document in onboarding materials and consider rename if rebranding opportunity arises.
-
-**For New Contributors**: ESMuseum = **Estonian War Museum** (Eesti Sõjamuuseum), NOT Sports Museum!

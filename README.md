@@ -1,6 +1,6 @@
 # ESMuseum Map App
 
-**Estonian War Museum** (Eesti Sõjamuuseum) interactive map application.
+**Estonian War Museum** (Eesti sõjamuuseum) interactive map application.
 
 > **Note**: "ES" = "Eesti Sõja" (Estonian **War**), not "Estonian Sports". See [docs/PROJECT-NAMING.md](docs/PROJECT-NAMING.md) for naming context.
 
