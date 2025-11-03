@@ -5,7 +5,7 @@ Auto-generated from all feature plans. Last updated: 2025-10-14
 ## Project Context
 
 **Name**: ESMuseum Map App  
-**Full Name**: Estonian War Museum (Eesti Sõjamuuseum) Map Application  
+**Full Name**: Estonian War Museum (Eesti sõjamuuseum) Map Application  
 **IMPORTANT**: "ES" = "Eesti Sõja" (Estonian **War**), NOT "Estonian Sports"
 
 This is an interactive map application for Estonia's military history museum. The project name is ambiguous - see PROJECT-NAMING.md in the docs folder for details.

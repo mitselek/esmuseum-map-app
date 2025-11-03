@@ -4,9 +4,9 @@
 
 **Osalejad**:
 
-- Annemai Mägi (Eesti Sõjamuuseum)
-- Eli Pilve (Eesti Sõjamuuseum)
-- Patrick Rang (Eesti Sõjamuuseum)
+- Annemai Mägi (Eesti sõjamuuseum)
+- Eli Pilve (Eesti sõjamuuseum)
+- Patrick Rang (Eesti sõjamuuseum)
 - Argo Roots (Entu tooteomanik)
 - Mihkel Putrinš (kaardirakenduse arendaja)
 

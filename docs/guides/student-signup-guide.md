@@ -6,7 +6,7 @@
 
 ## Overview
 
-This guide explains how students join a group in the Estonian War Museum (Eesti Sõjamuuseum) Map Application. The signup process is simple and takes about 30 seconds.
+This guide explains how students join a group in the Estonian War Museum (Eesti sõjamuuseum) Map Application. The signup process is simple and takes about 30 seconds.
 
 **Important**: "ES" stands for "Eesti Sõja" (Estonian War), NOT "Estonian Sports". See [Project Naming](../PROJECT-NAMING.md) for details.
 

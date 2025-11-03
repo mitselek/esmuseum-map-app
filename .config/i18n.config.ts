@@ -32,7 +32,7 @@ export default defineI18nConfig(() => ({
       appName: 'ESMuseum Kaardid',
       description: 'Avasta Eesti sõjaajalugu interaktiivsete asukohal põhinevate missioonide ja ajalooliste avastuste kaudu. Autentimiseks alusta oma teekonda.',
 
-      title: 'Tere tulemast Eesti Sõjamuuseumisse',
+      title: 'Tere tulemast Eesti sõjamuuseumisse',
       redirecting: 'Suunamine...',
       hello: 'Tere',
       student: 'õpilane',
