@@ -66,9 +66,17 @@ const loginWithOAuth = async (providerId) => {
     <!-- Login Content -->
     <div class="flex items-center justify-center p-4">
       <div class="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-        <h1 class="mb-6 text-center text-2xl font-bold">
-          {{ $t('title') }}
-        </h1>
+        <!-- Museum Logo and Title -->
+        <div class="mb-6 flex items-center justify-center gap-4">
+          <img
+            src="/esm_logo.png"
+            alt="Eesti Sõjamuuseum"
+            class="h-20 w-auto flex-shrink-0"
+          >
+          <h1 class="text-left text-2xl font-bold leading-tight">
+            {{ $t('title') }}
+          </h1>
+        </div>
 
         <div
           v-if="error"
