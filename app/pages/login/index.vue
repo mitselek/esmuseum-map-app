@@ -106,10 +106,6 @@ const loginWithOAuth = async (providerId) => {
         </div>
 
         <div v-else>
-          <p class="mb-6 text-center text-gray-600">
-            {{ $t('description') }}
-          </p>
-
           <!-- OAuth Provider Buttons -->
           <div class="space-y-3">
             <button

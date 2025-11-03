@@ -3,7 +3,7 @@
     <div class="px-4 py-3">
       <div class="flex items-center justify-between">
         <h1 class="text-xl font-semibold text-gray-900">
-          {{ title || $t('appName') }}
+          <!-- {{ title || $t('appName') }} -->
         </h1>
         <div class="flex items-center space-x-4">
           <!-- Language Switcher -->

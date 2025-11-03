@@ -29,8 +29,7 @@ export default defineI18nConfig(() => ({
       },
       login: 'Logi sisse',
       logout: 'Logi välja',
-      appName: 'ESMuseum Kaardid',
-      description: 'Avasta Eesti sõjaajalugu interaktiivsete asukohal põhinevate missioonide ja ajalooliste avastuste kaudu. Autentimiseks alusta oma teekonda.',
+      appName: 'ESM Kaardirakendus',
 
       title: 'Tere tulemast Eesti sõjamuuseumisse',
       redirecting: 'Suunamine...',
@@ -185,8 +184,7 @@ export default defineI18nConfig(() => ({
       },
       login: 'Login',
       logout: 'Logout',
-      appName: 'ESMuseum Maps',
-      description: 'Explore Estonia\'s military history through interactive location-based missions and historical discoveries. Authenticate to begin your journey.',
+      appName: 'EWM Map App',
 
       title: 'Welcome to Estonian War Museum',
       redirecting: 'Redirecting...',
@@ -347,8 +345,7 @@ export default defineI18nConfig(() => ({
       },
       login: 'Увійти',
       logout: 'Вийти',
-      appName: 'ESMuseum Карти',
-      description: 'Досліджуйте військову історію Естонії через інтерактивні місцеві місії та історичні відкриття. Автентифікуйтеся, щоб розпочати свою подорож.',
+      appName: 'EWM Map App',
 
       title: 'Ласкаво просимо до Естонського військового музею',
       redirecting: 'Перенаправлення...',
@@ -505,8 +502,7 @@ export default defineI18nConfig(() => ({
       },
       login: 'Pieteikties',
       logout: 'Izrakstīties',
-      appName: 'ESMuseum Kartes',
-      description: 'Izpētiet Igaunijas militāro vēsturi, izmantojot interaktīvās uz atrašanās vietu balstītās misijas un vēsturiskos atklājumus. Autentificējieties, lai sāktu savu ceļojumu.',
+      appName: 'IKM Kartes Lietotne',
 
       title: 'Laipni lūdzam Igaunijas Kara muzejā',
       redirecting: 'Pārvirza...',
