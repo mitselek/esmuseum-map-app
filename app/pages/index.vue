@@ -11,7 +11,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 definePageMeta({
   middleware: 'auth'
 })
@@ -19,9 +19,64 @@ definePageMeta({
 // Import debug panel explicitly (auto-import fix)
 const EventDebugPanel = defineAsyncComponent(() => import('~/components/EventDebugPanel.vue'))
 
+// Check for pending group join from signup flow
+const { user } = useEntuAuth()
+const { joinGroup, pollGroupMembership } = useOnboarding()
+
 // Initialize GPS - request directly without custom prompt
 const { checkGeolocationPermission, requestGPSPermission, getUserPosition, startGPSUpdates } = useLocation()
+
+/**
+ * Process pending group join after OAuth redirect
+ * This handles the case where user clicked join link, authenticated via OAuth,
+ * and was redirected to home page
+ */
+async function processPendingGroupJoin () {
+  const pendingGroupId = localStorage.getItem('pending_group_id')
+
+  if (!pendingGroupId || !user.value) {
+    console.log('[ONBOARDING] No pending group join')
+    return
+  }
+
+  console.log('[ONBOARDING] Processing pending group join:', pendingGroupId)
+
+  try {
+    const userId = user.value._id
+
+    // Join the group (endpoint already handles duplicate membership check)
+    console.log('[ONBOARDING] Joining group...')
+    const response = await joinGroup(pendingGroupId, userId)
+    
+    if (!response.success) {
+      console.error('[ONBOARDING] ❌ Failed to join group:', response.message)
+      return
+    }
+
+    console.log('[ONBOARDING] Join initiated, polling for confirmation...')
+
+    // Poll for membership confirmation
+    const confirmed = await pollGroupMembership(pendingGroupId, userId)
+    
+    if (confirmed) {
+      console.log('[ONBOARDING] ✓ Membership confirmed!')
+      localStorage.removeItem('pending_group_id')
+      localStorage.removeItem('auth_redirect')
+    }
+    else {
+      console.warn('[ONBOARDING] ⚠ Membership polling timed out')
+    }
+  }
+  catch (error: unknown) {
+    console.error('[ONBOARDING] ❌ Error processing pending group join:', error)
+  }
+}
+
 onMounted(async () => {
+  // Process pending group join first
+  await processPendingGroupJoin()
+
+  // Initialize GPS
   try {
     const permissionState = await checkGeolocationPermission()
 
