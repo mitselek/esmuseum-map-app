@@ -343,7 +343,7 @@ async function handleJoinGroup () {
     localStorage.setItem('auth_redirect', '/') // Redirect to home after OAuth
     localStorage.setItem('pending_group_id', groupId.value)
 
-    startOAuthFlow('google')
+    startOAuthFlow('e-mail')
     return
   }
 
