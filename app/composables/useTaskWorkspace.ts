@@ -21,7 +21,7 @@ export const useTaskWorkspace = () => {
 
   // Authentication
   const { user, token } = useEntuAuth()
-  const { searchEntities, getEntity } = useEntuApi()
+  const { searchEntities } = useEntuApi()
 
   // Use global state
   const tasks = globalTasks
@@ -64,57 +64,27 @@ export const useTaskWorkspace = () => {
       loading.value = true
       error.value = null
 
-      // Get user groups using client-side API (F015 migration) - ACTIVE
-      if (!currentUser?._id) {
-        console.warn('No user ID available for profile lookup')
-        tasks.value = []
-        return
-      }
-      const userProfileResponse = await getEntity(currentUser._id)
-
-      const userProfile = userProfileResponse.entity
-      
-      // Constitutional: Using unknown for parent properties since structure is dynamic from Entu API
-      // This is a data boundary where we validate and extract what we need
-      // Principle I: Type Safety First - documented exception for external API data
-      const groupParents = userProfile._parent?.filter((parent: unknown) => 
-        typeof parent === 'object' && 
-        parent !== null && 
-        'entity_type' in parent && 
-        parent.entity_type === 'grupp'
-      ) || []
-
-      if (groupParents.length === 0) {
-        console.warn('No parent groups found for user')
-        tasks.value = []
-        return
-      }
+      // Use Entu's permission-aware search - returns all tasks user can access
+      // This works for both:
+      // - Students with direct _expander permissions (from onboarding)
+      // - Teachers/admins with group-based access
+      // Fixes #25: Task discovery broken for direct task assignments
+      const taskResponse = await searchEntities({
+        '_type.string': 'ulesanne',
+        limit: 1000
+      })
 
       const allTasks: EntuTask[] = []
 
-      // Load tasks from each group
-      for (const parentGroup of groupParents) {
-        try {
-          // Client-side version (F015 migration) - ACTIVE
-          const groupTasks = await searchEntities({
-            '_type.string': 'ulesanne',
-            'grupp.reference': parentGroup.reference, // Filter tasks assigned to this specific group
-            limit: 1000
-          })
-
-          if (groupTasks.entities && groupTasks.entities.length > 0) {
-            // Constitutional: Safe cast - we know these are tasks because we filtered by '_type.string': 'ulesanne'
-            // Principle I: Type Safety First - documented type narrowing at API boundary
-            allTasks.push(...groupTasks.entities.map((task) => ({
-              ...(task as EntuTask),
-              groupId: parentGroup.reference,
-              groupName: parentGroup.string || 'Unknown Group'
-            })))
-          }
-        }
-        catch (err) {
-          console.error(`Failed to load tasks for group ${parentGroup.reference}:`, err)
-        }
+      if (taskResponse.entities && taskResponse.entities.length > 0) {
+        // Constitutional: Safe cast - we know these are tasks because we filtered by '_type.string': 'ulesanne'
+        // Principle I: Type Safety First - documented type narrowing at API boundary
+        allTasks.push(...taskResponse.entities.map((task) => ({
+          ...(task as EntuTask),
+          // Extract group info from task's grupp property if available
+          groupId: (task as EntuTask).grupp?.[0]?.reference || null,
+          groupName: (task as EntuTask).grupp?.[0]?.string || null
+        })))
       }
 
       tasks.value = allTasks
