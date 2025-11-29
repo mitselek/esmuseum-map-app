@@ -75,17 +75,10 @@
 
 <script setup lang="ts">
 import type { EntuTask } from '../../types/entu'
+import type { TaskLocation } from '~/types/location'
 import { roundCoordinates } from '~/utils/distance'
 
 // Types
-interface TaskLocation {
-  _id: string
-  reference?: string
-  name?: Array<{ string: string }>
-  nimi?: string
-  [key: string]: unknown
-}
-
 interface ResponseFormData {
   text: string
   seadmeGps: string | null // Device GPS location at submission

@@ -160,26 +160,6 @@ import { isSameLocation } from '~/utils/location-sync'
 const { t } = useI18n()
 const { userPosition, gettingLocation, sortByDistance } = useLocation()
 
-// Task location interface
-interface TaskLocation {
-  _id: string
-  id?: string
-  reference?: string
-  name?: Array<{ string: string }>
-  nimi?: string
-  description?: string
-  properties?: {
-    name?: Array<{ value: string }>
-    nimi?: Array<{ value: string }>
-    description?: Array<{ value: string }>
-    kirjeldus?: Array<{ value: string }>
-  }
-  lat?: Array<{ number: number }>
-  long?: Array<{ number: number }>
-  distanceText?: string
-  [key: string]: unknown
-}
-
 // User position interface
 interface UserPosition {
   lat: number

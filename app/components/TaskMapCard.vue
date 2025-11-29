@@ -50,24 +50,6 @@
 </template>
 
 <script setup lang="ts">
-// Coordinate interface (must match InteractiveMap.vue exactly)
-interface Coordinates {
-  lat: number
-  lng: number
-}
-
-// Task location interface (must match InteractiveMap.vue exactly)
-interface TaskLocation {
-  _id?: string
-  id?: string
-  reference?: string
-  nimi?: string
-  name?: string
-  kirjeldus?: string
-  description?: string
-  coordinates: Coordinates
-}
-
 // User position interface (must match InteractiveMap.vue exactly)
 interface UserPosition {
   lat: number
