@@ -127,6 +127,21 @@
         </LMarker>
       </LMap>
     </div>
+
+    <!-- Open in Maps button (shown when location is selected) -->
+    <div
+      v-if="props.selectedLocation && !isCSSFullscreen"
+      class="absolute bottom-4 left-1/2 z-[1000] -translate-x-1/2 transform"
+    >
+      <button
+        type="button"
+        class="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-lg transition-all hover:bg-blue-700 hover:shadow-xl active:scale-95"
+        @click="openInExternalMaps(props.selectedLocation)"
+      >
+        <span class="text-lg">🗺️</span>
+        <span>{{ $t('map.openInMaps') }}</span>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -606,6 +621,32 @@ const fitGpsFocusedBounds = async (): Promise<void> => {
   setTimeout(() => {
     isTransitioning.value = false
   }, 2000)
+}
+
+// Open location in external maps app
+const openInExternalMaps = (location: TaskLocation): void => {
+  const { lat, lng } = location.coordinates
+  const name = getLocationName(location)
+  
+  // Detect platform
+  const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera
+  const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream
+  const isAndroid = /android/i.test(userAgent)
+  
+  let url: string
+  
+  if (isIOS) {
+    // Apple Maps on iOS
+    url = `maps://?ll=${lat},${lng}&q=${encodeURIComponent(name)}`
+  } else if (isAndroid) {
+    // Google Maps on Android (geo: scheme)
+    url = `geo:${lat},${lng}?q=${lat},${lng}(${encodeURIComponent(name)})`
+  } else {
+    // Google Maps web for desktop
+    url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+  }
+  
+  window.open(url, '_blank')
 }
 
 // Location click handler
