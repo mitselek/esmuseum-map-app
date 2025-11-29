@@ -159,6 +159,18 @@ export default defineI18nConfig(() => ({
         surnamePlaceholder: 'Sisesta perekonnanimi',
         submitName: 'Jätka',
         submitting: 'Salvestamine...'
+      },
+      // Profile
+      profile: {
+        title: 'Täida Oma Profiil',
+        subtitle: 'Palun sisesta oma nimi jätkamiseks',
+        forename: 'Eesnimi',
+        forenamePlaceholder: 'Sisesta oma eesnimi',
+        surname: 'Perekonnanimi',
+        surnamePlaceholder: 'Sisesta oma perekonnanimi',
+        submit: 'Salvesta Profiil',
+        submitting: 'Salvestamine...',
+        pageTitle: 'Profiili Seadistamine'
       }
     },
     en: {
@@ -321,6 +333,18 @@ export default defineI18nConfig(() => ({
         surnamePlaceholder: 'Enter your last name',
         submitName: 'Continue',
         submitting: 'Saving...'
+      },
+      // Profile
+      profile: {
+        title: 'Complete Your Profile',
+        subtitle: 'Please provide your name to continue',
+        forename: 'First Name',
+        forenamePlaceholder: 'Enter your first name',
+        surname: 'Last Name',
+        surnamePlaceholder: 'Enter your last name',
+        submit: 'Save Profile',
+        submitting: 'Saving...',
+        pageTitle: 'Profile Setup'
       }
     },
     uk: {
@@ -479,6 +503,18 @@ export default defineI18nConfig(() => ({
         surnamePlaceholder: 'Введіть ваше прізвище',
         submitName: 'Продовжити',
         submitting: 'Збереження...'
+      },
+      // Profile
+      profile: {
+        title: 'Заповніть Свій Профіль',
+        subtitle: 'Будь ласка, вкажіть ваше ім\'я для продовження',
+        forename: 'Ім\'я',
+        forenamePlaceholder: 'Введіть ваше ім\'я',
+        surname: 'Прізвище',
+        surnamePlaceholder: 'Введіть ваше прізвище',
+        submit: 'Зберегти Профіль',
+        submitting: 'Збереження...',
+        pageTitle: 'Налаштування Профілю'
       }
     },
     lv: {
@@ -635,6 +671,18 @@ export default defineI18nConfig(() => ({
         surnamePlaceholder: 'Ievadiet savu uzvārdu',
         submitName: 'Turpināt',
         submitting: 'Saglabā...'
+      },
+      // Profile
+      profile: {
+        title: 'Aizpildiet Savu Profilu',
+        subtitle: 'Lūdzu, norādiet savu vārdu, lai turpinātu',
+        forename: 'Vārds',
+        forenamePlaceholder: 'Ievadiet savu vārdu',
+        surname: 'Uzvārds',
+        surnamePlaceholder: 'Ievadiet savu uzvārdu',
+        submit: 'Saglabāt Profilu',
+        submitting: 'Saglabāšana...',
+        pageTitle: 'Profila Iestatīšana'
       }
     }
   },
