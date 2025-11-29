@@ -58,13 +58,26 @@ export const analyzeApiError = (
   }
 
   // Determine error type and handling based on status code
-  if (statusCode === 401 || statusCode === 403) {
+  if (statusCode === 401) {
+    // 401 Unauthorized = Authentication required
     return {
       type: 'auth',
       shouldRetry: false,
       shouldRedirectToLogin: true,
       userMessage: 'Session expired. Please log in again.',
       technicalMessage: `Authentication failed in ${context}: ${message}`,
+      statusCode
+    }
+  }
+
+  if (statusCode === 403) {
+    // 403 Forbidden = Permission denied (NOT authentication issue)
+    return {
+      type: 'client',
+      shouldRetry: false,
+      shouldRedirectToLogin: false,
+      userMessage: 'Access denied. You do not have permission to perform this action.',
+      technicalMessage: `Permission denied in ${context}: ${message}`,
       statusCode
     }
   }

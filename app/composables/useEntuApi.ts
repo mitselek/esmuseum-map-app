@@ -163,12 +163,13 @@ export const useEntuApi = (): UseEntuApiReturn => {
       const response = await fetch(url, requestOptions)
 
       if (response.status === 401 || response.status === 403) {
-        // Authentication error - analyze and handle appropriately
+        // Handle authentication (401) and authorization (403) errors differently
         const errorAnalysis = analyzeApiError(response.status, `API call to ${endpoint}`)
-        console.warn('[API] Authentication error:', errorAnalysis.technicalMessage)
+        console.warn('[API] Auth error:', errorAnalysis.technicalMessage)
 
-        // Try refreshing token once
+        // Only handle 401 (authentication) - let 403 (authorization/permission) be thrown
         if (response.status === 401) {
+          // Try refreshing token once
           await refreshToken(true)
 
           // Retry the request with the new token
@@ -177,7 +178,7 @@ export const useEntuApi = (): UseEntuApiReturn => {
           const retryResponse = await fetch(url, requestOptions)
 
           if (!retryResponse.ok) {
-            // Still failed - handle auth error and throw
+            // Still failed after refresh - redirect to login
             const router = useRouter()
             const route = useRoute()
             handleAuthError(route.fullPath)
@@ -194,16 +195,8 @@ export const useEntuApi = (): UseEntuApiReturn => {
           return await retryResponse.json() as T
         }
 
-        // 403 or refresh failed - redirect to login
-        const router = useRouter()
-        const route = useRoute()
-        handleAuthError(route.fullPath)
-
-        // Show notification
-        notifyAuthRequired()
-
-        router.push('/login')
-
+        // For 403 (permission denied), just throw the error without redirecting
+        // This allows callers to handle permission errors with try-catch
         throw new Error(`API error: ${response.status} ${response.statusText}`)
       }
 
