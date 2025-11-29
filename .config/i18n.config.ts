@@ -138,7 +138,8 @@ export default defineI18nConfig(() => ({
         remove: 'Eemalda'
       },
       map: {
-        yourLocation: 'Sinu asukoht'
+        yourLocation: 'Sinu asukoht',
+        openInMaps: 'Ava kaardirakenduses'
       },
       // Onboarding
       onboarding: {
@@ -299,7 +300,8 @@ export default defineI18nConfig(() => ({
         remove: 'Remove'
       },
       map: {
-        yourLocation: 'Your location'
+        yourLocation: 'Your Location',
+        openInMaps: 'Open in Maps'
       },
       // Onboarding
       onboarding: {
@@ -456,7 +458,8 @@ export default defineI18nConfig(() => ({
         remove: 'Видалити'
       },
       map: {
-        yourLocation: 'Ваше місцезнаходження'
+        yourLocation: 'Ваше місцезнаходження',
+        openInMaps: 'Відкрити в картах'
       },
       // Onboarding
       onboarding: {
@@ -611,7 +614,8 @@ export default defineI18nConfig(() => ({
         remove: 'Noņemt'
       },
       map: {
-        yourLocation: 'Jūsu atrašanās vieta'
+        yourLocation: 'Jūsu atrašanās vieta',
+        openInMaps: 'Atvērt kartēs'
       },
       // Onboarding
       onboarding: {
