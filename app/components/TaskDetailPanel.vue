@@ -161,6 +161,7 @@ const taskDescription = computed(() => {
 
 interface ResponseFormRef {
   setLocation: (coordinates: { lat: number, lng: number } | string | null) => void
+  resetForm: () => void
 }
 
 // Response form reference
@@ -267,14 +268,8 @@ const handleResponseSubmitted = async (_responseData: unknown): Promise<void> =>
   try {
     // Reset the form
     const form = responseFormRef.value
-    // Constitutional: ResponseFormRef interface incomplete - resetForm method not typed
-    // TaskResponseForm component exposes resetForm but it's not in the interface definition
-    // TODO: Add resetForm() to ResponseFormRef interface or use component ref type
-    // Principle I: Type Safety First - documented exception for incomplete interface
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (form && typeof (form as any).resetForm === 'function') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (form as any).resetForm()
+    if (form) {
+      form.resetForm()
     }
 
     // Clear selected location
