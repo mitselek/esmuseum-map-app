@@ -65,6 +65,7 @@ export interface UseEntuAuthReturn {
   error: Readonly<Ref<string | null>>
   getToken: (oauthToken?: string | null) => Promise<EntuAuthResponse>
   refreshToken: (forceRefresh?: boolean) => Promise<string | null>
+  refreshUserData: () => Promise<void>
   logout: () => void
 }
 
@@ -352,6 +353,25 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
   }
 
   /**
+   * Refresh user data from Entu API using current token
+   * Use this after updating user properties to get fresh data
+   */
+  const refreshUserData = async (): Promise<void> => {
+    if (!token.value || !user.value?._id) {
+      throw new Error('Cannot refresh user data: not authenticated')
+    }
+
+    try {
+      const freshUserData = await fetchFreshUserData(user.value._id, token.value)
+      user.value = freshUserData
+    }
+    catch (err) {
+      console.error('Failed to refresh user data:', err)
+      throw err
+    }
+  }
+
+  /**
    * Logout the user and clear all stored data
    */
   const logout = (): void => {
@@ -378,6 +398,7 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
     error: readonly(error),
     getToken,
     refreshToken,
+    refreshUserData,
     logout
   }
 }

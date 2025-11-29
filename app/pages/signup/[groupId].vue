@@ -287,9 +287,9 @@ async function handleNameSubmit () {
       userToken
     )
 
-    // Refresh user data by calling getToken() which fetches fresh user info
-    const { getToken } = useEntuAuth()
-    await getToken() // This will update the user object with fresh data from Entu
+    // Refresh user data to get the updated forename/surname
+    const { refreshUserData } = useEntuAuth()
+    await refreshUserData()
 
     // Name set successfully - clear flag and continue join flow
     needsName.value = false
