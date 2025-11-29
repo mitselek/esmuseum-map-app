@@ -372,6 +372,14 @@ export interface EntuMap extends EntuEntity {
 /**
  * Group entity (grupp)
  * User organization for managing task assignments
+ * 
+ * Students should have _viewer permission on their groups to read:
+ * - Group name
+ * - Group leader (teacher) ID for adding as viewer on responses
+ * 
+ * This permission is automatically granted during:
+ * - Student onboarding (POST /api/onboard/join-group)
+ * - Student-added-to-class webhook (F020)
  */
 export interface EntuGroup extends EntuEntity {
   /** Group name */
