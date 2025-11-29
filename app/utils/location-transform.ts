@@ -4,8 +4,8 @@
  * Converts between Entu API format and normalized internal format
  */
 
-import type { EntuLocation } from '~/types/entu'
-import type { NormalizedLocation, Coordinates } from '~/types/location'
+import type { EntuLocation } from '../../types/entu'
+import type { NormalizedLocation, Coordinates } from '../../types/location'
 
 /**
  * Extract coordinates from Entu location entity
@@ -49,7 +49,6 @@ export function extractCoordinates(entity: EntuLocation): Coordinates {
 export function normalizeLocation(entity: EntuLocation): NormalizedLocation {
   return {
     _id: entity._id,
-    reference: entity.reference,
     name: entity.name?.[0]?.string,
     description: entity.kirjeldus?.[0]?.string,
     coordinates: extractCoordinates(entity)
