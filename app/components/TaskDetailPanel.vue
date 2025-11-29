@@ -26,10 +26,10 @@
              TODO: Consolidate TaskLocation types across components (see InteractiveMap.vue, TaskMapCard.vue, useTaskGeolocation.ts)
              Principle I: Type Safety First - documented exception for component interface mismatch -->
         <TaskMapCard
-          :task-locations="taskLocations as any"
+          :task-locations="taskLocations"
           :user-position="userPosition"
           :loading-locations="loadingTaskLocations"
-          :selected-location="selectedLocation as any"
+          :selected-location="selectedLocation"
           :visited-locations="visitedLocations"
           :progress="progress"
           :deadline="taskDeadline"
@@ -49,8 +49,8 @@
           :checking-permissions="checkingPermissions"
           :has-response-permission="hasResponsePermission"
           :needs-location="needsLocation"
-          :task-locations="taskLocations as any"
-          :selected-location="selectedLocation as any"
+          :task-locations="taskLocations"
+          :selected-location="selectedLocation"
           :loading-task-locations="loadingTaskLocations"
           :geolocation-error="geolocationError"
           :visited-locations="visitedLocations"
@@ -172,18 +172,6 @@ const checkingPermissions = ref<boolean>(false)
 const hasResponsePermission = ref<boolean>(false)
 
 // Task locations state
-// Constitutional: Uses index signature for flexible Entu location entity properties
-// Location entities may have additional custom fields from Entu schema.
-// Principle I: Type Safety First - documented exception for external API flexibility
-interface TaskLocation {
-  _id: string
-  reference?: string
-  name?: Array<{ string: string }>
-  lat?: Array<{ number: number }>
-  long?: Array<{ number: number }>
-  [key: string]: unknown
-}
-
 const taskLocations = ref<TaskLocation[]>([])
 const loadingTaskLocations = ref<boolean>(false)
 const selectedLocation = ref<TaskLocation | null>(null)

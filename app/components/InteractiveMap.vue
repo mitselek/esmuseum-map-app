@@ -172,18 +172,6 @@ interface UserPosition {
   accuracy?: number
 }
 
-// Task location interface (normalized)
-interface TaskLocation {
-  _id?: string
-  id?: string
-  reference?: string
-  nimi?: string
-  name?: string
-  kirjeldus?: string
-  description?: string
-  coordinates: Coordinates
-}
-
 // Map initialization phase
 type MapPhase = 'waiting' | 'all-locations' | 'gps-focused'
 

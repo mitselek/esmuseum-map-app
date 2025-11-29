@@ -3,6 +3,8 @@
  * Simplified to use centralized GPS service for location sorting
  */
 
+import type { TaskLocation } from '~/types/location'
+
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
@@ -14,22 +16,6 @@ export interface UserPosition {
   lat: number
   lng: number
   accuracy?: number
-}
-
-/**
- * Task location with Entu entity structure
- * 
- * Constitutional: Uses index signature for flexible Entu location entity properties
- * Location entities may have additional custom fields from Entu schema.
- * Principle I: Type Safety First - documented exception for external API flexibility
- */
-export interface TaskLocation {
-  _id: string
-  'name.string'?: string
-  'lat.number'?: number
-  'long.number'?: number
-  distance?: number
-  [key: string]: any
 }
 
 /**
