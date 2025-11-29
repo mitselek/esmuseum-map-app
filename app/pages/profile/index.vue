@@ -85,7 +85,7 @@ definePageMeta({
 })
 
 const router = useRouter()
-const { token, user } = useEntuAuth()
+const { token, user, refreshUserData } = useEntuAuth()
 
 // Form state
 const isSubmitting = ref(false)
@@ -128,9 +128,8 @@ async function handleSubmit() {
       userToken
     )
 
-    // Refresh user data by calling getToken() which fetches fresh user info
-    const { getToken } = useEntuAuth()
-    await getToken()
+    // Refresh user data to get the updated forename/surname
+    await refreshUserData()
 
     // Get redirect path from localStorage
     const redirectPath = localStorage.getItem('profile_redirect') || '/'
