@@ -76,6 +76,15 @@ onMounted(async () => {
   // Process pending group join first
   await processPendingGroupJoin()
 
+  // Check profile completeness - redirect to /profile if incomplete
+  const router = useRouter()
+  if (user.value && (!user.value.forename || !user.value.surname)) {
+    console.log('[PROFILE] Profile incomplete, redirecting to /profile')
+    localStorage.setItem('profile_redirect', '/')
+    router.push('/profile')
+    return // Stop further initialization
+  }
+
   // Initialize GPS
   try {
     const permissionState = await checkGeolocationPermission()
