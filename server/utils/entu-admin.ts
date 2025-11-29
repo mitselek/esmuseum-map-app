@@ -119,6 +119,67 @@ export async function addExpanderPermission (
 }
 
 /**
+ * Grant _viewer permission on an entity
+ * Allows the person to read entity properties (read-only access)
+ * Used to give students read access to their group entity so they can fetch group leader ID
+ *
+ * @param entityId - The entity to grant permission on (e.g., group ID)
+ * @param personId - The person to grant permission to (e.g., student ID)
+ * @param userToken - Optional JWT token from webhook user
+ * @param userId - Optional user ID for attribution logging
+ * @param userEmail - Optional user email for attribution logging
+ * @returns API response from Entu
+ */
+export async function addViewerPermission (
+  entityId: string,
+  personId: string,
+  userToken?: string,
+  userId?: string,
+  userEmail?: string
+) {
+  const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
+
+  logger.info('Granting _viewer permission', {
+    entity: entityId,
+    person: personId
+  })
+
+  try {
+    // Entu requires properties as array of objects
+    const properties = [
+      {
+        type: '_viewer',
+        reference: personId
+      }
+    ]
+
+    const result = await callEntuApi(
+      `/entity/${entityId}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(properties)
+      },
+      apiConfig
+    )
+
+    logger.info('Viewer permission granted successfully', {
+      entity: entityId,
+      person: personId
+    })
+
+    return result
+  }
+  catch (error) {
+    logger.error('Failed to grant viewer permission', {
+      entity: entityId,
+      person: personId,
+      error
+    })
+    throw error
+  }
+}
+
+/**
  * Grant _expander permissions to multiple people on an entity in a single API call
  * Much more efficient than calling addExpanderPermission multiple times
  * Reduces API calls and webhook triggers (1 call instead of N calls)

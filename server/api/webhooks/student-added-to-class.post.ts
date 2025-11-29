@@ -25,7 +25,8 @@ import {
   getEntityDetails,
   extractGroupsFromPerson,
   getTasksByGroup,
-  batchGrantPermissions
+  batchGrantPermissions,
+  addViewerPermission
 } from '../../utils/entu-admin'
 
 const logger = createLogger('webhook:student-added')
@@ -57,6 +58,23 @@ async function processStudentWebhook (entityId: string, userToken?: string, user
     groupCount: groupIds.length,
     groupIds
   })
+
+  // Add student as viewer of each group
+  // This allows students to read group properties (e.g., group leader ID)
+  for (const groupId of groupIds) {
+    try {
+      await addViewerPermission(groupId, entityId, userToken, userId, userEmail)
+      logger.info('Added student as viewer of group', { groupId, studentId: entityId })
+    }
+    catch (error) {
+      // Log but continue - viewer permission is helpful but not critical
+      logger.warn('Failed to add student as viewer of group', { 
+        groupId, 
+        studentId: entityId,
+        error: error instanceof Error ? error.message : String(error)
+      })
+    }
+  }
 
   // Get all tasks for all groups
   let allTasks: EntuEntity[] = []

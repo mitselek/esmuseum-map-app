@@ -70,6 +70,7 @@ export default defineEventHandler(async (event): Promise<GroupAssignmentResponse
     // 4. Assign user to group by adding _parent reference to user entity
     // Manager key must have permission to edit the user's _parent property
     try {
+      // Add student as child of group (_parent)
       await callEntuApi(`/entity/${userId}`, {
         method: 'POST',
         body: JSON.stringify([{
@@ -78,7 +79,23 @@ export default defineEventHandler(async (event): Promise<GroupAssignmentResponse
         }])
       }, apiConfig)
 
-      logger.info('Successfully assigned user to group', {
+      logger.info('Successfully assigned user to group (_parent)', {
+        groupId,
+        userId,
+        timestamp: new Date().toISOString()
+      })
+
+      // Add student as viewer of group (_viewer)
+      // This allows students to read group properties (e.g., group leader ID)
+      await callEntuApi(`/entity/${groupId}`, {
+        method: 'POST',
+        body: JSON.stringify([{
+          type: '_viewer',
+          reference: userId
+        }])
+      }, apiConfig)
+
+      logger.info('Successfully added user as viewer of group (_viewer)', {
         groupId,
         userId,
         timestamp: new Date().toISOString()
@@ -86,7 +103,7 @@ export default defineEventHandler(async (event): Promise<GroupAssignmentResponse
 
       return {
         success: true,
-        message: 'User successfully assigned to group'
+        message: 'User successfully assigned to group with viewer permissions'
       }
     }
     catch (apiError: unknown) {
