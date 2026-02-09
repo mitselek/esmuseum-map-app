@@ -26,7 +26,7 @@
               v-if="status === 'submitting'"
               class="flex items-center gap-3"
             >
-              <div class="size-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+              <div class="size-6 animate-spin rounded-full border-2 border-esm-blue border-t-transparent" />
               <p class="text-lg">
                 {{ $t('taskDetail.modalSubmitting') }}
               </p>
@@ -85,7 +85,7 @@
               <div class="mt-2 flex gap-2">
                 <button
                   type="button"
-                  class="flex-1 rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                  class="flex-1 rounded bg-esm-blue px-4 py-2 text-sm font-medium text-white hover:bg-esm-dark"
                   @click="$emit('retry')"
                 >
                   {{ $t('common.retry') }}

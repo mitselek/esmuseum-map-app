@@ -59,7 +59,7 @@
       >
         <button
           type="submit"
-          class="w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          class="w-full rounded-lg bg-esm-blue px-4 py-3 font-medium text-white hover:bg-esm-dark focus:outline-none focus:ring-2 focus:ring-esm-blue focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="!canSubmit || submitting"
         >
           {{ submitting ? $t('taskDetail.submitting') : $t('taskDetail.submitResponseBtn') }}

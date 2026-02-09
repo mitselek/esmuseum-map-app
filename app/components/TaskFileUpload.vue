@@ -9,7 +9,7 @@
       :class="[
         'cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors',
         isDragOver
-          ? 'border-blue-400 bg-blue-50'
+          ? 'border-esm-blue bg-esm-beige'
           : 'border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100',
       ]"
       @click="triggerFileInput"
@@ -108,7 +108,7 @@
         </div>
         <div class="mt-1 h-1 w-full rounded bg-gray-200">
           <div
-            class="h-1 rounded bg-blue-500 transition-all"
+            class="h-1 rounded bg-esm-blue transition-all"
             :style="{ width: `${progress.percent}%` }"
           />
         </div>

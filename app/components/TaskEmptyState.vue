@@ -16,7 +16,7 @@
           />
         </svg>
       </div>
-      <h3 class="mb-2 text-lg font-medium text-gray-900">
+      <h3 class="mb-2 text-lg font-medium text-esm-dark">
         {{ $t('tasks.selectTask') }}
       </h3>
       <p class="text-sm text-gray-500">

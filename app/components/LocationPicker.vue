@@ -35,7 +35,7 @@
       v-if="loading"
       class="py-4 text-center"
     >
-      <div class="mx-auto size-6 animate-spin rounded-full border-b-2 border-blue-600" />
+      <div class="mx-auto size-6 animate-spin rounded-full border-b-2 border-esm-blue" />
       <p class="mt-2 text-sm text-gray-600">
         {{ t('taskDetail.loadingLocationsList') }}
       </p>
@@ -84,7 +84,7 @@
           v-model="searchQuery"
           type="text"
           :placeholder="t('taskDetail.searchLocations')"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-esm-blue focus:outline-none focus:ring-1 focus:ring-esm-blue"
         >
       </div>
 
@@ -97,13 +97,13 @@
           :class="[
             'flex w-full items-center justify-between rounded-lg border p-3 text-left transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1',
             isLocationSelected(location)
-              ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500 hover:bg-blue-100'
-              : 'border-gray-200 bg-white hover:bg-gray-50 focus:border-blue-500 focus:ring-blue-500',
+              ? 'border-esm-blue bg-esm-beige ring-2 ring-esm-blue hover:bg-esm-light'
+              : 'border-gray-200 bg-white hover:bg-gray-50 focus:border-esm-blue focus:ring-esm-blue',
           ]"
           @click="selectLocation(location)"
         >
           <div class="flex-1">
-            <h5 class="font-medium text-gray-900">
+            <h5 class="font-medium text-esm-dark">
               {{ getLocationName(location) }}
             </h5>
             <p
@@ -130,7 +130,7 @@
             </div>
             <div
               v-else
-              class="text-blue-600"
+              class="text-esm-blue"
             >
               →
             </div>

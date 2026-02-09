@@ -14,7 +14,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            class="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm focus:border-esm-blue focus:outline-none focus:ring-1 focus:ring-esm-blue"
             :placeholder="$t('tasks.searchTasks')"
           >
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -55,7 +55,7 @@
       class="flex flex-1 items-center justify-center"
     >
       <div class="text-center">
-        <div class="mx-auto size-8 animate-spin rounded-full border-b-2 border-blue-600" />
+        <div class="mx-auto size-8 animate-spin rounded-full border-b-2 border-esm-blue" />
         <p class="mt-2 text-sm text-gray-500">
           {{ loading ? $t('tasks.loading') : $t('tasks.initializing') }}
         </p>
@@ -72,7 +72,7 @@
           {{ error }}
         </p>
         <button
-          class="mt-2 rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+          class="mt-2 rounded-md bg-esm-blue px-4 py-2 text-sm text-white hover:bg-esm-dark"
           @click="loadTasks"
         >
           {{ $t('common.retry') }}
@@ -83,7 +83,7 @@
     <!-- Task list -->
     <div
       v-else-if="initialized || filteredTasks.length > 0"
-      class="flex-1 overflow-y-auto bg-gray-50"
+      class="flex-1 overflow-y-auto bg-esm-beige"
     >
       <div
         v-if="filteredTasks.length === 0"
@@ -104,7 +104,7 @@
             />
           </svg>
         </div>
-        <p class="text-sm font-medium text-gray-900">
+        <p class="text-sm font-medium text-esm-dark">
           {{ searchQuery ? $t('tasks.noTasksMatchSearch') : $t('tasks.noTasks') }}
         </p>
         <p class="mt-1 text-xs text-gray-500">
@@ -122,19 +122,19 @@
           class="mb-3 cursor-pointer rounded-lg border bg-white p-4 shadow-sm transition-all duration-200"
           :class="[
             selectedTaskId === task._id
-              ? 'border-blue-500 bg-blue-50 shadow-md ring-1 ring-blue-200'
-              : 'border-gray-200 hover:border-blue-300 hover:shadow-md',
+              ? 'border-esm-blue bg-esm-beige shadow-md ring-1 ring-esm-light'
+              : 'border-gray-200 hover:border-esm-light hover:shadow-md',
             isTaskFullyCompleted(task._id) ? 'opacity-60' : '',
           ]"
           @click="navigateToTask(task._id)"
         >
           <!-- Task Title with Open Button -->
           <div class="mb-2 flex items-start justify-between gap-2">
-            <h3 class="line-clamp-2 flex-1 text-sm font-medium text-gray-900">
+            <h3 class="line-clamp-2 flex-1 text-sm font-medium text-esm-dark">
               {{ getTaskTitle(asEntuTask(task)) }}
             </h3>
             <button
-              class="shrink-0 text-xs font-medium text-blue-600 transition-colors hover:text-blue-700"
+              class="shrink-0 text-xs font-medium text-esm-blue transition-colors hover:text-esm-dark"
               @click.stop="navigateToTask(task._id)"
             >
               {{ $t('tasks.open') }}

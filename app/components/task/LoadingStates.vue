@@ -4,7 +4,7 @@
     v-if="loading"
     class="flex items-center justify-center py-8"
   >
-    <div class="size-8 animate-spin rounded-full border-b-2 border-blue-600" />
+    <div class="size-8 animate-spin rounded-full border-b-2 border-esm-blue" />
     <span
       v-if="loadingText"
       class="ml-3 text-gray-600"
@@ -67,7 +67,7 @@
     >
       <button
         type="button"
-        class="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+        class="rounded bg-esm-blue px-4 py-2 text-sm font-medium text-white hover:bg-esm-dark"
         @click="$emit('empty-action')"
       >
         {{ emptyActionText || $t('common.reload') }}

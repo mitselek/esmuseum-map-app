@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-esm-beige">
     <!-- GPS Permission Prompt -->
     <GPSPermissionPrompt />
 

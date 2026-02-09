@@ -14,7 +14,7 @@
         </button>
 
         <!-- Task Title -->
-        <h1 class="min-w-0 flex-1 truncate text-lg font-semibold text-gray-900">
+        <h1 class="min-w-0 flex-1 truncate text-lg font-semibold text-esm-dark">
           {{ taskTitle || $t('tasks.title') }}
         </h1>
       </div>

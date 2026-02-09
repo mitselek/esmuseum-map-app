@@ -2,6 +2,12 @@
 const { isAuthenticated, error, user, logout } = useEntuAuth()
 const { startOAuthFlow } = useEntuOAuth()
 const router = useRouter()
+const { locale } = useI18n()
+
+// Locale-aware museum logo (SVG)
+const localeLogo = computed(() => {
+  return locale.value === 'et' ? '/esm-logo-et.svg' : '/esm-logo-en.svg'
+})
 
 // Check if we have a redirect URL stored
 const redirectPath = ref(null)
@@ -59,23 +65,20 @@ const loginWithOAuth = async (providerId) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100">
+  <div class="min-h-screen bg-esm-beige">
     <!-- App Header -->
     <AppHeader />
 
     <!-- Login Content -->
     <div class="flex items-center justify-center p-4">
       <div class="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-        <!-- Museum Logo and Title -->
-        <div class="mb-6 flex items-center justify-center gap-4">
+        <!-- Museum Logo -->
+        <div class="mb-6 flex justify-center">
           <img
-            src="/esm_logo.png"
-            alt="Eesti Sõjamuuseum"
-            class="h-20 w-auto flex-shrink-0"
+            :src="localeLogo"
+            :alt="$t('title')"
+            class="h-20 w-auto"
           >
-          <h1 class="text-left text-2xl font-bold leading-tight">
-            {{ $t('title') }}
-          </h1>
         </div>
 
         <div
@@ -98,7 +101,7 @@ const loginWithOAuth = async (providerId) => {
           </div>
 
           <button
-            class="w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+            class="w-full rounded bg-esm-blue px-4 py-2 text-white hover:bg-esm-dark"
             @click="handleSuccessfulLogin"
           >
             {{ $t('continue') }}
@@ -111,7 +114,7 @@ const loginWithOAuth = async (providerId) => {
             <button
               v-for="provider in oauthProviders"
               :key="provider.id"
-              class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 text-left font-medium text-gray-700 transition-all hover:border-blue-500 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
+              class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-3 text-left font-medium text-esm-dark transition-all hover:border-esm-blue hover:bg-esm-beige disabled:cursor-not-allowed disabled:opacity-60"
               :disabled="activeProvider !== null"
               @click="loginWithOAuth(provider.id)"
             >
@@ -119,7 +122,7 @@ const loginWithOAuth = async (providerId) => {
                 <span>{{ provider.label }}</span>
                 <span
                   v-if="activeProvider === provider.id"
-                  class="text-sm text-blue-600"
+                  class="text-sm text-esm-blue"
                 >
                   {{ $t('loggingIn') }}
                 </span>

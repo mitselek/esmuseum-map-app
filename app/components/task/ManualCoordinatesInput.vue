@@ -25,7 +25,7 @@
           :value="modelValue"
           type="text"
           :placeholder="$t('taskDetail.coordinatesExample')"
-          class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-esm-blue focus:outline-none focus:ring-1 focus:ring-esm-blue"
           :disabled="disabled"
           @input="handleInput"
         >
@@ -34,7 +34,7 @@
       <div class="flex space-x-2">
         <button
           type="button"
-          class="text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
+          class="text-sm text-esm-blue hover:text-esm-dark disabled:opacity-50"
           :disabled="gettingLocation || disabled"
           @click="$emit('get-current-location')"
         >

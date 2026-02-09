@@ -9,7 +9,7 @@
     <textarea
       id="response-text"
       :value="responseText"
-      class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+      class="w-full rounded-lg border border-gray-300 p-3 focus:border-esm-blue focus:outline-none focus:ring-1 focus:ring-esm-blue"
       rows="4"
       :placeholder="$t('taskDetail.responsePlaceholder')"
       :disabled="submitting"

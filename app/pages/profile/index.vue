@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-esm-beige">
     <!-- App Header -->
     <AppHeader />
 
@@ -7,7 +7,7 @@
       <div class="w-full max-w-md space-y-8">
         <!-- Header -->
         <div class="text-center">
-          <h1 class="text-3xl font-extrabold text-gray-900">
+          <h1 class="text-3xl font-extrabold text-esm-dark">
             {{ $t('profile.title') }}
           </h1>
           <p class="mt-2 text-sm text-gray-600">
@@ -33,7 +33,7 @@
                 v-model="formData.forename"
                 type="text"
                 required
-                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-esm-blue focus:outline-none focus:ring-esm-blue"
                 :placeholder="$t('profile.forenamePlaceholder')"
               >
             </div>
@@ -50,7 +50,7 @@
                 v-model="formData.surname"
                 type="text"
                 required
-                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-esm-blue focus:outline-none focus:ring-esm-blue"
                 :placeholder="$t('profile.surnamePlaceholder')"
               >
             </div>
@@ -68,7 +68,7 @@
             <button
               type="submit"
               :disabled="isSubmitting || !formData.forename || !formData.surname"
-              class="flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              class="flex w-full justify-center rounded-md border border-transparent bg-esm-blue px-4 py-2 text-sm font-medium text-white hover:bg-esm-dark focus:outline-none focus:ring-2 focus:ring-esm-blue focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {{ isSubmitting ? $t('profile.submitting') : $t('profile.submit') }}
             </button>

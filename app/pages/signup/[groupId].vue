@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+  <div class="flex min-h-screen items-center justify-center bg-esm-beige px-4 py-12 sm:px-6 lg:px-8">
     <div class="w-full max-w-md space-y-8">
       <!-- Header with Language Selector -->
       <div class="text-center">
@@ -16,12 +16,12 @@
           </button>
         </div>
 
-        <h1 class="text-3xl font-extrabold text-gray-900">
+        <h1 class="text-3xl font-extrabold text-esm-dark">
           {{ $t('onboarding.title') }}
         </h1>
         <p
           v-if="groupName"
-          class="mt-2 text-lg font-medium text-blue-600"
+          class="mt-2 text-lg font-medium text-esm-blue"
         >
           {{ groupName }}
         </p>
@@ -57,7 +57,7 @@
               v-model="formData.forename"
               type="text"
               required
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-esm-blue focus:outline-none focus:ring-esm-blue"
               :placeholder="$t('onboarding.forenamePlaceholder')"
             >
           </div>
@@ -74,7 +74,7 @@
               v-model="formData.surname"
               type="text"
               required
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-esm-blue focus:outline-none focus:ring-esm-blue"
               :placeholder="$t('onboarding.surnamePlaceholder')"
             >
           </div>
@@ -82,7 +82,7 @@
           <button
             type="submit"
             :disabled="isSubmitting || !formData.forename || !formData.surname"
-            class="flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            class="flex w-full justify-center rounded-md border border-transparent bg-esm-blue px-4 py-2 text-sm font-medium text-white hover:bg-esm-dark focus:outline-none focus:ring-2 focus:ring-esm-blue focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {{ isSubmitting ? $t('onboarding.submitting') : $t('onboarding.submitName') }}
           </button>
@@ -97,10 +97,10 @@
         aria-live="polite"
       >
         <div
-          class="mx-auto mb-4 size-16 animate-spin rounded-full border-b-2 border-blue-600"
+          class="mx-auto mb-4 size-16 animate-spin rounded-full border-b-2 border-esm-blue"
           aria-label="Loading"
         />
-        <p class="text-lg font-medium text-gray-900">
+        <p class="text-lg font-medium text-esm-dark">
           {{ $t('onboarding.waiting') }}
         </p>
         <p class="mt-2 text-sm text-gray-600">
@@ -155,7 +155,7 @@
         <button
           type="button"
           :disabled="isLoading"
-          class="group relative flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          class="group relative flex w-full justify-center rounded-md border border-transparent bg-esm-blue px-4 py-2 text-sm font-medium text-white hover:bg-esm-dark focus:outline-none focus:ring-2 focus:ring-esm-blue focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           @click="handleJoinGroup"
         >
           {{ $t('onboarding.startButton') }}
@@ -169,7 +169,7 @@
       >
         <button
           type="button"
-          class="group relative flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          class="group relative flex w-full justify-center rounded-md border border-transparent bg-esm-blue px-4 py-2 text-sm font-medium text-white hover:bg-esm-dark focus:outline-none focus:ring-2 focus:ring-esm-blue focus:ring-offset-2"
           @click="handleRetry"
         >
           {{ $t('onboarding.retryButton') }}

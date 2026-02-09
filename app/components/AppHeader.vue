@@ -2,7 +2,7 @@
   <header class="border-b bg-white shadow-sm">
     <div class="px-4 py-3">
       <div class="flex items-center justify-between">
-        <h1 class="text-xl font-semibold text-gray-900">
+        <h1 class="text-xl font-semibold text-esm-dark">
           <!-- {{ title || $t('appName') }} -->
         </h1>
         <div class="flex items-center space-x-4">
@@ -32,7 +32,7 @@
           <NuxtLink
             v-else-if="!isLoginPage"
             to="/login"
-            class="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700"
+            class="rounded bg-esm-blue px-3 py-1 text-sm text-white hover:bg-esm-dark"
           >
             {{ $t('login') }}
           </NuxtLink>

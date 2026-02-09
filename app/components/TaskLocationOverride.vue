@@ -7,7 +7,7 @@
       <button
         v-if="!showManualCoordinates"
         type="button"
-        class="text-sm text-blue-600 hover:text-blue-800"
+        class="text-sm text-esm-blue hover:text-esm-dark"
         @click="startManualEntry"
       >
         {{ $t('taskDetail.enterManually') }}
@@ -34,7 +34,7 @@
           v-model="localCoordinates"
           type="text"
           :placeholder="$t('taskDetail.coordinatesExample')"
-          class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          class="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-esm-blue focus:outline-none focus:ring-1 focus:ring-esm-blue"
           @keyup.enter="applyManualLocation"
         >
         <p class="mt-1 text-xs text-gray-500">
@@ -46,7 +46,7 @@
         <button
           type="button"
           :disabled="!isValidCoordinates(localCoordinates)"
-          class="rounded bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+          class="rounded bg-esm-blue px-3 py-2 text-sm text-white hover:bg-esm-dark disabled:cursor-not-allowed disabled:opacity-50"
           @click="applyManualLocation"
         >
           {{ $t('taskDetail.applyLocation') }}

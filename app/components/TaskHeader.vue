@@ -2,7 +2,7 @@
   <div class="shrink-0 border-b border-gray-200 bg-white p-6">
     <div class="flex items-start justify-between">
       <div class="flex-1">
-        <h1 class="text-xl font-semibold text-gray-900">
+        <h1 class="text-xl font-semibold text-esm-dark">
           {{ taskTitle }}
         </h1>
 

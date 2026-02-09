@@ -34,11 +34,11 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-gray-50">
+  <div class="flex min-h-screen items-center justify-center bg-esm-beige">
     <div class="text-center">
       <!-- Minimal loading indicator -->
       <div class="mb-4 flex justify-center">
-        <div class="size-8 animate-spin rounded-full border-b-2 border-blue-600" />
+        <div class="size-8 animate-spin rounded-full border-b-2 border-esm-blue" />
       </div>
 
       <!-- Simple message with defensive fallback link -->
@@ -49,7 +49,7 @@ onMounted(async () => {
       <!-- Defensive programming: manual link in case automatic redirect fails -->
       <NuxtLink
         to="/"
-        class="text-sm text-blue-600 hover:underline"
+        class="text-sm text-esm-blue hover:underline"
       >
         {{ $t('clickHere') }}
       </NuxtLink>
