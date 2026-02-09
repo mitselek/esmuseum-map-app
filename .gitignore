@@ -15,5 +15,11 @@ localhost+*
 translation-analysis-report.json
 *.backup.*
 
+# CVI source/binary assets (keep SVGs and small PDFs, ignore heavy files)
+docs/CVI/**/*.ai
+docs/CVI/**/*.zip
+docs/CVI/**/*.otf
+docs/CVI/**/Eesti S*.pdf
+
 # Copilot workspace is now part of the knowledge base
 # (previously ignored, now included for documentation)
