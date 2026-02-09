@@ -20,6 +20,11 @@ module.exports = {
           light: '#C9D6DD',
         },
       },
+      fontFamily: {
+        // ESM CVI 2023 typography
+        display: ['"Canela"', 'Georgia', 'serif'],
+        body: ['"ABC Ginto Normal"', 'system-ui', 'sans-serif'],
+      },
     },
   },
 }

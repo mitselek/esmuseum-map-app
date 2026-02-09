@@ -2,4 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom styles can be added here */
+/* ESM CVI 2023 — Web Fonts */
+@font-face {
+  font-family: 'Canela';
+  src: url('~/assets/fonts/Canela-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ABC Ginto Normal';
+  src: url('~/assets/fonts/ABCGintoNormal-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Apply CVI fonts as defaults */
+@layer base {
+  body {
+    @apply font-body text-esm-dark;
+  }
+
+  h1, h2, h3 {
+    @apply font-display;
+  }
+}
