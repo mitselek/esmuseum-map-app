@@ -176,6 +176,7 @@ export default defineEventHandler(async (event) => {
     let needsReprocessing = true
 
     while (needsReprocessing) {
+      // eslint-disable-next-line no-await-in-loop -- while-loop debounce pattern, not collection iteration
       result = await processTaskWebhook(entityId, userToken || undefined, userId || undefined, userEmail || undefined)
 
       // Check if reprocessing needed (entity was edited during processing)
@@ -184,6 +185,7 @@ export default defineEventHandler(async (event) => {
       if (needsReprocessing) {
         logger.info('Reprocessing entity - was edited during processing', { entityId })
         // Wait 2 seconds before reprocessing to let edits settle
+        // eslint-disable-next-line no-await-in-loop -- while-loop debounce pattern, not collection iteration
         await new Promise<void>((resolve) => {
           setTimeout(resolve, 2000)
         })

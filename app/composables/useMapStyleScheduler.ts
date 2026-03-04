@@ -164,19 +164,19 @@ export function useMapStyleScheduler () {
    * Evaluate all rules and return the highest priority matching rule
    */
   const evaluateRules = async (): Promise<StyleRule | null> => {
-    const matchingRules: StyleRule[] = []
-
-    for (const rule of styleRules) {
-      try {
-        const matches = await Promise.resolve(rule.check())
-        if (matches) {
-          matchingRules.push(rule)
+    const results = await Promise.all(
+      styleRules.map(async (rule) => {
+        try {
+          const matches = await Promise.resolve(rule.check())
+          return matches ? rule : null
         }
-      }
-      catch (error) {
-        console.error(`Error evaluating rule ${rule.id}:`, error)
-      }
-    }
+        catch (error) {
+          console.error(`Error evaluating rule ${rule.id}:`, error)
+          return null
+        }
+      })
+    )
+    const matchingRules = results.filter((r): r is NonNullable<typeof r> => r !== null)
 
     // Sort by priority (highest first)
     matchingRules.sort((a, b) => b.priority - a.priority)
@@ -330,6 +330,7 @@ export function useMapStyleScheduler () {
     const fullMoonThursdayNext = getNextFullMoonThursday()
 
     for (const rule of styleRules) {
+      // eslint-disable-next-line no-await-in-loop -- debug-only function, single manual execution via console
       const matches = await Promise.resolve(rule.check())
       const status = matches ? '✓ ACTIVE' : '  inactive'
 

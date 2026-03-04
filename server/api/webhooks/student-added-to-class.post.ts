@@ -62,6 +62,7 @@ async function processStudentWebhook (entityId: string, userToken?: string, user
   // This allows students to read group properties (e.g., group leader ID)
   for (const groupId of groupIds) {
     try {
+      // eslint-disable-next-line no-await-in-loop -- sequential Entu API calls: no published rate limits, 60s token validity favors sequential
       await addViewerPermission(groupId, entityId, userToken, userId, userEmail)
       logger.info('Added student as viewer of group', { groupId, studentId: entityId })
     }
@@ -78,6 +79,7 @@ async function processStudentWebhook (entityId: string, userToken?: string, user
   // Get all tasks for all groups
   let allTasks: EntuEntity[] = []
   for (const groupId of groupIds) {
+    // eslint-disable-next-line no-await-in-loop -- sequential Entu API calls: no published rate limits, 60s token validity favors sequential
     const tasks = await getTasksByGroup(groupId, userToken, userId, userEmail)
     allTasks = allTasks.concat(tasks)
   }
@@ -201,6 +203,7 @@ export default defineEventHandler(async (event) => {
     let needsReprocessing = true
 
     while (needsReprocessing) {
+      // eslint-disable-next-line no-await-in-loop -- while-loop debounce pattern, not collection iteration
       result = await processStudentWebhook(entityId, userToken || undefined, userId || undefined, userEmail || undefined)
 
       // Check if reprocessing needed (entity was edited during processing)
@@ -209,6 +212,7 @@ export default defineEventHandler(async (event) => {
       if (needsReprocessing) {
         logger.info('Reprocessing entity - was edited during processing', { entityId })
         // Wait 2 seconds before reprocessing to let edits settle
+        // eslint-disable-next-line no-await-in-loop -- while-loop debounce pattern, not collection iteration
         await new Promise<void>((resolve) => {
           setTimeout(resolve, 2000)
         })

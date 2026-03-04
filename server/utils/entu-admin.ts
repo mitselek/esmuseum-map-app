@@ -287,6 +287,7 @@ export async function batchGrantPermissions (
       results.total++
 
       try {
+        // eslint-disable-next-line no-await-in-loop -- sequential Entu API calls: no published rate limits, 60s token validity favors sequential
         const exists = await hasExpanderPermission(entityId, personId, userToken, userId, userEmail)
 
         if (exists) {
@@ -319,6 +320,7 @@ export async function batchGrantPermissions (
     // Grant all permissions for this entity in a single API call
     if (personsToGrant.length > 0) {
       try {
+        // eslint-disable-next-line no-await-in-loop -- sequential Entu API calls: no published rate limits, 60s token validity favors sequential
         await addMultipleExpanderPermissions(entityId, personsToGrant, userToken, userId, userEmail)
 
         // Mark all as successful

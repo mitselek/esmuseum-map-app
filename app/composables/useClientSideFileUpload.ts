@@ -270,6 +270,7 @@ export const useClientSideFileUpload = (): UseClientSideFileUploadReturn => {
         }
 
         // Step 1: Get upload URL from Entu
+        // eslint-disable-next-line no-await-in-loop -- sequential for per-file progress tracking, typical 1-3 files
         const uploadInfo = await getFileUploadUrl(parentEntityId, {
           filename: file.name,
           filesize: file.size,
@@ -282,6 +283,7 @@ export const useClientSideFileUpload = (): UseClientSideFileUploadReturn => {
         }
 
         // Step 2: Upload file to external storage
+        // eslint-disable-next-line no-await-in-loop -- sequential for per-file progress tracking, typical 1-3 files
         await uploadFileToUrl(
           file,
           uploadInfo.url,
