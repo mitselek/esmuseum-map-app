@@ -242,7 +242,7 @@ export const useEntuApi = (): UseEntuApiReturn => {
    * Get an entity by ID
    */
   const getEntity = async (entityId: string): Promise<EntuEntity> => {
-    return callApi<EntuEntity>(`/entity/${entityId}`)
+    return await callApi<EntuEntity>(`/entity/${entityId}`)
   }
 
   /**
@@ -257,14 +257,14 @@ export const useEntuApi = (): UseEntuApiReturn => {
     const queryString = Object.entries(query)
       .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
       .join('&')
-    return callApi<EntityListResponse>(`/entity?${queryString}`)
+    return await callApi<EntityListResponse>(`/entity?${queryString}`)
   }
 
   /**
    * Create a new entity
    */
   const createEntity = async (entityData: EntityData): Promise<EntuEntity> => {
-    return callApi<EntuEntity>('/entity', {
+    return await callApi<EntuEntity>('/entity', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -278,7 +278,7 @@ export const useEntuApi = (): UseEntuApiReturn => {
    * Update an existing entity
    */
   const updateEntity = async (entityId: string, entityData: EntityData): Promise<EntuEntity> => {
-    return callApi<EntuEntity>(`/entity/${entityId}`, {
+    return await callApi<EntuEntity>(`/entity/${entityId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -300,7 +300,7 @@ export const useEntuApi = (): UseEntuApiReturn => {
    * Get entity types from Entu
    */
   const getEntityTypes = async (): Promise<EntityListResponse> => {
-    return searchEntities({
+    return await searchEntities({
       [ENTU_PROPERTIES.TYPE_STRING]: ENTU_TYPES.ENTITY
     })
   }
@@ -322,7 +322,7 @@ export const useEntuApi = (): UseEntuApiReturn => {
       query.props = props
     }
 
-    return searchEntities(query)
+    return await searchEntities(query)
   }
 
   /**
@@ -332,7 +332,7 @@ export const useEntuApi = (): UseEntuApiReturn => {
     entityId: string,
     properties: EntityData
   ): Promise<FileUploadResponse> => {
-    return callApi<FileUploadResponse>(`/entity/${entityId}`, {
+    return await callApi<FileUploadResponse>(`/entity/${entityId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -345,7 +345,7 @@ export const useEntuApi = (): UseEntuApiReturn => {
    * Get account information from Entu API
    */
   const getAccountInfo = async (): Promise<AccountInfo> => {
-    return callApi<AccountInfo>('') // Empty endpoint returns account info
+    return await callApi<AccountInfo>('') // Empty endpoint returns account info
   }
 
   return {

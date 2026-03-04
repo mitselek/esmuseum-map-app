@@ -412,7 +412,7 @@ function _clearStaleAuthAndShowNameForm () {
  * FIX #21: Check membership even for authenticated users without pendingGroupId
  * FIX #23: Validate user entity exists before proceeding (detect stale auth)
  */
-onMounted(async () => {
+onMounted(() => {
   // Always clear any existing session when landing on signup page
   // OAuth flow redirects to home after auth, never back here
   const { logout } = useEntuAuth()

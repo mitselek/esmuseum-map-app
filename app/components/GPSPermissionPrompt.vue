@@ -126,7 +126,7 @@ onMounted(async () => {
 })
 
 // Update canRetry when locationError changes
-watch(locationError, async () => {
+watch(locationError, () => {
   if (locationError.value) {
     // For non-permission errors, allow retry
     if (!locationError.value.includes('denied')) {

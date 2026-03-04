@@ -79,7 +79,7 @@ export const useTaskGeolocation = (): UseTaskGeolocationReturn => {
   /**
    * Handle location request (simplified - just triggers re-sorting)
    */
-  const onRequestLocation = async (taskLocations: Ref<TaskLocation[]>): Promise<void> => {
+  const onRequestLocation = (taskLocations: Ref<TaskLocation[]>): void => {
     try {
       // GPS is automatically managed by centralized service
       // Just re-sort locations if we have them and user position

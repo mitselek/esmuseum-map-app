@@ -74,7 +74,7 @@ export function useOnboarding () {
    * @param userId Entu user ID
    * @returns Promise<boolean> - true if membership confirmed, false if timeout
    */
-  async function pollGroupMembership (groupId: string, userId: string): Promise<boolean> {
+  function pollGroupMembership (groupId: string, userId: string): Promise<boolean> {
     return new Promise((resolve) => {
       const startTime = Date.now()
 

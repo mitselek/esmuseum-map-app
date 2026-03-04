@@ -83,7 +83,7 @@ export function extractBearerToken (event: H3Event): string {
 /**
  * Authenticate user via server-side session cookie
  */
-async function authenticateUserViaSession (event: H3Event): Promise<AuthenticatedUser | null> {
+function authenticateUserViaSession (event: H3Event): AuthenticatedUser | null {
   try {
     const sessionToken = getCookie(event, 'auth-session')
 
@@ -129,7 +129,7 @@ async function authenticateUserViaSession (event: H3Event): Promise<Authenticate
  */
 export async function authenticateUser (event: H3Event): Promise<AuthenticatedUser> {
   // First try session-based authentication
-  const sessionUser = await authenticateUserViaSession(event)
+  const sessionUser = authenticateUserViaSession(event)
   if (sessionUser) {
     return sessionUser
   }

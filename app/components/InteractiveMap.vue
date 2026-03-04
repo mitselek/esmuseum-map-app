@@ -496,7 +496,7 @@ const calculateMapBounds = async (): Promise<void> => {
 }
 
 // Phase 1: Fit all locations for overview
-const fitAllLocationsBounds = async (): Promise<void> => {
+const fitAllLocationsBounds = (): void => {
   const bounds: [number, number][] = []
 
   // Add all locations to bounds for overview
@@ -533,7 +533,7 @@ const fitAllLocationsBounds = async (): Promise<void> => {
 }
 
 // Phase 2: Fit GPS-focused view with user + closest unvisited
-const fitGpsFocusedBounds = async (): Promise<void> => {
+const fitGpsFocusedBounds = (): void => {
   const bounds: [number, number][] = []
 
   // Add user position first

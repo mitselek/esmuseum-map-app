@@ -351,7 +351,7 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
   /**
    * Refresh the token if it's expired or about to expire
    */
-  async function refreshToken (forceRefresh = false): Promise<string | null> {
+  function refreshToken (forceRefresh = false): string | null {
     // OAuth tokens cannot be refreshed - user must re-authenticate
     if (!token.value || isTokenExpired.value || forceRefresh) {
       log.warn('Token expired or refresh forced - user needs to re-authenticate via OAuth')

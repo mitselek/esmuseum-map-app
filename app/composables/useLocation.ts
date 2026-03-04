@@ -527,7 +527,7 @@ export const useLocation = (): UseLocationReturn => {
       }
     })()
 
-    return globalPendingRequest
+    return await globalPendingRequest
   }
 
   // Auto-request GPS position when service is first used

@@ -18,11 +18,11 @@ const logger = createLogger('entu-admin')
  * @param userEmail - User email for logging attribution
  * @returns API configuration with user authentication
  */
-export async function getAdminApiConfig (
+export function getAdminApiConfig (
   userToken?: string,
   userId?: string,
   userEmail?: string
-): Promise<EntuApiOptions> {
+): EntuApiOptions {
   const config = useRuntimeConfig()
   // Use public config for consistency with client-side code
   const apiUrl = config.public.entuUrl as string || 'https://entu.app'
@@ -76,7 +76,7 @@ export async function addExpanderPermission (
   userId?: string,
   userEmail?: string
 ) {
-  const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
+  const apiConfig = getAdminApiConfig(userToken, userId, userEmail)
 
   logger.info('Granting _expander permission', {
     entity: entityId,
@@ -137,7 +137,7 @@ export async function addViewerPermission (
   userId?: string,
   userEmail?: string
 ) {
-  const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
+  const apiConfig = getAdminApiConfig(userToken, userId, userEmail)
 
   logger.info('Granting _viewer permission', {
     entity: entityId,
@@ -198,7 +198,7 @@ export async function addMultipleExpanderPermissions (
   userId?: string,
   userEmail?: string
 ) {
-  const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
+  const apiConfig = getAdminApiConfig(userToken, userId, userEmail)
 
   logger.info('Granting multiple _expander permissions in single call', {
     entity: entityId,
@@ -372,7 +372,7 @@ export async function batchGrantPermissions (
  * @returns Array of task entities
  */
 export async function getTasksByGroup (gruppId: string, userToken?: string, userId?: string, userEmail?: string) {
-  const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
+  const apiConfig = getAdminApiConfig(userToken, userId, userEmail)
 
   logger.debug('Fetching tasks for group', { gruppId })
 
@@ -411,7 +411,7 @@ export async function getTasksByGroup (gruppId: string, userToken?: string, user
  * @returns Array of person entities
  */
 export async function getStudentsByGroup (gruppId: string, userToken?: string, userId?: string, userEmail?: string) {
-  const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
+  const apiConfig = getAdminApiConfig(userToken, userId, userEmail)
 
   logger.debug('Fetching students for group', { gruppId })
 
@@ -449,7 +449,7 @@ export async function getStudentsByGroup (gruppId: string, userToken?: string, u
  * @returns Full entity object
  */
 export async function getEntityDetails (entityId: string, userToken?: string, userId?: string, userEmail?: string): Promise<EntuEntity | null> {
-  const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
+  const apiConfig = getAdminApiConfig(userToken, userId, userEmail)
 
   logger.debug('Fetching entity details', { entityId })
 
@@ -585,7 +585,7 @@ export function extractGroupFromTask (entity: EntuEntity): string | null {
  * @returns Boolean indicating if permission exists
  */
 export async function hasExpanderPermission (entityId: string, personId: string, userToken?: string, userId?: string, userEmail?: string): Promise<boolean> {
-  const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
+  const apiConfig = getAdminApiConfig(userToken, userId, userEmail)
 
   logger.debug('Checking existing permission', {
     entity: entityId,

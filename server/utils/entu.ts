@@ -93,7 +93,7 @@ export async function getEntuEntity (entityId: string, apiConfig: EntuApiOptions
   if (properties) {
     endpoint += `?props=${encodeURIComponent(properties)}`
   }
-  return callEntuApi(endpoint, {}, apiConfig)
+  return await callEntuApi(endpoint, {}, apiConfig)
 }
 
 /**
@@ -137,7 +137,7 @@ export async function createEntuEntity (entityType: string, entityData: Record<s
     }
   }
 
-  return callEntuApi('/entity', {
+  return await callEntuApi('/entity', {
     method: 'POST',
     body: JSON.stringify(properties)
   }, apiConfig)
@@ -166,7 +166,7 @@ function getEntityTypeReference (entityType: string): string {
  * Principle I: Type Safety First - documented exception for dynamic entity operations
  */
 export async function updateEntuEntity (entityId: string, entityData: Record<string, unknown>, apiConfig: EntuApiOptions) {
-  return callEntuApi(`/entity/${entityId}`, {
+  return await callEntuApi(`/entity/${entityId}`, {
     method: 'POST',
     body: JSON.stringify(entityData)
   }, apiConfig)
@@ -180,7 +180,7 @@ export async function searchEntuEntities (query: Record<string, string | number 
     .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
     .join('&')
 
-  return callEntuApi(`/entity?${queryString}`, {}, apiConfig)
+  return await callEntuApi(`/entity?${queryString}`, {}, apiConfig)
 }
 
 /**
@@ -253,7 +253,7 @@ export async function exchangeApiKeyForToken (apiKey: string): Promise<string> {
 export async function getFileUploadUrl (entityId: string, fileInfo: { type: string, filename: string, filesize: number, filetype: string }, apiConfig: EntuApiOptions) {
   const properties = [fileInfo]
 
-  return callEntuApi(`/entity/${entityId}`, {
+  return await callEntuApi(`/entity/${entityId}`, {
     method: 'POST',
     body: JSON.stringify(properties)
   }, apiConfig)

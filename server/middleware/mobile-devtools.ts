@@ -1,7 +1,7 @@
 /**
  * Mobile detection middleware to prevent devtools issues
  */
-export default defineEventHandler(async (event) => {
+export default defineEventHandler((event) => {
   const userAgent = getHeader(event, 'user-agent') || ''
 
   // Detect mobile devices
