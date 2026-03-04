@@ -16,6 +16,7 @@ const globalError = ref<string | null>(null)
 const globalInitialized = ref(false) // Track if initial load has been attempted
 
 export const useTaskWorkspace = () => {
+  const log = useClientLogger('useTaskWorkspace')
   const router = useRouter()
   const route = useRoute()
 
@@ -42,19 +43,19 @@ export const useTaskWorkspace = () => {
   const loadTasks = async () => {
     // 🔍 EVENT TRACKING: Task loading start
     const startTime = performance.now()
-    console.log('📋 [EVENT] useTaskWorkspace - loadTasks started', new Date().toISOString())
+    log.info('📋 [EVENT] useTaskWorkspace - loadTasks started', new Date().toISOString())
 
     const currentUser = user.value as EntuUser | null
     if (!currentUser?._id) {
-      console.warn('No user ID available for loading tasks')
+      log.warn('No user ID available for loading tasks')
       tasks.value = []
       loading.value = false
-      console.log('📋 [EVENT] useTaskWorkspace - loadTasks failed (no user)', `${(performance.now() - startTime).toFixed(2)}ms`)
+      log.info('📋 [EVENT] useTaskWorkspace - loadTasks failed (no user)', `${(performance.now() - startTime).toFixed(2)}ms`)
       return
     }
 
     if (!token.value) {
-      console.warn('No authentication token available')
+      log.warn('No authentication token available')
       tasks.value = []
       loading.value = false
       return
@@ -91,14 +92,14 @@ export const useTaskWorkspace = () => {
 
       // 🔍 EVENT TRACKING: Task loading complete
       const endTime = performance.now()
-      console.log('📋 [EVENT] useTaskWorkspace - loadTasks completed', {
+      log.info('📋 [EVENT] useTaskWorkspace - loadTasks completed', {
         timestamp: new Date().toISOString(),
         taskCount: allTasks.length,
         duration: `${(endTime - startTime).toFixed(2)}ms`
       })
     }
     catch (err: unknown) {
-      console.error('Failed to load tasks:', err)
+      log.error('Failed to load tasks:', err)
       error.value = err instanceof Error ? err.message : 'Failed to load tasks'
     }
     finally {
@@ -174,8 +175,8 @@ export const useTaskWorkspace = () => {
         return response
       }
     }
-    catch (err) {
-      console.log('No saved response found for task:', taskId)
+    catch {
+      log.debug('No saved response found for task:', taskId)
     }
 
     return null
@@ -193,7 +194,7 @@ export const useTaskWorkspace = () => {
   watch(() => route.query.task, (taskId) => {
     if (typeof taskId === 'string' && tasks.value.some((task: EntuTask) => task._id === taskId)) {
       // Route sync should only update state, not trigger another navigation
-      console.log('🔄 [EVENT] useTaskWorkspace - Route sync selecting task', taskId)
+      log.info('🔄 [EVENT] useTaskWorkspace - Route sync selecting task', taskId)
       selectedTaskId.value = taskId
     }
     else if (!taskId) {
@@ -204,7 +205,7 @@ export const useTaskWorkspace = () => {
   // 🚀 PHASE 1: Auto-initialize on first access (non-blocking)
   const autoInitialize = async () => {
     if (!initialized.value && !loading.value) {
-      console.log('🚀 [EVENT] useTaskWorkspace - Auto-initializing tasks in background', new Date().toISOString())
+      log.info('🚀 [EVENT] useTaskWorkspace - Auto-initializing tasks in background', new Date().toISOString())
       initialized.value = true
       await loadTasks()
     }

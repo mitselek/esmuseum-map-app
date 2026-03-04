@@ -17,7 +17,7 @@ const logger = createLogger('webhook-validation')
  * @param event - H3 event object
  * @returns Always returns true (authentication via JWT in payload)
  */
-export function validateWebhookRequest (event: H3Event): boolean {
+export function validateWebhookRequest (_event: H3Event): boolean {
   return true
 }
 

@@ -7,7 +7,6 @@
  */
 
 import SunCalc from 'suncalc'
-import type { MapStyle } from './useMapStyles'
 
 export interface StyleRule {
   id: string
@@ -19,7 +18,7 @@ export interface StyleRule {
 }
 
 export function useMapStyleScheduler () {
-  const { setStyle, getCurrentStyle } = useMapStyles()
+  const { setStyle } = useMapStyles()
   const { userPosition } = useLocation() // Get user's GPS location
   const currentRule = ref<string | null>(null)
 
@@ -192,7 +191,9 @@ export function useMapStyleScheduler () {
     const matchingRule = await evaluateRules()
 
     if (matchingRule && matchingRule.id !== currentRule.value) {
+      // eslint-disable-next-line no-console
       console.log(`🗺️ [Scheduler] Applying rule: ${matchingRule.name}`)
+      // eslint-disable-next-line no-console
       console.log(`   ${matchingRule.description}`)
       setStyle(matchingRule.styleId)
       currentRule.value = matchingRule.id
@@ -210,6 +211,7 @@ export function useMapStyleScheduler () {
     const intervalMs = intervalMinutes * 60 * 1000
     const interval = setInterval(applyScheduledStyle, intervalMs)
 
+    // eslint-disable-next-line no-console
     console.log(`🗺️ [Scheduler] Started (checking every ${intervalMinutes} minutes)`)
 
     // Cleanup on unmount
@@ -288,7 +290,9 @@ export function useMapStyleScheduler () {
   /**
    * Get information about current and upcoming rules
    */
+
   const getRuleStatus = async (): Promise<void> => {
+    /* eslint-disable no-console */
     console.log('🗺️ Map Style Schedule Status')
     console.log('============================')
 
@@ -355,6 +359,7 @@ export function useMapStyleScheduler () {
     if (activeRule) {
       console.log(`\n🎨 Current active rule: ${activeRule.name}`)
     }
+    /* eslint-enable no-console */
   }
 
   return {

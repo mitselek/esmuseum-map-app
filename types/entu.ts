@@ -15,7 +15,7 @@
  *
  * **Property Type Guards**:
  * Use type guards for runtime property type narrowing and safer property access:
- * 
+ *
  * @example
  * // Type narrowing with property guards
  * function processProperty(prop: EntuProperty) {
@@ -37,7 +37,7 @@
  *
  * **Schema Type Mapping**:
  * Entu schema types map to TypeScript interfaces as follows:
- * 
+ *
  * | Schema Type | Interface            | Value Field | Notes                    |
  * |-------------|----------------------|-------------|--------------------------|
  * | string      | EntuStringProperty   | string      | Single-line text         |
@@ -120,7 +120,7 @@ export function isEntuEntityId (value: string): value is EntuEntityId {
 export function toEntuEntityId (value: string): EntuEntityId {
   if (!isEntuEntityId(value)) {
     throw new Error(
-      `Invalid Entu entity ID format: "${value}". Expected 24-character hexadecimal string.`,
+      `Invalid Entu entity ID format: "${value}". Expected 24-character hexadecimal string.`
     )
   }
   return value
@@ -139,7 +139,7 @@ export interface EntuPropertyBase {
 
 /**
  * String property value
- * 
+ *
  * Handles both 'string' (single-line) and 'text' (multi-line) schema types.
  * Both types use the 'string' field in API responses.
  */
@@ -372,11 +372,11 @@ export interface EntuMap extends EntuEntity {
 /**
  * Group entity (grupp)
  * User organization for managing task assignments
- * 
+ *
  * Students should have _viewer permission on their groups to read:
  * - Group name
  * - Group leader (teacher) ID for adding as viewer on responses
- * 
+ *
  * This permission is automatically granted during:
  * - Student onboarding (POST /api/onboard/join-group)
  * - Student-added-to-class webhook (F020)
@@ -457,7 +457,7 @@ export interface EntuEntityListResponse<T extends EntuEntity = EntuEntity> {
 /**
  * Helper type to extract the first element from an Entu property array
  */
-export type FirstProperty<T extends any[]> = T extends [infer First, ...any[]] ? First : T[0] | undefined
+export type FirstProperty<T extends unknown[]> = T extends [infer First, ...unknown[]] ? First : T[0] | undefined
 
 /**
  * Helper type to get the value type from an Entu property array
@@ -488,13 +488,13 @@ export type PropertyValue<T> = T extends EntuStringProperty[]
 
 /**
  * Type guard for string/text properties
- * 
+ *
  * Checks for presence of 'string' field while excluding reference and datetime
  * properties which also have optional string fields.
- * 
+ *
  * @param prop - Property to check
  * @returns True if prop is a string/text property
- * 
+ *
  * @example
  * if (isStringProperty(prop)) {
  *   console.log(prop.string) // TypeScript knows this exists
@@ -509,10 +509,10 @@ export function isStringProperty (prop: EntuProperty): prop is EntuStringPropert
 
 /**
  * Type guard for reference properties
- * 
+ *
  * Checks for presence of 'reference' field while excluding datetime properties
  * which also have optional reference fields.
- * 
+ *
  * @param prop - Property to check
  * @returns True if prop is a reference property
  */
@@ -522,10 +522,10 @@ export function isReferenceProperty (prop: EntuProperty): prop is EntuReferenceP
 
 /**
  * Type guard for number properties
- * 
+ *
  * Checks for presence of 'number' field while excluding boolean properties
  * which might coexist in complex scenarios.
- * 
+ *
  * @param prop - Property to check
  * @returns True if prop is a number property
  */
@@ -535,7 +535,7 @@ export function isNumberProperty (prop: EntuProperty): prop is EntuNumberPropert
 
 /**
  * Type guard for boolean properties
- * 
+ *
  * @param prop - Property to check
  * @returns True if prop is a boolean property
  */
@@ -545,7 +545,7 @@ export function isBooleanProperty (prop: EntuProperty): prop is EntuBooleanPrope
 
 /**
  * Type guard for datetime properties
- * 
+ *
  * @param prop - Property to check
  * @returns True if prop is a datetime property
  */
@@ -555,7 +555,7 @@ export function isDateTimeProperty (prop: EntuProperty): prop is EntuDateTimePro
 
 /**
  * Type guard for date properties
- * 
+ *
  * @param prop - Property to check
  * @returns True if prop is a date property
  */
@@ -565,7 +565,7 @@ export function isDateProperty (prop: EntuProperty): prop is EntuDateProperty {
 
 /**
  * Type guard for file properties
- * 
+ *
  * @param prop - Property to check
  * @returns True if prop is a file property
  */

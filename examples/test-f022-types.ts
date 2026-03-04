@@ -13,7 +13,7 @@ import {
   getTaskMapReference,
   getResponseCoordinates,
   getLocationName,
-  getLocationCoordinates,
+  getLocationCoordinates
 } from '../utils/entu-helpers'
 
 console.log('🧪 Testing F022 TypeScript Types...\n')
@@ -31,23 +31,23 @@ const sampleTask: EntuTask = {
     reference: '686917231749f351b9c82f4c' as EntuEntityId,
     property_type: '_type',
     string: 'ulesanne',
-    entity_type: 'entity',
+    entity_type: 'entity'
   }],
   name: [{
     _id: '68bab85d43e4daafab199989' as EntuEntityId,
-    string: 'proovikas',
+    string: 'proovikas'
   }],
   kaart: [{
     _id: '68bab8d343e4daafab199990' as EntuEntityId,
     reference: '68823f8b5d95233e69c29a07' as EntuEntityId,
     property_type: 'kaart',
     string: 'Peeter Suure Merekindlus',
-    entity_type: 'kaart',
+    entity_type: 'kaart'
   }],
   vastuseid: [{
     _id: '68bae03f43e4daafab199a48' as EntuEntityId,
-    number: 25,
-  }],
+    number: 25
+  }]
 }
 
 // Test helper functions
@@ -61,8 +61,8 @@ console.log(`  ✅ Map Reference: ${mapRef}`)
 console.log(`  ✅ Type Guard: isTask() = ${isTask(sampleTask)}`)
 
 // TypeScript knows the types!
-const nameIsString: string = taskName // ✅ Compiles
-const countIsNumber: number = responseCount // ✅ Compiles
+const _nameIsString: string = taskName // ✅ Compiles
+const _countIsNumber: number = responseCount // ✅ Compiles
 
 console.log('')
 
@@ -79,23 +79,23 @@ const sampleResponse: EntuResponse = {
     reference: '686917401749f351b9c82f58' as EntuEntityId,
     property_type: '_type',
     string: 'vastus',
-    entity_type: 'entity',
+    entity_type: 'entity'
   }],
   vastus: [{
     _id: '68c7332985a9d472cca35cf9' as EntuEntityId,
-    string: 'näidis kirjeldus',
+    string: 'näidis kirjeldus'
   }],
   seadme_gps: [{
     _id: '68c7335885a9d472cca35cfb' as EntuEntityId,
-    string: '24.45,64.56',
+    string: '24.45,64.56'
   }],
   valitud_asukoht: [{
     _id: '68c7331a85a9d472cca35cea' as EntuEntityId,
     reference: '688260755d95233e69c2a5e3' as EntuEntityId,
     property_type: 'valitud_asukoht',
     string: 'AEGNA RAUDTEE',
-    entity_type: 'asukoht',
-  }],
+    entity_type: 'asukoht'
+  }]
 }
 
 const coords = getResponseCoordinates(sampleResponse)
@@ -104,8 +104,8 @@ console.log(`  ✅ Has coordinates: ${coords ? 'Yes' : 'No'}`)
 if (coords) {
   console.log(`  ✅ Coordinates: lat=${coords.lat}, lng=${coords.lng}`)
   // TypeScript knows coords has lat and lng as numbers!
-  const latIsNumber: number = coords.lat // ✅ Compiles
-  const lngIsNumber: number = coords.lng // ✅ Compiles
+  const _latIsNumber: number = coords.lat // ✅ Compiles
+  const _lngIsNumber: number = coords.lng // ✅ Compiles
 }
 console.log(`  ✅ Type Guard: isResponse() = ${isResponse(sampleResponse)}`)
 
@@ -124,20 +124,20 @@ const sampleLocation: EntuLocation = {
     reference: '687d27c9259fc48ba59cf726' as EntuEntityId,
     property_type: '_type',
     string: 'asukoht',
-    entity_type: 'entity',
+    entity_type: 'entity'
   }],
   name: [{
     _id: '688260755d95233e69c2a5e6' as EntuEntityId,
-    string: 'AEGNA RAUDTEE',
+    string: 'AEGNA RAUDTEE'
   }],
   lat: [{
     _id: '688260755d95233e69c2a5e7' as EntuEntityId,
-    number: 59.580067,
+    number: 59.580067
   }],
   long: [{
     _id: '688260755d95233e69c2a5e8' as EntuEntityId,
-    number: 24.763499,
-  }],
+    number: 24.763499
+  }]
 }
 
 const locationName = getLocationName(sampleLocation)

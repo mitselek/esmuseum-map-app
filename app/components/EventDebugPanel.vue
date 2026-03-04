@@ -85,6 +85,7 @@
 </template>
 
 <script setup lang="ts">
+/* eslint-disable no-console */
 import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 
 // Log entry interface

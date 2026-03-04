@@ -4,7 +4,7 @@
  */
 
 import type { H3Event } from 'h3'
-import { callEntuApi, getEntuEntity, getEntuApiConfig } from './entu'
+import { getEntuEntity } from './entu'
 import type { EntuApiOptions } from './entu'
 import { createLogger } from './logger'
 
@@ -27,7 +27,7 @@ export function extractJwtToken (event: H3Event): string {
   try {
     return extractBearerToken(event)
   }
-  catch (error) {
+  catch {
     // If no Bearer token, try to get it from session
     if (event.context?.sessionJwtToken) {
       logger.debug('Using JWT token from session')
@@ -314,10 +314,10 @@ export async function checkTaskPermission (user: AuthenticatedUser, taskId: stri
         // We validate the properties we need (reference) at this boundary
         // Principle I: Type Safety First - documented exception for external API data
         const hasPermission = permissionArray.some((permission: unknown) =>
-          typeof permission === 'object' &&
-          permission !== null &&
-          'reference' in permission &&
-          permission.reference === user._id
+          typeof permission === 'object'
+          && permission !== null
+          && 'reference' in permission
+          && permission.reference === user._id
         )
         if (hasPermission) {
           logger.debug('User has permission on task', { userId: user._id, taskId })

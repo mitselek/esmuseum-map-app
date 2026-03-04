@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Map Style Scheduler Plugin
  * Automatically starts the map style scheduler on app load
@@ -37,7 +38,8 @@ export default defineNuxtPlugin(() => {
 
     // Make it globally available
     if (typeof window !== 'undefined') {
-      (window as any).$scheduler = schedulerConsole
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- $scheduler is a custom developer console property not in the standard Window interface
+      ;(window as any).$scheduler = schedulerConsole
 
       console.log('%c🗓️ Map Style Scheduler Active', 'font-size: 14px; font-weight: bold; color: #10b981')
       console.log('%cType window.$scheduler.help() for scheduler commands', 'color: #64748b')

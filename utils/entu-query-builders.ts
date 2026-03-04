@@ -3,22 +3,22 @@ import type { EntitySearchQuery } from '../app/composables/useEntuApi'
 
 /**
  * Type-safe query builder for responses by task
- * 
+ *
  * Enforces the correct relationship: responses link to tasks via
  * the 'ulesanne' reference property, not '_parent'.
- * 
+ *
  * @param taskId - Task entity ID
  * @param userId - Optional user ID to filter by owner
  * @param limit - Optional result limit
  * @returns Query object for searchEntities
- * 
+ *
  * @example
  * ```typescript
  * const query = buildResponsesByTaskQuery(taskId, userId)
  * const results = await searchEntities(query)
  * ```
  */
-export function buildResponsesByTaskQuery(
+export function buildResponsesByTaskQuery (
   taskId: string,
   userId?: string,
   limit?: number
@@ -41,12 +41,12 @@ export function buildResponsesByTaskQuery(
 
 /**
  * Type-safe query builder for responses by user
- * 
+ *
  * @param userId - User entity ID
  * @param limit - Optional result limit
  * @returns Query object for searchEntities
  */
-export function buildResponsesByUserQuery(
+export function buildResponsesByUserQuery (
   userId: string,
   limit?: number
 ): EntitySearchQuery {
@@ -64,12 +64,12 @@ export function buildResponsesByUserQuery(
 
 /**
  * Type-safe query builder for locations by map
- * 
+ *
  * @param mapId - Map entity ID
  * @param limit - Optional result limit
  * @returns Query object for searchEntities
  */
-export function buildLocationsByMapQuery(
+export function buildLocationsByMapQuery (
   mapId: string,
   limit?: number
 ): EntitySearchQuery {
@@ -87,23 +87,23 @@ export function buildLocationsByMapQuery(
 
 /**
  * Count responses for a task (client-side)
- * 
+ *
  * Use this as a workaround until Entu's vastuseid computed field
  * is updated to use 'ulesanne.reference' instead of '_parent.reference'.
- * 
+ *
  * @param taskId - Task entity ID
  * @param searchEntities - The searchEntities function from useEntuApi()
  * @returns Promise resolving to response count
- * 
+ *
  * @example
  * ```typescript
  * const { searchEntities } = useEntuApi()
  * const count = await countResponsesForTask(taskId, searchEntities)
  * ```
  */
-export async function countResponsesForTask(
+export async function countResponsesForTask (
   taskId: string,
-  searchEntities: (query: EntitySearchQuery) => Promise<{ count?: number, entities?: any[] }>
+  searchEntities: (query: EntitySearchQuery) => Promise<{ count?: number, entities?: unknown[] }>
 ): Promise<number> {
   try {
     const query = buildResponsesByTaskQuery(taskId, undefined, 0)
@@ -118,16 +118,16 @@ export async function countResponsesForTask(
 
 /**
  * Check if a user has submitted a response for a task
- * 
+ *
  * @param taskId - Task entity ID
  * @param userId - User entity ID
  * @param searchEntities - The searchEntities function from useEntuApi()
  * @returns Promise resolving to boolean
  */
-export async function hasUserRespondedToTask(
+export async function hasUserRespondedToTask (
   taskId: string,
   userId: string,
-  searchEntities: (query: EntitySearchQuery) => Promise<{ count?: number, entities?: any[] }>
+  searchEntities: (query: EntitySearchQuery) => Promise<{ count?: number, entities?: unknown[] }>
 ): Promise<boolean> {
   try {
     const query = buildResponsesByTaskQuery(taskId, userId, 1)

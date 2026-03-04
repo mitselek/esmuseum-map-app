@@ -62,6 +62,7 @@
 </template>
 
 <script setup lang="ts">
+const log = useClientLogger('GPSPermissionPrompt')
 const {
   permissionDenied,
   gettingLocation,
@@ -135,17 +136,17 @@ watch(locationError, async () => {
 })
 
 const handleRetry = async (): Promise<void> => {
-  console.log('🌍 [EVENT] GPSPermissionPrompt - User retrying GPS request')
+  log.info('🌍 [EVENT] GPSPermissionPrompt - User retrying GPS request')
   await requestGPSPermission()
 
   // Recheck if still denied after attempt
   const state = await checkGeolocationPermission()
   canRetry.value = state === 'prompt' || state === 'unknown'
-  console.log('🌍 [EVENT] GPSPermissionPrompt - Retry completed, can retry:', canRetry.value)
+  log.info('🌍 [EVENT] GPSPermissionPrompt - Retry completed, can retry:', canRetry.value)
 }
 
 const handleDismiss = (): void => {
-  console.log('🌍 [EVENT] GPSPermissionPrompt - User dismissed location prompt')
+  log.info('🌍 [EVENT] GPSPermissionPrompt - User dismissed location prompt')
   dismissGPSPrompt()
 }
 </script>

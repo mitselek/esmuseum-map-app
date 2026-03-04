@@ -35,7 +35,7 @@ export interface EntitySearchQuery {
 
 /**
  * Entu entity structure (generic)
- * 
+ *
  * Constitutional: Uses index signature for flexible Entu entity properties
  * Entu entities have dynamic property structures based on entity type.
  * The _id field is guaranteed, all other properties are type-specific.
@@ -43,6 +43,7 @@ export interface EntitySearchQuery {
  */
 export interface EntuEntity {
   _id: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entu entities have a dynamic schema defined by the CMS; the property structure is not statically known at compile time
   [key: string]: any
 }
 
@@ -56,36 +57,39 @@ export interface EntityListResponse {
 
 /**
  * Entity data for creation/update
- * 
+ *
  * Constitutional: Uses index signature for flexible entity property updates
  * Entity properties are dynamic based on Entu schema definitions.
  * Principle I: Type Safety First - documented exception for dynamic entity operations
  */
 export interface EntityData {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entity properties map to Entu's dynamic schema; values can be any Entu property array type
   [key: string]: any
 }
 
 /**
  * File upload URL response
- * 
+ *
  * Constitutional: Uses index signature for additional Entu API response fields
  * Upload response may contain metadata beyond the URL.
  * Principle I: Type Safety First - documented exception for API response flexibility
  */
 export interface FileUploadResponse {
   url?: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entu upload response may contain additional metadata fields with varying types
   [key: string]: any
 }
 
 /**
  * Account information response
- * 
+ *
  * Constitutional: Uses index signature for additional account metadata
  * Account info may include various configuration fields.
  * Principle I: Type Safety First - documented exception for API response flexibility
  */
 export interface AccountInfo {
   account?: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entu account info may include configuration fields not known at compile time
   [key: string]: any
 }
 
@@ -99,7 +103,7 @@ export interface UseEntuApiReturn {
 
   // Methods
   getApiBase: () => string
-  callApi: <T = any>(endpoint: string, options?: ApiRequestOptions) => Promise<T>
+  callApi: <T = unknown>(endpoint: string, options?: ApiRequestOptions) => Promise<T>
   getEntity: (entityId: string) => Promise<EntuEntity>
   searchEntities: (query: EntitySearchQuery) => Promise<EntityListResponse>
   createEntity: (entityData: EntityData) => Promise<EntuEntity>
@@ -137,7 +141,7 @@ export const useEntuApi = (): UseEntuApiReturn => {
   /**
    * Perform an API call with automatic token handling
    */
-  const callApi = async <T = any>(endpoint: string, options: ApiRequestOptions = {}): Promise<T> => {
+  const callApi = async <T = unknown>(endpoint: string, options: ApiRequestOptions = {}): Promise<T> => {
     isLoading.value = true
     error.value = null
 
@@ -287,7 +291,7 @@ export const useEntuApi = (): UseEntuApiReturn => {
    * Delete an entity
    */
   const deleteEntity = async (entityId: string): Promise<void> => {
-    return callApi<void>(`/entity/${entityId}`, {
+    await callApi<undefined>(`/entity/${entityId}`, {
       method: 'DELETE'
     })
   }

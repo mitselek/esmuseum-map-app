@@ -106,7 +106,7 @@ onMounted(() => {
 /**
  * Submit name to Entu and update localStorage
  */
-async function handleSubmit() {
+async function handleSubmit () {
   if (!token.value || !user.value) {
     error.value = 'Authentication required'
     return
@@ -133,7 +133,7 @@ async function handleSubmit() {
 
     // Get redirect path from localStorage
     const redirectPath = localStorage.getItem('profile_redirect') || '/'
-    
+
     // Clear the redirect flag
     localStorage.removeItem('profile_redirect')
 

@@ -69,21 +69,21 @@ export function createLogger (moduleName: string) {
     /**
      * Debug level logging - development only
      */
-    debug: (message: string, data?: any) => {
+    debug: (message: string, data?: unknown) => {
       log.debug(data || {}, message)
     },
 
     /**
      * Info level logging - general information
      */
-    info: (message: string, data?: any) => {
+    info: (message: string, data?: unknown) => {
       log.info(data || {}, message)
     },
 
     /**
      * Warning level logging - potential issues
      */
-    warn: (message: string, data?: any) => {
+    warn: (message: string, data?: unknown) => {
       log.warn(data || {}, message)
     },
 
@@ -92,7 +92,7 @@ export function createLogger (moduleName: string) {
      * @param message - Error message
      * @param error - Error object or any value
      */
-    error: (message: string, error?: any) => {
+    error: (message: string, error?: unknown) => {
       if (error instanceof Error) {
         log.error({ err: error }, message)
       }

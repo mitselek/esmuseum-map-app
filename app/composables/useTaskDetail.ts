@@ -8,9 +8,6 @@
  */
 
 import type { EntuTask } from '../../types/entu'
-import type { EntuUser } from './useEntuAuth'
-import type { UserResponseData } from '../../types/workspace'
-import { ENTU_TYPES } from '../constants/entu'
 import { buildResponsesByTaskQuery } from '../../utils/entu-query-builders'
 import {
   getTaskName,
@@ -61,6 +58,7 @@ interface TaskInitResult {
 }
 
 export const useTaskDetail = () => {
+  const log = useClientLogger('useTaskDetail')
   const { t } = useI18n()
 
   /**
@@ -128,10 +126,10 @@ export const useTaskDetail = () => {
           // We validate the properties we need (reference) at this boundary
           // Principle I: Type Safety First - documented exception for external API data
           const hasPermission = permissionArray.some((permission: unknown) =>
-            typeof permission === 'object' &&
-            permission !== null &&
-            'reference' in permission &&
-            permission.reference === userId
+            typeof permission === 'object'
+            && permission !== null
+            && 'reference' in permission
+            && permission.reference === userId
           )
           if (hasPermission) {
             return { hasPermission: true, error: null }
@@ -157,20 +155,20 @@ export const useTaskDetail = () => {
     // We validate the structure we need at this boundary
     // Principle I: Type Safety First - documented exception for flexible location data
     if (
-      typeof location === 'object' &&
-      location !== null &&
-      'coordinates' in location &&
-      typeof location.coordinates === 'string'
+      typeof location === 'object'
+      && location !== null
+      && 'coordinates' in location
+      && typeof location.coordinates === 'string'
     ) {
       return location.coordinates
     }
     if (
-      typeof location === 'object' &&
-      location !== null &&
-      'lat' in location &&
-      'lng' in location &&
-      typeof location.lat === 'number' &&
-      typeof location.lng === 'number'
+      typeof location === 'object'
+      && location !== null
+      && 'lat' in location
+      && 'lng' in location
+      && typeof location.lat === 'number'
+      && typeof location.lng === 'number'
     ) {
       return `${location.lat},${location.lng}`
     }
@@ -259,7 +257,7 @@ export const useTaskDetail = () => {
   const loadTaskLocations = async (
     task: EntuTask,
     userPosition: Coordinates | null
-  ): Promise<any[]> => {
+  ): Promise<unknown[]> => {
     try {
       const { loadMapLocations, sortByDistance } = useLocation()
 
@@ -267,7 +265,7 @@ export const useTaskDetail = () => {
       const mapId = extractMapId(task)
 
       if (!mapId) {
-        console.warn('No map ID found for task')
+        log.warn('No map ID found for task')
         return []
       }
 
@@ -280,7 +278,7 @@ export const useTaskDetail = () => {
       return processedLocations
     }
     catch (error) {
-      console.error('Error loading task locations:', error)
+      log.error('Error loading task locations:', error)
       return []
     }
   }
@@ -307,18 +305,18 @@ export const useTaskDetail = () => {
 
       // Type guard to check response structure
       if (
-        typeof response === 'object' &&
-        response !== null &&
-        'success' in response &&
-        response.success &&
-        'response' in response
+        typeof response === 'object'
+        && response !== null
+        && 'success' in response
+        && response.success
+        && 'response' in response
       ) {
         return response.response
       }
       return null
     }
     catch (error) {
-      console.warn('Failed to load existing response:', error)
+      log.warn('Failed to load existing response:', error)
       return null
     }
   }
@@ -370,7 +368,7 @@ export const useTaskDetail = () => {
           // Note: Using _owner._id instead of _owner.reference for direct ID comparison
           const query = buildResponsesByTaskQuery(taskId, undefined, 1)
           query['_owner._id'] = user.value?._id
-          
+
           const responses = await searchEntities(query)
 
           const responseData = {
@@ -393,7 +391,7 @@ export const useTaskDetail = () => {
           }
         }
         catch (error) {
-          console.log('No existing response found or error loading:', error)
+          log.debug('No existing response found or error loading:', error)
           // Handle auto-geolocation for new response
           await handleAutoGeolocation(needsLocation, getCurrentLocation, responseFormRef)
           return { success: true, hasExistingResponse: false }
@@ -401,12 +399,12 @@ export const useTaskDetail = () => {
       }
       else {
         // Not authenticated
-        console.log('Not authenticated')
+        log.debug('Not authenticated')
         return { success: true, authenticated: false }
       }
     }
     catch (error) {
-      console.error('Error initializing task:', error)
+      log.error('Error initializing task:', error)
       return { success: false, error }
     }
   }
@@ -424,7 +422,7 @@ export const useTaskDetail = () => {
         await getCurrentLocation(responseFormRef)
       }
       catch (error) {
-        console.log('Auto-geolocation failed:', error)
+        log.debug('Auto-geolocation failed:', error)
         // Continue without location - user can set manually
       }
     }

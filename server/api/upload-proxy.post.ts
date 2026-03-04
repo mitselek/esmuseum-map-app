@@ -1,5 +1,8 @@
 import { defineEventHandler, readMultipartFormData } from 'h3'
 import type { UploadedFile, UploadHeaders } from '../../types/workspace'
+import { createLogger } from '../utils/logger'
+
+const log = createLogger('upload-proxy')
 
 /**
  * F015 Phase 3.2b: Upload Proxy Endpoint
@@ -39,20 +42,19 @@ export default defineEventHandler(async (event) => {
       throw new Error('Missing required fields: file and uploadUrl')
     }
 
-    // Validate and sanitize the upload URL
-    let validatedUrl: URL
+    // Validate the upload URL format (throws if invalid)
     try {
-      validatedUrl = new URL(uploadUrl)
+      new URL(uploadUrl)
     }
     // Constitutional: Error type is unknown - we catch and validate errors at boundaries
     // Principle I: Type Safety First - documented exception for error handling
     catch (urlError: unknown) {
       const errorMessage = urlError instanceof Error ? urlError.message : 'Invalid URL format'
-      console.error('F015: Invalid upload URL:', errorMessage)
+      log.error('F015: Invalid upload URL', errorMessage)
       throw new Error(`Invalid upload URL: ${errorMessage}`)
     }
 
-    console.log('F015: Upload proxy - uploading file:', {
+    log.info('F015: Upload proxy - uploading file', {
       filename: file.filename,
       size: file.data.length
     })
@@ -68,7 +70,7 @@ export default defineEventHandler(async (event) => {
 
     if (!uploadResponse.ok) {
       const errorText = await uploadResponse.text()
-      console.error('F015: Upload proxy - DigitalOcean upload failed:', {
+      log.error('F015: Upload proxy - DigitalOcean upload failed', {
         status: uploadResponse.status,
         statusText: uploadResponse.statusText,
         error: errorText
@@ -76,7 +78,7 @@ export default defineEventHandler(async (event) => {
       throw new Error(`Upload failed: ${uploadResponse.status} ${uploadResponse.statusText}`)
     }
 
-    console.log('F015: Upload proxy - success:', {
+    log.info('F015: Upload proxy - success', {
       filename: file.filename,
       status: uploadResponse.status
     })
@@ -92,7 +94,7 @@ export default defineEventHandler(async (event) => {
   // Principle I: Type Safety First - documented exception for error handling
   catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown upload error'
-    console.error('F015: Upload proxy error:', error)
+    log.error('F015: Upload proxy error', error)
 
     return {
       success: false,

@@ -43,7 +43,10 @@ export default withNuxt(
   ...tailwind.configs['flat/recommended'],
   {
     settings: {
-      tailwindcss: { config: '.config/tailwind.config.ts' }
+      tailwindcss: {
+        config: '.config/tailwind.config.js',
+        whitelist: ['esm\\-[a-zA-Z0-9]+(\\/[0-9]+)?']
+      }
     }
   }
 ])

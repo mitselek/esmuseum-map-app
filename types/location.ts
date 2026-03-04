@@ -1,6 +1,6 @@
 /**
  * Location type definitions
- * 
+ *
  * This module provides canonical types for working with location data
  * throughout the application, bridging Entu API format and normalized
  * internal representations.
@@ -18,7 +18,7 @@ export interface Coordinates {
 
 /**
  * Normalized location format used internally by components
- * 
+ *
  * This is the standard format for locations throughout the app.
  * All components should use this format for props, state, and rendering.
  */
@@ -44,7 +44,7 @@ export interface NormalizedLocation {
 
 /**
  * Type alias for task locations
- * 
+ *
  * Use this type in components that work with task locations.
  * It's an alias to NormalizedLocation for semantic clarity.
  */

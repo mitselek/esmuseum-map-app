@@ -134,6 +134,7 @@ interface Emits {
 
 const emit = defineEmits<Emits>()
 
+const log = useClientLogger('TaskResponseForm')
 const { user: entuUser } = useEntuAuth()
 
 // Form state
@@ -168,7 +169,7 @@ const canSubmit = computed(() => {
 
 // Debug: Watch selectedLocation changes
 watch(() => props.selectedLocation, (newLocation, oldLocation) => {
-  console.log('[TaskResponseForm] selectedLocation changed:', {
+  log.debug('[TaskResponseForm] selectedLocation changed:', {
     from: oldLocation?.nimi || oldLocation?.name || 'null',
     to: newLocation?.nimi || newLocation?.name || 'null'
   })
@@ -189,7 +190,7 @@ const loadTaskLocations = (): void => {
 
 // File upload handlers
 const onFileUploadComplete = (results: UploadResult[]): void => {
-  console.log('File upload completed:', results)
+  log.info('File upload completed:', results)
   uploadedFiles.value = results.filter((result) => result.success)
 }
 
@@ -239,24 +240,24 @@ const submitResponse = async () => {
     // Create the response entity using feature-flagged approach
     const response = await createTaskResponse(requestData)
 
-    console.log('Response created:', response)
+    log.info('Response created:', response)
 
     // Step 2: Upload files to the newly created response entity
     let fileReferences: string[] = []
 
     // Debug: Check response structure and extract correct ID
-    console.log('F015: Full response structure:', JSON.stringify(response, null, 2))
-    
+    log.debug('F015: Full response structure:', JSON.stringify(response, null, 2))
+
     // Extract ID from response - use type guard for data property
     let responseId = response.id
     if (response.data && typeof response.data === 'object' && response.data !== null) {
       const dataObj = response.data as Record<string, unknown>
       responseId = responseId || (dataObj.id as string) || (dataObj._id as string)
     }
-    console.log('F015: Extracted response ID:', responseId)
+    log.debug('F015: Extracted response ID:', responseId)
 
     // Debug: Check file upload component state
-    console.log('F015: Checking file upload state:', {
+    log.debug('F015: Checking file upload state:', {
       hasFileUploadRef: !!fileUploadRef.value,
       filesLength: fileUploadRef.value?.files?.length || 0,
       files: fileUploadRef.value?.files || 'undefined',
@@ -264,16 +265,16 @@ const submitResponse = async () => {
     })
 
     if (fileUploadRef.value && fileUploadRef.value.files.length > 0 && responseId) {
-      console.log('F015: Starting file upload process...')
+      log.debug('F015: Starting file upload process...')
       try {
         const uploadResults = await fileUploadRef.value.uploadFiles(responseId)
         fileReferences = uploadResults
           .filter((result) => result.success && result.entityId)
           .map((result) => result.entityId!)
-        console.log('Files uploaded, entity IDs:', fileReferences)
+        log.info('Files uploaded, entity IDs:', fileReferences)
       }
       catch (uploadError) {
-        console.error('File upload failed:', uploadError)
+        log.error('File upload failed:', uploadError)
         // Continue with form submission even if file upload fails
       }
     }

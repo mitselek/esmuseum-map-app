@@ -7,8 +7,7 @@
  * Compare with: app/composables/useTaskDetail.js
  */
 
-import type { Ref } from 'vue'
-import type { EntuTask } from '../types/entu'
+import type { EntuTask, EntuEntity } from '../types/entu'
 import {
   getTaskName,
   getTaskResponseCount,
@@ -227,7 +226,7 @@ export const useTypedTaskDetail = () => {
    *
    * NEW: Type guards ensure runtime type safety
    */
-  const processTask = (entity: any): boolean => {
+  const processTask = (entity: EntuEntity): boolean => {
     // Type guard checks entity structure at runtime
     if (!isTask(entity)) {
       console.error('Entity is not a task')

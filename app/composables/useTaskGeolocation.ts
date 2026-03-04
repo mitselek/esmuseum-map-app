@@ -67,6 +67,7 @@ export const useTaskGeolocation = (): UseTaskGeolocationReturn => {
   // the untyped utils/distance.js function. The cast is safe because TaskLocation and
   // LocationEntity are structurally compatible for distance sorting purposes.
   const sortByDistanceSafe = (locations: TaskLocation[], position: UserPosition): TaskLocation[] => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- sortByDistance returns LocationEntity[] | LocationWithDistance[], both structurally compatible with TaskLocation; cast is safe at this JS boundary
     return (sortByDistance as any)(locations, position) as TaskLocation[]
   }
 

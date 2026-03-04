@@ -52,7 +52,7 @@ export const analyzeApiError = (
   }
   else if (typeof error === 'object' && error !== null) {
     // Try to extract from error object
-    const err = error as any
+    const err = error as { statusCode?: number, status?: number, message?: string, statusText?: string }
     statusCode = err.statusCode || err.status
     message = err.message || err.statusText || message
   }

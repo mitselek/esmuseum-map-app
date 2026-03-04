@@ -7,6 +7,7 @@
  */
 
 export const useServerAuth = () => {
+  const log = useClientLogger('useServerAuth')
   // State
   const isAuthenticated = ref(false)
   // Constitutional: User object structure from server is unknown until validated
@@ -41,7 +42,7 @@ export const useServerAuth = () => {
     // Constitutional: Error type is unknown - we catch and validate errors at boundaries
     // Principle I: Type Safety First - documented exception for error handling
     catch (error: unknown) {
-      console.error('Failed to check auth status:', error)
+      log.error('Failed to check auth status:', error)
       isAuthenticated.value = false
       user.value = null
       return { authenticated: false, user: null }
@@ -76,7 +77,7 @@ export const useServerAuth = () => {
         throw new Error('Failed to start authentication flow')
       }
 
-      console.log('Server-side OAuth flow started', {
+      log.info('Server-side OAuth flow started', {
         provider,
         authUrl: response.authUrl
       })
@@ -93,7 +94,7 @@ export const useServerAuth = () => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to start authentication'
       error.value = errorMessage
       isLoading.value = false
-      console.error('Authentication flow error:', err)
+      log.error('Authentication flow error:', err)
       return false
     }
   }
@@ -113,7 +114,7 @@ export const useServerAuth = () => {
       isAuthenticated.value = false
       user.value = null
 
-      console.log('Logout successful')
+      log.info('Logout successful')
 
       // Redirect to home or login page
       await navigateTo('/')
@@ -123,7 +124,7 @@ export const useServerAuth = () => {
     catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to logout'
       error.value = errorMessage
-      console.error('Logout error:', err)
+      log.error('Logout error:', err)
     }
     finally {
       isLoading.value = false
@@ -141,7 +142,7 @@ export const useServerAuth = () => {
       const message = urlParams.get('message')
 
       if (authResult === 'success') {
-        console.log('Authentication successful, checking status...')
+        log.info('Authentication successful, checking status...')
         await checkAuthStatus()
 
         // Clean up URL parameters
@@ -152,7 +153,7 @@ export const useServerAuth = () => {
       }
       else if (authResult === 'error') {
         error.value = message || 'Authentication failed'
-        console.error('Authentication failed:', message)
+        log.error('Authentication failed:', message)
 
         // Clean up URL parameters
         const url = new URL(window.location.href)

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { server } from '../setup'
 import { http, HttpResponse } from 'msw'
-import { mockTasks } from '../mocks/data/tasks'
+
 import { mockTokens } from '../mocks/jwt-tokens'
 
 // API endpoints to test

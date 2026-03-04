@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
         exists: true
       }
     }
-    catch (fetchError: unknown) {
+    catch {
       // 404 or other error means entity doesn't exist or is inaccessible
       logger.warn('[AUTH-STALE] User entity not found', { userId })
       return {

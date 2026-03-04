@@ -116,9 +116,11 @@ export function useMapStyles () {
   const setStyle = (styleId: string): boolean => {
     if (MAP_STYLES[styleId]) {
       currentStyle.value = styleId
+      // eslint-disable-next-line no-console
       console.log(`🗺️ Map style changed to: ${MAP_STYLES[styleId].name}`)
       return true
     }
+
     console.error(`❌ Unknown style: ${styleId}. Available: ${Object.keys(MAP_STYLES).join(', ')}`)
     return false
   }
@@ -126,15 +128,22 @@ export function useMapStyles () {
   /**
    * List all available styles (for console use)
    */
+
   const listStyles = (): void => {
+    // eslint-disable-next-line no-console
     console.log('🗺️ Available Map Styles:')
+    // eslint-disable-next-line no-console
     console.log('========================')
     Object.values(MAP_STYLES).forEach((style) => {
       const current = style.id === currentStyle.value ? '✓ ' : '  '
+      // eslint-disable-next-line no-console
       console.log(`${current}${style.id.padEnd(15)} - ${style.name}`)
+      // eslint-disable-next-line no-console
       console.log(`  ${' '.repeat(15)}   ${style.description}`)
     })
+    // eslint-disable-next-line no-console
     console.log('\n💡 Usage: window.$map.setStyle("styleId")')
+    // eslint-disable-next-line no-console
     console.log('💡 Example: window.$map.setStyle("vintage")')
   }
 

@@ -20,10 +20,13 @@ import { isTokenExpired } from '~/utils/token-validation'
 import { notifySessionExpired } from '~/composables/useNotifications'
 import { getStoredAuth, isClientAuthenticated, rememberRedirect } from '~/utils/auth-check.client'
 import { useEntuAuth } from '~/composables/useEntuAuth'
+import { useClientLogger } from '~/composables/useClientLogger'
+
+const log = useClientLogger('auth-middleware')
 
 export default defineNuxtRouteMiddleware((to: RouteLocationNormalized, from: RouteLocationNormalized) => {
   // 🔍 EVENT TRACKING: Auth middleware start
-  console.log('🔒 [EVENT] auth middleware - Started', {
+  log.info('🔒 [EVENT] auth middleware - Started', {
     timestamp: new Date().toISOString(),
     route: to.fullPath,
     query: to.query,
@@ -34,19 +37,19 @@ export default defineNuxtRouteMiddleware((to: RouteLocationNormalized, from: Rou
 
   // Skip auth check in SSR since we can't access localStorage there
   if (import.meta.server) {
-    console.log('🔒 [EVENT] auth middleware - Skipped (SSR)')
+    log.info('🔒 [EVENT] auth middleware - Skipped (SSR)')
     return
   }
 
   // Get stored auth
   const { token, user } = getStoredAuth()
-  
+
   // Type guard for user object with _id
   const hasUserId = (u: unknown): u is { _id: string } => {
     return Boolean(u && typeof u === 'object' && '_id' in u)
   }
-  
-  console.log('🔒 [EVENT] auth middleware - Auth check:', {
+
+  log.info('🔒 [EVENT] auth middleware - Auth check:', {
     hasToken: !!token,
     tokenLength: token?.length || 0,
     hasUser: !!user,
@@ -57,7 +60,7 @@ export default defineNuxtRouteMiddleware((to: RouteLocationNormalized, from: Rou
   // IMPORTANT: Check token expiry FIRST, before authentication check
   // This ensures expired tokens are always cleared, even if user data is missing
   if (token && isTokenExpired(token)) {
-    console.warn('🔒 [EVENT] auth middleware - Token expired, clearing and redirecting')
+    log.warn('🔒 [EVENT] auth middleware - Token expired, clearing and redirecting')
 
     // Use composable's logout() to properly clear reactive state + localStorage
     if (import.meta.client) {
@@ -66,7 +69,7 @@ export default defineNuxtRouteMiddleware((to: RouteLocationNormalized, from: Rou
 
       // Remember where user was trying to go
       rememberRedirect(to.fullPath)
-      console.log('🔒 [EVENT] auth middleware - Cleared expired auth, stored redirect:', to.fullPath)
+      log.info('🔒 [EVENT] auth middleware - Cleared expired auth, stored redirect:', to.fullPath)
 
       // Show notification to user (Naive UI discrete API)
       notifySessionExpired()
@@ -77,13 +80,13 @@ export default defineNuxtRouteMiddleware((to: RouteLocationNormalized, from: Rou
 
   // Check if user is authenticated (both token AND user must exist)
   if (!isClientAuthenticated()) {
-    console.log('🔒 [EVENT] auth middleware - Not authenticated, redirecting to login')
+    log.info('🔒 [EVENT] auth middleware - Not authenticated, redirecting to login')
     if (import.meta.client) {
       rememberRedirect(to.fullPath)
-      console.log('🔒 [EVENT] auth middleware - Stored redirect path:', to.fullPath)
+      log.info('🔒 [EVENT] auth middleware - Stored redirect path:', to.fullPath)
     }
     return navigateTo('/login')
   }
 
-  console.log('🔒 [EVENT] auth middleware - Authenticated, proceeding')
+  log.info('🔒 [EVENT] auth middleware - Authenticated, proceeding')
 })

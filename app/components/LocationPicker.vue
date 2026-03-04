@@ -157,6 +157,8 @@
 <script setup lang="ts">
 import { isSameLocation } from '~/utils/location-sync'
 
+const log = useClientLogger('LocationPicker')
+
 const { t } = useI18n()
 const { userPosition, gettingLocation, sortByDistance } = useLocation()
 
@@ -243,7 +245,7 @@ watch(() => props.selected, (newSelected: TaskLocation | null | undefined, oldSe
     if (!loc) return 'null'
     return (loc as Record<string, unknown>).nimi as string || (loc as Record<string, unknown>).name as string || 'null'
   }
-  console.log('[LocationPicker] selected prop changed:', {
+  log.debug('[LocationPicker] selected prop changed:', {
     from: getDebugName(oldSelected),
     to: getDebugName(newSelected)
   })

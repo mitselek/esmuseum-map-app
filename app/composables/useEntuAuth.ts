@@ -17,7 +17,7 @@ import type { Ref, ComputedRef } from 'vue'
 
 /**
  * User object structure from Entu auth response
- * 
+ *
  * Constitutional: Uses index signature for additional user properties from Entu
  * User objects may contain custom fields defined in Entu schema.
  * Principle I: Type Safety First - documented exception for external API flexibility
@@ -26,12 +26,13 @@ export interface EntuUser {
   _id: string
   email?: string
   name?: string
-  [key: string]: any // Allow additional properties
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entu user objects may contain custom fields defined in the CMS schema
+  [key: string]: any
 }
 
 /**
  * Auth response structure from Entu API
- * 
+ *
  * Constitutional: Uses index signatures for flexible Entu auth response structure
  * Auth responses contain nested objects with dynamic properties.
  * Principle I: Type Safety First - documented exception for authentication API responses
@@ -41,16 +42,20 @@ export interface EntuAuthResponse {
   user?: {
     email?: string
     name?: string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entu auth response user object may include custom fields not known at compile time
     [key: string]: any
   }
   accounts?: Array<{
     user?: {
       _id: string
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entu account user object may include custom fields not known at compile time
       [key: string]: any
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entu account object may include varying metadata fields
     [key: string]: any
   }>
-  [key: string]: any // Allow additional properties
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entu auth response may include additional fields (e.g. scopes, expiry) not known at compile time
+  [key: string]: any
 }
 
 /**
@@ -68,6 +73,9 @@ export interface UseEntuAuthReturn {
   refreshUserData: () => Promise<void>
   logout: () => void
 }
+
+// Module-level logger for initialization code outside the composable function
+const _initLog = useClientLogger('useEntuAuth')
 
 // Local storage keys
 const TOKEN_KEY = 'esm_token'
@@ -101,15 +109,15 @@ if (import.meta.client) {
           const parsedAuthResponse = JSON.parse(storedAuthResponse) as EntuAuthResponse
           if (parsedAuthResponse.accounts?.[0]?.user?._id) {
             parsedUser._id = parsedAuthResponse.accounts[0].user._id
-            console.log('🔧 [MIGRATION] Fixed user._id from authResponse:', parsedUser._id)
+            _initLog.info('🔧 [MIGRATION] Fixed user._id from authResponse:', parsedUser._id)
           }
           else if (parsedAuthResponse.user?._id) {
             parsedUser._id = parsedAuthResponse.user._id
-            console.log('🔧 [MIGRATION] Fixed user._id from authResponse.user:', parsedUser._id)
+            _initLog.info('🔧 [MIGRATION] Fixed user._id from authResponse.user:', parsedUser._id)
           }
         }
         catch (e) {
-          console.error('Error parsing stored auth response for migration:', e)
+          _initLog.error('Error parsing stored auth response for migration:', e)
         }
       }
       // Only set user if we have a valid _id
@@ -117,7 +125,7 @@ if (import.meta.client) {
         user.value = parsedUser
       }
       else {
-        console.warn('🔧 [MIGRATION] User object has no _id, clearing stored auth')
+        _initLog.warn('🔧 [MIGRATION] User object has no _id, clearing stored auth')
         localStorage.removeItem(USER_KEY)
         localStorage.removeItem(TOKEN_KEY)
         localStorage.removeItem(TOKEN_EXPIRY_KEY)
@@ -125,7 +133,7 @@ if (import.meta.client) {
       }
     }
     catch (e) {
-      console.error('Error parsing stored user data:', e)
+      _initLog.error('Error parsing stored user data:', e)
       localStorage.removeItem(USER_KEY)
     }
   }
@@ -134,7 +142,7 @@ if (import.meta.client) {
       authResponse.value = JSON.parse(storedAuthResponse) as EntuAuthResponse
     }
     catch (e) {
-      console.error('Error parsing stored auth response data:', e)
+      _initLog.error('Error parsing stored auth response data:', e)
       localStorage.removeItem(AUTH_RESPONSE_KEY)
     }
   }
@@ -189,6 +197,7 @@ watch(authResponse, (newAuthResponse) => {
 })
 
 export const useEntuAuth = (): UseEntuAuthReturn => {
+  const log = useClientLogger('useEntuAuth')
   // Runtime configuration
   const config = useRuntimeConfig()
 
@@ -272,7 +281,7 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
 
       const data = await response.json() as EntuAuthResponse
 
-      console.log('🔐 [DEBUG] Auth response received:', {
+      log.info('🔐 [DEBUG] Auth response received:', {
         hasToken: !!data.token,
         hasUser: !!data.user,
         userKeys: data.user ? Object.keys(data.user) : [],
@@ -311,12 +320,12 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
               user.value = freshUserData
             }
             catch (fetchError) {
-              console.warn('Failed to fetch fresh user data, using OAuth response:', fetchError)
+              log.warn('Failed to fetch fresh user data, using OAuth response:', fetchError)
               user.value = newUser // Fallback to OAuth response user data
             }
           }
           else {
-            console.warn('User data received but no _id found', data)
+            log.warn('User data received but no _id found', data)
           }
         }
 
@@ -331,7 +340,7 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
       token.value = null
       tokenExpiry.value = null
       user.value = null
-      console.error('Entu authentication error:', err)
+      log.error('Entu authentication error:', err)
       throw err
     }
     finally {
@@ -345,7 +354,7 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
   async function refreshToken (forceRefresh = false): Promise<string | null> {
     // OAuth tokens cannot be refreshed - user must re-authenticate
     if (!token.value || isTokenExpired.value || forceRefresh) {
-      console.warn('Token expired or refresh forced - user needs to re-authenticate via OAuth')
+      log.warn('Token expired or refresh forced - user needs to re-authenticate via OAuth')
       logout()
       return null
     }
@@ -366,7 +375,7 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
       user.value = freshUserData
     }
     catch (err) {
-      console.error('Failed to refresh user data:', err)
+      log.error('Failed to refresh user data:', err)
       throw err
     }
   }

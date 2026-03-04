@@ -10,28 +10,28 @@
 export interface UserResponseData {
   /** Text response content */
   textResponse?: string
-  
+
   /** Uploaded file references */
   files?: File[]
-  
+
   /** GPS coordinates captured during response */
   coordinates?: {
     latitude?: number
     longitude?: number
   }
-  
+
   /** Manually entered coordinates */
   manualCoordinates?: {
     latitude?: string
     longitude?: string
   }
-  
+
   /** Timestamp of last save */
   timestamp?: number
-  
+
   /** Selected location reference (for location-based responses) */
   selectedLocationId?: string
-  
+
   /** Additional metadata */
   metadata?: Record<string, unknown>
 }
@@ -43,13 +43,13 @@ export interface UserResponseData {
 export interface UploadedFile {
   /** Field name from form data */
   name?: string
-  
+
   /** Original filename */
   filename?: string
-  
+
   /** MIME type */
   type?: string
-  
+
   /** File data buffer */
   data: Buffer
 }

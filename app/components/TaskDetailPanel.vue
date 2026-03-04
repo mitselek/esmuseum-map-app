@@ -78,6 +78,7 @@ import { getLocationIdentifier } from '~/utils/location-sync'
 import { getTaskName } from '../../utils/entu-helpers'
 import { formatDate } from '../../utils/date-format'
 
+const log = useClientLogger('TaskDetailPanel')
 const { selectedTask, clearSelection } = useTaskWorkspace()
 const { locale } = useI18n()
 const {
@@ -182,11 +183,11 @@ const selectedLocation = ref<TaskLocation | null>(null)
 // Principle I: Type Safety First - documented exception for map event data
 const onMapLocationClick = (location: unknown): void => {
   // Handle location click from map - accept unknown and validate structure
-  console.log('[TaskDetailPanel] Map location clicked:', location)
-  
+  log.info('[TaskDetailPanel] Map location clicked:', location)
+
   // Type guard: ensure location has expected structure
   if (location && typeof location === 'object') {
-    console.log('[TaskDetailPanel] Setting selectedLocation to:', location)
+    log.debug('[TaskDetailPanel] Setting selectedLocation to:', location)
     selectedLocation.value = location as TaskLocation
     if (responseFormRef.value) {
       responseFormRef.value.setLocation(getLocationCoordinates(location))
@@ -217,7 +218,7 @@ const loadTaskLocations = async () => {
     // when GPS position becomes available, providing progressive enhancement
   }
   catch (err) {
-    console.error('Error loading task locations:', err)
+    log.error('Error loading task locations:', err)
     taskLocations.value = []
   }
   finally {
@@ -227,7 +228,7 @@ const loadTaskLocations = async () => {
 
 // Handle location selection from LocationPicker
 const onLocationSelect = (location: TaskLocation | null): void => {
-  console.log('[TaskDetailPanel] List location selected:', location ? getLocationIdentifier(location) : 'null')
+  log.info('[TaskDetailPanel] List location selected:', location ? getLocationIdentifier(location) : 'null')
   selectedLocation.value = location
   if (location) {
     if (responseFormRef.value) {
@@ -315,7 +316,7 @@ const checkPermissions = async (taskId: string): Promise<void> => {
     hasResponsePermission.value = result.hasPermission
   }
   catch (error) {
-    console.error('Permission check failed:', error)
+    log.error('Permission check failed:', error)
     hasResponsePermission.value = false
   }
   finally {
@@ -327,7 +328,7 @@ const checkPermissions = async (taskId: string): Promise<void> => {
 watch(selectedTask, async (newTask) => {
   // 🔍 EVENT TRACKING: Task selection change
   const startTime = performance.now()
-  console.log('🎯 [EVENT] TaskDetailPanel - Task selection changed', {
+  log.info('🎯 [EVENT] TaskDetailPanel - Task selection changed', {
     timestamp: new Date().toISOString(),
     taskId: newTask?._id || 'null',
     taskName: newTask?.name || 'null'
@@ -353,7 +354,7 @@ watch(selectedTask, async (newTask) => {
   }
 
   // 🔍 EVENT TRACKING: Task initialization complete
-  console.log('🎯 [EVENT] TaskDetailPanel - Task initialization completed', {
+  log.info('🎯 [EVENT] TaskDetailPanel - Task initialization completed', {
     timestamp: new Date().toISOString(),
     duration: `${(performance.now() - startTime).toFixed(2)}ms`
   })

@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest'
-import type { EntuEntityId } from '../../types/entu'
 import { isEntuEntityId, toEntuEntityId } from '../../types/entu'
 
 describe('EntuEntityId', () => {
@@ -10,7 +9,7 @@ describe('EntuEntityId', () => {
     '688227005d95233e69c28cf4',
     'abcdef1234567890abcdef12', // lowercase
     'ABCDEF1234567890ABCDEF12', // uppercase
-    'AbCdEf1234567890aBcDeF12', // mixed case
+    'AbCdEf1234567890aBcDeF12' // mixed case
   ]
 
   const invalidIds = [
@@ -22,7 +21,7 @@ describe('EntuEntityId', () => {
     '6889db9a5d95233e69c2b49z', // invalid char 'z'
     '6889db9a-5d95-233e-69c2-b490', // has dashes
     '6889db9a 5d95233e69c2b490', // has space
-    'not-a-valid-entity-id-at-all',
+    'not-a-valid-entity-id-at-all'
   ]
 
   describe('isEntuEntityId', () => {
@@ -112,7 +111,7 @@ describe('EntuEntityId', () => {
         '6889db9a5d95233e69c2b48e', // _type[0]._id
         '687d27c8259fc48ba59cf71a', // _type[0].reference
         '6889db9a5d95233e69c2b490', // _owner[0]._id
-        '66b6245c7efc9ac06a437b97', // _owner[0].reference
+        '66b6245c7efc9ac06a437b97' // _owner[0].reference
       ]
 
       realIds.forEach((id) => {

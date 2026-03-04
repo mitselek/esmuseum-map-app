@@ -344,9 +344,7 @@ export const useClientSideFileUpload = (): UseClientSideFileUploadReturn => {
     })
 
     // Upload via server API
-    // Note: Using 'as any' due to Nuxt $fetch type inference limitations with FormData
-    // $fetch struggles to infer the return type when body is FormData with dynamic content
-    // This is a known limitation in Nuxt 3's type system for multipart/form-data uploads
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Nuxt $fetch type inference breaks when body is FormData; the return type is explicitly cast to ServerUploadResponse below
     const response = await ($fetch as any)('/api/upload', {
       method: 'POST',
       headers: {

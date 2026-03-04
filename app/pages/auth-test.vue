@@ -100,6 +100,7 @@
 </template>
 
 <script setup>
+const log = useClientLogger('auth-test')
 // Use the new server-side auth composable
 const {
   isAuthenticated,
@@ -123,13 +124,13 @@ const authStatusClass = computed(() => {
 
 // Handle login
 const handleLogin = async (provider) => {
-  console.log('Starting login with provider:', provider)
+  log.info('Starting login with provider:', provider)
   await startAuthFlow(provider, '/auth-test')
 }
 
 // Handle logout
 const handleLogout = async () => {
-  console.log('Logging out...')
+  log.info('Logging out...')
   await logout()
   apiTestResult.value = null
 }

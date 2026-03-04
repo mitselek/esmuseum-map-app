@@ -8,7 +8,7 @@
 
 /**
  * JWT token payload structure
- * 
+ *
  * Constitutional: Uses index signature for flexible JWT claims
  * JWT tokens may contain additional custom claims beyond standard fields.
  * Principle I: Type Safety First - documented exception for JWT flexibility
@@ -17,7 +17,8 @@ export interface TokenPayload {
   exp: number // Unix timestamp (seconds since epoch)
   user: string
   iat?: number // Issued at
-  [key: string]: any // Allow other claims
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- JWT tokens may contain arbitrary custom claims; index signature is required for safe JSON.parse interop
+  [key: string]: any
 }
 
 /**

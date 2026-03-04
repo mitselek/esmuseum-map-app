@@ -17,14 +17,14 @@ module.exports = {
           beige: '#EFE8DD',
           dark: '#2F393B',
           blue: '#008298',
-          light: '#C9D6DD',
-        },
+          light: '#C9D6DD'
+        }
       },
       fontFamily: {
         // ESM CVI 2023 typography
         display: ['"Canela"', 'Georgia', 'serif'],
-        body: ['"ABC Ginto Normal"', 'system-ui', 'sans-serif'],
-      },
-    },
-  },
+        body: ['"ABC Ginto Normal"', 'system-ui', 'sans-serif']
+      }
+    }
+  }
 }

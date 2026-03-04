@@ -18,8 +18,7 @@
  *
  * Given the adequate test coverage elsewhere, this is not a priority.
  */
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { ref, nextTick } from 'vue'
+import { describe, it, expect } from 'vitest'
 
 describe.skip('useTaskScoring', () => {
   // Tests skipped - see note above about module-level dependencies

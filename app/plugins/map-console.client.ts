@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Map Console Easter Egg Plugin
  * Exposes map style controls to browser console for experimentation
@@ -47,7 +48,8 @@ export default defineNuxtPlugin(() => {
 
     // Make it globally available
     if (typeof window !== 'undefined') {
-      (window as any).$map = mapConsole
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- $map is a custom developer console property not in the standard Window interface
+      ;(window as any).$map = mapConsole
 
       // Welcome message for developers
       console.log('%c🗺️ ESMuseum Map Controls', 'font-size: 16px; font-weight: bold; color: #2563eb')

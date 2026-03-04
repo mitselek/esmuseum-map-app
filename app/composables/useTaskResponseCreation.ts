@@ -1,4 +1,4 @@
-import { ENTU_TYPES, ENTU_TYPE_IDS, ENTU_PROPERTIES } from '../constants/entu'
+import { ENTU_TYPE_IDS, ENTU_PROPERTIES } from '../constants/entu'
 import { buildResponsesByTaskQuery } from '../../utils/entu-query-builders'
 import type { Ref } from 'vue'
 import type { EntuTask, EntuGroup, EntuEntityResponse } from '../../types/entu'
@@ -51,7 +51,7 @@ interface ResponseData {
 
 /**
  * Created response result
- * 
+ *
  * Constitutional: data field uses unknown for flexible response data from Entu
  * Response data structure varies based on entity type and properties submitted.
  * Principle I: Type Safety First - documented exception for API response flexibility
@@ -78,6 +78,7 @@ export interface UseTaskResponseCreationReturn {
  * Handles both client-side and server-side creation paths
  */
 export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
+  const log = useClientLogger('useTaskResponseCreation')
   const { token } = useEntuAuth()
   const { searchEntities, getEntity } = useEntuApi()
 
@@ -121,7 +122,7 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
         return null
       }
 
-      console.log('[Response Creation] Found group leader:', leaderRef, 'for task:', taskId)
+      log.info('[Response Creation] Found group leader:', leaderRef, 'for task:', taskId)
       return leaderRef
     }
     catch (error) {
@@ -149,7 +150,7 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
 
   /**
    * Create response directly via Entu API (client-side)
-   * 
+   *
    * Note: Parent folder is configured in Entu entity type settings.
    * We don't assign _parent here - Entu handles it based on type configuration.
    */
@@ -184,7 +185,7 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
       const groupLeaderId = await getGroupLeaderFromTask(taskId)
       if (groupLeaderId) {
         entuProperties.push({ type: ENTU_PROPERTIES.VIEWER, reference: groupLeaderId })
-        console.log('[Response Creation] Adding group leader as viewer:', groupLeaderId)
+        log.info('[Response Creation] Adding group leader as viewer:', groupLeaderId)
       }
     }
     catch (error) {

@@ -14,8 +14,7 @@ import {
   validateWebhookPayload,
   extractEntityId,
   extractUserToken,
-  checkRateLimit,
-  sanitizePayloadForLogging
+  checkRateLimit
 } from '../../utils/webhook-validation'
 import {
   enqueueWebhook,
@@ -68,8 +67,8 @@ async function processStudentWebhook (entityId: string, userToken?: string, user
     }
     catch (error) {
       // Log but continue - viewer permission is helpful but not critical
-      logger.warn('Failed to add student as viewer of group', { 
-        groupId, 
+      logger.warn('Failed to add student as viewer of group', {
+        groupId,
         studentId: entityId,
         error: error instanceof Error ? error.message : String(error)
       })
@@ -210,7 +209,9 @@ export default defineEventHandler(async (event) => {
       if (needsReprocessing) {
         logger.info('Reprocessing entity - was edited during processing', { entityId })
         // Wait 2 seconds before reprocessing to let edits settle
-        await new Promise((resolve) => setTimeout(resolve, 2000))
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 2000)
+        })
       }
     }
 
@@ -226,8 +227,8 @@ export default defineEventHandler(async (event) => {
     const duration = Date.now() - startTime
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    const statusCode = typeof error === 'object' && error !== null && 'statusCode' in error 
-      ? (error as { statusCode: number }).statusCode 
+    const statusCode = typeof error === 'object' && error !== null && 'statusCode' in error
+      ? (error as { statusCode: number }).statusCode
       : undefined
 
     logger.error('Webhook processing failed', {

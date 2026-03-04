@@ -8,8 +8,12 @@ export function getStoredAuth () {
   // Principle I: Type Safety First - documented exception for localStorage parsing
   let user: unknown = null
   if (userRaw) {
-    try { user = JSON.parse(userRaw) }
-    catch { user = null }
+    try {
+      user = JSON.parse(userRaw)
+    }
+    catch {
+      user = null
+    }
   }
   return { token, user }
 }
@@ -53,6 +57,7 @@ export function logAuthStorage () {
   }
 
   if (allKeys.length > 0) {
+    // eslint-disable-next-line no-console
     console.log('Auth storage:', allKeys.join(', '))
   }
 }

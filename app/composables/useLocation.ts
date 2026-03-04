@@ -212,6 +212,8 @@ let globalPendingRequest: Promise<UserPosition> | null = null
 // ============================================================================
 
 export const useLocation = (): UseLocationReturn => {
+  const log = useClientLogger('useLocation')
+
   // Use global state for shared location data
   const userPosition = globalUserPosition
   const gettingLocation = globalGettingLocation
@@ -246,12 +248,12 @@ export const useLocation = (): UseLocationReturn => {
   const checkGeolocationPermission = async (): Promise<PermissionState> => {
     try {
       if (!navigator.permissions) {
-        console.log('🔍 [EVENT] useLocation - navigator.permissions not available')
+        log.info('🔍 [EVENT] useLocation - navigator.permissions not available')
         return 'unknown'
       }
 
       const permission = await navigator.permissions.query({ name: 'geolocation' })
-      console.log('🔍 [EVENT] useLocation - Permission query result:', JSON.stringify({
+      log.info('🔍 [EVENT] useLocation - Permission query result:', JSON.stringify({
         state: permission.state,
         userAgent: navigator.userAgent.includes('iPhone') ? 'iOS' : 'Other'
       }))
@@ -260,7 +262,7 @@ export const useLocation = (): UseLocationReturn => {
       // If it says "prompt" but we suspect permission was actually denied,
       // let's do a quick test of the actual geolocation API
       if (permission.state === 'prompt' && navigator.userAgent.includes('iPhone')) {
-        console.log('🔍 [EVENT] useLocation - iOS detected, testing actual geolocation behavior...')
+        log.info('🔍 [EVENT] useLocation - iOS detected, testing actual geolocation behavior...')
 
         try {
           // Quick test - try to get position with very short timeout
@@ -271,17 +273,17 @@ export const useLocation = (): UseLocationReturn => {
               { timeout: 100, maximumAge: Infinity } // Use any cached position
             )
           })
-          console.log('🔍 [EVENT] useLocation - Geolocation test: appears to be granted')
+          log.info('🔍 [EVENT] useLocation - Geolocation test: appears to be granted')
           return 'granted'
         }
         catch (testError) {
           if ((testError as GeolocationPositionError).code === 1) { // PERMISSION_DENIED
             // iOS blocks background geolocation requests when Safari is set to "Ask"
             // This is NOT a user denial - it just means we need user gesture to show native prompt
-            console.log('🔍 [EVENT] useLocation - iOS blocking background request (Safari set to "Ask"), needs user gesture')
+            log.info('🔍 [EVENT] useLocation - iOS blocking background request (Safari set to "Ask"), needs user gesture')
             return 'prompt'
           }
-          console.log('🔍 [EVENT] useLocation - Geolocation test: other error, treating as prompt')
+          log.info('🔍 [EVENT] useLocation - Geolocation test: other error, treating as prompt')
           return 'prompt'
         }
       }
@@ -289,7 +291,7 @@ export const useLocation = (): UseLocationReturn => {
       return permission.state as PermissionState // 'granted', 'denied', or 'prompt'
     }
     catch (error) {
-      console.warn('Could not check geolocation permission:', error)
+      log.warn('Could not check geolocation permission:', error)
       // On mobile browsers, especially iOS, permission API might fail
       // Default to 'unknown' which will show the prompt
       return 'unknown'
@@ -298,15 +300,13 @@ export const useLocation = (): UseLocationReturn => {
 
   // Initialize GPS based on current permission state
   const initializeGPSWithPermissionCheck = async (): Promise<void> => {
-    // 🔍 EVENT TRACKING: GPS initialization timing
-    const startTime = performance.now()
-    console.log('🌍 [EVENT] useLocation - GPS initialization started')
+    log.info('🌍 [EVENT] useLocation - GPS initialization started')
 
     const permissionState = await checkGeolocationPermission()
 
     switch (permissionState) {
       case 'granted':
-        console.log('🌍 [EVENT] useLocation - Permission granted, getting position...')
+        log.info('🌍 [EVENT] useLocation - Permission granted, getting position...')
         globalShowGPSPrompt.value = false
         globalPermissionDenied.value = false
         await getUserPosition()
@@ -314,7 +314,7 @@ export const useLocation = (): UseLocationReturn => {
         break
 
       case 'denied':
-        console.log('🌍 [EVENT] useLocation - Permission denied by user')
+        log.info('🌍 [EVENT] useLocation - Permission denied by user')
         globalShowGPSPrompt.value = false
         globalPermissionDenied.value = true
         break
@@ -322,10 +322,10 @@ export const useLocation = (): UseLocationReturn => {
       case 'prompt':
       case 'unknown':
       default:
-        console.log('🌍 [EVENT] useLocation - Permission prompt required')
+        log.info('🌍 [EVENT] useLocation - Permission prompt required')
         globalShowGPSPrompt.value = true
         globalPermissionDenied.value = false
-        console.log('🔍 [EVENT] useLocation - GPS prompt state after setting:', JSON.stringify({
+        log.info('🔍 [EVENT] useLocation - GPS prompt state after setting:', JSON.stringify({
           showGPSPrompt: globalShowGPSPrompt.value,
           permissionState,
           userAgent: navigator.userAgent.includes('iPhone') ? 'iOS' : 'Other'
@@ -344,12 +344,12 @@ export const useLocation = (): UseLocationReturn => {
       }
     }
     catch (error) {
-      console.warn('Could not monitor permission changes:', error)
+      log.warn('Could not monitor permission changes:', error)
     }
 
     // 🔍 SAFETY CHECK: Ensure GPS prompt shows if no location and not denied
     setTimeout(() => {
-      console.log('🔍 [EVENT] useLocation - Safety check after initialization:', JSON.stringify({
+      log.info('🔍 [EVENT] useLocation - Safety check after initialization:', JSON.stringify({
         hasUserPosition: !!globalUserPosition.value,
         showGPSPrompt: globalShowGPSPrompt.value,
         permissionDenied: globalPermissionDenied.value,
@@ -358,7 +358,7 @@ export const useLocation = (): UseLocationReturn => {
 
       // If we don't have a position, permission isn't denied, and prompt isn't showing, force it
       if (!globalUserPosition.value && !globalPermissionDenied.value && !globalShowGPSPrompt.value) {
-        console.log('🌍 [EVENT] useLocation - SAFETY: Forcing GPS prompt to show')
+        log.info('🌍 [EVENT] useLocation - SAFETY: Forcing GPS prompt to show')
         globalShowGPSPrompt.value = true
       }
     }, 500) // Small delay to allow permission state to settle
@@ -371,7 +371,7 @@ export const useLocation = (): UseLocationReturn => {
 
   // Request GPS permission (triggered by user action)
   const requestGPSPermission = (): void => {
-    console.log('🌍 [EVENT] useLocation - requestGPSPermission called', JSON.stringify({
+    log.info('🌍 [EVENT] useLocation - requestGPSPermission called', JSON.stringify({
       currentShowPrompt: globalShowGPSPrompt.value,
       currentPermissionDenied: globalPermissionDenied.value,
       currentUserPosition: globalUserPosition.value,
@@ -383,18 +383,18 @@ export const useLocation = (): UseLocationReturn => {
     // For mobile, we need to call geolocation API DIRECTLY in user gesture context
     // Don't delegate to getUserPosition which might lose gesture context
     if (!navigator.geolocation) {
-      console.log('🌍 [EVENT] useLocation - Geolocation not available')
+      log.info('🌍 [EVENT] useLocation - Geolocation not available')
       globalPermissionDenied.value = true
       return
     }
 
-    console.log('🌍 [EVENT] useLocation - Calling navigator.geolocation.getCurrentPosition directly')
+    log.info('🌍 [EVENT] useLocation - Calling navigator.geolocation.getCurrentPosition directly')
 
     // Call native API directly within user gesture
     const locationOptions = getLocationOptions(globalRetryCount.value)
     navigator.geolocation.getCurrentPosition(
       (position: GeolocationPosition) => {
-        console.log('🌍 [EVENT] useLocation - Native GPS success', JSON.stringify({
+        log.info('🌍 [EVENT] useLocation - Native GPS success', JSON.stringify({
           lat: position.coords.latitude,
           lng: position.coords.longitude,
           accuracy: position.coords.accuracy
@@ -416,7 +416,7 @@ export const useLocation = (): UseLocationReturn => {
         startGPSUpdates()
       },
       (error: GeolocationPositionError) => {
-        console.log('🌍 [EVENT] useLocation - Native GPS failed', JSON.stringify({
+        log.error('🌍 [EVENT] useLocation - Native GPS failed', JSON.stringify({
           error: error.message,
           code: error.code,
           PERMISSION_DENIED: error.PERMISSION_DENIED,
@@ -450,7 +450,7 @@ export const useLocation = (): UseLocationReturn => {
 
   // Dismiss GPS prompt without requesting
   const dismissGPSPrompt = (): void => {
-    console.log('🌍 [EVENT] useLocation - GPS prompt dismissed by user')
+    log.info('🌍 [EVENT] useLocation - GPS prompt dismissed by user')
     globalShowGPSPrompt.value = false
     globalPermissionDenied.value = true
   }
@@ -518,7 +518,7 @@ export const useLocation = (): UseLocationReturn => {
           globalLocationError.value = errorMessage
         }
 
-        console.error('Error getting GPS position:', error)
+        log.error('Error getting GPS position:', error)
         throw error
       }
       finally {
@@ -581,7 +581,7 @@ export const useLocation = (): UseLocationReturn => {
         return normalizedLocation
       })
 
-      console.log(`[CLIENT] Loaded ${locations.length} locations for map ${mapId}`, {
+      log.info(`[CLIENT] Loaded ${locations.length} locations for map ${mapId}`, {
         requestedLimit: 10000,
         actualCount: locations.length,
         searchResultCount: searchResult?.count,
@@ -592,7 +592,7 @@ export const useLocation = (): UseLocationReturn => {
       return locations
     }
     catch (error) {
-      console.error('Error loading map locations (client-side):', error)
+      log.error('Error loading map locations (client-side):', error)
       throw new Error('Asukohtade laadimine ebaõnnestus')
     }
   }

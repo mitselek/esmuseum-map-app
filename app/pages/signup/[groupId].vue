@@ -395,7 +395,7 @@ function handleRetry () {
  * Clear stale authentication and show name collection form
  * Helper function to reduce code duplication (Copilot review)
  */
-function clearStaleAuthAndShowNameForm () {
+function _clearStaleAuthAndShowNameForm () {
   const { logout } = useEntuAuth()
   logout()
   needsName.value = true
@@ -405,10 +405,10 @@ function clearStaleAuthAndShowNameForm () {
 
 /**
  * On mount, always clear any existing session for a fresh start
- * 
+ *
  * Since OAuth callback now redirects to home (not back here), we can
  * safely logout without worrying about clearing a fresh session.
- * 
+ *
  * FIX #21: Check membership even for authenticated users without pendingGroupId
  * FIX #23: Validate user entity exists before proceeding (detect stale auth)
  */

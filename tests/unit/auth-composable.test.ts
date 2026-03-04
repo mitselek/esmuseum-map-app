@@ -14,7 +14,7 @@ const mockLocalStorage = (() => {
       store[key] = value
     }),
     removeItem: vi.fn((key: string) => {
-      delete store[key]
+      store = Object.fromEntries(Object.entries(store).filter(([k]) => k !== key))
     }),
     clear: vi.fn(() => {
       store = {}
@@ -77,7 +77,7 @@ const createAuthComposable = () => {
         currentUser = { id: '123', email: 'test@example.com', name: 'Test User' }
         return true
       }
-      catch (error) {
+      catch {
         logout()
         return false
       }
@@ -134,7 +134,7 @@ const createAuthComposable = () => {
 
       return true
     }
-    catch (error) {
+    catch {
       logout()
       return false
     }

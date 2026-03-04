@@ -98,7 +98,7 @@ export async function getEntuEntity (entityId: string, apiConfig: EntuApiOptions
 
 /**
  * Create entity in Entu
- * 
+ *
  * Constitutional: entityData uses Record<string, unknown> for flexible entity creation
  * Entity properties are dynamic based on entity type and Entu schema.
  * We validate and transform the data at this boundary.
@@ -160,7 +160,7 @@ function getEntityTypeReference (entityType: string): string {
 
 /**
  * Update entity in Entu
- * 
+ *
  * Constitutional: entityData uses Record<string, unknown> for flexible entity updates
  * Update data structure is dynamic based on entity type and Entu schema.
  * Principle I: Type Safety First - documented exception for dynamic entity operations
@@ -175,7 +175,7 @@ export async function updateEntuEntity (entityId: string, entityData: Record<str
 /**
  * Search entities in Entu
  */
-export async function searchEntuEntities (query: Record<string, any>, apiConfig: EntuApiOptions) {
+export async function searchEntuEntities (query: Record<string, string | number | boolean | undefined>, apiConfig: EntuApiOptions) {
   const queryString = Object.entries(query)
     .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
     .join('&')

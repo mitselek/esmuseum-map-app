@@ -6,7 +6,7 @@
 
 import type { EntuEntity } from '../../types/entu'
 import { createLogger } from './logger'
-import { callEntuApi, searchEntuEntities, getEntuApiConfig, type EntuApiOptions } from './entu'
+import { callEntuApi, searchEntuEntities, type EntuApiOptions } from './entu'
 
 const logger = createLogger('entu-admin')
 
@@ -448,7 +448,7 @@ export async function getStudentsByGroup (gruppId: string, userToken?: string, u
  * @param entityId - The entity ID to fetch
  * @returns Full entity object
  */
-export async function getEntityDetails (entityId: string, userToken?: string, userId?: string, userEmail?: string): Promise<any> {
+export async function getEntityDetails (entityId: string, userToken?: string, userId?: string, userEmail?: string): Promise<EntuEntity | null> {
   const apiConfig = await getAdminApiConfig(userToken, userId, userEmail)
 
   logger.debug('Fetching entity details', { entityId })
@@ -541,7 +541,7 @@ export function extractGroupFromTask (entity: EntuEntity): string | null {
   // Constitutional: After verifying entity_type, we know this has grupp property
   // Principle I: Type Safety First - documented type narrowing at runtime check boundary
   const taskEntity = entity as EntuEntity & { grupp?: unknown }
-  
+
   // Get grupp property
   const groups = taskEntity.grupp || []
 
@@ -607,10 +607,10 @@ export async function hasExpanderPermission (entityId: string, personId: string,
     // We validate the properties we need (reference) at this boundary
     // Principle I: Type Safety First - documented exception for external API data
     const hasPermission = expanders.some((exp: unknown) =>
-      typeof exp === 'object' &&
-      exp !== null &&
-      'reference' in exp &&
-      exp.reference === personId
+      typeof exp === 'object'
+      && exp !== null
+      && 'reference' in exp
+      && exp.reference === personId
     )
 
     logger.debug('Permission check result', {

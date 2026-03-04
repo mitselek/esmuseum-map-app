@@ -4,15 +4,13 @@
  */
 import { http, HttpResponse } from 'msw'
 import {
-  mockTasks,
   mockMaps,
   mockGroups,
   getTaskById,
   getMapById,
   getGroupById,
   searchTasks,
-  createMockTaskSearchResponse,
-  type TaskEntity
+  createMockTaskSearchResponse
 } from './data/tasks'
 import { mockTokens, mockUsers } from './jwt-tokens'
 
@@ -55,7 +53,7 @@ function authenticateRequest (request: Request) {
  * Check if user has permission to access a task
  * For now, allow all authenticated users (matching server implementation)
  */
-function checkTaskPermission (user: any, taskId: string): boolean {
+function _checkTaskPermission (_user: unknown, _taskId: string): boolean {
   // For compatibility with current server behavior, allow all authenticated users
   return true
 }

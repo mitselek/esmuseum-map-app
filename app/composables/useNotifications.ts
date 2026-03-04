@@ -84,6 +84,7 @@ export const notifySessionExpired = () => {
   // Debounce: Don't show multiple notifications within cooldown period
   const now = Date.now()
   if (now - lastSessionExpiredNotification < SESSION_NOTIFICATION_COOLDOWN) {
+    // eslint-disable-next-line no-console
     console.log('🔔 Skipping duplicate session expired notification (cooldown active)')
     return
   }
@@ -91,9 +92,10 @@ export const notifySessionExpired = () => {
 
   const { $i18n } = useNuxtApp()
 
+  const i18n = $i18n as { t: (key: string) => string }
   notifyWarning({
-    title: ($i18n as any).t('auth.sessionExpired'),
-    content: ($i18n as any).t('auth.sessionExpiredMessage'),
+    title: i18n.t('auth.sessionExpired'),
+    content: i18n.t('auth.sessionExpiredMessage'),
     duration: 5000
   })
 }
@@ -118,6 +120,7 @@ export const notifyAuthRequired = () => {
   // Debounce: Don't show multiple notifications within cooldown period
   const now = Date.now()
   if (now - lastAuthNotification < AUTH_NOTIFICATION_COOLDOWN) {
+    // eslint-disable-next-line no-console
     console.log('🔔 Skipping duplicate auth notification (cooldown active)')
     return
   }
@@ -125,9 +128,10 @@ export const notifyAuthRequired = () => {
 
   const { $i18n } = useNuxtApp()
 
+  const i18n = $i18n as { t: (key: string) => string }
   notifyError({
-    title: ($i18n as any).t('auth.authRequired'),
-    content: ($i18n as any).t('auth.authRequiredMessage'),
+    title: i18n.t('auth.authRequired'),
+    content: i18n.t('auth.authRequiredMessage'),
     duration: 4000
   })
 }

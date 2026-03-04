@@ -17,13 +17,16 @@ export default defineNuxtPlugin(() => {
         enabled: false
       }
 
-      // Note: Using 'as any' to augment window object with non-standard Vue devtools globals
-      // These properties are not defined in standard Window interface but are used by Vue devtools
-      // This is the standard pattern for disabling devtools in production environments
+      // Note: Using eslint-disable to augment window object with non-standard Vue devtools globals.
+      // These properties are not defined in the standard Window interface but are used by Vue devtools.
+      // This is the standard pattern for disabling devtools in production environments.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- __VUE_DEVTOOLS_GLOBAL_HOOK__ is a non-standard window property injected by Vue devtools
       if (!(window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- __VUE_DEVTOOLS_GLOBAL_HOOK__ is a non-standard window property injected by Vue devtools
         ;(window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__ = mockDevtools
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- __VUE_PROD_DEVTOOLS__ is a non-standard window property used by Vue to suppress devtools in production
       ;(window as any).__VUE_PROD_DEVTOOLS__ = false
 
       // Suppress devtools console errors
@@ -41,7 +44,7 @@ export default defineNuxtPlugin(() => {
         originalError.apply(console, args)
       }
     }
-    catch (e) {
+    catch {
       // Ignore errors if properties already exist
     }
   }

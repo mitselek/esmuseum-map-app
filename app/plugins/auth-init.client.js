@@ -6,23 +6,24 @@
 export default defineNuxtPlugin(async () => {
   // Import the auth composable
   const { refreshToken, isAuthenticated } = useEntuAuth()
+  const log = useClientLogger('auth-init') // eslint-disable-line no-undef -- Nuxt auto-import not available in .js files
 
   // Initialize auth state on client-side startup
   try {
-    console.log('Auth initialization plugin running')
+    log.info('Auth initialization plugin running')
 
     // Check if user is authenticated and refresh token if needed
     if (isAuthenticated.value) {
       await refreshToken()
-      console.log('Auth token refreshed')
+      log.info('Auth token refreshed')
     }
     else {
-      console.log('No authenticated user, skipping token refresh')
+      log.info('No authenticated user, skipping token refresh')
     }
 
-    console.log('Auth initialization complete')
+    log.info('Auth initialization complete')
   }
   catch (error) {
-    console.error('Auth initialization error:', error)
+    log.error('Auth initialization error:', error)
   }
 })

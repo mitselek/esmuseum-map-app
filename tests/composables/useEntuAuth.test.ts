@@ -129,7 +129,7 @@ describe('Client Auth Composables', () => {
       try {
         auth.user.value = JSON.parse(localStorage.getItem('esm_user') || 'null')
       }
-      catch (e) {
+      catch {
         auth.user.value = null
         localStorage.removeItem('esm_user')
       }
@@ -150,7 +150,7 @@ describe('Client Auth Composables', () => {
         return null
       })
 
-      const auth = mockUseEntuAuth()
+      mockUseEntuAuth()
 
       // Simulate token expiry check
       const tokenExpiry = parseInt(localStorage.getItem('esm_token_expiry') || '0')

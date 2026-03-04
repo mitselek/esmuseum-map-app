@@ -195,6 +195,7 @@ import type { EntuTask } from '../../types/entu'
 import { getTaskName, getTaskDescription, getTaskResponseCount, getTaskDeadline } from '../../utils/entu-helpers'
 import { formatDate } from '../../utils/date-format'
 
+const log = useClientLogger('TaskSidebar')
 const { locale } = useI18n()
 const {
   tasks,
@@ -287,14 +288,14 @@ const loadTaskResponseStats = (task: EntuTask): void => {
     newCache.set(task._id, stats)
     taskResponseStatsCache.value = newCache
 
-    console.log(`📊 [TaskSidebar] Updated stats for task ${task._id}`, {
+    log.info(`📊 [TaskSidebar] Updated stats for task ${task._id}`, {
       actual: stats.actual,
       expected: stats.expected,
       cacheSize: taskResponseStatsCache.value.size
     })
   }
   catch (error) {
-    console.warn(`Failed to load response stats for task ${task._id}:`, error)
+    log.warn(`Failed to load response stats for task ${task._id}:`, error)
   }
 }
 
@@ -331,7 +332,7 @@ watch(tasks, async (newTasks) => {
 // This watch ensures TaskSidebar's cache is refreshed automatically
 watch(userResponses, (newResponses, oldResponses) => {
   // LOG: Track statistics update trigger
-  console.log('[BUG-001 FIX] TaskSidebar - userResponses watch triggered', {
+  log.info('[BUG-001 FIX] TaskSidebar - userResponses watch triggered', {
     timestamp: new Date().toISOString(),
     responseCount: newResponses?.length || 0,
     oldResponseCount: oldResponses?.length || 0,
@@ -342,21 +343,21 @@ watch(userResponses, (newResponses, oldResponses) => {
 
   // Only refresh if responses actually changed
   if (newResponses && (newResponses !== oldResponses || newResponses.length !== oldResponses?.length)) {
-    console.log('[BUG-001 FIX] TaskSidebar - Responses changed, refreshing stats cache')
+    log.info('[BUG-001 FIX] TaskSidebar - Responses changed, refreshing stats cache')
 
     // Recompute stats for all visible tasks when user responses change
     if (tasks.value && tasks.value.length > 0) {
       for (const task of tasks.value) {
         loadTaskResponseStats(asEntuTask(task))
       }
-      console.log('[BUG-001 FIX] TaskSidebar - stats cache refreshed', {
+      log.info('[BUG-001 FIX] TaskSidebar - stats cache refreshed', {
         timestamp: new Date().toISOString(),
         cacheSize: taskResponseStatsCache.value.size
       })
     }
   }
   else {
-    console.log('[BUG-001 FIX] TaskSidebar - Watch fired but no actual change detected')
+    log.debug('[BUG-001 FIX] TaskSidebar - Watch fired but no actual change detected')
   }
 })
 
@@ -367,7 +368,7 @@ watch(userResponses, (newResponses, oldResponses) => {
 watch(isTaskSelected, (taskSelected, wasTaskSelected) => {
   // Detect transition from task selected (sidebar hidden) to no task (sidebar visible)
   if (wasTaskSelected === true && taskSelected === false) {
-    console.log('[MOBILE FIX] TaskSidebar - Became visible, refreshing stats', {
+    log.info('[MOBILE FIX] TaskSidebar - Became visible, refreshing stats', {
       timestamp: new Date().toISOString(),
       taskCount: tasks.value?.length || 0
     })
@@ -379,7 +380,7 @@ watch(isTaskSelected, (taskSelected, wasTaskSelected) => {
         for (const task of tasks.value) {
           loadTaskResponseStats(asEntuTask(task))
         }
-        console.log('[MOBILE FIX] TaskSidebar - Stats refreshed after becoming visible', {
+        log.info('[MOBILE FIX] TaskSidebar - Stats refreshed after becoming visible', {
           timestamp: new Date().toISOString(),
           cacheSize: taskResponseStatsCache.value.size
         })
@@ -395,7 +396,7 @@ watch(isTaskSelected, (taskSelected, wasTaskSelected) => {
 watch(isTaskSelected, (taskSelected, wasTaskSelected) => {
   // Detect transition from task selected (sidebar hidden) to no task (sidebar visible)
   if (wasTaskSelected === true && taskSelected === false) {
-    console.log('[MOBILE FIX] TaskSidebar - Became visible, refreshing stats', {
+    log.info('[MOBILE FIX] TaskSidebar - Became visible, refreshing stats', {
       timestamp: new Date().toISOString(),
       taskCount: tasks.value?.length || 0
     })
@@ -407,7 +408,7 @@ watch(isTaskSelected, (taskSelected, wasTaskSelected) => {
         for (const task of tasks.value) {
           loadTaskResponseStats(asEntuTask(task))
         }
-        console.log('[MOBILE FIX] TaskSidebar - Stats refreshed after becoming visible', {
+        log.info('[MOBILE FIX] TaskSidebar - Stats refreshed after becoming visible', {
           timestamp: new Date().toISOString(),
           cacheSize: taskResponseStatsCache.value.size
         })
@@ -418,7 +419,7 @@ watch(isTaskSelected, (taskSelected, wasTaskSelected) => {
 
 // PHASE 1: Non-blocking initialization
 onMounted(() => {
-  console.log('[EVENT] TaskSidebar - Component mounted, UI ready immediately', new Date().toISOString())
+  log.info('[EVENT] TaskSidebar - Component mounted, UI ready immediately', new Date().toISOString())
   // Tasks will auto-load when accessed via computed property
   // Completed tasks will load when tasks are ready (via watch above)
   // No blocking calls here - UI shows immediately!

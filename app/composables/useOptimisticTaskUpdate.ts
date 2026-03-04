@@ -1,10 +1,11 @@
 import type { Ref } from 'vue'
+import type { EntuEntity } from './useEntuApi'
 
 /**
  * Composable for optimistic task updates after response submission.
  * Handles data refetch to ensure UI consistency after submission.
  */
-export function useOptimisticTaskUpdate (task: Ref<any>) {
+export function useOptimisticTaskUpdate (task: Ref<EntuEntity | null>) {
   /**
    * Refetch task data from API to ensure consistency
    * Also reloads completed tasks list to update actual response count

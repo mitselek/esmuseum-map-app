@@ -10,7 +10,7 @@
  */
 
 import type { Ref, ComputedRef } from 'vue'
-import type { EntuResponse } from '../../types/entu'
+import type { EntuResponse, EntuTask } from '../../types/entu'
 import type { EntuUser } from './useEntuAuth'
 import { ENTU_TYPES } from '../constants/entu'
 
@@ -43,6 +43,7 @@ const loading = ref<boolean>(false)
 const error = ref<string | null>(null)
 
 export const useCompletedTasks = (): UseCompletedTasksReturn => {
+  const log = useClientLogger('useCompletedTasks')
   const { token } = useEntuAuth()
 
   /**
@@ -80,7 +81,7 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
       const responses = (responsesResult.entities || []) as EntuResponse[]
 
       // LOG: Track response data updates for BUG-001 debugging
-      console.log('[useCompletedTasks] loadCompletedTasks - Responses loaded from API', {
+      log.info('[useCompletedTasks] loadCompletedTasks - Responses loaded from API', {
         timestamp: new Date().toISOString(),
         responseCount: responses.length,
         previousCount: userResponses.value.length,
@@ -90,7 +91,7 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
       // Store all responses for later stats calculation
       userResponses.value = responses
 
-      console.log('[useCompletedTasks] loadCompletedTasks - userResponses ref updated', {
+      log.info('[useCompletedTasks] loadCompletedTasks - userResponses ref updated', {
         timestamp: new Date().toISOString(),
         newResponseCount: userResponses.value.length
       })
@@ -201,7 +202,7 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
  * @param taskData - Computed ref containing the task object
  * @returns Scoring data with the same interface as old useTaskScoring
  */
-export const useTaskScoring = (taskData: ComputedRef<any>) => {
+export const useTaskScoring = (taskData: ComputedRef<EntuTask | null | undefined>) => {
   const completedTasks = useCompletedTasks()
 
   // Extract expected response count from task data

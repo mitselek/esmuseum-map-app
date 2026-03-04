@@ -57,6 +57,7 @@ export interface UseEntuOAuthReturn {
 // ============================================================================
 
 export const useEntuOAuth = (): UseEntuOAuthReturn => {
+  const log = useClientLogger('useEntuOAuth')
   // Runtime configuration
   const config = useRuntimeConfig()
   const router = useRouter()
@@ -114,7 +115,7 @@ export const useEntuOAuth = (): UseEntuOAuthReturn => {
 
       // In client context, redirect to OAuth
       if (import.meta.client) {
-        console.log(`Starting OAuth flow with ${provider}`)
+        log.info(`Starting OAuth flow with ${provider}`)
         window.location.href = authUrl
       }
 

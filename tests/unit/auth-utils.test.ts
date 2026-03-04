@@ -2,7 +2,7 @@
  * Simplified unit tests for authentication utilities
  * Testing core logic without Nuxt dependencies
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { mockTokens, mockUsers } from '../mocks/jwt-tokens'
 
 // Mock the auth utilities we want to test

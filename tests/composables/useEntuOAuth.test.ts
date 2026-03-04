@@ -84,7 +84,7 @@ describe('useEntuOAuth', () => {
     })
 
     it('should validate e-mail provider like other providers', async () => {
-      const { useEntuOAuth, OAUTH_PROVIDERS } = await import('~/composables/useEntuOAuth')
+      const { OAUTH_PROVIDERS } = await import('~/composables/useEntuOAuth')
 
       const providers = Object.values(OAUTH_PROVIDERS)
       expect(providers).toContain('e-mail')

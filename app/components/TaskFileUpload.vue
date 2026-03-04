@@ -120,6 +120,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+const log = useClientLogger('TaskFileUpload')
+
 const { t } = useI18n()
 
 // F015: Client-side file upload composable
@@ -258,7 +260,7 @@ const uploadFiles = async (parentEntityId: string): Promise<UploadResult[]> => {
   }))
 
   try {
-    console.log('F015: Starting file upload with feature flag routing')
+    log.info('F015: Starting file upload with feature flag routing')
 
     // Progress callback for client-side uploads
     const progressCallback = (fileIndex: number, status: string, percent: number) => {
@@ -275,7 +277,7 @@ const uploadFiles = async (parentEntityId: string): Promise<UploadResult[]> => {
       progressCallback
     )
 
-    console.log('F015: Upload completed:', uploadResults)
+    log.info('F015: Upload completed:', uploadResults)
 
     // Update progress to complete for successful uploads
     uploadProgress.value.forEach((progress, index) => {

@@ -131,7 +131,7 @@
     <!-- Open in Maps button (shown when location is selected) -->
     <div
       v-if="props.selectedLocation && !isCSSFullscreen"
-      class="absolute bottom-4 left-1/2 z-[1000] -translate-x-1/2 transform"
+      class="absolute bottom-4 left-1/2 z-[1000] -translate-x-1/2"
     >
       <button
         type="button"
@@ -153,17 +153,13 @@ import 'leaflet/dist/leaflet.css'
 import { isSameLocation } from '~/utils/location-sync'
 import { useMapFullscreen } from '~/composables/useMapFullscreen'
 
+const log = useClientLogger('InteractiveMap')
+
 // Use map styles composable
 const { getCurrentStyle, getStyle } = useMapStyles()
 const currentMapStyle = computed(
   () => getCurrentStyle.value || getStyle('default')!
 )
-
-// Location coordinate interface
-interface Coordinates {
-  lat: number
-  lng: number
-}
 
 // User position interface
 interface UserPosition {
@@ -273,7 +269,7 @@ const loadingMessage = computed(() => {
 })
 
 // 🔍 EVENT TRACKING: Map component setup
-console.log('🗺️ [EVENT] InteractiveMap - Component setup started', {
+log.info('🗺️ [EVENT] InteractiveMap - Component setup started', {
   timestamp: new Date().toISOString(),
   locationCount: props.locations?.length || 0
 })
@@ -390,11 +386,9 @@ const getLocationIcon = (location: TaskLocation): Icon => {
 // Filter and process locations
 const displayedLocations = computed<TaskLocation[]>(() => {
   // Only log on first run or significant changes
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🗺️ [EVENT] InteractiveMap - Computing displayedLocations', {
-      locationCount: props.locations?.length || 0
-    })
-  }
+  log.debug('🗺️ [EVENT] InteractiveMap - Computing displayedLocations', {
+    locationCount: props.locations?.length || 0
+  })
 
   if (!props.locations?.length) {
     return []
@@ -411,12 +405,10 @@ const displayedLocations = computed<TaskLocation[]>(() => {
     }
   )
 
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🗺️ [EVENT] InteractiveMap - Filtered locations result:', {
-      totalInput: props.locations.length,
-      withValidCoords: locationsWithCoords.length
-    })
-  }
+  log.debug('🗺️ [EVENT] InteractiveMap - Filtered locations result:', {
+    totalInput: props.locations.length,
+    withValidCoords: locationsWithCoords.length
+  })
 
   return locationsWithCoords
 })
@@ -436,21 +428,19 @@ const closestUnvisitedLocations = computed<TaskLocation[]>(() => {
 const calculateMapBounds = async (): Promise<void> => {
   try {
     if (!map.value?.leafletObject) {
-      console.log(
-        '🗺️ [EVENT] InteractiveMap - Map not ready, skipping bounds calculation'
-      )
+      log.info('🗺️ [EVENT] InteractiveMap - Map not ready, skipping bounds calculation')
       return
     }
 
     // Wait for map to fully initialize
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 100)
+    })
 
     // Check if map container is properly initialized
     const container = map.value.leafletObject.getContainer()
     if (!container) {
-      console.warn(
-        '🗺️ [EVENT] InteractiveMap - Map container not ready yet, skipping bounds calculation'
-      )
+      log.warn('🗺️ [EVENT] InteractiveMap - Map container not ready yet, skipping bounds calculation')
       return
     }
 
@@ -459,21 +449,16 @@ const calculateMapBounds = async (): Promise<void> => {
       mapInitializationPhase.value === 'waiting'
       && props.locations?.length > 0
     ) {
-      console.log(
-        '🗺️ [EVENT] InteractiveMap - PHASE 1: Showing all locations overview',
-        {
-          locationCount: props.locations.length
-        }
-      )
+      log.info('🗺️ [EVENT] InteractiveMap - PHASE 1: Showing all locations overview', {
+        locationCount: props.locations.length
+      })
 
       mapInitializationPhase.value = 'all-locations'
       await fitAllLocationsBounds()
 
       // After Phase 1, check if we can immediately proceed to Phase 2
       if (props.userPosition) {
-        console.log(
-          '🗺️ [EVENT] InteractiveMap - User position available after Phase 1, scheduling Phase 2'
-        )
+        log.info('🗺️ [EVENT] InteractiveMap - User position available after Phase 1, scheduling Phase 2')
         // Small delay to allow Phase 1 to settle, then trigger Phase 2
         setTimeout(async () => {
           await calculateMapBounds()
@@ -485,22 +470,19 @@ const calculateMapBounds = async (): Promise<void> => {
       mapInitializationPhase.value === 'all-locations'
       && props.userPosition
     ) {
-      console.log(
-        '🗺️ [EVENT] InteractiveMap - PHASE 2: GPS-focused view transition',
-        {
-          hasUserPosition: !!props.userPosition,
-          userPosition: props.userPosition,
-          closestUnvisited: closestUnvisitedLocations.value?.length || 0,
-          mapPhase: mapInitializationPhase.value
-        }
-      )
+      log.info('🗺️ [EVENT] InteractiveMap - PHASE 2: GPS-focused view transition', {
+        hasUserPosition: !!props.userPosition,
+        userPosition: props.userPosition,
+        closestUnvisited: closestUnvisitedLocations.value?.length || 0,
+        mapPhase: mapInitializationPhase.value
+      })
 
       mapInitializationPhase.value = 'gps-focused'
       await fitGpsFocusedBounds()
     }
     else {
       // Debug why Phase 2 didn't execute
-      console.log('🗺️ [EVENT] InteractiveMap - Phase 2 conditions not met', {
+      log.debug('🗺️ [EVENT] InteractiveMap - Phase 2 conditions not met', {
         mapPhase: mapInitializationPhase.value,
         hasUserPosition: !!props.userPosition,
         userPosition: props.userPosition
@@ -508,10 +490,7 @@ const calculateMapBounds = async (): Promise<void> => {
     }
   }
   catch (err) {
-    console.error(
-      '🗺️ [EVENT] InteractiveMap - Error calculating map bounds:',
-      err
-    )
+    log.error('🗺️ [EVENT] InteractiveMap - Error calculating map bounds:', err)
     error.value = 'Kaardi piirkonna arvutamisel tekkis viga'
   }
 }
@@ -527,17 +506,14 @@ const fitAllLocationsBounds = async (): Promise<void> => {
     }
   })
 
-  console.log(
-    '🗺️ [EVENT] InteractiveMap - Phase 1 bounds points:',
-    bounds.length
-  )
+  log.info('🗺️ [EVENT] InteractiveMap - Phase 1 bounds points:', bounds.length)
 
   if (bounds.length === 0) return
   if (!map.value) return
 
   if (bounds.length === 1) {
     // Single location - center with medium zoom
-    console.log('🗺️ [EVENT] InteractiveMap - Phase 1: Single location view')
+    log.info('🗺️ [EVENT] InteractiveMap - Phase 1: Single location view')
     const boundsPoint = bounds[0]
     if (boundsPoint) {
       center.value = boundsPoint
@@ -547,7 +523,7 @@ const fitAllLocationsBounds = async (): Promise<void> => {
   }
   else {
     // Multiple locations - fit all with generous padding for overview
-    console.log('🗺️ [EVENT] InteractiveMap - Phase 1: All locations overview')
+    log.info('🗺️ [EVENT] InteractiveMap - Phase 1: All locations overview')
     const leafletBounds = L.latLngBounds(bounds)
     map.value.leafletObject.fitBounds(leafletBounds, {
       padding: [30, 30],
@@ -572,17 +548,14 @@ const fitGpsFocusedBounds = async (): Promise<void> => {
     }
   })
 
-  console.log(
-    '🗺️ [EVENT] InteractiveMap - Phase 2 bounds points:',
-    bounds.length
-  )
+  log.info('🗺️ [EVENT] InteractiveMap - Phase 2 bounds points:', bounds.length)
 
   if (bounds.length === 0) return
   if (!map.value) return
 
   if (bounds.length === 1) {
     // Just user position - center with close zoom
-    console.log('🗺️ [EVENT] InteractiveMap - Phase 2: User position focus')
+    log.info('🗺️ [EVENT] InteractiveMap - Phase 2: User position focus')
     const boundsPoint = bounds[0]
     if (boundsPoint) {
       center.value = boundsPoint
@@ -595,7 +568,7 @@ const fitGpsFocusedBounds = async (): Promise<void> => {
   }
   else {
     // User + nearby locations - fit with tighter padding for focus
-    console.log('🗺️ [EVENT] InteractiveMap - Phase 2: GPS-focused view')
+    log.info('🗺️ [EVENT] InteractiveMap - Phase 2: GPS-focused view')
     const leafletBounds = L.latLngBounds(bounds as LatLngExpression[])
     map.value.leafletObject.fitBounds(leafletBounds, {
       padding: [20, 20],
@@ -615,34 +588,35 @@ const fitGpsFocusedBounds = async (): Promise<void> => {
 const openInExternalMaps = (location: TaskLocation): void => {
   const { lat, lng } = location.coordinates
   const name = getLocationName(location)
-  
+
   // Detect platform
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- window.opera and window.MSStream are legacy browser detection properties not in the standard Window interface
   const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- window.MSStream is a legacy IE/Edge detection property not in the standard Window interface
   const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream
   const isAndroid = /android/i.test(userAgent)
-  
+
   let url: string
-  
+
   if (isIOS) {
     // Apple Maps on iOS
     url = `maps://?ll=${lat},${lng}&q=${encodeURIComponent(name)}`
-  } else if (isAndroid) {
+  }
+  else if (isAndroid) {
     // Google Maps on Android (geo: scheme)
     url = `geo:${lat},${lng}?q=${lat},${lng}(${encodeURIComponent(name)})`
-  } else {
+  }
+  else {
     // Google Maps web for desktop
     url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
   }
-  
+
   window.open(url, '_blank')
 }
 
 // Location click handler
 const onLocationClick = (location: TaskLocation): void => {
-  console.log(
-    '[InteractiveMap] Location clicked:',
-    location.nimi || location.name || 'unnamed'
-  )
+  log.info('[InteractiveMap] Location clicked:', location.nimi || location.name || 'unnamed')
   // The popup will open automatically due to the click event
   // We'll emit this to parent for synchronization
   emit('location-click', location)
@@ -677,10 +651,7 @@ watch(
   () => props.selectedLocation,
   (newLocation, oldLocation) => {
     if (newLocation && !isSameLocation(newLocation, oldLocation || {})) {
-      console.log(
-        '[InteractiveMap] Selected location changed, opening popup:',
-        newLocation.nimi || newLocation.name || 'unnamed'
-      )
+      log.info('[InteractiveMap] Selected location changed, opening popup:', newLocation.nimi || newLocation.name || 'unnamed')
       nextTick(() => {
         openLocationPopup(newLocation)
       })
@@ -694,7 +665,7 @@ watch(
 const onMapReady = async (): Promise<void> => {
   try {
     // 🔍 EVENT TRACKING: Map ready
-    console.log('🗺️ [EVENT] InteractiveMap - Map ready', {
+    log.info('🗺️ [EVENT] InteractiveMap - Map ready', {
       timestamp: new Date().toISOString(),
       locationCount: props.locations?.length || 0,
       hasUserPosition: !!props.userPosition
@@ -764,15 +735,13 @@ const onMapReady = async (): Promise<void> => {
       props.locations?.length > 0
       && mapInitializationPhase.value === 'waiting'
     ) {
-      console.log(
-        '🗺️ [EVENT] InteractiveMap - Map ready with locations, starting initialization'
-      )
+      log.info('🗺️ [EVENT] InteractiveMap - Map ready with locations, starting initialization')
       await nextTick()
       await calculateMapBounds()
     }
   }
   catch (err) {
-    console.error('🗺️ [EVENT] InteractiveMap - Error in onMapReady:', err)
+    log.error('🗺️ [EVENT] InteractiveMap - Error in onMapReady:', err)
     error.value = 'Kaardi käivitamisel tekkis viga'
   }
 }
@@ -786,9 +755,7 @@ watch(
       && mapInitializationPhase.value === 'waiting'
       && map.value?.leafletObject
     ) {
-      console.log(
-        '🗺️ [EVENT] InteractiveMap - Locations ready with map ready, triggering Phase 1'
-      )
+      log.info('🗺️ [EVENT] InteractiveMap - Locations ready with map ready, triggering Phase 1')
       await nextTick()
       await calculateMapBounds()
     }
@@ -796,9 +763,7 @@ watch(
       newLocations?.length > 0
       && mapInitializationPhase.value === 'waiting'
     ) {
-      console.log(
-        '🗺️ [EVENT] InteractiveMap - Locations ready but map not ready yet, waiting...'
-      )
+      log.debug('🗺️ [EVENT] InteractiveMap - Locations ready but map not ready yet, waiting...')
     }
   },
   { deep: true }
@@ -809,9 +774,7 @@ watch(
   () => props.userPosition,
   async (newUserPosition) => {
     if (newUserPosition && mapInitializationPhase.value === 'all-locations') {
-      console.log(
-        '🗺️ [EVENT] InteractiveMap - User position available, triggering Phase 2 transition'
-      )
+      log.info('🗺️ [EVENT] InteractiveMap - User position available, triggering Phase 2 transition')
       isTransitioning.value = true
       await nextTick()
       // Small delay for smooth UX before transitioning
