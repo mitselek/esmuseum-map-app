@@ -1,6 +1,7 @@
-# AI Assistant Guide
+# AI Assistant Guide — ESMuseum Map App
 
-This file provides guidance to AI assistants (Claude, Gemini, Copilot, etc.) when working with code in this repository.
+> Üldised juhised (keel, commit workflow, tiimitöö, kvaliteedistandardid) on globaalses `~/.claude/CLAUDE.md` failis.
+> See fail sisaldab ainult projekti-spetsiifilisi juhiseid.
 
 ## Project Overview
 
@@ -13,49 +14,30 @@ This file provides guidance to AI assistants (Claude, Gemini, Copilot, etc.) whe
 ### Running the Application
 
 ```bash
-# Install dependencies
-npm install
-
-# Development server (localhost)
-npm run dev
-
-# Development with mobile network access
-npm run dev:mobile
-
-# Build for production
-npm run build
-
-# Production server
-npm run start
-npm run start:mobile  # with network access
+npm install          # Install dependencies
+npm run dev          # Development server (localhost)
+npm run dev:mobile   # Development with mobile network access
+npm run build        # Build for production
+npm run start        # Production server
+npm run start:mobile # with network access
 ```
 
 ### Testing
 
 ```bash
-# Run all tests
-npm test
-
-# Watch mode for development
-npm test:watch
-
-# Specific test suites
-npm test:unit           # Unit tests only
-npm test:api            # API endpoint tests
-npm test:composables    # Composable tests
-npm test:auth           # All auth-related tests
-
-# Coverage report
-npm test:coverage
+npm test              # Run all tests
+npm test:watch        # Watch mode
+npm test:unit         # Unit tests only
+npm test:api          # API endpoint tests
+npm test:composables  # Composable tests
+npm test:auth         # All auth-related tests
+npm test:coverage     # Coverage report
 ```
 
 ### Code Quality
 
 ```bash
-# Lint and auto-fix
-npm run lint
-
-# Translation management
+npm run lint                         # Lint and auto-fix
 npm run analyze-translations         # Analyze usage
 npm run analyze-translations:report  # Generate report
 npm run analyze-translations:cleanup # Remove unused keys
@@ -139,6 +121,10 @@ tests/
 
 - `useEntuApi.ts` - Core Entu API client with auto-retry on 401
 
+**Client Logging:**
+
+- `useClientLogger.ts` - Dev-only debug/info, always-on warn/error
+
 ### Entu Data Model
 
 The application works with these Entu entity types (Estonian names used in API):
@@ -215,28 +201,7 @@ Files: `useClientSideFileUpload.ts` + `server/api/upload-proxy.post.ts`
 
 ### Constitution
 
-This project follows strict development principles defined in `.specify/memory/constitution.md`:
-
-1. **Type Safety First** - Avoid `any`, document exceptions, use type guards
-2. **Composable-First Development** - Reusable, testable, single-responsibility composables
-3. **Test-First Development** - Write tests before implementation (>80% coverage for composables, >90% for API)
-4. **Observable Development** - Structured logging (pino), proper error boundaries
-5. **Pragmatic Simplicity** - YAGNI, optimize after measuring, boring technology over cleverness
-6. **Strategic Integration Testing** - Focus on critical paths (auth, Entu API, user journeys)
-7. **API-First Server Design** - Clean validation, structured responses, proper error codes
-
-### Spec-Kit Workflow
-
-Available slash commands (see `.specify/` folder):
-
-- `/speckit.specify` - Write feature specifications
-- `/speckit.plan` - Create implementation plans
-- `/speckit.tasks` - Break down into tasks
-- `/speckit.implement` - Execute implementation
-- `/speckit.analyze` - Analyze specs for completeness
-- `/speckit.checklist` - Generate requirements quality checklist
-- `/speckit.clarify` - Clarify requirements
-- `/speckit.constitution` - Check constitutional compliance
+This project follows principles defined in `.specify/memory/constitution.md`. See global `~/.claude/CLAUDE.md` for universal quality standards.
 
 ### Feature Flags
 
@@ -245,23 +210,6 @@ Runtime feature flags for gradual rollout:
 - `F015_CLIENT_SIDE_RESPONSE_CREATION` - Phase 3.1 (COMPLETED)
 - `F015_CLIENT_DAILY_FILE_UPLOAD` - Phase 3.2b (COMPLETED - hybrid proxy)
 - `F015_CLIENT_SIDE_AUTH` - Phase 3.3 (TESTING NOW)
-
-### Testing Strategy
-
-**Framework**: Vitest with MSW for API mocking
-
-**Test categories**:
-
-- Unit tests - Utility functions, type guards
-- API tests - Server endpoints, Entu integration
-- Composables tests - Auth, task management, location
-- Integration tests - End-to-end workflows
-
-**When to run specific test suites**:
-
-- After auth changes: `npm test:auth`
-- After composable changes: `npm test:composables`
-- After API changes: `npm test:api`
 
 ### Common Development Tasks
 
@@ -313,16 +261,11 @@ Runtime feature flags for gradual rollout:
 Required in `.env`:
 
 ```bash
-# Entu API Configuration
 NUXT_ENTU_KEY=your_server_side_api_key
 NUXT_PUBLIC_ENTU_URL=https://entu.app
 NUXT_PUBLIC_ENTU_ACCOUNT=esmuuseum
 NUXT_PUBLIC_ENTU_CLIENT_ID=your_oauth_client_id
-
-# Webhook Configuration
 NUXT_WEBHOOK_SECRET=your_webhook_secret
-
-# OAuth Configuration
 NUXT_PUBLIC_CALLBACK_ORIGIN=https://your-domain.com
 ```
 
@@ -330,7 +273,7 @@ See `.env.example` for complete list.
 
 ### Nuxt Configuration
 
-Key settings in `nuxt.config.ts`:
+Key settings in `nuxt.config.ts` (lives at `.config/nuxt.config.ts`):
 
 - SPA mode: `ssr: false` (required for localStorage)
 - i18n: 4 locales (et, en, uk, lv)
@@ -346,48 +289,21 @@ Key settings in `nuxt.config.ts`:
 - **Internationalization**: @nuxtjs/i18n (4 languages)
 - **Mapping**: Leaflet 1.9 + @vue-leaflet/vue-leaflet
 - **Testing**: Vitest 3.2+ with @nuxt/test-utils
-- **Logging**: Pino (server-side structured logging)
+- **Logging**: Pino (server), useClientLogger (client)
 - **Node Version**: 22.x
 
 ## Common Patterns
-
-### Creating a New Composable
-
-```typescript
-// app/composables/useMyFeature.ts
-import { ref, computed } from "vue";
-
-export const useMyFeature = () => {
-  const state = ref<string>("");
-
-  const derivedValue = computed(() => {
-    return state.value.toUpperCase();
-  });
-
-  const doSomething = async () => {
-    // Implementation
-  };
-
-  return {
-    state: readonly(state),
-    derivedValue,
-    doSomething,
-  };
-};
-```
 
 ### Making Entu API Calls
 
 ```typescript
 const { searchEntities, createEntity } = useEntuApi();
 
-// Fetch tasks for a group
 const tasks = await searchEntities({
   _type: "ülesanne",
   grupp: groupId,
 });
 
-// Create a response
 const response = await createEntity({
   _type: "vastus",
   _parent: taskId,
@@ -401,10 +317,8 @@ const response = await createEntity({
 ```typescript
 import { toEntuEntityId, isEntuEntityId } from "~/types/entu";
 
-// Convert string to branded ID
 const taskId = toEntuEntityId("507f1f77bcf86cd799439011");
 
-// Type guard
 if (isEntuEntityId(someValue)) {
   // TypeScript knows someValue is EntuEntityId
 }
@@ -415,7 +329,7 @@ if (isEntuEntityId(someValue)) {
 ```vue
 <script setup>
 definePageMeta({
-  middleware: ["auth"], // Requires authentication
+  middleware: ["auth"],
 });
 </script>
 ```
@@ -449,11 +363,3 @@ definePageMeta({
 - Check property access uses array indexing: `entity.name[0]?.string`
 - Verify branded type usage for entity IDs
 - Use type guards from `types/entu.ts`
-
-## Project Governance
-
-**Constitution Authority**: `.specify/memory/constitution.md` supersedes all other guidelines. All PRs must verify constitutional compliance.
-
-**Amendment Process**: Changes to constitution require documentation in `.specify/memory/`, maintainer review, and version bump.
-
-**Exception Handling**: Exceptions must be documented with justification and tracked for resolution.
