@@ -1,17 +1,21 @@
-import { beforeAll, afterEach, afterAll, vi } from 'vitest'
+import { beforeAll, afterEach, afterAll } from 'vitest'
 import { setupServer } from 'msw/node'
 import { authApiMocks } from './mocks/entu-auth-api'
 import { taskApiMocks } from './mocks/task-api'
 import { ref, computed, watch } from 'vue'
 
 // Make Vue reactivity available globally for composable tests
+
 ;
 
-(global as any).ref = ref
-;(global as any).computed = computed
-;(global as any).watch = watch
+(globalThis as any).ref = ref
+
+;(globalThis as any).computed = computed
+
+;(globalThis as any).watch = watch
 
 // Setup MSW server with all API mocks
+// Note: localStorage is mocked in setup-globals.ts which runs before this file
 const server = setupServer(...authApiMocks, ...taskApiMocks)
 
 // Export server for use in individual tests
@@ -27,23 +31,4 @@ afterEach(() => {
 
 afterAll(() => {
   server.close()
-})
-
-// Mock localStorage for client-side tests
-const mockLocalStorage = {
-  store: new Map<string, string>(),
-  getItem: (key: string) => mockLocalStorage.store.get(key) || null,
-  setItem: (key: string, value: string) => mockLocalStorage.store.set(key, value),
-  removeItem: (key: string) => mockLocalStorage.store.delete(key),
-  clear: () => mockLocalStorage.store.clear()
-}
-
-Object.defineProperty(global, 'localStorage', {
-  value: mockLocalStorage,
-  writable: true
-})
-
-// Reset localStorage before each test
-afterEach(() => {
-  mockLocalStorage.clear()
 })
