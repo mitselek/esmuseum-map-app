@@ -14,9 +14,10 @@
     "eamodio.gitlens",
     "github.vscode-pull-request-github",
 
-    // GitHub Copilot
+    // AI Assistants
     "github.copilot",
     "github.copilot-chat",
+    "anthropic.claude-code",
 
     // Testing
     "vitest.explorer",
