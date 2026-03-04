@@ -35,9 +35,8 @@ export interface TaskPriorityBadgeProps {
 /**
  * TaskPriorityBadge component emits no events
  */
-export interface TaskPriorityBadgeEmits {
-  // This component is purely presentational and emits no events
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- purely presentational, emits no events
+export interface TaskPriorityBadgeEmits {}
 
 /**
  * Naive UI tag type mapping for priorities
