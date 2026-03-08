@@ -58,7 +58,6 @@
     "msw": "^2.11.1",
     "naive-ui": "2.42.0",
     "nuxt": "3.17.6",
-    "nuxt-icons": "3.2.1",
     "simple-git-hooks": "^2.13.1",
     "vitest": "^3.2.4"
   },

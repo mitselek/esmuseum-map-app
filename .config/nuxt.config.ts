@@ -4,8 +4,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxtjs/i18n',
     '@nuxtjs/tailwindcss',
-    '@vueuse/nuxt',
-    'nuxt-icons'
+    '@vueuse/nuxt'
   ],
   ssr: false,
   devtools: { enabled: false },
