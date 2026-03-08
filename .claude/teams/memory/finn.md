@@ -20,3 +20,12 @@
 [GOTCHA] Best practice says NOT to proxy file uploads — but we must due to CORS
 [GOTCHA] Property deletion is per-property-value \_id, NOT per property name
 [GOTCHA] No batch/bulk endpoint — but can bundle multiple properties in single POST
+
+## Server Test Coverage Audit (2026-03-08)
+
+[LEARNED] server/ has 15 files, 3149 lines total. 0% real coverage (existing API tests only test MSW mocks)
+[LEARNED] Best first targets: webhook-queue.ts (pure state machine), validation.ts (pure validators), webhook-validation.ts extractors
+[LEARNED] ~900 lines testable as pure unit tests with no backend help (P1)
+[LEARNED] entu-admin.ts has 2 pure extractors (extractGroupsFromPerson, extractGroupFromTask) amid API-dependent code
+[LEARNED] onboard-join-group.test.ts exists but all 6 tests are skipped ("requires Nuxt runtime")
+[CHECKPOINT] Full report sent to lead with 4-priority breakdown and role assignments (Tess vs Entu)
