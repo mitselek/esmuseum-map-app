@@ -9,7 +9,7 @@
  * then constructing headers object to ensure Authorization header is preserved.
  */
 
-import { ENTU_TYPES, ENTU_PROPERTIES } from '../constants/entu'
+import { ENTU_TYPES, ENTU_PROPERTIES } from '~/constants/entu'
 import { analyzeApiError, handleAuthError } from '~/utils/error-handling'
 import { notifyAuthRequired } from '~/composables/useNotifications'
 

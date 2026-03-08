@@ -4,8 +4,8 @@
  */
 import { ref, computed, watch, readonly, nextTick } from 'vue'
 import type { EntuUser } from './useEntuAuth'
-import type { EntuTask } from '../../types/entu'
-import type { UserResponseData } from '../../types/workspace'
+import type { EntuTask } from '~~/types/entu'
+import type { UserResponseData } from '~~/types/workspace'
 
 // Global state outside the composable to persist across navigation
 const globalTasks = ref<EntuTask[]>([])

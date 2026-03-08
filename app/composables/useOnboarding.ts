@@ -10,7 +10,7 @@
  */
 
 import { ref, onUnmounted } from 'vue'
-import type { OnboardingState, GroupAssignmentResponse } from '../../types/onboarding'
+import type { OnboardingState, GroupAssignmentResponse } from '~~/types/onboarding'
 
 export function useOnboarding () {
   const log = useClientLogger('useOnboarding')

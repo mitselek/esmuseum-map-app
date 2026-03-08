@@ -7,9 +7,9 @@
  * - Reduced code by ~50 lines using battle-tested helpers
  */
 
-import type { EntuTask } from '../../types/entu'
-import type { NormalizedLocation } from '../../types/location'
-import { buildResponsesByTaskQuery } from '../../utils/entu-query-builders'
+import type { EntuTask } from '~~/types/entu'
+import type { NormalizedLocation } from '~~/types/location'
+import { buildResponsesByTaskQuery } from '~~/utils/entu-query-builders'
 
 interface PermissionCheckResult {
   hasPermission: boolean

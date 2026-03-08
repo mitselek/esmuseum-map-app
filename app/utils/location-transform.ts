@@ -4,8 +4,8 @@
  * Converts between Entu API format and normalized internal format
  */
 
-import type { EntuLocation } from '../../types/entu'
-import type { NormalizedLocation, Coordinates } from '../../types/location'
+import type { EntuLocation } from '~~/types/entu'
+import type { NormalizedLocation, Coordinates } from '~~/types/location'
 
 /**
  * Extract coordinates from Entu location entity

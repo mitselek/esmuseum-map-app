@@ -7,7 +7,7 @@
  * - Processing the temporary API key
  */
 
-import { REDIRECT_KEY } from '../utils/auth-check.client'
+import { REDIRECT_KEY } from '~/utils/auth-check.client'
 import type { EntuAuthResponse } from './useEntuAuth'
 
 // ============================================================================

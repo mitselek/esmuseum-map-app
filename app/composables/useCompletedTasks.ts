@@ -10,9 +10,9 @@
  */
 
 import type { Ref, ComputedRef } from 'vue'
-import type { EntuResponse, EntuTask } from '../../types/entu'
+import type { EntuResponse, EntuTask } from '~~/types/entu'
 import type { EntuUser } from './useEntuAuth'
-import { ENTU_TYPES } from '../constants/entu'
+import { ENTU_TYPES } from '~/constants/entu'
 
 interface TaskStats {
   actual: number

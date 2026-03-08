@@ -76,8 +76,8 @@
 <script setup lang="ts">
 import type { TaskLocation } from '~~/types/location'
 import { getLocationIdentifier } from '~/utils/location-sync'
-import { getTaskName } from '../../utils/entu-helpers'
-import { formatDate } from '../../utils/date-format'
+import { getTaskName } from '~~/utils/entu-helpers'
+import { formatDate } from '~~/utils/date-format'
 
 const log = useClientLogger('TaskDetailPanel')
 const { selectedTask, clearSelection } = useTaskWorkspace()

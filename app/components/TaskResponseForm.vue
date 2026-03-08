@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import type { EntuTask } from '../../types/entu'
+import type { EntuTask } from '~~/types/entu'
 import type { TaskLocation } from '~~/types/location'
 import { roundCoordinates } from '~/utils/distance'
 

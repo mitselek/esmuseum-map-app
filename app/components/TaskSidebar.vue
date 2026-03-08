@@ -191,9 +191,9 @@
 </template>
 
 <script setup lang="ts">
-import type { EntuTask } from '../../types/entu'
-import { getTaskName, getTaskDescription, getTaskResponseCount, getTaskDeadline } from '../../utils/entu-helpers'
-import { formatDate } from '../../utils/date-format'
+import type { EntuTask } from '~~/types/entu'
+import { getTaskName, getTaskDescription, getTaskResponseCount, getTaskDeadline } from '~~/utils/entu-helpers'
+import { formatDate } from '~~/utils/date-format'
 
 const log = useClientLogger('TaskSidebar')
 const { locale } = useI18n()

@@ -29,7 +29,7 @@
  */
 
 import { computed } from 'vue'
-import type { TaskPriority, PriorityBadgeSize, PriorityTagType } from '../../types/priority'
+import type { TaskPriority, PriorityBadgeSize, PriorityTagType } from '~~/types/priority'
 
 interface Props {
   /**

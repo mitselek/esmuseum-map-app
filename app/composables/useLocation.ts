@@ -3,11 +3,11 @@
  * Handles GPS location requests with caching, deduplication, and automatic updates
  */
 
-import type { EntuLocation } from '../../types/entu'
-import type { NormalizedLocation } from '../../types/location'
-import { ENTU_TYPES, ENTU_PROPERTIES } from '../constants/entu'
-import { getCurrentPosition, sortLocationsByDistance } from '../utils/distance'
-import { normalizeLocations } from '../utils/location-transform'
+import type { EntuLocation } from '~~/types/entu'
+import type { NormalizedLocation } from '~~/types/location'
+import { ENTU_TYPES, ENTU_PROPERTIES } from '~/constants/entu'
+import { getCurrentPosition, sortLocationsByDistance } from '~/utils/distance'
+import { normalizeLocations } from '~/utils/location-transform'
 
 // ============================================================================
 // TypeScript Interfaces

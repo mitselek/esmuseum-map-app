@@ -1,7 +1,7 @@
-import { ENTU_TYPE_IDS, ENTU_PROPERTIES } from '../constants/entu'
-import { buildResponsesByTaskQuery } from '../../utils/entu-query-builders'
+import { ENTU_TYPE_IDS, ENTU_PROPERTIES } from '~/constants/entu'
+import { buildResponsesByTaskQuery } from '~~/utils/entu-query-builders'
 import type { Ref } from 'vue'
-import type { EntuTask, EntuGroup, EntuEntityResponse } from '../../types/entu'
+import type { EntuTask, EntuGroup, EntuEntityResponse } from '~~/types/entu'
 
 /**
  * Response metadata containing location and coordinates
