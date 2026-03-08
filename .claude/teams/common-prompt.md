@@ -72,6 +72,21 @@ Only persist knowledge that:
 - Transient failures already fixed
 - Anything already in CLAUDE.md or one grep away
 
+## Import Paths
+
+- `~/` = `app/` directory (Nuxt standard)
+- `~~/` = project root — use for `types/`, root `utils/`
+- In test files: use relative paths (`../../app/...`), not `~/` or `~~/`
+
+## Testing Notes
+
+- Vitest env is `node` — no DOM, no `document`, no `window` (except stubs in setup-globals.ts)
+- Component tests are logic-only (no jsdom/happy-dom)
+- Singleton composables need `vi.resetModules()` in `beforeEach` to clear module cache
+- After `vi.resetModules()`: re-stub globalThis mocks (they get cleared)
+- Use dynamic `await import()` to get fresh composable instance
+- Research reports: Finn stores detailed reports as `finn-<topic>.md` in the memory directory
+
 ## Shutdown Protocol
 
 **Lead lõpetab alati viimasena.**

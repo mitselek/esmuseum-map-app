@@ -4,6 +4,7 @@
  * before setup.ts which imports MSW.
  */
 import { afterEach } from 'vitest'
+import { readonly } from 'vue'
 
 // Mock localStorage — MSW's CookieStore calls localStorage.getItem()
 // at module load time, so this must be defined before MSW is imported.
@@ -32,6 +33,10 @@ if (typeof globalThis.window === 'undefined') {
     matchMedia: () => ({ matches: false, addListener: () => {}, removeListener: () => {} })
   }
 }
+
+// Stub `readonly` globally — composables using readonly() need this in node env.
+// ref, computed, watch are stubbed in setup.ts, but readonly was missing (caused gotchas).
+;(globalThis as any).readonly = readonly
 
 afterEach(() => {
   mockLocalStorage.clear()

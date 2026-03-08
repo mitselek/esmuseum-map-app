@@ -2,13 +2,6 @@
 
 ## Session 2026-03-08
 
-### [LEARNED] nuxt-icons typecheck fix
-
-- `skipLibCheck` only skips `.d.ts` files, NOT `.vue` files from node_modules
-- When `.nuxt/components.d.ts` imports a `.vue` file, no tsconfig `include`/`exclude` can prevent typechecking it — TS follows the import chain
-- Type declaration modules (`.d.ts`) cannot shadow `.vue` file imports in vue-tsc
-- Solution: removed the abandoned `nuxt-icons` module entirely (no usage in codebase)
-
 ### [LEARNED] normalizeLocation wiring
 
 - `normalizeLocation()` in `app/utils/location-transform.ts` converts Entu array format to flat `NormalizedLocation`

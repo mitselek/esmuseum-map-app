@@ -148,6 +148,15 @@ entity.reference = [{ reference: "other_entity_id" }];
 
 **Type Safety**: `EntuEntityId` branded type prevents mixing entity IDs with strings at compile time.
 
+**Entu API Key Facts** (save debugging time):
+
+- App token validity: 48h (parsed from JWT `exp` claim)
+- Webhook token: 1-minute short-lived JWT
+- Signed upload URLs: 15-minute expiry
+- File download URLs: 60-second validity
+- Default entity query limit: 100 (we set 1000)
+- Property update: include `_id` field to overwrite existing value; without it, adds new value
+
 ### Authentication Flow
 
 1. User clicks OAuth provider → `useEntuOAuth.ts` redirects to OAuth.ee
