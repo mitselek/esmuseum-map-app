@@ -58,6 +58,35 @@ export const mockTokens = {
     // Missing accounts
     iat: Math.floor(Date.now() / 1000),
     exp: Math.floor(Date.now() / 1000) + 3600
+  }),
+
+  noExp: createMockJWT({
+    user: {
+      email: 'noexp@student.ee',
+      name: 'No Exp Student'
+    },
+    accounts: {
+      esmuuseum: '507f1f77bcf86cd799439014'
+    },
+    iat: Math.floor(Date.now() / 1000)
+    // No exp claim
+  })
+}
+
+/**
+ * Create a mock JWT with a specific exp timestamp (seconds since epoch)
+ */
+export const createMockJWTWithExp = (expSeconds: number): string => {
+  return createMockJWT({
+    user: {
+      email: 'test@student.ee',
+      name: 'Test Student'
+    },
+    accounts: {
+      esmuuseum: '507f1f77bcf86cd799439011'
+    },
+    iat: Math.floor(Date.now() / 1000),
+    exp: expSeconds
   })
 }
 

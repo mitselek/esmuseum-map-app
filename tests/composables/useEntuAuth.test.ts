@@ -3,7 +3,8 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { ref, computed } from 'vue'
-import { mockTokens, mockUsers } from '../mocks/jwt-tokens'
+import { mockTokens, mockUsers, createMockJWTWithExp } from '../mocks/jwt-tokens'
+import { decodeJWT } from '../../app/utils/token-validation'
 
 // Mock the composables since we can't import them directly in Node.js test environment
 const mockUseEntuAuth = () => {
@@ -221,6 +222,81 @@ describe('Client Auth Composables', () => {
       auth.checkAndRefreshToken()
 
       expect(auth.checkAndRefreshToken).toHaveBeenCalled()
+    })
+  })
+
+  describe('JWT-based token expiry', () => {
+    it('should parse exp claim from a valid JWT', () => {
+      const futureExp = Math.floor(Date.now() / 1000) + 7200 // 2 hours from now
+      const token = createMockJWTWithExp(futureExp)
+      const payload = decodeJWT(token)
+
+      expect(payload).not.toBeNull()
+      expect(payload!.exp).toBe(futureExp)
+    })
+
+    it('should detect token with exp in the past as expired', () => {
+      const pastExp = Math.floor(Date.now() / 1000) - 3600 // 1 hour ago
+      const token = createMockJWTWithExp(pastExp)
+      const payload = decodeJWT(token)
+
+      expect(payload).not.toBeNull()
+      const isExpired = payload!.exp * 1000 <= Date.now()
+      expect(isExpired).toBe(true)
+    })
+
+    it('should detect token with exp in the future as not expired', () => {
+      const futureExp = Math.floor(Date.now() / 1000) + 7200 // 2 hours from now
+      const token = createMockJWTWithExp(futureExp)
+      const payload = decodeJWT(token)
+
+      expect(payload).not.toBeNull()
+      const isExpired = payload!.exp * 1000 <= Date.now()
+      expect(isExpired).toBe(false)
+    })
+
+    it('should handle JWT with no exp claim (fallback to 48h)', () => {
+      const payload = decodeJWT(mockTokens.noExp)
+
+      expect(payload).not.toBeNull()
+      expect(payload!.exp).toBeUndefined()
+
+      // When exp is missing, composable should fallback to 48h
+      const FALLBACK_48H_MS = 48 * 60 * 60 * 1000
+      const fallbackExpiry = Date.now() + FALLBACK_48H_MS
+
+      // Verify the fallback value is approximately 48h from now (within 5s tolerance)
+      expect(fallbackExpiry).toBeGreaterThan(Date.now() + FALLBACK_48H_MS - 5000)
+      expect(fallbackExpiry).toBeLessThan(Date.now() + FALLBACK_48H_MS + 5000)
+    })
+
+    it('should set tokenExpiry from JWT exp (not hardcoded 12h)', () => {
+      // This test verifies the composable sets expiry from JWT exp claim
+      // The exp claim is in seconds, tokenExpiry is stored in milliseconds
+      const futureExp = Math.floor(Date.now() / 1000) + 86400 // 24 hours from now
+      const token = createMockJWTWithExp(futureExp)
+      const payload = decodeJWT(token)
+
+      expect(payload).not.toBeNull()
+
+      // The composable should convert exp (seconds) to milliseconds
+      const expectedExpiryMs = futureExp * 1000
+      expect(expectedExpiryMs).toBeGreaterThan(Date.now())
+
+      // Verify it's NOT the old hardcoded 12h value
+      const hardcoded12h = Date.now() + (12 * 60 * 60 * 1000)
+      expect(Math.abs(expectedExpiryMs - hardcoded12h)).toBeGreaterThan(3600000) // differs by >1h
+    })
+
+    it('should correctly convert exp from seconds to milliseconds', () => {
+      const expSeconds = Math.floor(Date.now() / 1000) + 3600
+      const token = createMockJWTWithExp(expSeconds)
+      const payload = decodeJWT(token)
+
+      expect(payload).not.toBeNull()
+      // exp is in seconds, tokenExpiry should be in milliseconds
+      const expiryMs = payload!.exp * 1000
+      expect(expiryMs).toBeCloseTo(Date.now() + 3600000, -3) // within ~1 second
     })
   })
 

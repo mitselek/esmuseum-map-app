@@ -14,6 +14,7 @@
  */
 
 import type { Ref, ComputedRef } from 'vue'
+import { decodeJWT } from '~/utils/token-validation'
 
 /**
  * User object structure from Entu auth response
@@ -296,8 +297,12 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
         authResponse.value = data
 
         token.value = data.token
-        // Set token expiry to 12 hours from now
-        tokenExpiry.value = Date.now() + (12 * 60 * 60 * 1000)
+        // Parse expiry from JWT exp claim; fall back to 48h if missing
+        const DEFAULT_EXPIRY_MS = 48 * 60 * 60 * 1000
+        const payload = decodeJWT(data.token)
+        tokenExpiry.value = payload?.exp
+          ? payload.exp * 1000
+          : Date.now() + DEFAULT_EXPIRY_MS
 
         // Get user info if available
         if (data.user) {
