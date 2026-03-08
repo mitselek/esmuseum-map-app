@@ -296,7 +296,7 @@ describe('Client Auth Composables', () => {
       expect(payload).not.toBeNull()
       // exp is in seconds, tokenExpiry should be in milliseconds
       const expiryMs = payload!.exp * 1000
-      expect(expiryMs).toBeCloseTo(Date.now() + 3600000, -3) // within ~1 second
+      expect(expiryMs).toBe(expSeconds * 1000)
     })
   })
 
