@@ -156,6 +156,28 @@ const restoreStoredAuthResponse = (storedAuthResponse: string): void => {
   }
 }
 
+/**
+ * Extract a string property from an Entu entity property array
+ */
+const getEntityString = (prop: Array<{ string?: string }> | undefined): string => {
+  return prop?.[0]?.string ?? ''
+}
+
+/**
+ * Build an EntuUser from raw Entu entity properties
+ */
+const extractUserFromEntity = (userId: string, entity: Record<string, unknown>): EntuUser => {
+  const prop = entity as Record<string, Array<{ string?: string }> | undefined>
+  return {
+    _id: userId,
+    email: getEntityString(prop.email),
+    name: getEntityString(prop.name),
+    forename: getEntityString(prop.forename),
+    surname: getEntityString(prop.surname),
+    picture: getEntityString(prop.picture)
+  }
+}
+
 // Initialize from localStorage on client side
 if (import.meta.client) {
   const storedToken = localStorage.getItem(TOKEN_KEY)
@@ -255,16 +277,9 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
     }
 
     const data = await response.json()
+    const entity = data.entity ?? {}
 
-    // Extract user properties from Entu entity response
-    return {
-      _id: userId,
-      email: data.entity?.email?.[0]?.string || '',
-      name: data.entity?.name?.[0]?.string || '',
-      forename: data.entity?.forename?.[0]?.string || '',
-      surname: data.entity?.surname?.[0]?.string || '',
-      picture: data.entity?.picture?.[0]?.string || ''
-    }
+    return extractUserFromEntity(userId, entity)
   }
 
   /**
