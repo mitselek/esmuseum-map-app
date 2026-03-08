@@ -1,5 +1,6 @@
 // @ts-check
 import tailwind from 'eslint-plugin-tailwindcss'
+import sonarjs from 'eslint-plugin-sonarjs'
 import withNuxt from '../.nuxt/eslint.config.mjs'
 
 export default withNuxt(
@@ -16,6 +17,7 @@ export default withNuxt(
   // Code quality rules for app and server code
   {
     files: ['app/**/*.{ts,vue}', 'server/**/*.ts'],
+    plugins: { sonarjs },
     rules: {
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-debugger': 'error',
@@ -27,7 +29,16 @@ export default withNuxt(
       'no-template-curly-in-string': 'warn',
       'no-unmodified-loop-condition': 'error',
       'vue/require-default-prop': 'error',
-      'vue/require-prop-types': 'error'
+      'vue/require-prop-types': 'error',
+
+      // Complexity
+      complexity: ['warn', 15],
+      'max-depth': ['warn', 4],
+
+      // SonarJS — cognitive complexity + code smells
+      'sonarjs/cognitive-complexity': ['warn', 15],
+      'sonarjs/no-duplicate-string': ['warn', { threshold: 4 }],
+      'sonarjs/no-identical-functions': 'warn'
     }
   },
 

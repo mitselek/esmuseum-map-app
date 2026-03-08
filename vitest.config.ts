@@ -32,13 +32,13 @@ export default defineConfig({
       include: [
         'app/composables/**/*.ts',
         'app/utils/**/*.ts',
-        'app/components/**/*.vue',
         'server/api/**/*.ts',
         'server/utils/**/*.ts',
         'types/**/*.ts'
       ],
       exclude: [
         'app/plugins/**',
+        'app/components/**/*.vue',
         '**/*.d.ts',
         '**/*.spec.ts',
         '**/*.test.ts'
