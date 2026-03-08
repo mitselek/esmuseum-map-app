@@ -71,3 +71,16 @@ setup.ts stubs `ref`, `computed`, `watch` but NOT `readonly`. Composables using 
 ## [PATTERN] 2026-03-08 — no-dynamic-delete lint rule
 
 Use `Reflect.deleteProperty(obj, key)` instead of `delete obj[key]` in test mocks.
+
+## [LEARNED] 2026-03-08 — import.meta.client/dev in vitest
+
+`import.meta.client` and `import.meta.dev` are Nuxt compile-time constants. In vitest node env they are `undefined` (falsy), so client-only code paths (guarded by `if (import.meta.client)`) never execute. Fix: add `define: { 'import.meta.client': true, 'import.meta.dev': true }` to vitest.config.ts. This requires a `window` stub in setup-globals.ts since client code paths may reference `window`.
+
+## [CHECKPOINT] 2026-03-08 — Coverage sprint 66% → 74%
+
+- token-validation: 19% → 97% (29 tests)
+- auth-check.client: 16% → 92% (14 tests)
+- useClientSideFileUpload: 0% → covered (31 tests, rewritten from scratch)
+- useNotifications: 55% → 100% (6 new debounce tests)
+- useCompletedTasks/useTaskScoring: 75% → extended (7 new tests)
+- Total: 966 tests pass, lint clean

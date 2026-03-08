@@ -45,6 +45,10 @@ export default defineConfig({
       ]
     }
   },
+  define: {
+    'import.meta.client': true,
+    'import.meta.dev': true
+  },
   resolve: {
     alias: {
       '~': fileURLToPath(new URL('./app', import.meta.url)),

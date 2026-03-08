@@ -22,6 +22,17 @@ Object.defineProperty(globalThis, 'localStorage', {
   writable: true
 })
 
+// Mock window — needed when import.meta.client is true (via vitest define)
+// so that client-only code paths (e.g. window.addEventListener) don't crash in node env
+if (typeof globalThis.window === 'undefined') {
+  (globalThis as any).window = {
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => true,
+    matchMedia: () => ({ matches: false, addListener: () => {}, removeListener: () => {} })
+  }
+}
+
 afterEach(() => {
   mockLocalStorage.clear()
 })

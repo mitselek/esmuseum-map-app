@@ -277,3 +277,137 @@ describe('useCompletedTasks', () => {
     })
   })
 })
+
+describe('useTaskScoring', () => {
+  let useTaskScoring: any
+  let useCompletedTasksFn: any
+
+  beforeEach(async () => {
+    vi.clearAllMocks()
+    mockToken.value = 'test-token'
+    mockUser.value = { _id: 'user123', name: 'Test Student' }
+
+    vi.resetModules()
+
+    vi.stubGlobal('readonly', readonly)
+    vi.stubGlobal('useClientLogger', () => ({
+      debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn()
+    }))
+    vi.stubGlobal('useEntuAuth', () => ({
+      token: mockToken,
+      user: mockUser,
+      isAuthenticated: computed(() => !!mockToken.value)
+    }))
+    vi.stubGlobal('useEntuApi', () => ({
+      searchEntities: mockSearchEntities
+    }))
+
+    const mod = await import('../../app/composables/useCompletedTasks')
+    useTaskScoring = mod.useTaskScoring
+    useCompletedTasksFn = mod.useCompletedTasks
+  })
+
+  it('should return scoring data for a task', async () => {
+    // Load some responses first
+    mockSearchEntities.mockResolvedValueOnce({
+      entities: [
+        { _id: 'r1', ulesanne: [{ reference: 'task1' }], valitud_asukoht: [{ reference: 'loc1' }] },
+        { _id: 'r2', ulesanne: [{ reference: 'task1' }], valitud_asukoht: [{ reference: 'loc2' }] }
+      ]
+    })
+
+    const completedTasks = useCompletedTasksFn()
+    await completedTasks.loadCompletedTasks()
+
+    const taskData = computed(() => ({
+      _id: 'task1',
+      vastuseid: [{ number: 5 }]
+    }))
+
+    const scoring = useTaskScoring(taskData)
+
+    expect(scoring.uniqueLocationsCount.value).toBe(2)
+    expect(scoring.totalExpected.value).toBe(5)
+    expect(scoring.progressText.value).toBe('2 of 5')
+    expect(scoring.progressPercent.value).toBe(40)
+  })
+
+  it('should return zero scoring when task data is null', () => {
+    const taskData = computed(() => null)
+    const scoring = useTaskScoring(taskData)
+
+    expect(scoring.uniqueLocationsCount.value).toBe(0)
+    expect(scoring.totalExpected.value).toBe(0)
+    expect(scoring.progressPercent.value).toBe(0)
+  })
+
+  it('should return zero scoring when task has no vastuseid', () => {
+    const taskData = computed(() => ({
+      _id: 'task-no-count'
+    }))
+    const scoring = useTaskScoring(taskData)
+
+    expect(scoring.totalExpected.value).toBe(0)
+    expect(scoring.progressPercent.value).toBe(0)
+  })
+
+  it('should check if a specific location is visited', async () => {
+    mockSearchEntities.mockResolvedValueOnce({
+      entities: [
+        { _id: 'r1', ulesanne: [{ reference: 'task1' }], valitud_asukoht: [{ reference: 'loc1' }] }
+      ]
+    })
+
+    const completedTasks = useCompletedTasksFn()
+    await completedTasks.loadCompletedTasks()
+
+    const taskData = computed(() => ({
+      _id: 'task1',
+      vastuseid: [{ number: 3 }]
+    }))
+
+    const scoring = useTaskScoring(taskData)
+
+    expect(scoring.isLocationVisited('loc1')).toBe(true)
+    expect(scoring.isLocationVisited('loc-unknown')).toBe(false)
+  })
+
+  it('should return false for isLocationVisited when task ID is empty', () => {
+    const taskData = computed(() => null)
+    const scoring = useTaskScoring(taskData)
+
+    expect(scoring.isLocationVisited('loc1')).toBe(false)
+  })
+
+  it('should expose userResponses, loading and error from completedTasks', () => {
+    const taskData = computed(() => null)
+    const scoring = useTaskScoring(taskData)
+
+    expect(scoring.userResponses).toBeDefined()
+    expect(scoring.loading).toBeDefined()
+    expect(scoring.error).toBeDefined()
+  })
+
+  it('should track visited locations as a computed Set', async () => {
+    mockSearchEntities.mockResolvedValueOnce({
+      entities: [
+        { _id: 'r1', ulesanne: [{ reference: 'task1' }], valitud_asukoht: [{ reference: 'loc1' }] },
+        { _id: 'r2', ulesanne: [{ reference: 'task1' }], valitud_asukoht: [{ reference: 'loc2' }] }
+      ]
+    })
+
+    const completedTasks = useCompletedTasksFn()
+    await completedTasks.loadCompletedTasks()
+
+    const taskData = computed(() => ({
+      _id: 'task1',
+      vastuseid: [{ number: 5 }]
+    }))
+
+    const scoring = useTaskScoring(taskData)
+
+    expect(scoring.visitedLocations.value).toBeInstanceOf(Set)
+    expect(scoring.visitedLocations.value.has('loc1')).toBe(true)
+    expect(scoring.visitedLocations.value.has('loc2')).toBe(true)
+  })
+})
