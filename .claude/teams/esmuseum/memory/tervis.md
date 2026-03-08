@@ -40,6 +40,7 @@ Enne auditit peab ülejäänud tiimile shutdown tegema, et scratchpad'id oleksid
 ## [PATTERN] 2026-03-08 — Staleness sources
 
 Biggest staleness sources in priority order:
+
 1. MEMORY.md GitHub Issues — no owner, no update trigger
 2. CLAUDE.md behavioral claims — updated code but not docs
 3. Scratchpad gotchas — resolved issues not pruned

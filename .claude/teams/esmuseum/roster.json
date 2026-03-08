@@ -6,56 +6,57 @@
     {
       "name": "lead",
       "agentType": "team-lead",
-      "model": "claude-opus-4-6"
+      "model": "claude-opus-4-6",
+      "prompt": "prompts/lead.md"
     },
     {
       "name": "viiu",
       "agentType": "general-purpose",
       "model": "claude-sonnet-4-6",
       "color": "green",
-      "planModeRequired": false
+      "prompt": "prompts/viiu.md"
     },
     {
       "name": "entu",
       "agentType": "general-purpose",
       "model": "claude-sonnet-4-6",
       "color": "yellow",
-      "planModeRequired": false
+      "prompt": "prompts/entu.md"
     },
     {
       "name": "kaarel",
       "agentType": "general-purpose",
       "model": "claude-sonnet-4-6",
       "color": "cyan",
-      "planModeRequired": false
+      "prompt": "prompts/kaarel.md"
     },
     {
       "name": "tess",
       "agentType": "general-purpose",
       "model": "claude-sonnet-4-6",
       "color": "purple",
-      "planModeRequired": false
+      "prompt": "prompts/tess.md"
     },
     {
       "name": "marcus",
       "agentType": "general-purpose",
       "model": "claude-opus-4-6",
       "color": "blue",
-      "planModeRequired": false
+      "prompt": "prompts/marcus.md"
     },
     {
       "name": "finn",
       "agentType": "general-purpose",
       "model": "claude-haiku-4-5-20251001",
       "color": "black",
-      "planModeRequired": false
+      "prompt": "prompts/finn.md"
     },
     {
       "name": "tervis",
       "agentType": "general-purpose",
       "model": "claude-opus-4-6",
       "color": "magenta",
-      "planModeRequired": false
+      "prompt": "../prompts/tervis.md"
     }
   ]
 }
