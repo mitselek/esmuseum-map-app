@@ -26,24 +26,49 @@ export interface ApiRequestOptions extends RequestInit {
 
 /**
  * Entity search query parameters
+ *
+ * Known Entu query params plus dynamic property filters (e.g. '_type.string', 'grupp.reference')
  */
 export interface EntitySearchQuery {
-  [key: string]: string | number | undefined
+  /** Full-text search */
+  q?: string
+  /** Maximum results (default 100, we override to 1000) */
   limit?: number
+  /** Skip N results for pagination */
+  skip?: number
+  /** Comma-separated property names to include in response */
   props?: string
+  /** Sort field and direction (e.g. 'name.string' or '-_created') */
+  sort?: string
+  /** Dynamic property filters (e.g. '_type.string', '_owner.reference') */
+  [key: string]: string | number | undefined
+}
+
+/**
+ * Entu property value — a single typed value in a property array
+ */
+export interface EntuPropertyValue {
+  _id?: string
+  string?: string
+  number?: number
+  boolean?: boolean
+  reference?: string
+  filename?: string
+  filesize?: number
+  filetype?: string
 }
 
 /**
  * Entu entity structure (generic)
  *
- * Constitutional: Uses index signature for flexible Entu entity properties
- * Entu entities have dynamic property structures based on entity type.
- * The _id field is guaranteed, all other properties are type-specific.
- * Principle I: Type Safety First - documented exception for external API with dynamic schema
+ * Entu entities have a dynamic schema defined by the CMS.
+ * The _id field is guaranteed; all other properties are arrays of EntuPropertyValue.
+ * Index signature uses 'any' because entity properties vary by type and callers
+ * narrow via 'as EntuTask', 'as EntuLocation' etc. from types/entu.ts.
  */
 export interface EntuEntity {
   _id: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entu entities have a dynamic schema defined by the CMS; the property structure is not statically known at compile time
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic CMS schema; callers narrow to specific types (EntuTask, EntuLocation) via assertion
   [key: string]: any
 }
 
@@ -56,41 +81,56 @@ export interface EntityListResponse {
 }
 
 /**
- * Entity data for creation/update
+ * Property update entry for entity creation/update
  *
- * Constitutional: Uses index signature for flexible entity property updates
- * Entity properties are dynamic based on Entu schema definitions.
- * Principle I: Type Safety First - documented exception for dynamic entity operations
+ * When creating or updating entities, properties are sent as an array
+ * of typed entries with a 'type' field identifying the property name.
  */
-export interface EntityData {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entity properties map to Entu's dynamic schema; values can be any Entu property array type
-  [key: string]: any
+export interface EntuPropertyUpdate {
+  type: string
+  _id?: string
+  string?: string
+  number?: number
+  boolean?: boolean
+  reference?: string
+  filename?: string
+  filesize?: number
+  filetype?: string
 }
 
 /**
- * File upload URL response
- *
- * Constitutional: Uses index signature for additional Entu API response fields
- * Upload response may contain metadata beyond the URL.
- * Principle I: Type Safety First - documented exception for API response flexibility
+ * Entity data for creation/update — array of property updates
+ */
+export type EntityData = EntuPropertyUpdate[]
+
+/**
+ * Upload info returned within a property update response
+ */
+export interface EntuUploadInfo {
+  url: string
+  headers?: Record<string, string>
+}
+
+/**
+ * File upload URL response from Entu API
  */
 export interface FileUploadResponse {
-  url?: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entu upload response may contain additional metadata fields with varying types
-  [key: string]: any
+  _id?: string
+  properties?: Array<{
+    _id?: string
+    type?: string
+    upload?: EntuUploadInfo
+  }>
 }
 
 /**
- * Account information response
- *
- * Constitutional: Uses index signature for additional account metadata
- * Account info may include various configuration fields.
- * Principle I: Type Safety First - documented exception for API response flexibility
+ * Account information response from Entu API
  */
 export interface AccountInfo {
   account?: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entu account info may include configuration fields not known at compile time
-  [key: string]: any
+  _id?: string
+  name?: string
+  language?: string
 }
 
 /**

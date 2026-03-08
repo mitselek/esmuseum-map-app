@@ -18,44 +18,44 @@ import type { Ref, ComputedRef } from 'vue'
 /**
  * User object structure from Entu auth response
  *
- * Constitutional: Uses index signature for additional user properties from Entu
- * User objects may contain custom fields defined in Entu schema.
- * Principle I: Type Safety First - documented exception for external API flexibility
+ * Known fields from Entu person entities plus fields set by fetchFreshUserData.
  */
 export interface EntuUser {
   _id: string
   email?: string
   name?: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entu user objects may contain custom fields defined in the CMS schema
-  [key: string]: any
+  displayname?: string
+  forename?: string
+  surname?: string
+  picture?: string
+}
+
+/**
+ * Account entry in Entu auth response
+ */
+export interface EntuAuthAccount {
+  _id?: string
+  name?: string
+  user?: {
+    _id: string
+    email?: string
+    name?: string
+  }
 }
 
 /**
  * Auth response structure from Entu API
  *
- * Constitutional: Uses index signatures for flexible Entu auth response structure
- * Auth responses contain nested objects with dynamic properties.
- * Principle I: Type Safety First - documented exception for authentication API responses
+ * GET /api/auth returns token + user info + account list
  */
 export interface EntuAuthResponse {
   token: string
   user?: {
+    _id?: string
     email?: string
     name?: string
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entu auth response user object may include custom fields not known at compile time
-    [key: string]: any
   }
-  accounts?: Array<{
-    user?: {
-      _id: string
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entu account user object may include custom fields not known at compile time
-      [key: string]: any
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entu account object may include varying metadata fields
-    [key: string]: any
-  }>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Entu auth response may include additional fields (e.g. scopes, expiry) not known at compile time
-  [key: string]: any
+  accounts?: EntuAuthAccount[]
 }
 
 /**
