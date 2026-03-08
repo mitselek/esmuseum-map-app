@@ -29,3 +29,11 @@
 [LEARNED] entu-admin.ts has 2 pure extractors (extractGroupsFromPerson, extractGroupFromTask) amid API-dependent code
 [LEARNED] onboard-join-group.test.ts exists but all 6 tests are skipped ("requires Nuxt runtime")
 [CHECKPOINT] Full report sent to lead with 4-priority breakdown and role assignments (Tess vs Entu)
+
+## Bug & Feature Research (2026-03-08)
+
+[LEARNED] Dependency audit: 26 deps, clean tree, no duplicates. Minor: @types/supertest orphaned, dotenv/js-yaml possibly unused
+[LEARNED] i18n: 131 keys, 0 missing, 1 unused (taskDetail.noTitle). knip NOT suitable for Nuxt without config.
+[LEARNED] "Infinity km" bug: distance.js getLocationCoordinates() doesn't check location.coordinates format → null → Infinity
+[LEARNED] PDF upload bug: ALLOWED_MIME_TYPES is images-only, no application/pdf. Duplicate whitelist in composable + component.
+[LEARNED] "Open in Maps": InteractiveMap.vue:587, uses maps:// (iOS), geo: (Android), google.com/maps (desktop). iPad detection broken.

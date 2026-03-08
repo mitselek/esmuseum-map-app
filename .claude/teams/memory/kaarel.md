@@ -50,3 +50,11 @@ Kõik 12 `no-await-in-loop` hoiatust lahendatud. Commit `e73a1ae` tehtud, Marcus
 
 `useMapFullscreen` uses `document.createElement` in real code but tests run in Node env.
 Solution: create a plain object stub instead of real DOM element. The `@vueuse/core` `useFullscreen` is mocked anyway so it doesn't need a real element.
+
+## [LEARNED] 2026-03-08 — Infinity km bug root cause
+
+`distance.js:getLocationCoordinates()` only checked Entu raw format (`location.lat[0].number`) but after location normalization (#30), locations use `location.coordinates.lat`. Added NormalizedLocation check first. Also fixed unit mismatch: `calculateDistance()` returns km but `LocationPicker.vue:formatDistance()` treated as meters.
+
+## [DECISION] 2026-03-08 — Null coordinates instead of (0,0) default
+
+`extractCoordinates()` returns `null` when Entu entity lacks lat/lng. `NormalizedLocation.coordinates` type is `Coordinates | null`. Downstream: no map marker, "Koordinaadid puuduvad" in LocationPicker, console.warn for admin visibility.

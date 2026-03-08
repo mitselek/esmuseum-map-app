@@ -40,10 +40,21 @@
 - `EntuTask` has required fields (`name`, `_type`) that don't exist on `EntuEntity` with the narrow signature
 - Must keep `[key: string]: any` with eslint-disable — it's a genuine dynamic schema boundary
 
-### [CHECKPOINT] Completed issues this session (2026-03-08)
+### [CHECKPOINT] Completed this session (2026-03-08)
 
 - **#32**: console → useClientLogger migration (13 files, 23 calls)
 - **#33**: Dead code cleanup (removed `findMatchingLocation`, `getLocationCoordinates` from useTaskDetail)
 - **#34**: Import path standardization (9 files, `../` → `~/`/`~~/`)
 - **#36**: Entu type safety (replaced 8 `any` signatures with concrete types)
+- **#38**: Token expiry fix — parse JWT `exp` claim instead of hardcoded 12h
+- **Test helpers**: created `tests/helpers/` (h3-event-mock, entu-api-mock, nuxt-runtime-mock)
+- **P4 webhook tests**: 22 tests for student-added + task-assigned webhooks
+- **Dependency cleanup**: pinned versions, `.npmrc`, moved orphaned types to devDeps
 - **Lint fixes**: 16 test file lint errors fixed
+
+### [PATTERN] Webhook handler testing (2026-03-08)
+
+- Mock `h3` with `vi.mock('h3')` — override `defineEventHandler` (passthrough) and `readBody` (return `event._body`)
+- Mock `entu-admin`, `webhook-queue`, `logger` at module level
+- Use `installNuxtMocks()` for `createError`, `getHeader` etc.
+- Event shape: `{ _headers, _query, _body, _cookies, context: { params }, node: { req, res } }`
