@@ -35,8 +35,8 @@ export interface NormalizedLocation {
   /** Location description */
   description?: string
 
-  /** GPS coordinates */
-  coordinates: Coordinates
+  /** GPS coordinates (null if location has no coordinates in Entu) */
+  coordinates: Coordinates | null
 
   /** Distance from user (meters) - added by geolocation service */
   distance?: number

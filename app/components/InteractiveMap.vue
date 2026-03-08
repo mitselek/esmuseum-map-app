@@ -98,7 +98,7 @@
           v-for="location in displayedLocations"
           :key="location._id"
           :ref="(el) => setMarkerRef(el, location)"
-          :lat-lng="[location.coordinates.lat, location.coordinates.lng]"
+          :lat-lng="[location.coordinates!.lat, location.coordinates!.lng]"
           :icon="getLocationIcon(location)"
           @click="onLocationClick(location)"
         >
@@ -130,7 +130,7 @@
 
     <!-- Open in Maps button (shown when location is selected) -->
     <div
-      v-if="props.selectedLocation && !isCSSFullscreen"
+      v-if="props.selectedLocation?.coordinates && !isCSSFullscreen"
       class="absolute bottom-4 left-1/2 z-[1000] -translate-x-1/2"
     >
       <button
@@ -286,7 +286,7 @@ const setMarkerRef = (
   if (el && typeof el === 'object' && 'leafletObject' in el) {
     const locationKey
       = location._id
-        || `${location.coordinates.lat}-${location.coordinates.lng}`
+        || `${location.coordinates?.lat}-${location.coordinates?.lng}`
     markerRefs.value.set(locationKey, el as unknown as MarkerRef)
   }
 }
@@ -499,9 +499,9 @@ const calculateMapBounds = async (): Promise<void> => {
 const fitAllLocationsBounds = (): void => {
   const bounds: [number, number][] = []
 
-  // Add all locations to bounds for overview
+  // Add all locations with valid coordinates to bounds for overview
   props.locations.forEach((location) => {
-    if (location.coordinates) {
+    if (location.coordinates && typeof location.coordinates.lat === 'number' && typeof location.coordinates.lng === 'number') {
       bounds.push([location.coordinates.lat, location.coordinates.lng])
     }
   })
@@ -586,6 +586,7 @@ const fitGpsFocusedBounds = (): void => {
 
 // Open location in external maps app
 const openInExternalMaps = (location: TaskLocation): void => {
+  if (!location.coordinates) return
   const { lat, lng } = location.coordinates
   const name = getLocationName(location)
 
@@ -636,7 +637,7 @@ const openLocationPopup = (location: TaskLocation | null): void => {
     markerRef.leafletObject.openPopup()
 
     // Center the map on this location with a slight zoom
-    if (map.value && map.value.leafletObject) {
+    if (map.value && map.value.leafletObject && location.coordinates) {
       map.value.leafletObject.setView(
         [location.coordinates.lat, location.coordinates.lng],
         Math.max(zoom.value, 15)

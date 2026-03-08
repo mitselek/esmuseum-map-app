@@ -11,11 +11,16 @@ import type { NormalizedLocation, Coordinates } from '~~/types/location'
  * Extract coordinates from Entu location entity
  *
  * @param entity - Entu location entity
- * @returns Coordinates object with lat/lng, defaults to (0, 0) if missing
+ * @returns Coordinates object with lat/lng, or null if coordinates are missing
  */
-export function extractCoordinates (entity: EntuLocation): Coordinates {
-  const lat = entity.lat?.[0]?.number ?? 0
-  const lng = entity.long?.[0]?.number ?? 0
+export function extractCoordinates (entity: EntuLocation): Coordinates | null {
+  const lat = entity.lat?.[0]?.number
+  const lng = entity.long?.[0]?.number
+
+  if (lat == null || lng == null) {
+    console.warn(`[location-transform] Location "${entity.name?.[0]?.string ?? entity._id}" is missing coordinates`)
+    return null
+  }
 
   return { lat, lng }
 }

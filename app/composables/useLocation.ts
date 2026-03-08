@@ -71,7 +71,7 @@ interface LocationEntity {
     description?: Array<{ value: string }>
     kirjeldus?: Array<{ value: string }>
   }
-  coordinates?: NormalizedCoordinates
+  coordinates?: NormalizedCoordinates | null
   distance?: number
   distanceText?: string
 }

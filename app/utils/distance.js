@@ -109,12 +109,18 @@ function getLocationCoordinates (location) {
 
   let coordinates = null
 
-  // Try to extract from separate lat/long fields (locations use these)
-  const lat = location.lat?.[0]?.number || location.properties?.lat?.[0]?.value || location.properties?.lat?.[0]?.number
-  const lng = location.long?.[0]?.number || location.properties?.long?.[0]?.value || location.properties?.long?.[0]?.number
+  // Check NormalizedLocation format first (has .coordinates object)
+  if (location.coordinates?.lat != null && location.coordinates?.lng != null) {
+    coordinates = { lat: location.coordinates.lat, lng: location.coordinates.lng }
+  }
+  else {
+    // Try to extract from Entu raw format (separate lat/long fields)
+    const lat = location.lat?.[0]?.number || location.properties?.lat?.[0]?.value || location.properties?.lat?.[0]?.number
+    const lng = location.long?.[0]?.number || location.properties?.long?.[0]?.value || location.properties?.long?.[0]?.number
 
-  if (lat != null && lng != null) {
-    coordinates = { lat: parseFloat(lat), lng: parseFloat(lng) }
+    if (lat != null && lng != null) {
+      coordinates = { lat: parseFloat(lat), lng: parseFloat(lng) }
+    }
   }
 
   // Cache the result

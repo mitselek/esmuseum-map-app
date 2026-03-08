@@ -115,7 +115,15 @@
           </div>
           <div class="ml-3 flex items-center text-right">
             <div
-              v-if="formatDistance(location.distance)"
+              v-if="!location.coordinates"
+              class="mr-2"
+            >
+              <span class="text-xs italic text-gray-400">
+                Koordinaadid puuduvad
+              </span>
+            </div>
+            <div
+              v-else-if="formatDistance(location.distance)"
               class="mr-2"
             >
               <span class="text-xs text-gray-500">
@@ -289,9 +297,12 @@ const clearSelection = (): void => {
 }
 
 const formatDistance = (distance: number | undefined): string | null => {
-  if (distance == null) return null
-  if (distance < 1000) return `${Math.round(distance)} m`
-  return `${(distance / 1000).toFixed(1)} km`
+  if (distance == null || !isFinite(distance)) return null
+  // Distance is in kilometers (from calculateDistance/Haversine)
+  if (distance < 0.01) return 'Väga lähedal'
+  if (distance < 1) return `${Math.round(distance * 1000)} m`
+  if (distance < 10) return `${distance.toFixed(1)} km`
+  return `${Math.round(distance)} km`
 }
 
 const getLocationName = (location: TaskLocation): string => {
