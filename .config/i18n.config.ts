@@ -143,7 +143,7 @@ export default defineI18nConfig(() => ({
       },
       // Onboarding
       onboarding: {
-        title: 'Liitu Grupiga',
+        title: 'Liitu grupiga',
         subtitle: 'Alusta oma õppimisreisi',
         startButton: 'Alusta',
         waiting: 'Palun oota...',
