@@ -23,7 +23,9 @@
 [CHECKPOINT] 2026-03-08 session:
 
 - Fixed i18n `allowedFiles` in all 4 locales — removed PDF/Word, now images-only (JPEG, PNG, GIF, WebP)
-- Wrote 6 component test files (123 new tests): TaskFileUpload, LocationPicker, TaskResponseForm, TaskDetailPanel, TaskMapCard, TaskSubmissionModal
-- Tests are logic-only (no DOM env) — project has no @vue/test-utils or happy-dom/jsdom
+- Wrote 13 component test files (246 tests total) in `tests/component/`:
+  - Round 1: TaskFileUpload(27), LocationPicker(28), TaskResponseForm(17), TaskDetailPanel(24), TaskMapCard(13), TaskSubmissionModal(14)
+  - Round 2: TaskSidebar(15), AppHeader(20), TaskLocationOverride(26), GPSPermissionPrompt(26), TaskWorkspaceHeader(11), TaskInfoCard(10)
+- Full suite: 891 passed, 3 skipped
 
 [GOTCHA] 2026-03-08: No DOM testing environment available. vitest.config.ts uses `environment: 'node'`. Component tests must be logic-focused (extracted functions, prop interfaces, computed behavior). No mount/render possible without adding happy-dom + @vue/test-utils.
