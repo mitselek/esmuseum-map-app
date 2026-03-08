@@ -47,7 +47,9 @@
 
 [CHECKPOINT] Issue #39: 34→3 warnings (91% reduction). 31 fixed across all categories.
 [LEARNED] Remaining 3 warnings in 2 files:
-  - useEntuAuth.ts:241 — cyclomatic 24 (critical, multi-branch token validation)
-  - task-assigned-to-class.post.ts:116 — cyclomatic 17 + cognitive 16 (webhook handler)
+
+- useEntuAuth.ts:241 — cyclomatic 24 (critical, multi-branch token validation)
+- task-assigned-to-class.post.ts:116 — cyclomatic 17 + cognitive 16 (webhook handler)
+
 [LEARNED] All max-depth, duplicate-string, and no-identical-functions warnings fully resolved
 [LEARNED] All original "critical >20" items fixed EXCEPT useEntuAuth.ts (dropped from 27→24 but still over 15)
