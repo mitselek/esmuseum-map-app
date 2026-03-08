@@ -56,6 +56,38 @@ export interface UseEntuOAuthReturn {
 // Composable
 // ============================================================================
 
+const CALLBACK_PATH = '/auth/callback'
+const NON_REDIRECT_PATHS = new Set(['/login', CALLBACK_PATH])
+
+/**
+ * Extract OAuth token from callback URL
+ * Tries jwt query param first, then falls back to path extraction
+ */
+const extractTokenFromCallback = (searchParams: URLSearchParams, fullPath: string): string => {
+  if (searchParams.has('jwt')) return searchParams.get('jwt') || ''
+
+  if (fullPath.includes(CALLBACK_PATH)) {
+    let token = fullPath.substring(fullPath.indexOf(CALLBACK_PATH) + CALLBACK_PATH.length)
+    if (token.startsWith('/') || token.startsWith('?')) token = token.substring(1)
+    return token
+  }
+
+  return ''
+}
+
+/**
+ * Determine redirect path after successful OAuth
+ */
+const getPostAuthRedirect = (): string => {
+  const originalRedirect = localStorage.getItem(REDIRECT_KEY)
+  if (originalRedirect && !NON_REDIRECT_PATHS.has(originalRedirect)) {
+    localStorage.removeItem(REDIRECT_KEY)
+    return originalRedirect
+  }
+  if (originalRedirect) localStorage.removeItem(REDIRECT_KEY)
+  return '/'
+}
+
 export const useEntuOAuth = (): UseEntuOAuthReturn => {
   const log = useClientLogger('useEntuOAuth')
   // Runtime configuration
@@ -148,24 +180,8 @@ export const useEntuOAuth = (): UseEntuOAuthReturn => {
       const fullPath = urlObj.pathname
       const searchParams = urlObj.searchParams
 
-      // Initialize the token variable
-      let tempKey = ''
-
-      // First, try to get the token from the jwt query parameter (our new approach)
-      if (searchParams.has('jwt')) {
-        tempKey = searchParams.get('jwt') || ''
-      }
-      // Fallback: try the old method of token in the path
-      else if (fullPath.includes('/auth/callback')) {
-        // Extract from path as a fallback
-        const callbackBasePath = '/auth/callback'
-        tempKey = fullPath.substring(fullPath.indexOf(callbackBasePath) + callbackBasePath.length)
-
-        // If the token starts with a slash or query separator, remove it
-        if (tempKey.startsWith('/') || tempKey.startsWith('?')) {
-          tempKey = tempKey.substring(1)
-        }
-      }
+      // Extract token from URL: prefer jwt query param, fallback to path segment
+      const tempKey = extractTokenFromCallback(searchParams, fullPath)
 
       // Basic validation to ensure we have something that looks like a token
       if (!tempKey || tempKey.length < 10) {
@@ -179,25 +195,8 @@ export const useEntuOAuth = (): UseEntuOAuthReturn => {
       const authData = await getToken(tempKey)
 
       // Redirect to the original page or home
-      if (import.meta.client) {
-        // Get the original path stored BEFORE starting the OAuth flow
-        const originalRedirect = localStorage.getItem(REDIRECT_KEY)
-
-        if (originalRedirect && originalRedirect !== '/login' && originalRedirect !== '/auth/callback') {
-          localStorage.removeItem(REDIRECT_KEY)
-          router.push(originalRedirect)
-        }
-        else {
-          // Clean up any remaining redirect paths that aren't useful
-          if (originalRedirect === '/login' || originalRedirect === '/auth/callback') {
-            localStorage.removeItem(REDIRECT_KEY)
-          }
-          router.push('/')
-        }
-      }
-      else {
-        router.push('/')
-      }
+      const redirectPath = import.meta.client ? getPostAuthRedirect() : '/'
+      router.push(redirectPath)
 
       return authData
     }

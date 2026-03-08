@@ -222,6 +222,45 @@ export const useClientSideFileUpload = (): UseClientSideFileUploadReturn => {
   }
 
   /**
+   * Upload a single file: validate, get URL, upload
+   */
+  const uploadSingleFile = async (
+    parentEntityId: string,
+    file: File,
+    fileIndex: number,
+    progressCallback?: ProgressCallback
+  ): Promise<FileUploadResult> => {
+    const report = (status: UploadProgressStatus, progress: number) => {
+      progressCallback?.(fileIndex, status, progress)
+    }
+
+    report('validating', 10)
+    const validation = validateFile(file)
+    if (!validation.isValid) {
+      return { filename: file.name, success: false, error: validation.error }
+    }
+
+    report('getting_upload_url', 25)
+    const uploadInfo = await getFileUploadUrl(parentEntityId, {
+      filename: file.name,
+      filesize: file.size,
+      filetype: file.type || 'application/octet-stream'
+    })
+
+    report('uploading', 50)
+    await uploadFileToUrl(file, uploadInfo.url, uploadInfo.headers || {})
+
+    report('completed', 100)
+    return {
+      filename: file.name,
+      success: true,
+      entityId: parentEntityId,
+      size: file.size,
+      type: file.type
+    }
+  }
+
+  /**
    * Client-side file upload implementation
    * Processes multiple files and uploads them directly to Entu
    */
@@ -230,93 +269,25 @@ export const useClientSideFileUpload = (): UseClientSideFileUploadReturn => {
     files: File[],
     progressCallback?: ProgressCallback
   ): Promise<FileUploadResult[]> => {
-    if (!files || files.length === 0) {
-      return []
-    }
-
-    if (!token.value) {
-      throw new Error('Not authenticated')
-    }
+    if (!files || files.length === 0) return []
+    if (!token.value) throw new Error('Not authenticated')
 
     const uploadResults: FileUploadResult[] = []
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
-
-      // Type guard: skip if file is undefined
-      if (!file) {
-        continue
-      }
+      if (!file) continue
 
       try {
-        // Update progress
-        if (progressCallback) {
-          progressCallback(i, 'validating', 10)
-        }
-
-        // Validate file
-        const validation = validateFile(file)
-        if (!validation.isValid) {
-          uploadResults.push({
-            filename: file.name,
-            success: false,
-            error: validation.error
-          })
-          continue
-        }
-
-        // Update progress
-        if (progressCallback) {
-          progressCallback(i, 'getting_upload_url', 25)
-        }
-
-        // Step 1: Get upload URL from Entu
         // eslint-disable-next-line no-await-in-loop -- sequential for per-file progress tracking, typical 1-3 files
-        const uploadInfo = await getFileUploadUrl(parentEntityId, {
-          filename: file.name,
-          filesize: file.size,
-          filetype: file.type || 'application/octet-stream'
-        })
-
-        // Update progress
-        if (progressCallback) {
-          progressCallback(i, 'uploading', 50)
-        }
-
-        // Step 2: Upload file to external storage
-        // eslint-disable-next-line no-await-in-loop -- sequential for per-file progress tracking, typical 1-3 files
-        await uploadFileToUrl(
-          file,
-          uploadInfo.url,
-          uploadInfo.headers || {}
-        )
-
-        // Update progress
-        if (progressCallback) {
-          progressCallback(i, 'completed', 100)
-        }
-
-        uploadResults.push({
-          filename: file.name,
-          success: true,
-          entityId: parentEntityId,
-          size: file.size,
-          type: file.type
-        })
+        const result = await uploadSingleFile(parentEntityId, file, i, progressCallback)
+        uploadResults.push(result)
       }
       catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Upload failed'
         log.error(`Failed to upload file ${file.name}:`, error)
-
-        if (progressCallback) {
-          progressCallback(i, 'error', 0)
-        }
-
-        uploadResults.push({
-          filename: file.name,
-          success: false,
-          error: errorMessage
-        })
+        progressCallback?.(i, 'error', 0)
+        uploadResults.push({ filename: file.name, success: false, error: errorMessage })
       }
     }
 

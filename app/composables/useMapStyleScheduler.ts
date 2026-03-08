@@ -287,9 +287,40 @@ export function useMapStyleScheduler () {
   }
 
   /**
+   * Get ETA string for a rule that is not currently active
+   */
+  const getRuleEta = (ruleId: string, etaDates: Record<string, Date | null>): string => {
+    const nextDate = etaDates[ruleId]
+    if (nextDate === undefined) return ''
+    if (nextDate === null) return ' - no occurrence in next 60 days'
+    return ` - ${formatTimeUntil(nextDate)}`
+  }
+
+  /**
+   * Log astronomical context (sun/moon times) for debug status
+   */
+  const logAstronomicalContext = (now: Date): void => {
+    if (!userPosition.value) {
+      logger.debug(`Location: GPS not available - astronomical rules disabled`)
+      return
+    }
+
+    logger.debug(`Location: ${userPosition.value.lat.toFixed(4)}°, ${userPosition.value.lng.toFixed(4)}° (GPS)`)
+
+    const { sunrise, sunset } = getSunTimes(now)
+    if (sunrise && sunset) {
+      logger.debug(`Sun: ${sunrise.toLocaleTimeString('et-EE')} → ${sunset.toLocaleTimeString('et-EE')}`)
+    }
+
+    const { rise: moonrise, set: moonset } = getMoonTimes(now)
+    if (moonrise && moonset) {
+      logger.debug(`Moon: ${moonrise.toLocaleTimeString('et-EE')} → ${moonset.toLocaleTimeString('et-EE')}`)
+    }
+  }
+
+  /**
    * Get information about current and upcoming rules
    */
-
   const getRuleStatus = async (): Promise<void> => {
     logger.debug('Map Style Schedule Status')
     logger.debug('============================')
@@ -297,58 +328,25 @@ export function useMapStyleScheduler () {
     const now = new Date()
     logger.debug(`Current time: ${now.toLocaleString('et-EE')}`)
 
-    if (userPosition.value) {
-      logger.debug(`Location: ${userPosition.value.lat.toFixed(4)}°, ${userPosition.value.lng.toFixed(4)}° (GPS)`)
-    }
-    else {
-      logger.debug(`Location: GPS not available - astronomical rules disabled`)
-    }
+    logAstronomicalContext(now)
 
     const moonIllumination = getMoonIllumination(now)
     const fullMoon = isFullMoon(now)
     logger.debug(`Moon: ${(moonIllumination * 100).toFixed(0)}% illuminated ${fullMoon ? '(FULL MOON)' : ''}`)
 
-    if (userPosition.value) {
-      const { sunrise, sunset } = getSunTimes(now)
-      if (sunrise && sunset) {
-        logger.debug(`Sun: ${sunrise.toLocaleTimeString('et-EE')} → ${sunset.toLocaleTimeString('et-EE')}`)
-      }
-
-      const { rise: moonrise, set: moonset } = getMoonTimes(now)
-      if (moonrise && moonset) {
-        logger.debug(`Moon: ${moonrise.toLocaleTimeString('et-EE')} → ${moonset.toLocaleTimeString('et-EE')}`)
-      }
-    }
-
     logger.debug('Rules:')
 
-    // Calculate ETAs
-    const independenceDayNext = getNextOccurrence(2, 24)
-    const victoryDayNext = getNextOccurrence(6, 23)
-    const fullMoonThursdayNext = getNextFullMoonThursday()
+    const etaDates: Record<string, Date | null> = {
+      'independence-day': getNextOccurrence(2, 24),
+      'victory-day': getNextOccurrence(6, 23),
+      'full-moon-thursday': getNextFullMoonThursday()
+    }
 
     for (const rule of styleRules) {
       // eslint-disable-next-line no-await-in-loop -- debug-only function, single manual execution via console
       const matches = await Promise.resolve(rule.check())
       const status = matches ? 'ACTIVE' : 'inactive'
-
-      let eta = ''
-      if (!matches) {
-        if (rule.id === 'independence-day') {
-          eta = ` - ${formatTimeUntil(independenceDayNext)}`
-        }
-        else if (rule.id === 'victory-day') {
-          eta = ` - ${formatTimeUntil(victoryDayNext)}`
-        }
-        else if (rule.id === 'full-moon-thursday') {
-          if (fullMoonThursdayNext) {
-            eta = ` - ${formatTimeUntil(fullMoonThursdayNext)}`
-          }
-          else {
-            eta = ' - no occurrence in next 60 days'
-          }
-        }
-      }
+      const eta = matches ? '' : getRuleEta(rule.id, etaDates)
 
       logger.debug(`${status} [${rule.priority}] ${rule.name}${eta}`)
       logger.debug(`        ${rule.description}`)

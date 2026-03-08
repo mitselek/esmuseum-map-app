@@ -148,6 +148,38 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
     }
   }
 
+  /** Properties that should be stored as Entu references */
+  const REFERENCE_PROPERTIES: Set<string> = new Set([ENTU_PROPERTIES.VALITUD_ASUKOHT, ENTU_PROPERTIES.ULESANNE])
+
+  /**
+   * Convert a key-value pair to an EntuProperty based on type
+   */
+  const toEntuProperty = (key: string, value: string | number | boolean): EntuProperty => {
+    if (REFERENCE_PROPERTIES.has(key)) return { type: key, reference: value as string }
+    if (typeof value === 'string') return { type: key, string: value }
+    if (typeof value === 'number') return { type: key, number: value }
+    return { type: key, boolean: value as boolean }
+  }
+
+  /**
+   * Build response data object from request
+   */
+  const buildResponseData = (requestData: TaskResponseRequest): ResponseData => {
+    const { taskId, responses, respondentName } = requestData
+    const data: ResponseData = {
+      [ENTU_PROPERTIES.ULESANNE]: taskId,
+      [ENTU_PROPERTIES.VASTUS]: responses[0]?.value || ''
+    }
+
+    if (respondentName) data[ENTU_PROPERTIES.VASTAJA] = respondentName
+    if (responses[0]?.metadata?.locationId) data[ENTU_PROPERTIES.VALITUD_ASUKOHT] = responses[0].metadata.locationId
+
+    const coords = responses[0]?.metadata?.coordinates
+    if (coords?.lat && coords?.lng) data[ENTU_PROPERTIES.SEADME_GPS] = `${coords.lat},${coords.lng}`
+
+    return data
+  }
+
   /**
    * Create response directly via Entu API (client-side)
    *
@@ -155,25 +187,7 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
    * We don't assign _parent here - Entu handles it based on type configuration.
    */
   const createResponseClientSide = async (requestData: TaskResponseRequest): Promise<CreateResponseResult> => {
-    const { taskId, responses, respondentName } = requestData
-
-    const responseData: ResponseData = {
-      [ENTU_PROPERTIES.ULESANNE]: taskId, // Task as reference property
-      [ENTU_PROPERTIES.VASTUS]: responses[0]?.value || ''
-    }
-
-    if (respondentName) {
-      responseData[ENTU_PROPERTIES.VASTAJA] = respondentName
-    }
-
-    if (responses[0]?.metadata?.locationId) {
-      responseData[ENTU_PROPERTIES.VALITUD_ASUKOHT] = responses[0].metadata.locationId
-    }
-
-    const coords = responses[0]?.metadata?.coordinates
-    if (coords && coords.lat && coords.lng) {
-      responseData[ENTU_PROPERTIES.SEADME_GPS] = `${coords.lat},${coords.lng}`
-    }
+    const responseData = buildResponseData(requestData)
 
     const entuProperties: EntuProperty[] = [
       { type: '_type', reference: ENTU_TYPE_IDS.VASTUS },
@@ -182,35 +196,20 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
 
     // Try to add group leader as viewer
     try {
-      const groupLeaderId = await getGroupLeaderFromTask(taskId)
+      const groupLeaderId = await getGroupLeaderFromTask(requestData.taskId)
       if (groupLeaderId) {
         entuProperties.push({ type: ENTU_PROPERTIES.VIEWER, reference: groupLeaderId })
         log.info('[Response Creation] Adding group leader as viewer:', groupLeaderId)
       }
     }
     catch (error) {
-      // Non-critical: Continue creating response even if group leader lookup fails
       log.warn('Could not add group leader as viewer:', error)
     }
 
     for (const [key, value] of Object.entries(responseData)) {
-      if (value !== null && value !== undefined) {
-        if (key === ENTU_PROPERTIES.VALITUD_ASUKOHT || key === ENTU_PROPERTIES.ULESANNE) {
-          entuProperties.push({ type: key, reference: value as string })
-        }
-        else if (typeof value === 'string') {
-          entuProperties.push({ type: key, string: value })
-        }
-        else if (typeof value === 'number') {
-          entuProperties.push({ type: key, number: value })
-        }
-        else if (typeof value === 'boolean') {
-          entuProperties.push({ type: key, boolean: value })
-        }
-      }
+      if (value != null) entuProperties.push(toEntuProperty(key, value))
     }
 
-    // Create the entity via Entu API
     const { createEntity } = useEntuApi()
     const createdResponse = await createEntity(entuProperties)
 

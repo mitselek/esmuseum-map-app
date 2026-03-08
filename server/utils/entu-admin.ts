@@ -239,6 +239,83 @@ export async function addMultipleExpanderPermissions (
   }
 }
 
+type PermissionDetail = { entity: string, person: string, status: 'success' | 'failed' | 'skipped', error?: string }
+
+interface BatchPermissionResults {
+  total: number
+  successful: number
+  failed: number
+  skipped: number
+  details: PermissionDetail[]
+}
+
+/**
+ * Check which persons need permission grants on an entity (idempotency filter)
+ */
+async function filterPersonsNeedingGrant (
+  entityId: string,
+  personIds: string[],
+  results: BatchPermissionResults,
+  userToken?: string,
+  userId?: string,
+  userEmail?: string
+): Promise<string[]> {
+  const personsToGrant: string[] = []
+
+  for (const personId of personIds) {
+    results.total++
+    try {
+      // eslint-disable-next-line no-await-in-loop -- sequential Entu API calls: no published rate limits, 60s token validity favors sequential
+      const exists = await hasExpanderPermission(entityId, personId, userToken, userId, userEmail)
+      if (exists) {
+        logger.debug('Permission already exists, skipping', { entity: entityId, person: personId })
+        results.skipped++
+        results.details.push({ entity: entityId, person: personId, status: 'skipped' })
+      }
+      else {
+        personsToGrant.push(personId)
+      }
+    }
+    catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      logger.error('Failed to check existing permission', { entity: entityId, person: personId, error: errorMessage })
+      personsToGrant.push(personId)
+    }
+  }
+
+  return personsToGrant
+}
+
+/**
+ * Grant permissions on a single entity and record results
+ */
+async function grantAndRecordResults (
+  entityId: string,
+  personsToGrant: string[],
+  results: BatchPermissionResults,
+  userToken?: string,
+  userId?: string,
+  userEmail?: string
+): Promise<void> {
+  if (personsToGrant.length === 0) return
+
+  try {
+    await addMultipleExpanderPermissions(entityId, personsToGrant, userToken, userId, userEmail)
+    for (const personId of personsToGrant) {
+      results.successful++
+      results.details.push({ entity: entityId, person: personId, status: 'success' })
+    }
+  }
+  catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    logger.error('Failed to grant permissions in bulk', { entity: entityId, personCount: personsToGrant.length, error: errorMessage })
+    for (const personId of personsToGrant) {
+      results.failed++
+      results.details.push({ entity: entityId, person: personId, status: 'failed', error: errorMessage })
+    }
+  }
+}
+
 /**
  * Batch grant _expander permissions to multiple people on multiple entities
  * Optimized to use bulk permission grants per entity (1 API call per entity)
@@ -257,104 +334,26 @@ export async function batchGrantPermissions (
   userToken?: string,
   userId?: string,
   userEmail?: string
-): Promise<{
-  total: number
-  successful: number
-  failed: number
-  skipped: number
-  details: Array<{ entity: string, person: string, status: 'success' | 'failed' | 'skipped', error?: string }>
-}> {
+): Promise<BatchPermissionResults> {
   logger.info('Starting batch permission grant', {
     entities: entityIds.length,
     persons: personIds.length,
     total: entityIds.length * personIds.length
   })
 
-  const results = {
+  const results: BatchPermissionResults = {
     total: 0,
     successful: 0,
     failed: 0,
     skipped: 0,
-    details: [] as Array<{ entity: string, person: string, status: 'success' | 'failed' | 'skipped', error?: string }>
+    details: []
   }
 
-  // Process each entity
   for (const entityId of entityIds) {
-    // Check which persons already have permission (idempotency)
-    const personsToGrant: string[] = []
-
-    for (const personId of personIds) {
-      results.total++
-
-      try {
-        // eslint-disable-next-line no-await-in-loop -- sequential Entu API calls: no published rate limits, 60s token validity favors sequential
-        const exists = await hasExpanderPermission(entityId, personId, userToken, userId, userEmail)
-
-        if (exists) {
-          logger.debug('Permission already exists, skipping', { entity: entityId, person: personId })
-          results.skipped++
-          results.details.push({
-            entity: entityId,
-            person: personId,
-            status: 'skipped'
-          })
-        }
-        else {
-          personsToGrant.push(personId)
-        }
-      }
-      // Constitutional: Error type is unknown - we catch and validate errors at boundaries
-      // Principle I: Type Safety First - documented exception for error handling
-      catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-        logger.error('Failed to check existing permission', {
-          entity: entityId,
-          person: personId,
-          error: errorMessage
-        })
-        // Assume doesn't exist and try to grant
-        personsToGrant.push(personId)
-      }
-    }
-
-    // Grant all permissions for this entity in a single API call
-    if (personsToGrant.length > 0) {
-      try {
-        // eslint-disable-next-line no-await-in-loop -- sequential Entu API calls: no published rate limits, 60s token validity favors sequential
-        await addMultipleExpanderPermissions(entityId, personsToGrant, userToken, userId, userEmail)
-
-        // Mark all as successful
-        for (const personId of personsToGrant) {
-          results.successful++
-          results.details.push({
-            entity: entityId,
-            person: personId,
-            status: 'success'
-          })
-        }
-      }
-      // Constitutional: Error type is unknown - we catch and validate errors at boundaries
-      // Principle I: Type Safety First - documented exception for error handling
-      catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-        logger.error('Failed to grant permissions in bulk', {
-          entity: entityId,
-          personCount: personsToGrant.length,
-          error: errorMessage
-        })
-
-        // Mark all as failed
-        for (const personId of personsToGrant) {
-          results.failed++
-          results.details.push({
-            entity: entityId,
-            person: personId,
-            status: 'failed',
-            error: errorMessage
-          })
-        }
-      }
-    }
+    // eslint-disable-next-line no-await-in-loop -- sequential Entu API calls: no published rate limits, 60s token validity favors sequential
+    const personsToGrant = await filterPersonsNeedingGrant(entityId, personIds, results, userToken, userId, userEmail)
+    // eslint-disable-next-line no-await-in-loop -- sequential Entu API calls: no published rate limits, 60s token validity favors sequential
+    await grantAndRecordResults(entityId, personsToGrant, results, userToken, userId, userEmail)
   }
 
   logger.info('Batch permission grant completed', {

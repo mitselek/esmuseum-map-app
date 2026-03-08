@@ -136,14 +136,40 @@ export function validateCoordinates (coords: unknown): { lat: number, lng: numbe
 }
 
 /**
+ * Validate response item metadata fields
+ */
+function validateResponseMetadata (metadataObj: Record<string, unknown>, index: number): CreateResponseRequest['responses'][0]['metadata'] | undefined {
+  const metadata: Record<string, unknown> = {}
+
+  if (metadataObj.fileName) {
+    metadata.fileName = validateRequiredString(metadataObj.fileName, `responses[${index}].metadata.fileName`)
+  }
+
+  if (metadataObj.locationId) {
+    metadata.locationId = validateRequiredString(metadataObj.locationId, `responses[${index}].metadata.locationId`)
+  }
+
+  if (metadataObj.fileSize !== undefined) {
+    const fileSize = parseInt(metadataObj.fileSize as string)
+    if (isNaN(fileSize) || fileSize < 0) {
+      throw createError({ statusCode: 400, statusMessage: `responses[${index}].metadata.fileSize must be a positive number` })
+    }
+    metadata.fileSize = fileSize
+  }
+
+  if (metadataObj.coordinates) {
+    metadata.coordinates = validateCoordinates(metadataObj.coordinates)
+  }
+
+  return Object.keys(metadata).length > 0 ? metadata : undefined
+}
+
+/**
  * Validate response item structure
  */
 export function validateResponseItem (item: unknown, index: number) {
   if (!item || typeof item !== 'object') {
-    throw createError({
-      statusCode: 400,
-      statusMessage: `Response item ${index} must be an object`
-    })
+    throw createError({ statusCode: 400, statusMessage: `Response item ${index} must be an object` })
   }
 
   const itemObj = item as Record<string, unknown>
@@ -151,43 +177,10 @@ export function validateResponseItem (item: unknown, index: number) {
   const value = validateRequiredString(itemObj.value, `responses[${index}].value`)
   const type = validateResponseType(itemObj.type)
 
-  const validatedItem: CreateResponseRequest['responses'][0] = {
-    questionId,
-    value,
-    type
-  }
+  const validatedItem: CreateResponseRequest['responses'][0] = { questionId, value, type }
 
-  // Validate metadata if present
   if (itemObj.metadata && typeof itemObj.metadata === 'object') {
-    const metadata: Record<string, unknown> = {}
-    const metadataObj = itemObj.metadata as Record<string, unknown>
-
-    if (metadataObj.fileName) {
-      metadata.fileName = validateRequiredString(metadataObj.fileName, `responses[${index}].metadata.fileName`)
-    }
-
-    if (metadataObj.locationId) {
-      metadata.locationId = validateRequiredString(metadataObj.locationId, `responses[${index}].metadata.locationId`)
-    }
-
-    if (metadataObj.fileSize !== undefined) {
-      const fileSize = parseInt(metadataObj.fileSize as string)
-      if (isNaN(fileSize) || fileSize < 0) {
-        throw createError({
-          statusCode: 400,
-          statusMessage: `responses[${index}].metadata.fileSize must be a positive number`
-        })
-      }
-      metadata.fileSize = fileSize
-    }
-
-    if (metadataObj.coordinates) {
-      metadata.coordinates = validateCoordinates(metadataObj.coordinates)
-    }
-
-    if (Object.keys(metadata).length > 0) {
-      validatedItem.metadata = metadata
-    }
+    validatedItem.metadata = validateResponseMetadata(itemObj.metadata as Record<string, unknown>, index)
   }
 
   return validatedItem
@@ -250,6 +243,36 @@ export function validateEntityId (id: unknown): string {
 }
 
 /**
+ * Extract raw lat/lng values from query object, accepting multiple aliases
+ */
+function extractRawCoords (queryObj: Record<string, unknown>): { latRaw: unknown, lngRaw: unknown } {
+  return {
+    latRaw: queryObj.lat ?? queryObj.latitude,
+    lngRaw: queryObj.lng ?? queryObj.long ?? queryObj.longitude
+  }
+}
+
+/**
+ * Parse and validate numeric coordinate values
+ */
+function parseCoordValues (latRaw: unknown, lngRaw: unknown): { lat: number, lng: number } {
+  const lat = parseFloat(String(latRaw))
+  const lng = parseFloat(String(lngRaw))
+
+  if (Number.isNaN(lat) || Number.isNaN(lng)) {
+    logger.warn('Invalid location parameter types', { latRaw, lngRaw })
+    throw createError({ statusCode: 400, statusMessage: 'lat and lng must be valid numbers' })
+  }
+
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    logger.warn('Location parameters out of range', { lat, lng })
+    throw createError({ statusCode: 400, statusMessage: 'lat must be [-90,90] and lng must be [-180,180]' })
+  }
+
+  return { lat, lng }
+}
+
+/**
  * Validate optional lat/lng query parameters.
  * Returns an object with numeric lat/lng only if both are present and valid.
  */
@@ -257,48 +280,23 @@ export function validateLocationQuery (query: unknown): LocationQuery {
   logger.debug('Validating location query', { query })
 
   if (!query || typeof query !== 'object') {
-    logger.debug('No query object provided')
     return {}
   }
 
-  const queryObj = query as Record<string, unknown>
-  const latRaw = queryObj.lat ?? queryObj.latitude
-  const lngRaw = queryObj.lng ?? queryObj.long ?? queryObj.longitude
+  const { latRaw, lngRaw } = extractRawCoords(query as Record<string, unknown>)
 
   if (latRaw === undefined && lngRaw === undefined) {
-    logger.debug('No location parameters provided')
     return {}
   }
 
   if (latRaw === undefined || lngRaw === undefined) {
     logger.warn('Incomplete location parameters', { latRaw, lngRaw })
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Both lat and lng must be provided together'
-    })
+    throw createError({ statusCode: 400, statusMessage: 'Both lat and lng must be provided together' })
   }
 
-  const lat = parseFloat(String(latRaw))
-  const lng = parseFloat(String(lngRaw))
-
-  if (Number.isNaN(lat) || Number.isNaN(lng)) {
-    logger.warn('Invalid location parameter types', { latRaw, lngRaw })
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'lat and lng must be valid numbers'
-    })
-  }
-
-  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-    logger.warn('Location parameters out of range', { lat, lng })
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'lat must be [-90,90] and lng must be [-180,180]'
-    })
-  }
-
-  logger.debug('Location query validated successfully', { lat, lng })
-  return { lat, lng }
+  const result = parseCoordValues(latRaw, lngRaw)
+  logger.debug('Location query validated successfully', result)
+  return result
 }
 
 /**

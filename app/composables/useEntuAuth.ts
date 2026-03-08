@@ -92,6 +92,70 @@ const authResponse = ref<EntuAuthResponse | null>(null)
 const isLoading = ref<boolean>(false)
 const error = ref<string | null>(null)
 
+/**
+ * Try to fix a user's missing _id from the stored auth response
+ */
+const fixUserIdFromAuthResponse = (parsedUser: EntuUser, storedAuthResponse: string): void => {
+  try {
+    const parsedAuthResponse = JSON.parse(storedAuthResponse) as EntuAuthResponse
+    const accountUserId = parsedAuthResponse.accounts?.[0]?.user?._id
+    const directUserId = parsedAuthResponse.user?._id
+
+    if (accountUserId) {
+      parsedUser._id = accountUserId
+      _initLog.info('🔧 [MIGRATION] Fixed user._id from authResponse:', parsedUser._id)
+    }
+    else if (directUserId) {
+      parsedUser._id = directUserId
+      _initLog.info('🔧 [MIGRATION] Fixed user._id from authResponse.user:', parsedUser._id)
+    }
+  }
+  catch (e) {
+    _initLog.error('Error parsing stored auth response for migration:', e)
+  }
+}
+
+/**
+ * Restore user from localStorage, applying migration fixes if needed
+ */
+const restoreStoredUser = (storedUser: string, storedAuthResponse: string | null): void => {
+  try {
+    const parsedUser = JSON.parse(storedUser) as EntuUser
+
+    if (!parsedUser._id && storedAuthResponse) {
+      fixUserIdFromAuthResponse(parsedUser, storedAuthResponse)
+    }
+
+    if (parsedUser._id) {
+      user.value = parsedUser
+      return
+    }
+
+    _initLog.warn('🔧 [MIGRATION] User object has no _id, clearing stored auth')
+    localStorage.removeItem(USER_KEY)
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(TOKEN_EXPIRY_KEY)
+    localStorage.removeItem(AUTH_RESPONSE_KEY)
+  }
+  catch (e) {
+    _initLog.error('Error parsing stored user data:', e)
+    localStorage.removeItem(USER_KEY)
+  }
+}
+
+/**
+ * Restore auth response from localStorage
+ */
+const restoreStoredAuthResponse = (storedAuthResponse: string): void => {
+  try {
+    authResponse.value = JSON.parse(storedAuthResponse) as EntuAuthResponse
+  }
+  catch (e) {
+    _initLog.error('Error parsing stored auth response data:', e)
+    localStorage.removeItem(AUTH_RESPONSE_KEY)
+  }
+}
+
 // Initialize from localStorage on client side
 if (import.meta.client) {
   const storedToken = localStorage.getItem(TOKEN_KEY)
@@ -101,52 +165,8 @@ if (import.meta.client) {
 
   if (storedToken) token.value = storedToken
   if (storedExpiry) tokenExpiry.value = parseInt(storedExpiry)
-  if (storedUser) {
-    try {
-      const parsedUser = JSON.parse(storedUser) as EntuUser
-      // MIGRATION FIX: If user._id is empty/missing, try to get it from authResponse
-      if (!parsedUser._id && storedAuthResponse) {
-        try {
-          const parsedAuthResponse = JSON.parse(storedAuthResponse) as EntuAuthResponse
-          if (parsedAuthResponse.accounts?.[0]?.user?._id) {
-            parsedUser._id = parsedAuthResponse.accounts[0].user._id
-            _initLog.info('🔧 [MIGRATION] Fixed user._id from authResponse:', parsedUser._id)
-          }
-          else if (parsedAuthResponse.user?._id) {
-            parsedUser._id = parsedAuthResponse.user._id
-            _initLog.info('🔧 [MIGRATION] Fixed user._id from authResponse.user:', parsedUser._id)
-          }
-        }
-        catch (e) {
-          _initLog.error('Error parsing stored auth response for migration:', e)
-        }
-      }
-      // Only set user if we have a valid _id
-      if (parsedUser._id) {
-        user.value = parsedUser
-      }
-      else {
-        _initLog.warn('🔧 [MIGRATION] User object has no _id, clearing stored auth')
-        localStorage.removeItem(USER_KEY)
-        localStorage.removeItem(TOKEN_KEY)
-        localStorage.removeItem(TOKEN_EXPIRY_KEY)
-        localStorage.removeItem(AUTH_RESPONSE_KEY)
-      }
-    }
-    catch (e) {
-      _initLog.error('Error parsing stored user data:', e)
-      localStorage.removeItem(USER_KEY)
-    }
-  }
-  if (storedAuthResponse && !authResponse.value) { // Only if not already set above
-    try {
-      authResponse.value = JSON.parse(storedAuthResponse) as EntuAuthResponse
-    }
-    catch (e) {
-      _initLog.error('Error parsing stored auth response data:', e)
-      localStorage.removeItem(AUTH_RESPONSE_KEY)
-    }
-  }
+  if (storedUser) restoreStoredUser(storedUser, storedAuthResponse)
+  if (storedAuthResponse && !authResponse.value) restoreStoredAuthResponse(storedAuthResponse)
 }
 
 // Save to localStorage when token changes
@@ -248,97 +268,84 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
   }
 
   /**
+   * Fetch auth response from Entu API
+   */
+  const fetchAuthResponse = async (oauthToken: string): Promise<EntuAuthResponse> => {
+    const apiUrl = config.public.entuUrl || 'https://entu.app'
+    const accountName = config.public.entuAccount || 'esmuuseum'
+    const url = `${apiUrl}/api/auth?account=${accountName}`
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept-Encoding': 'deflate',
+        Authorization: `Bearer ${oauthToken}`
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error(`Authentication failed: ${response.status} ${response.statusText}`)
+    }
+
+    return await response.json() as EntuAuthResponse
+  }
+
+  /**
+   * Store token and expiry from auth response
+   */
+  const storeTokenData = (data: EntuAuthResponse): void => {
+    authResponse.value = data
+    token.value = data.token
+
+    const DEFAULT_EXPIRY_MS = 48 * 60 * 60 * 1000
+    const payload = decodeJWT(data.token)
+    tokenExpiry.value = payload?.exp
+      ? payload.exp * 1000
+      : Date.now() + DEFAULT_EXPIRY_MS
+  }
+
+  /**
+   * Resolve and store user data from auth response
+   */
+  const resolveUserData = async (data: EntuAuthResponse): Promise<void> => {
+    if (!data.user) return
+
+    const userId = data.accounts?.[0]?.user?._id || data.user._id || ''
+    if (!userId) {
+      log.warn('User data received but no _id found', data)
+      return
+    }
+
+    try {
+      user.value = await fetchFreshUserData(userId, data.token)
+    }
+    catch (fetchError) {
+      log.warn('Failed to fetch fresh user data, using OAuth response:', fetchError)
+      user.value = { ...data.user, _id: userId }
+    }
+  }
+
+  /**
    * Get a new auth token from Entu API
    * @param oauthToken - Optional OAuth token from the callback
    */
   const getToken = async (oauthToken: string | null = null): Promise<EntuAuthResponse> => {
+    if (!oauthToken) throw new Error('OAuth token required for authentication')
+
     isLoading.value = true
     error.value = null
 
     try {
-      // Build the API URL for authentication
-      const apiUrl = config.public.entuUrl || 'https://entu.app'
-      const accountName = config.public.entuAccount || 'esmuuseum'
-      const url = `${apiUrl}/api/auth?account=${accountName}`
-      const headers: Record<string, string> = {
-        'Accept-Encoding': 'deflate'
-      }
+      const data = await fetchAuthResponse(oauthToken)
 
-      // OAuth-only authentication
-      if (!oauthToken) {
-        throw new Error('OAuth token required for authentication')
-      }
-      headers.Authorization = `Bearer ${oauthToken}`
-
-      // Make the authentication request
-      const response = await fetch(url, {
-        method: 'GET',
-        headers
-      })
-
-      if (!response.ok) {
-        throw new Error(`Authentication failed: ${response.status} ${response.statusText}`)
-      }
-
-      const data = await response.json() as EntuAuthResponse
-
-      log.info('🔐 [DEBUG] Auth response received:', {
-        hasToken: !!data.token,
-        hasUser: !!data.user,
-        userKeys: data.user ? Object.keys(data.user) : [],
-        hasAccounts: !!data.accounts,
-        accountsLength: data.accounts?.length || 0,
-        firstAccountUserId: data.accounts?.[0]?.user?._id,
-        userDirectId: data.user?._id
-      })
-
-      if (data.token) {
-        // Save the entire auth response
-        authResponse.value = data
-
-        token.value = data.token
-        // Parse expiry from JWT exp claim; fall back to 48h if missing
-        const DEFAULT_EXPIRY_MS = 48 * 60 * 60 * 1000
-        const payload = decodeJWT(data.token)
-        tokenExpiry.value = payload?.exp
-          ? payload.exp * 1000
-          : Date.now() + DEFAULT_EXPIRY_MS
-
-        // Get user info if available
-        if (data.user) {
-          // Start with the basic user info (email, name)
-          const newUser: EntuUser = {
-            ...data.user,
-            _id: data.user._id || '' // Try to get _id from user object first
-          }
-
-          // Add user ID from the accounts array if available (override if present)
-          if (data.accounts?.[0]?.user?._id) {
-            newUser._id = data.accounts[0].user._id
-          }
-
-          // Only set user if we have a valid _id
-          if (newUser._id && data.token) {
-            // Fetch fresh user data from Entu to ensure we have latest info (names, etc)
-            try {
-              const freshUserData = await fetchFreshUserData(newUser._id, data.token)
-              user.value = freshUserData
-            }
-            catch (fetchError) {
-              log.warn('Failed to fetch fresh user data, using OAuth response:', fetchError)
-              user.value = newUser // Fallback to OAuth response user data
-            }
-          }
-          else {
-            log.warn('User data received but no _id found', data)
-          }
-        }
-
-        return data
-      }
-      else {
+      if (!data.token) {
         throw new Error('No token received from authentication endpoint')
       }
+
+      storeTokenData(data)
+      await resolveUserData(data)
+
+      return data
     }
     catch (err) {
       error.value = err instanceof Error ? err.message : 'Authentication failed'

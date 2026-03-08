@@ -112,52 +112,41 @@ const originalConsoleWarn = console.warn
 const originalConsoleError = console.error
 
 // Log colors for different types
-const getLogColor = (type: LogEntry['type']): string => {
-  switch (type) {
-    case 'auth': return 'text-blue-400'
-    case 'event': return 'text-green-400'
-    case 'gps': return 'text-purple-400'
-    case 'task': return 'text-yellow-400'
-    case 'map': return 'text-cyan-400'
-    case 'location': return 'text-orange-400'
-    case 'error': return 'text-red-400'
-    case 'warn': return 'text-yellow-300'
-    default: return 'text-gray-300'
-  }
+const LOG_COLORS: Record<LogEntry['type'], string> = {
+  auth: 'text-blue-400',
+  event: 'text-green-400',
+  gps: 'text-purple-400',
+  task: 'text-yellow-400',
+  map: 'text-cyan-400',
+  location: 'text-orange-400',
+  error: 'text-red-400',
+  warn: 'text-yellow-300'
 }
+
+const getLogColor = (type: LogEntry['type']): string => LOG_COLORS[type] || 'text-gray-300'
+
+// Message pattern matchers: [patterns, default emoji, type]
+const LOG_PATTERNS: Array<{ patterns: string[], emoji: string, type: LogEntry['type'], extractEmoji?: RegExp }> = [
+  { patterns: ['🔒', 'auth'], emoji: '🔒', type: 'auth' },
+  { patterns: ['🚀', '🏢', '🔍'], emoji: '🔍', type: 'event', extractEmoji: /🚀|🏢|🔍/ },
+  { patterns: ['🌍', 'GPS'], emoji: '🌍', type: 'gps' },
+  { patterns: ['🎯', '📋'], emoji: '📋', type: 'task', extractEmoji: /🎯|📋/ },
+  { patterns: ['🗺️'], emoji: '🗺️', type: 'map' },
+  { patterns: ['📍'], emoji: '📍', type: 'location' }
+]
 
 // Extract emoji and determine type from message
 const parseLogMessage = (args: unknown[]): { emoji: string, type: LogEntry['type'], message: string } => {
   const message = args.join(' ')
-  let emoji = '📋'
-  let type: LogEntry['type'] = 'event'
 
-  if (message.includes('🔒') || message.includes('auth')) {
-    emoji = '🔒'
-    type = 'auth'
-  }
-  else if (message.includes('🚀') || message.includes('🏢') || message.includes('🔍')) {
-    emoji = message.match(/🚀|🏢|🔍/)?.[0] || '🔍'
-    type = 'event'
-  }
-  else if (message.includes('🌍') || message.includes('GPS')) {
-    emoji = '🌍'
-    type = 'gps'
-  }
-  else if (message.includes('🎯') || message.includes('📋')) {
-    emoji = message.match(/🎯|📋/)?.[0] || '📋'
-    type = 'task'
-  }
-  else if (message.includes('🗺️')) {
-    emoji = '🗺️'
-    type = 'map'
-  }
-  else if (message.includes('📍')) {
-    emoji = '📍'
-    type = 'location'
+  for (const rule of LOG_PATTERNS) {
+    if (rule.patterns.some((p) => message.includes(p))) {
+      const emoji = rule.extractEmoji ? (message.match(rule.extractEmoji)?.[0] || rule.emoji) : rule.emoji
+      return { emoji, type: rule.type, message }
+    }
   }
 
-  return { emoji, type, message }
+  return { emoji: '📋', type: 'event', message }
 }
 
 // Format log data for display

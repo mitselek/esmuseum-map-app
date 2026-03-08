@@ -88,7 +88,7 @@
       ref="fileInput"
       type="file"
       multiple
-      accept="image/jpeg,image/png,image/gif,image/webp,.jpg,.jpeg,.png,.gif,.webp"
+      :accept="FILE_ACCEPT"
       class="hidden"
       @change="handleFileInput"
     >
@@ -148,6 +148,7 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ALLOWED_TYPES = [
   'image/jpeg', 'image/png', 'image/gif', 'image/webp'
 ]
+const FILE_ACCEPT = [...ALLOWED_TYPES, '.jpg', '.jpeg', '.png', '.gif', '.webp'].join(',')
 
 // Types
 interface UploadResult {
@@ -160,6 +161,7 @@ interface UploadResult {
 }
 
 // Emits
+const EMIT_UPDATE_FILES = 'update:files' as const
 const emit = defineEmits<{
   'update:files': [files: File[]]
   'upload-complete': [results: UploadResult[]]
@@ -203,7 +205,7 @@ const addFiles = (newFiles: File[]) => {
 
   if (validFiles.length > 0) {
     files.value.push(...validFiles)
-    emit('update:files', files.value)
+    emit(EMIT_UPDATE_FILES, files.value)
   }
 }
 
@@ -217,7 +219,7 @@ const removeFile = (index: number) => {
     }
   }
   files.value.splice(index, 1)
-  emit('update:files', files.value)
+  emit(EMIT_UPDATE_FILES, files.value)
 }
 
 const clearFiles = () => {
@@ -225,7 +227,7 @@ const clearFiles = () => {
   files.value = []
   uploadProgress.value = []
   error.value = ''
-  emit('update:files', files.value)
+  emit(EMIT_UPDATE_FILES, files.value)
 }
 
 // Event handlers

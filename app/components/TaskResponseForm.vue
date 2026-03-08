@@ -149,15 +149,10 @@ const fileUploadRef = ref<FileUploadRef | null>(null)
 const uploadedFiles = ref<UploadResult[]>([])
 
 const respondentName = computed(() => {
-  const entu = entuUser.value
-
-  const normalize = (value: unknown): string | null => {
-    if (typeof value !== 'string') return null
-    const trimmed = value.trim()
-    return trimmed.length > 0 ? trimmed : null
-  }
-
-  return normalize(entu?.name)
+  const name = entuUser.value?.name
+  if (typeof name !== 'string') return null
+  const trimmed = name.trim()
+  return trimmed.length > 0 ? trimmed : null
 })
 
 // Computed properties
@@ -198,6 +193,51 @@ const onFileUploadError = (error: Error): void => {
   log.error('File upload error:', error)
 }
 
+/**
+ * Parse GPS string into rounded coordinates
+ */
+const parseGpsCoordinates = (gpsString: string | null): { lat: number, lng: number } | undefined => {
+  if (!gpsString) return undefined
+  const parts = gpsString.split(',')
+  const lat = parseFloat(parts[0]?.trim() || '')
+  const lng = parseFloat(parts[1]?.trim() || '')
+  if (isNaN(lat) || isNaN(lng)) return undefined
+  return roundCoordinates(lat, lng) as { lat: number, lng: number }
+}
+
+/**
+ * Extract response entity ID from creation result
+ */
+const extractResponseId = (response: { id: string, data: unknown }): string => {
+  if (response.id) return response.id
+  if (response.data && typeof response.data === 'object' && response.data !== null) {
+    const dataObj = response.data as Record<string, unknown>
+    return (dataObj.id as string) || (dataObj._id as string) || ''
+  }
+  return ''
+}
+
+/**
+ * Upload files to a response entity, returning file entity IDs
+ */
+const uploadResponseFiles = async (responseId: string): Promise<string[]> => {
+  if (!fileUploadRef.value || !fileUploadRef.value.files.length || !responseId) return []
+
+  log.debug('F015: Starting file upload process...')
+  try {
+    const uploadResults = await fileUploadRef.value.uploadFiles(responseId)
+    const refs = uploadResults
+      .filter((result) => result.success && result.entityId)
+      .map((result) => result.entityId!)
+    log.info('Files uploaded, entity IDs:', refs)
+    return refs
+  }
+  catch (uploadError) {
+    log.error('File upload failed:', uploadError)
+    return []
+  }
+}
+
 // Form submission
 const submitResponse = async () => {
   if (!canSubmit.value || !props.selectedTask) return
@@ -205,81 +245,30 @@ const submitResponse = async () => {
   submitting.value = true
 
   try {
-    // F015: Use feature-flagged response creation
     const { createTaskResponse } = useTaskResponseCreation()
 
-    // Step 1: Create the response entity first
     const requestData = {
       taskId: props.selectedTask._id,
       responses: [
         {
-          questionId: 'default', // Using default for simple text response
+          questionId: 'default',
           type: 'text',
           value: responseForm.value.text,
           metadata: {
-            // Include location reference if available
             locationId: props.selectedLocation?.reference || props.selectedLocation?._id,
-            // Include coordinates if available (rounded to 6 decimal places)
-            coordinates: responseForm.value.seadmeGps
-              ? ((): { lat: number, lng: number } | undefined => {
-                  const coords = responseForm.value.seadmeGps?.split(',') || []
-                  const lat = parseFloat(coords[0]?.trim() || '')
-                  const lng = parseFloat(coords[1]?.trim() || '')
-                  if (!isNaN(lat) && !isNaN(lng)) {
-                    return roundCoordinates(lat, lng) as { lat: number, lng: number }
-                  }
-                  return undefined
-                })()
-              : undefined
+            coordinates: parseGpsCoordinates(responseForm.value.seadmeGps)
           }
         }
       ],
       respondentName: respondentName.value || undefined
     }
 
-    // Create the response entity using feature-flagged approach
     const response = await createTaskResponse(requestData)
-
     log.info('Response created:', response)
 
-    // Step 2: Upload files to the newly created response entity
-    let fileReferences: string[] = []
+    const responseId = extractResponseId(response)
+    const fileReferences = await uploadResponseFiles(responseId)
 
-    // Debug: Check response structure and extract correct ID
-    log.debug('F015: Full response structure:', JSON.stringify(response, null, 2))
-
-    // Extract ID from response - use type guard for data property
-    let responseId = response.id
-    if (response.data && typeof response.data === 'object' && response.data !== null) {
-      const dataObj = response.data as Record<string, unknown>
-      responseId = responseId || (dataObj.id as string) || (dataObj._id as string)
-    }
-    log.debug('F015: Extracted response ID:', responseId)
-
-    // Debug: Check file upload component state
-    log.debug('F015: Checking file upload state:', {
-      hasFileUploadRef: !!fileUploadRef.value,
-      filesLength: fileUploadRef.value?.files?.length || 0,
-      files: fileUploadRef.value?.files || 'undefined',
-      responseId: responseId
-    })
-
-    if (fileUploadRef.value && fileUploadRef.value.files.length > 0 && responseId) {
-      log.debug('F015: Starting file upload process...')
-      try {
-        const uploadResults = await fileUploadRef.value.uploadFiles(responseId)
-        fileReferences = uploadResults
-          .filter((result) => result.success && result.entityId)
-          .map((result) => result.entityId!)
-        log.info('Files uploaded, entity IDs:', fileReferences)
-      }
-      catch (uploadError) {
-        log.error('File upload failed:', uploadError)
-        // Continue with form submission even if file upload fails
-      }
-    }
-
-    // Emit response submitted event for optimistic updates
     emit('response-submitted', {
       responseData: requestData,
       apiResponse: response,
@@ -287,16 +276,12 @@ const submitResponse = async () => {
       uploadedFiles: fileReferences
     })
 
-    // Reset form after successful submission
+    // Reset form
     responseForm.value.text = ''
     responseForm.value.seadmeGps = null
     responseForm.value.file = null
     uploadedFiles.value = []
-
-    // Clear file upload component
-    if (fileUploadRef.value) {
-      fileUploadRef.value.clearFiles()
-    }
+    fileUploadRef.value?.clearFiles()
   }
   catch (error) {
     log.error('Failed to submit response:', error)

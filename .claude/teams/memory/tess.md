@@ -83,4 +83,5 @@ Use `Reflect.deleteProperty(obj, key)` instead of `delete obj[key]` in test mock
 - useClientSideFileUpload: 0% → covered (31 tests, rewritten from scratch)
 - useNotifications: 55% → 100% (6 new debounce tests)
 - useCompletedTasks/useTaskScoring: 75% → extended (7 new tests)
-- Total: 966 tests pass, lint clean
+- distance.js: 40 regression tests (Infinity bug)
+- Total: 1006 tests pass, lint clean, pushed as `567a5d7`

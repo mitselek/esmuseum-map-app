@@ -140,122 +140,90 @@ async function processStudentWebhook (entityId: string, userToken?: string, user
   }
 }
 
+/**
+ * Validate webhook request: rate limit, auth, payload, entity ID
+ */
+async function validateAndExtractWebhookData (event: Parameters<Parameters<typeof defineEventHandler>[0]>[0]) {
+  const rateLimitOk = checkRateLimit(event, 100, 60000)
+  if (!rateLimitOk) {
+    logger.warn('Rate limit exceeded')
+    throw createError({ statusCode: 429, statusMessage: 'Too many requests' })
+  }
+
+  if (!validateWebhookRequest(event)) {
+    logger.warn('Webhook validation failed')
+    throw createError({ statusCode: 401, statusMessage: 'Unauthorized webhook request' })
+  }
+
+  const payload = await readBody(event)
+  const payloadValidation = validateWebhookPayload(payload)
+  if (!payloadValidation.valid) {
+    logger.warn('Invalid webhook payload', { errors: payloadValidation.errors })
+    throw createError({ statusCode: 400, statusMessage: `Invalid payload: ${payloadValidation.errors.join(', ')}` })
+  }
+
+  const entityId = extractEntityId(payload)
+  if (!entityId) {
+    logger.warn('Missing entity ID in payload')
+    throw createError({ statusCode: 400, statusMessage: 'Missing entity ID in payload' })
+  }
+
+  const { token: userToken, userId, userEmail } = extractUserToken(payload)
+  return { entityId, userToken: userToken || undefined, userId: userId || undefined, userEmail: userEmail || undefined }
+}
+
+/**
+ * Process webhook with debounce-based reprocessing loop
+ */
+async function processWithReprocessing (entityId: string, userToken?: string, userId?: string, userEmail?: string) {
+  let result
+  let needsReprocessing = true
+
+  while (needsReprocessing) {
+    // eslint-disable-next-line no-await-in-loop -- while-loop debounce pattern, not collection iteration
+    result = await processStudentWebhook(entityId, userToken, userId, userEmail)
+    needsReprocessing = completeWebhookProcessing(entityId)
+
+    if (needsReprocessing) {
+      logger.info('Reprocessing entity - was edited during processing', { entityId })
+      // eslint-disable-next-line no-await-in-loop -- while-loop debounce pattern, not collection iteration
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 2000)
+      })
+    }
+  }
+
+  return result
+}
+
 export default defineEventHandler(async (event) => {
   const startTime = Date.now()
-
   logger.info('Webhook received: student-added-to-class')
 
   try {
-    // 1. Rate limiting
-    const rateLimitOk = checkRateLimit(event, 100, 60000)
-    if (!rateLimitOk) {
-      logger.warn('Rate limit exceeded')
-      throw createError({
-        statusCode: 429,
-        statusMessage: 'Too many requests'
-      })
-    }
+    const { entityId, userToken, userId, userEmail } = await validateAndExtractWebhookData(event)
 
-    // 2. Validate webhook authenticity
-    const isValidWebhook = validateWebhookRequest(event)
-    if (!isValidWebhook) {
-      logger.warn('Webhook validation failed')
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Unauthorized webhook request'
-      })
-    }
-
-    // 3. Read and validate payload
-    const payload = await readBody(event)
-
-    const payloadValidation = validateWebhookPayload(payload)
-    if (!payloadValidation.valid) {
-      logger.warn('Invalid webhook payload', { errors: payloadValidation.errors })
-      throw createError({
-        statusCode: 400,
-        statusMessage: `Invalid payload: ${payloadValidation.errors.join(', ')}`
-      })
-    }
-
-    // 4. Extract entity ID and user token
-    const entityId = extractEntityId(payload)
-    const { token: userToken, userId, userEmail } = extractUserToken(payload)
-
-    if (!entityId) {
-      logger.warn('Missing entity ID in payload')
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Missing entity ID in payload'
-      })
-    }
-
-    // Process the student webhook
-
-    // 5. Check queue - debounce if already processing
     const shouldProcess = enqueueWebhook(entityId)
-
     if (!shouldProcess) {
       logger.info('Entity already queued - webhook will be reprocessed', { entityId })
-      return {
-        success: true,
-        message: 'Webhook queued for reprocessing',
-        entity_id: entityId,
-        queued: true
-      }
+      return { success: true, message: 'Webhook queued for reprocessing', entity_id: entityId, queued: true }
     }
 
-    // 6. Process webhook
-    let result
-    let needsReprocessing = true
-
-    while (needsReprocessing) {
-      // eslint-disable-next-line no-await-in-loop -- while-loop debounce pattern, not collection iteration
-      result = await processStudentWebhook(entityId, userToken || undefined, userId || undefined, userEmail || undefined)
-
-      // Check if reprocessing needed (entity was edited during processing)
-      needsReprocessing = completeWebhookProcessing(entityId)
-
-      if (needsReprocessing) {
-        logger.info('Reprocessing entity - was edited during processing', { entityId })
-        // Wait 2 seconds before reprocessing to let edits settle
-        // eslint-disable-next-line no-await-in-loop -- while-loop debounce pattern, not collection iteration
-        await new Promise<void>((resolve) => {
-          setTimeout(resolve, 2000)
-        })
-      }
-    }
-
-    // 7. Return success response
-    return {
-      ...result,
-      duration_ms: Date.now() - startTime
-    }
+    const result = await processWithReprocessing(entityId, userToken, userId, userEmail)
+    return { ...result, duration_ms: Date.now() - startTime }
   }
-  // Constitutional: Error type is unknown - we catch and validate errors at boundaries
-  // Principle I: Type Safety First - documented exception for error handling
   catch (error: unknown) {
     const duration = Date.now() - startTime
-
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     const statusCode = typeof error === 'object' && error !== null && 'statusCode' in error
       ? (error as { statusCode: number }).statusCode
       : undefined
 
-    logger.error('Webhook processing failed', {
-      error: errorMessage,
-      statusCode,
-      duration
-    })
+    logger.error('Webhook processing failed', { error: errorMessage, statusCode, duration })
 
-    // Return appropriate error response
     if (statusCode) {
       throw error
     }
-
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Internal server error processing webhook'
-    })
+    throw createError({ statusCode: 500, statusMessage: 'Internal server error processing webhook' })
   }
 })

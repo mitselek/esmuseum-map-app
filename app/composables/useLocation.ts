@@ -194,6 +194,61 @@ const getLocationErrorMessage = (error: GeolocationPositionError): string => {
   }
 }
 
+/**
+ * Extract reference string from an Entu reference array, if present.
+ */
+const getArrayReference = (arr: unknown): string | undefined => {
+  if (Array.isArray(arr) && arr[0]?.reference) {
+    return arr[0].reference as string
+  }
+  return undefined
+}
+
+/**
+ * Extract map reference from a task entity, checking multiple possible locations.
+ * Entu tasks can store map references in various formats depending on how they were loaded.
+ */
+const extractMapReference = (task: TaskWithMap): string | undefined => {
+  // Array format: check all possible Entu locations for kaart[].reference
+  const ref = getArrayReference(task.kaart)
+    ?? getArrayReference(task.entity?.properties?.kaart)
+    ?? getArrayReference(task.entity?.kaart)
+  if (ref) return ref
+
+  // Direct string
+  if (typeof task.kaart === 'string') {
+    return task.kaart
+  }
+  // Object with reference/_id/id
+  if (task.kaart && typeof task.kaart === 'object' && !Array.isArray(task.kaart)) {
+    return task.kaart.reference || task.kaart._id || task.kaart.id
+  }
+  return undefined
+}
+
+/**
+ * Extract a numeric value from an Entu property field, trying direct and properties-nested formats.
+ */
+const extractEntuNumber = (
+  direct: Array<{ number: number }> | undefined,
+  nested: Array<{ value: number, number: number, string: string }> | undefined
+): number | undefined => {
+  return direct?.[0]?.number ?? nested?.[0]?.value ?? nested?.[0]?.number
+}
+
+/**
+ * Extract lat/lng from a LocationEntity, trying multiple Entu property formats.
+ */
+const extractRawCoordinates = (location: LocationEntity): { lat: number, lng: number } | null => {
+  const lat = extractEntuNumber(location.lat, location.properties?.lat)
+  const lng = extractEntuNumber(location.long, location.properties?.long)
+
+  if (lat != null && lng != null) {
+    return { lat, lng }
+  }
+  return null
+}
+
 // ============================================================================
 // Global State (Singleton Pattern)
 // ============================================================================
@@ -594,30 +649,7 @@ export const useLocation = (): UseLocationReturn => {
       throw new Error('Task is required')
     }
 
-    // Get map reference from task - check multiple possible locations
-    let mapReference: string | undefined
-
-    // Check if kaart is an array with reference
-    if (Array.isArray(task.kaart) && task.kaart[0]?.reference) {
-      mapReference = task.kaart[0].reference
-    }
-    // Check entity.properties.kaart
-    else if (Array.isArray(task.entity?.properties?.kaart) && task.entity.properties.kaart[0]?.reference) {
-      mapReference = task.entity.properties.kaart[0].reference
-    }
-    // Check entity.kaart
-    else if (Array.isArray(task.entity?.kaart) && task.entity.kaart[0]?.reference) {
-      mapReference = task.entity.kaart[0].reference
-    }
-    // Check if kaart is directly a string
-    else if (typeof task.kaart === 'string') {
-      mapReference = task.kaart
-    }
-    // Check if kaart is an object with reference/_id/id
-    else if (task.kaart && typeof task.kaart === 'object' && !Array.isArray(task.kaart)) {
-      mapReference = task.kaart.reference || task.kaart._id || task.kaart.id
-    }
-
+    const mapReference = extractMapReference(task)
     if (!mapReference) {
       return []
     }
@@ -682,19 +714,8 @@ export const useLocation = (): UseLocationReturn => {
     }
 
     // Try to extract from separate lat/long fields (various formats)
-    const lat = location.lat?.[0]?.number
-      ?? location.properties?.lat?.[0]?.value
-      ?? location.properties?.lat?.[0]?.number
-
-    const lng = location.long?.[0]?.number
-      ?? location.properties?.long?.[0]?.value
-      ?? location.properties?.long?.[0]?.number
-
-    if (lat != null && lng != null) {
-      return `${lat},${lng}`
-    }
-
-    return ''
+    const coords = extractRawCoordinates(location)
+    return coords ? `${coords.lat},${coords.lng}` : ''
   }
 
   // Extract location name for display

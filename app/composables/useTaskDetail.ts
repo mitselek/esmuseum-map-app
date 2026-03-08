@@ -266,6 +266,20 @@ export const useTaskDetail = () => {
   }
 
   /**
+   * Try to load existing response for a task by the current user
+   */
+  const findUserResponse = async (taskId: string): Promise<unknown | null> => {
+    const { user } = useEntuAuth()
+    const { searchEntities } = useEntuApi()
+
+    const query = buildResponsesByTaskQuery(taskId, undefined, 1)
+    query['_owner._id'] = user.value?._id
+
+    const responses = await searchEntities(query)
+    return responses.entities?.[0] ?? null
+  }
+
+  /**
    * Handle task selection and initialization
    */
   const initializeTask = async (task: EntuTask | null, options: TaskInitOptions = {}): Promise<TaskInitResult> => {
@@ -279,73 +293,37 @@ export const useTaskDetail = () => {
     } = options
 
     if (!task) {
-      // No task selected, reset states
-      if (resetState) {
-        resetState()
-      }
+      resetState?.()
       return { success: false, reason: 'no_task' }
     }
 
-    const taskId = task._id
-    if (!taskId) {
-      return { success: false, reason: 'no_task_id' }
-    }
+    if (!task._id) return { success: false, reason: 'no_task_id' }
 
     try {
-      const { token, user } = useEntuAuth()
-      const { searchEntities } = useEntuApi()
+      const { token } = useEntuAuth()
 
-      // Check permissions first
-      if (checkPermissions) {
-        await checkPermissions(taskId)
-      }
+      if (checkPermissions) await checkPermissions(task._id)
+      if (loadLocations) await loadLocations()
 
-      // Load task locations
-      if (loadLocations) {
-        await loadLocations()
-      }
-
-      // Handle authentication and response loading
-      if (token.value) {
-        try {
-          // Client-side version (F015 migration)
-          // Note: Using _owner._id instead of _owner.reference for direct ID comparison
-          const query = buildResponsesByTaskQuery(taskId, undefined, 1)
-          query['_owner._id'] = user.value?._id
-
-          const responses = await searchEntities(query)
-
-          const responseData = {
-            success: true,
-            response: responses.entities && responses.entities.length > 0 ? responses.entities[0] : null
-          }
-
-          if (responseData.success && responseData.response) {
-            // Existing response found
-            return {
-              success: true,
-              hasExistingResponse: true,
-              response: responseData.response
-            }
-          }
-          else {
-            // No existing response - handle auto-geolocation
-            await handleAutoGeolocation(needsLocation, getCurrentLocation, responseFormRef)
-            return { success: true, hasExistingResponse: false }
-          }
-        }
-        catch (error) {
-          log.debug('No existing response found or error loading:', error)
-          // Handle auto-geolocation for new response
-          await handleAutoGeolocation(needsLocation, getCurrentLocation, responseFormRef)
-          return { success: true, hasExistingResponse: false }
-        }
-      }
-      else {
-        // Not authenticated
+      if (!token.value) {
         log.debug('Not authenticated')
         return { success: true, authenticated: false }
       }
+
+      // Try to find existing response
+      try {
+        const existingResponse = await findUserResponse(task._id)
+        if (existingResponse) {
+          return { success: true, hasExistingResponse: true, response: existingResponse }
+        }
+      }
+      catch (error) {
+        log.debug('No existing response found or error loading:', error)
+      }
+
+      // No existing response — handle auto-geolocation
+      await handleAutoGeolocation(needsLocation, getCurrentLocation, responseFormRef)
+      return { success: true, hasExistingResponse: false }
     }
     catch (error) {
       log.error('Error initializing task:', error)

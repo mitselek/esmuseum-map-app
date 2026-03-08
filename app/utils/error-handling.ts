@@ -28,6 +28,60 @@ export interface ErrorHandlingResult {
 }
 
 /**
+ * Extract status code and message from various error shapes
+ */
+function extractErrorInfo (error: unknown): { statusCode: number | undefined, message: string } {
+  if (error instanceof Error) {
+    const statusMatch = error.message.match(/API error: (\d{3})/)
+    return {
+      statusCode: statusMatch?.[1] ? parseInt(statusMatch[1], 10) : undefined,
+      message: error.message
+    }
+  }
+
+  if (typeof error === 'number') {
+    return { statusCode: error, message: `HTTP ${error}` }
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const err = error as { statusCode?: number, status?: number, message?: string, statusText?: string }
+    return {
+      statusCode: err.statusCode || err.status,
+      message: err.message || err.statusText || 'Unknown error'
+    }
+  }
+
+  return { statusCode: undefined, message: 'Unknown error' }
+}
+
+/** Error category definitions keyed by status code range */
+type ErrorCategory = Pick<ErrorHandlingResult, 'type' | 'shouldRetry' | 'shouldRedirectToLogin' | 'userMessage'> & { prefix: string }
+
+const STATUS_CATEGORIES: Record<number, ErrorCategory> = {
+  401: { type: 'auth', shouldRetry: false, shouldRedirectToLogin: true, userMessage: 'Session expired. Please log in again.', prefix: 'Authentication failed' },
+  403: { type: 'client', shouldRetry: false, shouldRedirectToLogin: false, userMessage: 'Access denied. You do not have permission to perform this action.', prefix: 'Permission denied' }
+}
+
+function categorizeByStatusCode (statusCode: number | undefined): ErrorCategory {
+  if (!statusCode || statusCode === 0) {
+    return { type: 'network', shouldRetry: true, shouldRedirectToLogin: false, userMessage: 'Network error. Please check your connection and try again.', prefix: 'Network error' }
+  }
+
+  const exact = STATUS_CATEGORIES[statusCode]
+  if (exact) return exact
+
+  if (statusCode >= 500) {
+    return { type: 'server', shouldRetry: true, shouldRedirectToLogin: false, userMessage: 'Server error. Please try again later.', prefix: 'Server error' }
+  }
+
+  if (statusCode >= 400) {
+    return { type: 'client', shouldRetry: false, shouldRedirectToLogin: false, userMessage: 'Request failed. Please check your input.', prefix: 'Client error' }
+  }
+
+  return { type: 'unknown', shouldRetry: false, shouldRedirectToLogin: false, userMessage: 'An unexpected error occurred.', prefix: 'Unknown error' }
+}
+
+/**
  * Analyze an error and determine appropriate handling
  *
  * @param error - Error object or status code
@@ -38,98 +92,16 @@ export const analyzeApiError = (
   error: unknown,
   context: string = 'API call'
 ): ErrorHandlingResult => {
-  // Extract status code if available
-  let statusCode: number | undefined
-  let message = 'Unknown error'
+  const { statusCode, message } = extractErrorInfo(error)
+  const category = categorizeByStatusCode(statusCode)
 
-  if (error instanceof Error) {
-    message = error.message
-    // Try to extract status code from error message (format: "API error: 401 Unauthorized")
-    const statusMatch = message.match(/API error: (\d{3})/)
-    if (statusMatch && statusMatch[1]) {
-      statusCode = parseInt(statusMatch[1], 10)
-    }
-  }
-  else if (typeof error === 'number') {
-    statusCode = error
-    message = `HTTP ${error}`
-  }
-  else if (typeof error === 'object' && error !== null) {
-    // Try to extract from error object
-    const err = error as { statusCode?: number, status?: number, message?: string, statusText?: string }
-    statusCode = err.statusCode || err.status
-    message = err.message || err.statusText || message
-  }
-
-  // Determine error type and handling based on status code
-  if (statusCode === 401) {
-    // 401 Unauthorized = Authentication required
-    return {
-      type: 'auth',
-      shouldRetry: false,
-      shouldRedirectToLogin: true,
-      userMessage: 'Session expired. Please log in again.',
-      technicalMessage: `Authentication failed in ${context}: ${message}`,
-      statusCode
-    }
-  }
-
-  if (statusCode === 403) {
-    // 403 Forbidden = Permission denied (NOT authentication issue)
-    return {
-      type: 'client',
-      shouldRetry: false,
-      shouldRedirectToLogin: false,
-      userMessage: 'Access denied. You do not have permission to perform this action.',
-      technicalMessage: `Permission denied in ${context}: ${message}`,
-      statusCode
-    }
-  }
-
-  if (!statusCode || statusCode === 0) {
-    // Network error (no response, CORS, timeout, etc.)
-    return {
-      type: 'network',
-      shouldRetry: true,
-      shouldRedirectToLogin: false,
-      userMessage: 'Network error. Please check your connection and try again.',
-      technicalMessage: `Network error in ${context}: ${message}`,
-      statusCode: undefined
-    }
-  }
-
-  if (statusCode >= 500) {
-    // Server error (500, 502, 503, etc.)
-    return {
-      type: 'server',
-      shouldRetry: true,
-      shouldRedirectToLogin: false,
-      userMessage: 'Server error. Please try again later.',
-      technicalMessage: `Server error in ${context}: ${message}`,
-      statusCode
-    }
-  }
-
-  if (statusCode >= 400 && statusCode < 500) {
-    // Client error (400, 404, 422, etc.) - but not auth
-    return {
-      type: 'client',
-      shouldRetry: false,
-      shouldRedirectToLogin: false,
-      userMessage: 'Request failed. Please check your input.',
-      technicalMessage: `Client error in ${context}: ${message}`,
-      statusCode
-    }
-  }
-
-  // Unknown error
   return {
-    type: 'unknown',
-    shouldRetry: false,
-    shouldRedirectToLogin: false,
-    userMessage: 'An unexpected error occurred.',
-    technicalMessage: `Unknown error in ${context}: ${message}`,
-    statusCode
+    type: category.type,
+    shouldRetry: category.shouldRetry,
+    shouldRedirectToLogin: category.shouldRedirectToLogin,
+    userMessage: category.userMessage,
+    technicalMessage: `${category.prefix} in ${context}: ${message}`,
+    statusCode: category.type === 'network' ? undefined : statusCode
   }
 }
 

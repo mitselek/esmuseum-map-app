@@ -43,7 +43,7 @@
       <div
         v-if="
           isTransitioning
-            || (mapInitializationPhase === 'all-locations' && props.userPosition)
+            || (mapInitializationPhase === PHASE_ALL_LOCATIONS && props.userPosition)
         "
         class="absolute inset-0 z-50 flex items-center justify-center bg-esm-beige/90 transition-opacity duration-500"
       >
@@ -171,6 +171,9 @@ interface UserPosition {
 
 // Map initialization phase
 type MapPhase = 'waiting' | 'all-locations' | 'gps-focused'
+const PHASE_WAITING: MapPhase = 'waiting'
+const PHASE_ALL_LOCATIONS: MapPhase = 'all-locations'
+const PHASE_GPS_FOCUSED: MapPhase = 'gps-focused'
 
 // Vue Leaflet component refs
 interface MapRef {
@@ -248,7 +251,7 @@ const zoom = ref<number>(13)
 const center = ref<[number, number]>([59.437, 24.7536]) // Default to Tallinn
 
 // Map initialization phase
-const mapInitializationPhase = ref<MapPhase>('waiting')
+const mapInitializationPhase = ref<MapPhase>(PHASE_WAITING)
 const isTransitioning = ref<boolean>(false)
 
 // Check if locations are ready for map display
@@ -260,11 +263,11 @@ const locationsReady = computed(() => {
 const loadingMessage = computed(() => {
   if (props.loading) return 'Laadime ülesandeid...'
   if (!locationsReady.value) return 'Otsime asukohti...'
-  if (mapInitializationPhase.value === 'waiting')
+  if (mapInitializationPhase.value === PHASE_WAITING)
     return 'Valmistame kaarti ette...'
-  if (mapInitializationPhase.value === 'all-locations' && !props.userPosition)
+  if (mapInitializationPhase.value === PHASE_ALL_LOCATIONS && !props.userPosition)
     return 'Küsime GPS lubasi...'
-  if (mapInitializationPhase.value === 'all-locations' && props.userPosition)
+  if (mapInitializationPhase.value === PHASE_ALL_LOCATIONS && props.userPosition)
     return 'Keskendume teie asukohale...'
   return 'Viimistleme vaadet...'
 })
@@ -332,34 +335,28 @@ const convertMarkdownLinksToHtml = (text: string): string => {
   })
 }
 
+// Custom icon builder
+const createMarkerIcon = (
+  bg: string, emoji: string, size: number, fontSize: number,
+  border: string, shadow: string, className: string, extra = ''
+): Icon => {
+  const half = size / 2
+  return L.divIcon({
+    html: `<div style="background: ${bg}; color: white; border-radius: 50%; width: ${size}px; height: ${size}px; display: flex; align-items: center; justify-content: center; font-size: ${fontSize}px; border: ${border}; box-shadow: ${shadow};${extra}">${emoji}</div>`,
+    className,
+    iconSize: [size, size],
+    iconAnchor: [half, half]
+  }) as Icon
+}
+
+const SHADOW_SM = '0 2px 4px rgba(0,0,0,0.3)'
+const SHADOW_MD = '0 4px 8px rgba(0,0,0,0.4)'
+
 // Custom icons
-const userIcon: Icon = L.divIcon({
-  html: '<div style="background: #3b82f6; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">📍</div>',
-  className: 'custom-user-icon',
-  iconSize: [20, 20],
-  iconAnchor: [10, 10]
-}) as Icon
-
-const locationIcon: Icon = L.divIcon({
-  html: '<div style="background: #ef4444; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">📍</div>',
-  className: 'custom-location-icon',
-  iconSize: [16, 16],
-  iconAnchor: [8, 8]
-}) as Icon
-
-const visitedLocationIcon: Icon = L.divIcon({
-  html: '<div style="background: #22c55e; color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">✓</div>',
-  className: 'custom-visited-icon',
-  iconSize: [16, 16],
-  iconAnchor: [8, 8]
-}) as Icon
-
-const selectedLocationIcon: Icon = L.divIcon({
-  html: '<div style="background: #3b82f6; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 3px solid #1d4ed8; box-shadow: 0 4px 8px rgba(0,0,0,0.4); animation: pulse 2s infinite;">📍</div>',
-  className: 'custom-selected-icon',
-  iconSize: [20, 20],
-  iconAnchor: [10, 10]
-}) as Icon
+const userIcon = createMarkerIcon('#3b82f6', '📍', 20, 12, '2px solid white', SHADOW_SM, 'custom-user-icon')
+const locationIcon = createMarkerIcon('#ef4444', '📍', 16, 10, '2px solid white', SHADOW_SM, 'custom-location-icon')
+const visitedLocationIcon = createMarkerIcon('#22c55e', '✓', 16, 10, '2px solid white', SHADOW_SM, 'custom-visited-icon')
+const selectedLocationIcon = createMarkerIcon('#3b82f6', '📍', 20, 12, '3px solid #1d4ed8', SHADOW_MD, 'custom-selected-icon', ' animation: pulse 2s infinite;')
 
 // Check if a location has been visited
 const isLocationVisited = (location: TaskLocation): boolean => {
@@ -446,14 +443,14 @@ const calculateMapBounds = async (): Promise<void> => {
 
     // PHASE 1: Show all locations for overview
     if (
-      mapInitializationPhase.value === 'waiting'
+      mapInitializationPhase.value === PHASE_WAITING
       && props.locations?.length > 0
     ) {
       log.info('🗺️ [EVENT] InteractiveMap - PHASE 1: Showing all locations overview', {
         locationCount: props.locations.length
       })
 
-      mapInitializationPhase.value = 'all-locations'
+      mapInitializationPhase.value = PHASE_ALL_LOCATIONS
       await fitAllLocationsBounds()
 
       // After Phase 1, check if we can immediately proceed to Phase 2
@@ -467,7 +464,7 @@ const calculateMapBounds = async (): Promise<void> => {
     }
     // PHASE 2: GPS-focused view with user position + 5 closest unvisited
     else if (
-      mapInitializationPhase.value === 'all-locations'
+      mapInitializationPhase.value === PHASE_ALL_LOCATIONS
       && props.userPosition
     ) {
       log.info('🗺️ [EVENT] InteractiveMap - PHASE 2: GPS-focused view transition', {
@@ -477,7 +474,7 @@ const calculateMapBounds = async (): Promise<void> => {
         mapPhase: mapInitializationPhase.value
       })
 
-      mapInitializationPhase.value = 'gps-focused'
+      mapInitializationPhase.value = PHASE_GPS_FOCUSED
       await fitGpsFocusedBounds()
     }
     else {
@@ -733,7 +730,7 @@ const onMapReady = async (): Promise<void> => {
     // If locations are already loaded, start the initialization immediately
     if (
       props.locations?.length > 0
-      && mapInitializationPhase.value === 'waiting'
+      && mapInitializationPhase.value === PHASE_WAITING
     ) {
       log.info('🗺️ [EVENT] InteractiveMap - Map ready with locations, starting initialization')
       await nextTick()
@@ -752,7 +749,7 @@ watch(
   async (newLocations) => {
     if (
       newLocations?.length > 0
-      && mapInitializationPhase.value === 'waiting'
+      && mapInitializationPhase.value === PHASE_WAITING
       && map.value?.leafletObject
     ) {
       log.info('🗺️ [EVENT] InteractiveMap - Locations ready with map ready, triggering Phase 1')
@@ -761,7 +758,7 @@ watch(
     }
     else if (
       newLocations?.length > 0
-      && mapInitializationPhase.value === 'waiting'
+      && mapInitializationPhase.value === PHASE_WAITING
     ) {
       log.debug('🗺️ [EVENT] InteractiveMap - Locations ready but map not ready yet, waiting...')
     }
@@ -773,7 +770,7 @@ watch(
 watch(
   () => props.userPosition,
   async (newUserPosition) => {
-    if (newUserPosition && mapInitializationPhase.value === 'all-locations') {
+    if (newUserPosition && mapInitializationPhase.value === PHASE_ALL_LOCATIONS) {
       log.info('🗺️ [EVENT] InteractiveMap - User position available, triggering Phase 2 transition')
       isTransitioning.value = true
       await nextTick()

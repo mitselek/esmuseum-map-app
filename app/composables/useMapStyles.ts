@@ -11,13 +11,18 @@ export interface MapStyle {
   attribution: string
 }
 
+// Shared attribution strings
+const ATTR_OSM = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+const ATTR_STADIA = '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://stamen.com">Stamen Design</a>'
+const ATTR_CARTO = '&copy; <a href="https://carto.com/">CARTO</a>'
+
 export const MAP_STYLES: Record<string, MapStyle> = {
   default: {
     id: 'default',
     name: 'OpenStreetMap',
     description: 'Standard street map',
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    attribution: ATTR_OSM
   },
 
   vintage: {
@@ -25,7 +30,7 @@ export const MAP_STYLES: Record<string, MapStyle> = {
     name: 'Stamen Watercolor',
     description: 'Artistic vintage watercolor style',
     url: 'https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg',
-    attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://stamen.com">Stamen Design</a>'
+    attribution: ATTR_STADIA
   },
 
   toner: {
@@ -33,7 +38,7 @@ export const MAP_STYLES: Record<string, MapStyle> = {
     name: 'Stamen Toner',
     description: 'Black & white vintage print style',
     url: 'https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://stamen.com">Stamen Design</a>'
+    attribution: ATTR_STADIA
   },
 
   tonerLite: {
@@ -41,7 +46,7 @@ export const MAP_STYLES: Record<string, MapStyle> = {
     name: 'Stamen Toner Lite',
     description: 'Light black & white style',
     url: 'https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://stamen.com">Stamen Design</a>'
+    attribution: ATTR_STADIA
   },
 
   terrain: {
@@ -49,7 +54,7 @@ export const MAP_STYLES: Record<string, MapStyle> = {
     name: 'Stamen Terrain',
     description: 'Terrain with natural colors',
     url: 'https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://stamen.com">Stamen Design</a>'
+    attribution: ATTR_STADIA
   },
 
   topo: {
@@ -65,7 +70,7 @@ export const MAP_STYLES: Record<string, MapStyle> = {
     name: 'CartoDB Positron',
     description: 'Minimal light style',
     url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+    attribution: ATTR_CARTO
   },
 
   darkMatter: {
@@ -73,7 +78,7 @@ export const MAP_STYLES: Record<string, MapStyle> = {
     name: 'CartoDB Dark Matter',
     description: 'Dark theme',
     url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+    attribution: ATTR_CARTO
   },
 
   voyager: {
@@ -81,7 +86,7 @@ export const MAP_STYLES: Record<string, MapStyle> = {
     name: 'CartoDB Voyager',
     description: 'Colorful modern style',
     url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+    attribution: ATTR_CARTO
   }
 }
 
