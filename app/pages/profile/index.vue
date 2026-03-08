@@ -5,6 +5,11 @@
 
     <div class="flex items-center justify-center px-4 py-12">
       <div class="w-full max-w-md space-y-8">
+        <!-- Museum Logo -->
+        <div class="mb-6 flex justify-center">
+          <AppLogo />
+        </div>
+
         <!-- Header -->
         <div class="text-center">
           <h1 class="text-3xl font-extrabold text-esm-dark">

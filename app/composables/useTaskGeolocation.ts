@@ -3,7 +3,7 @@
  * Simplified to use centralized GPS service for location sorting
  */
 
-import type { TaskLocation } from '~/types/location'
+import type { TaskLocation } from '~~/types/location'
 
 // ============================================================================
 // Types & Interfaces
@@ -45,7 +45,7 @@ export interface UseTaskGeolocationReturn {
   userLocation: ComputedRef<UserPosition | null>
 
   // Methods
-  onRequestLocation: (taskLocations: Ref<TaskLocation[]>) => Promise<void>
+  onRequestLocation: (taskLocations: Ref<TaskLocation[]>) => void
   setFormLocation: (responseFormRef: Ref<ResponseFormRef | null>, coordinates: CoordinatesInput) => void
   watchPosition: (
     userPosition: ComputedRef<UserPosition | null>,

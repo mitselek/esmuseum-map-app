@@ -6,7 +6,7 @@
 export default defineNuxtPlugin(async () => {
   // Import the auth composable
   const { refreshToken, isAuthenticated } = useEntuAuth()
-  const log = useClientLogger('auth-init') // eslint-disable-line no-undef -- Nuxt auto-import not available in .js files
+  const log = useClientLogger('auth-init')
 
   // Initialize auth state on client-side startup
   try {

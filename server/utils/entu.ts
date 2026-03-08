@@ -177,7 +177,8 @@ export async function updateEntuEntity (entityId: string, entityData: Record<str
  */
 export async function searchEntuEntities (query: Record<string, string | number | boolean | undefined>, apiConfig: EntuApiOptions) {
   const queryString = Object.entries(query)
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    .filter(([, value]) => value !== undefined)
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value!)}`)
     .join('&')
 
   return await callEntuApi(`/entity?${queryString}`, {}, apiConfig)

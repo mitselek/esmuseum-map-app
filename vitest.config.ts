@@ -8,6 +8,11 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     setupFiles: ['./tests/setup-globals.ts', './tests/setup.ts'],
+    server: {
+      deps: {
+        inline: [/\.vue$/]
+      }
+    },
     env: {
       // Override environment for tests
       NUXT_ENTU_URL: 'http://localhost:3001',

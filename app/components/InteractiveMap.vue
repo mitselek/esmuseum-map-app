@@ -96,7 +96,7 @@
         <!-- Task location markers -->
         <LMarker
           v-for="location in displayedLocations"
-          :key="location._id || location.id"
+          :key="location._id"
           :ref="(el) => setMarkerRef(el, location)"
           :lat-lng="[location.coordinates.lat, location.coordinates.lng]"
           :icon="getLocationIcon(location)"
@@ -152,6 +152,7 @@ import type { Map as LeafletMap, LatLngExpression, Icon } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { isSameLocation } from '~/utils/location-sync'
 import { useMapFullscreen } from '~/composables/useMapFullscreen'
+import type { TaskLocation } from '~~/types/location'
 
 const log = useClientLogger('InteractiveMap')
 
@@ -285,7 +286,6 @@ const setMarkerRef = (
   if (el && typeof el === 'object' && 'leafletObject' in el) {
     const locationKey
       = location._id
-        || location.id
         || `${location.coordinates.lat}-${location.coordinates.lng}`
     markerRefs.value.set(locationKey, el as unknown as MarkerRef)
   }
@@ -616,7 +616,7 @@ const openInExternalMaps = (location: TaskLocation): void => {
 
 // Location click handler
 const onLocationClick = (location: TaskLocation): void => {
-  log.info('[InteractiveMap] Location clicked:', location.nimi || location.name || 'unnamed')
+  log.info('[InteractiveMap] Location clicked:', location.name || 'unnamed')
   // The popup will open automatically due to the click event
   // We'll emit this to parent for synchronization
   emit('location-click', location)
@@ -628,7 +628,6 @@ const openLocationPopup = (location: TaskLocation | null): void => {
 
   const locationKey
     = location._id
-      || location.id
       || `${location.coordinates?.lat}-${location.coordinates?.lng}`
   const markerRef = markerRefs.value.get(locationKey)
 
@@ -651,7 +650,7 @@ watch(
   () => props.selectedLocation,
   (newLocation, oldLocation) => {
     if (newLocation && !isSameLocation(newLocation, oldLocation || {})) {
-      log.info('[InteractiveMap] Selected location changed, opening popup:', newLocation.nimi || newLocation.name || 'unnamed')
+      log.info('[InteractiveMap] Selected location changed, opening popup:', newLocation.name || 'unnamed')
       nextTick(() => {
         openLocationPopup(newLocation)
       })

@@ -3,8 +3,11 @@
  * Handles GPS location requests with caching, deduplication, and automatic updates
  */
 
+import type { EntuLocation } from '../../types/entu'
+import type { NormalizedLocation } from '../../types/location'
 import { ENTU_TYPES, ENTU_PROPERTIES } from '../constants/entu'
 import { getCurrentPosition, sortLocationsByDistance } from '../utils/distance'
+import { normalizeLocations } from '../utils/location-transform'
 
 // ============================================================================
 // TypeScript Interfaces
@@ -123,10 +126,10 @@ interface UseLocationReturn {
   dismissGPSPrompt: () => void
 
   // Location data methods
-  loadMapLocations: (mapId: string) => Promise<LocationEntity[]>
-  loadTaskLocations: (task: TaskWithMap) => Promise<LocationEntity[]>
-  sortByDistance: (locations: LocationEntity[], position?: UserPosition | null) => LocationEntity[] | LocationWithDistance[]
-  getSortedLocations: (locations: LocationEntity[]) => ComputedRef<LocationEntity[] | LocationWithDistance[]>
+  loadMapLocations: (mapId: string) => Promise<NormalizedLocation[]>
+  loadTaskLocations: (task: TaskWithMap) => Promise<NormalizedLocation[]>
+  sortByDistance: (locations: NormalizedLocation[] | LocationEntity[], position?: UserPosition | null) => NormalizedLocation[] | LocationEntity[] | LocationWithDistance[]
+  getSortedLocations: (locations: NormalizedLocation[] | LocationEntity[]) => ComputedRef<NormalizedLocation[] | LocationEntity[] | LocationWithDistance[]>
   formatCoordinates: (coordinates: string | NormalizedCoordinates | null) => string
   getLocationCoordinates: (location: LocationEntity) => string
   getLocationName: (location: LocationEntity) => string
@@ -543,7 +546,7 @@ export const useLocation = (): UseLocationReturn => {
   }
 
   // Load locations for a specific map
-  const loadMapLocations = async (mapId: string): Promise<LocationEntity[]> => {
+  const loadMapLocations = async (mapId: string): Promise<NormalizedLocation[]> => {
     if (!mapId) {
       throw new Error('Map ID is required')
     }
@@ -564,22 +567,10 @@ export const useLocation = (): UseLocationReturn => {
         props: `${ENTU_PROPERTIES.NAME_STRING},${ENTU_PROPERTIES.LAT_NUMBER},${ENTU_PROPERTIES.LONG_NUMBER},${ENTU_PROPERTIES.KIRJELDUS_STRING}`
       })
 
-      const rawLocations = (searchResult?.entities || []) as LocationEntity[]
+      const rawLocations = (searchResult?.entities || []) as EntuLocation[]
 
-      // Normalize coordinates at API boundary - convert from Entu's nested format to simple {lat, lng}
-      const locations = rawLocations.map((location) => {
-        const normalizedLocation: LocationEntity = { ...location }
-
-        // Extract coordinates from Entu's nested format and create normalized coordinates
-        if (location.lat?.[0]?.number != null && location.long?.[0]?.number != null) {
-          normalizedLocation.coordinates = {
-            lat: location.lat[0].number,
-            lng: location.long[0].number
-          }
-        }
-
-        return normalizedLocation
-      })
+      // Normalize at API boundary using shared transform utility
+      const locations = normalizeLocations(rawLocations)
 
       log.info(`[CLIENT] Loaded ${locations.length} locations for map ${mapId}`, {
         requestedLimit: 10000,
@@ -598,7 +589,7 @@ export const useLocation = (): UseLocationReturn => {
   }
 
   // Load task's map and its locations
-  const loadTaskLocations = async (task: TaskWithMap): Promise<LocationEntity[]> => {
+  const loadTaskLocations = async (task: TaskWithMap): Promise<NormalizedLocation[]> => {
     if (!task) {
       throw new Error('Task is required')
     }
@@ -635,7 +626,7 @@ export const useLocation = (): UseLocationReturn => {
   }
 
   // Sort locations by distance from user
-  const sortByDistance = (locations: LocationEntity[], position: UserPosition | null = null): LocationEntity[] | LocationWithDistance[] => {
+  const sortByDistance = (locations: NormalizedLocation[] | LocationEntity[], position: UserPosition | null = null): NormalizedLocation[] | LocationEntity[] | LocationWithDistance[] => {
     const pos = position || userPosition.value
 
     // Note: Using 'as any' at JS boundary - sortLocationsByDistance is from utils/distance.js
@@ -645,12 +636,12 @@ export const useLocation = (): UseLocationReturn => {
     if (!pos) {
       return locations // Return unsorted if no GPS position
     }
-    const result = sortLocationsByDistance(locations, pos) as LocationEntity[] | LocationWithDistance[]
+    const result = sortLocationsByDistance(locations, pos) as NormalizedLocation[] | LocationEntity[] | LocationWithDistance[]
     return result
   }
 
   // Get sorted locations with distance info
-  const getSortedLocations = (locations: LocationEntity[]): ComputedRef<LocationEntity[] | LocationWithDistance[]> => {
+  const getSortedLocations = (locations: NormalizedLocation[] | LocationEntity[]): ComputedRef<NormalizedLocation[] | LocationEntity[] | LocationWithDistance[]> => {
     return computed(() => {
       return sortByDistance(locations, userPosition.value)
     })

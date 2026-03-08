@@ -2,6 +2,11 @@
   <div class="flex min-h-screen items-center justify-center bg-esm-beige px-4 py-12 sm:px-6 lg:px-8">
     <div class="w-full max-w-md space-y-8">
       <!-- Header with Language Selector -->
+      <!-- Museum Logo -->
+      <div class="flex justify-center">
+        <AppLogo />
+      </div>
+
       <div class="text-center">
         <!-- Language Selector -->
         <div class="mb-4 flex justify-end space-x-2">

@@ -36,6 +36,13 @@ async function processTaskWebhook (entityId: string, userToken?: string, userId?
   logger.info('Processing task webhook', { entityId }) // Fetch full entity details
   const entity = await getEntityDetails(entityId, userToken, userId, userEmail)
 
+  if (!entity) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: `Task entity not found: ${entityId}`
+    })
+  }
+
   // Extract group from task's grupp property
   const groupId = extractGroupFromTask(entity)
 

@@ -2,12 +2,6 @@
 const { isAuthenticated, error, user, logout } = useEntuAuth()
 const { startOAuthFlow } = useEntuOAuth()
 const router = useRouter()
-const { locale } = useI18n()
-
-// Locale-aware museum logo (SVG)
-const localeLogo = computed(() => {
-  return locale.value === 'et' ? '/esm-logo-et.svg' : '/esm-logo-en.svg'
-})
 
 // Check if we have a redirect URL stored
 const redirectPath = ref(null)
@@ -74,11 +68,7 @@ const loginWithOAuth = async (providerId) => {
       <div class="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
         <!-- Museum Logo -->
         <div class="mb-6 flex justify-center">
-          <img
-            :src="localeLogo"
-            :alt="$t('title')"
-            class="h-20 w-auto"
-          >
+          <AppLogo />
         </div>
 
         <div

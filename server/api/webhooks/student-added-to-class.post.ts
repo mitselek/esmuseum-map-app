@@ -37,6 +37,13 @@ async function processStudentWebhook (entityId: string, userToken?: string, user
   logger.info('Processing student webhook', { entityId }) // Fetch full entity details
   const entity = await getEntityDetails(entityId, userToken, userId, userEmail)
 
+  if (!entity) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: `Person entity not found: ${entityId}`
+    })
+  }
+
   // Extract groups from person's _parent references
   const groupIds = extractGroupsFromPerson(entity)
 

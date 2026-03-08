@@ -69,7 +69,7 @@ export interface UseEntuAuthReturn {
   isLoading: Readonly<Ref<boolean>>
   error: Readonly<Ref<string | null>>
   getToken: (oauthToken?: string | null) => Promise<EntuAuthResponse>
-  refreshToken: (forceRefresh?: boolean) => Promise<string | null>
+  refreshToken: (forceRefresh?: boolean) => string | null
   refreshUserData: () => Promise<void>
   logout: () => void
 }

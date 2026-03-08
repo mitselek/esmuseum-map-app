@@ -41,15 +41,15 @@ You own this file — only you write to it. Keep it under 100 lines; prune stale
 
 Use tags (date every entry):
 
-| Tag | Purpose |
-|-----|---------|
-| `[DECISION]` | Settled choices and rationale |
-| `[PATTERN]` | Discovered approaches that work |
-| `[WIP]` | In-progress state (resume points) |
-| `[CHECKPOINT]` | Periodic progress snapshots |
-| `[GOTCHA]` | Important pitfalls or surprises |
-| `[LEARNED]` | Key discoveries worth remembering |
-| `[DEFERRED]` | Items pending a decision, with reason |
+| Tag            | Purpose                               |
+| -------------- | ------------------------------------- |
+| `[DECISION]`   | Settled choices and rationale         |
+| `[PATTERN]`    | Discovered approaches that work       |
+| `[WIP]`        | In-progress state (resume points)     |
+| `[CHECKPOINT]` | Periodic progress snapshots           |
+| `[GOTCHA]`     | Important pitfalls or surprises       |
+| `[LEARNED]`    | Key discoveries worth remembering     |
+| `[DEFERRED]`   | Items pending a decision, with reason |
 
 ### When to Save
 
@@ -60,6 +60,7 @@ Use tags (date every entry):
 ### What to Save
 
 Only persist knowledge that:
+
 - Is non-obvious from reading the code
 - Is stable (won't change next commit)
 - Cost real tokens to discover
@@ -98,6 +99,7 @@ The team shares one git working directory. To prevent conflicts:
 ## Code Review Protocol (Marcus)
 
 Marcus reviews all changes before they are considered done:
+
 - **RED** — blockers, cannot merge
 - **YELLOW** — minor issues, approve with notes
 - **GREEN** — clean, ready

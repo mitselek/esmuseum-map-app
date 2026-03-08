@@ -75,7 +75,7 @@
 
 <script setup lang="ts">
 import type { EntuTask } from '../../types/entu'
-import type { TaskLocation } from '~/types/location'
+import type { TaskLocation } from '~~/types/location'
 import { roundCoordinates } from '~/utils/distance'
 
 // Types
@@ -170,8 +170,8 @@ const canSubmit = computed(() => {
 // Debug: Watch selectedLocation changes
 watch(() => props.selectedLocation, (newLocation, oldLocation) => {
   log.debug('[TaskResponseForm] selectedLocation changed:', {
-    from: oldLocation?.nimi || oldLocation?.name || 'null',
-    to: newLocation?.nimi || newLocation?.name || 'null'
+    from: oldLocation?.name || 'null',
+    to: newLocation?.name || 'null'
   })
 }, { deep: true })
 

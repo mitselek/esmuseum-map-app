@@ -14,10 +14,10 @@
             {{ getLocationName(selectedLocation) }}
           </p>
           <p
-            v-if="selectedLocation.distanceText"
+            v-if="formatDistance(selectedLocation.distance)"
             class="text-xs text-green-600"
           >
-            📍 {{ selectedLocation.distanceText }}
+            📍 {{ formatDistance(selectedLocation.distance) }}
           </p>
         </div>
         <button
@@ -92,7 +92,7 @@
       <div class="space-y-1">
         <button
           v-for="location in filteredLocations"
-          :key="location._id || location.id"
+          :key="location._id"
           type="button"
           :class="[
             'flex w-full items-center justify-between rounded-lg border p-3 text-left transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1',
@@ -115,11 +115,11 @@
           </div>
           <div class="ml-3 flex items-center text-right">
             <div
-              v-if="location.distanceText"
+              v-if="formatDistance(location.distance)"
               class="mr-2"
             >
               <span class="text-xs text-gray-500">
-                {{ location.distanceText }}
+                {{ formatDistance(location.distance) }}
               </span>
             </div>
             <div
@@ -156,6 +156,7 @@
 
 <script setup lang="ts">
 import { isSameLocation } from '~/utils/location-sync'
+import type { TaskLocation } from '~~/types/location'
 
 const log = useClientLogger('LocationPicker')
 
@@ -243,7 +244,7 @@ const selectedLocation = computed<TaskLocation | null>(() => props.selected)
 watch(() => props.selected, (newSelected: TaskLocation | null | undefined, oldSelected: TaskLocation | null | undefined) => {
   const getDebugName = (loc: TaskLocation | null | undefined): string => {
     if (!loc) return 'null'
-    return (loc as Record<string, unknown>).nimi as string || (loc as Record<string, unknown>).name as string || 'null'
+    return loc.name || 'null'
   }
   log.debug('[LocationPicker] selected prop changed:', {
     from: getDebugName(oldSelected),
@@ -259,9 +260,8 @@ const isLocationSelected = (location: TaskLocation): boolean => {
 
 // Check if a location is visited
 const isLocationVisited = (location: TaskLocation): boolean => {
-  const locationRef = location._id || location.id
-  if (!locationRef || !props.visitedLocations) return false
-  return props.visitedLocations.has(locationRef)
+  if (!location._id || !props.visitedLocations) return false
+  return props.visitedLocations.has(location._id)
 }
 
 const sortedLocations = computed<TaskLocation[]>(() => sortedLocationsCache.value)
@@ -288,23 +288,18 @@ const clearSelection = (): void => {
   emit('select', null)
 }
 
+const formatDistance = (distance: number | undefined): string | null => {
+  if (distance == null) return null
+  if (distance < 1000) return `${Math.round(distance)} m`
+  return `${(distance / 1000).toFixed(1)} km`
+}
+
 const getLocationName = (location: TaskLocation): string => {
-  return (
-    location.name?.[0]?.string
-    || location.properties?.name?.[0]?.value
-    || location.properties?.nimi?.[0]?.value
-    || (typeof location.name === 'string' ? location.name : null)
-    || t('taskDetail.unnamedLocation')
-  )
+  return location.name || t('taskDetail.unnamedLocation')
 }
 
 const getLocationDescription = (location: TaskLocation): string | null => {
-  return (
-    location.properties?.description?.[0]?.value
-    || location.properties?.kirjeldus?.[0]?.value
-    || (typeof location.description === 'string' ? location.description : null)
-    || null
-  )
+  return location.description || null
 }
 
 // Auto-request GPS on component mount for automatic location sorting

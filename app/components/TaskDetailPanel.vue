@@ -74,6 +74,7 @@
 </template>
 
 <script setup lang="ts">
+import type { TaskLocation } from '~~/types/location'
 import { getLocationIdentifier } from '~/utils/location-sync'
 import { getTaskName } from '../../utils/entu-helpers'
 import { formatDate } from '../../utils/date-format'
@@ -100,7 +101,7 @@ const {
 } = useTaskGeolocation()
 
 // Use optimistic update composable
-const { refetchTask } = useOptimisticTaskUpdate(selectedTask)
+const { refetchTask } = useOptimisticTaskUpdate(computed(() => selectedTask.value ?? null))
 
 // Submission modal state
 const showSubmissionModal = ref(false)

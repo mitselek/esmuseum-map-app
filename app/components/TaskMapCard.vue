@@ -50,6 +50,8 @@
 </template>
 
 <script setup lang="ts">
+import type { TaskLocation } from '~~/types/location'
+
 // User position interface (must match InteractiveMap.vue exactly)
 interface UserPosition {
   lat: number

@@ -8,6 +8,7 @@
  */
 
 import type { EntuTask } from '../../types/entu'
+import type { NormalizedLocation } from '../../types/location'
 import { buildResponsesByTaskQuery } from '../../utils/entu-query-builders'
 import {
   getTaskName,
@@ -257,7 +258,7 @@ export const useTaskDetail = () => {
   const loadTaskLocations = async (
     task: EntuTask,
     userPosition: Coordinates | null
-  ): Promise<unknown[]> => {
+  ): Promise<NormalizedLocation[]> => {
     try {
       const { loadMapLocations, sortByDistance } = useLocation()
 
@@ -273,7 +274,7 @@ export const useTaskDetail = () => {
 
       // Sort by distance if we have user position
       // Note: Coordinates type is compatible with UserPosition (has required lat/lng)
-      const processedLocations = sortByDistance(locations, userPosition)
+      const processedLocations = sortByDistance(locations, userPosition) as NormalizedLocation[]
 
       return processedLocations
     }
