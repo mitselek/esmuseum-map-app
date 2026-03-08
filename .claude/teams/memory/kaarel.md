@@ -25,3 +25,15 @@ Files changed:
 - `server/api/webhooks/student-added-to-class.post.ts` — eslint-disable (rate limit + while-loop)
 - `server/api/webhooks/task-assigned-to-class.post.ts` — eslint-disable (while-loop)
 - `server/utils/entu-admin.ts` — eslint-disable / sync fix
+
+## [LEARNED] 2026-03-08 — types/ import alias
+
+`types/` directory is at project root, not under `app/`. Use `~~/types/location` (double tilde = project root), NOT `~/types/location` (single tilde = `app/`).
+
+## [CHECKPOINT] 2026-03-08 — Typecheck fix session
+
+Fixed TaskLocation imports + interface mismatch:
+
+- `app/components/InteractiveMap.vue` — added `import type { TaskLocation } from '~~/types/location'`
+- `app/components/LocationPicker.vue` — added same import
+- `app/composables/useTaskGeolocation.ts` — added same import + fixed `onRequestLocation` return type from `Promise<void>` to `void` in interface (line 48)

@@ -147,3 +147,42 @@ From grep search, logo (esm-logo) appears in:
 - **Auth-test page**: ✗ mention only in comment
 
 **Logos missing**: Signup, Profile, Main/Index pages
+
+---
+
+## Typecheck Research (2026-03-08)
+
+### Root Cause: `~/types/location` module resolution
+
+All 6 typecheck errors were `TS2307: Cannot find module '~/types/location'`. The `~` alias resolves to `app/` but `types/` is at project root. Fix: use `~~/types/location` (project root alias).
+
+### TaskLocation vs LocationEntity Type Mismatch
+
+- `TaskLocation` (in `types/location.ts`) = flat normalized format (`name: string`, `coordinates: {lat, lng}`)
+- `LocationEntity` (in `useLocation.ts:53`) = raw Entu format (`name: [{string: "..."}]`, `nimi`, `properties`)
+- `location-transform.ts` has `normalizeLocation()` function — NEVER IMPORTED/USED anywhere
+- Components typed as `TaskLocation` but actually receive `LocationEntity` at runtime
+- 6 different Entu property access patterns across components
+
+### nuxt-icons: Abandoned, Should Remove
+
+- `nuxt-icons@3.2.1` causes 2 TS2532 errors in typecheck
+- Maintainer says module is abandoned, recommends official `@nuxt/icon`
+- No `assets/icons/` dir exists, no `<nuxt-icon>` usage found — module appears unused
+- tsconfig.json has broken workaround (include override) that doesn't actually exclude it
+
+---
+
+## Codebase Quality Audit Summary (2026-03-08)
+
+[LEARNED] Key findings:
+
+- 15 `any` usages (all eslint-disabled with comments), 9 are `[key: string]: any` on Entu interfaces
+- `EntuEntityId` branded type defined but NEVER used at runtime in app/ code
+- 2 unused composables: `useFormPersistence`, `useResponsiveLayout`
+- `location-transform.ts` entire file is dead code
+- 73 bare console.log/warn/error calls that should use `useClientLogger`
+- 75% composables have NO tests (15/20 untested)
+- 3 import conventions mixed: `~/`, `~~/`, relative `../../`
+- `getLocationCoordinates` duplicated in 3 places
+- `getLocationName`/`getLocationDescription` duplicated in 2 places
