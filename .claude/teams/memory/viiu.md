@@ -12,10 +12,18 @@
 
 [LEARNED] `vi.stubGlobal('fetch', ...)` conflicts with MSW's fetch interceptor in tests. Don't mock global fetch if MSW setup is active — use mock response objects directly instead.
 
-[CHECKPOINT] Session work completed:
+[CHECKPOINT] Previous session work:
 
 - Issue #32: Migrated 7 console calls → useClientLogger in 6 component/page files
 - Issue #33: Deleted useFormPersistence.ts + useResponsiveLayout.ts, removed 3 deprecated wrappers from useTaskDetail.ts
 - Issue #34: Standardized 7 relative imports → ~~/  in 4 component files
 - Issue #35: Wrote 4 test files (useClientLogger 10, useNotifications 7, useClientSideFileUpload 18, useServerAuth 14 = 49 tests)
 - Fixed lint errors across kaarel's and tess's test files
+
+[CHECKPOINT] 2026-03-08 session:
+
+- Fixed i18n `allowedFiles` in all 4 locales — removed PDF/Word, now images-only (JPEG, PNG, GIF, WebP)
+- Wrote 6 component test files (123 new tests): TaskFileUpload, LocationPicker, TaskResponseForm, TaskDetailPanel, TaskMapCard, TaskSubmissionModal
+- Tests are logic-only (no DOM env) — project has no @vue/test-utils or happy-dom/jsdom
+
+[GOTCHA] 2026-03-08: No DOM testing environment available. vitest.config.ts uses `environment: 'node'`. Component tests must be logic-focused (extracted functions, prop interfaces, computed behavior). No mount/render possible without adding happy-dom + @vue/test-utils.
