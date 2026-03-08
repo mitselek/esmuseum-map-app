@@ -10,11 +10,6 @@
 import type { EntuTask } from '../../types/entu'
 import type { NormalizedLocation } from '../../types/location'
 import { buildResponsesByTaskQuery } from '../../utils/entu-query-builders'
-import {
-  getTaskName,
-  getTaskDescription as getTaskDescriptionHelper,
-  getTaskResponseCount
-} from '../../utils/entu-helpers'
 
 interface PermissionCheckResult {
   hasPermission: boolean
@@ -61,30 +56,6 @@ interface TaskInitResult {
 export const useTaskDetail = () => {
   const log = useClientLogger('useTaskDetail')
   const { t } = useI18n()
-
-  /**
-   * Get task title using entu-helpers
-   * @deprecated Use getTaskName from entu-helpers directly
-   */
-  const getTaskTitle = (task: EntuTask): string => {
-    return getTaskName(task) || t('taskDetail.noTitle', 'Untitled Task')
-  }
-
-  /**
-   * Get task description using entu-helpers
-   * @deprecated Use getTaskDescription from entu-helpers directly
-   */
-  const getTaskDescription = (task: EntuTask): string | null => {
-    return getTaskDescriptionHelper(task) || null
-  }
-
-  /**
-   * Get response count using entu-helpers
-   * @deprecated Use getTaskResponseCount from entu-helpers directly
-   */
-  const getResponseCount = (task: EntuTask): number => {
-    return getTaskResponseCount(task)
-  }
 
   /**
    * Check if user has permission to access a task
@@ -146,34 +117,6 @@ export const useTaskDetail = () => {
         error: error instanceof Error ? error.message : 'Unknown error'
       }
     }
-  }
-
-  /**
-   * Extract coordinates from location object
-   */
-  const getLocationCoordinates = (location: unknown): string | null => {
-    // Constitutional: Location data comes from various sources (localStorage, API, map clicks)
-    // We validate the structure we need at this boundary
-    // Principle I: Type Safety First - documented exception for flexible location data
-    if (
-      typeof location === 'object'
-      && location !== null
-      && 'coordinates' in location
-      && typeof location.coordinates === 'string'
-    ) {
-      return location.coordinates
-    }
-    if (
-      typeof location === 'object'
-      && location !== null
-      && 'lat' in location
-      && 'lng' in location
-      && typeof location.lat === 'number'
-      && typeof location.lng === 'number'
-    ) {
-      return `${location.lat},${location.lng}`
-    }
-    return null
   }
 
   /**
@@ -430,16 +373,10 @@ export const useTaskDetail = () => {
   }
 
   return {
-    // Task data helpers (use entu-helpers directly in new code)
-    getTaskTitle,
-    getTaskDescription,
-    getResponseCount,
-
     // Permission checking
     checkTaskPermissions,
 
     // Location utilities
-    getLocationCoordinates,
     parseCoordinates,
     getCurrentPosition,
     loadTaskLocations,

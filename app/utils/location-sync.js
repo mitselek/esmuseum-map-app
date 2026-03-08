@@ -62,18 +62,6 @@ export const isSameLocation = (location1, location2, tolerance = 0.00001) => {
 }
 
 /**
- * Find a location in an array that matches the given location
- * @param {Object} targetLocation - Location to find
- * @param {Array} locations - Array of locations to search
- * @returns {Object|null} - Matching location or null
- */
-export const findMatchingLocation = (targetLocation, locations) => {
-  if (!targetLocation || !Array.isArray(locations)) return null
-
-  return locations.find((location) => isSameLocation(targetLocation, location)) || null
-}
-
-/**
  * Get a location identifier for debugging/logging
  * @param {Object} location - Location object
  * @returns {string} - Human-readable location identifier
