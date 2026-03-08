@@ -57,7 +57,7 @@ describe('TaskSidebar Logic', () => {
         return title.includes(query.toLowerCase())
       })
       expect(filtered).toHaveLength(1)
-      expect(filtered[0]._id).toBe('1')
+      expect(filtered[0]!._id).toBe('1')
     })
 
     it('should filter by description', () => {
@@ -68,7 +68,7 @@ describe('TaskSidebar Logic', () => {
         return title.includes(query.toLowerCase()) || description.includes(query.toLowerCase())
       })
       expect(filtered).toHaveLength(1)
-      expect(filtered[0]._id).toBe('2')
+      expect(filtered[0]!._id).toBe('2')
     })
 
     it('should return empty array when no matches', () => {
@@ -160,8 +160,8 @@ describe('TaskSidebar Logic', () => {
         return aCompleted ? 1 : -1
       })
 
-      expect(sorted[0]._id).toBe('b')
-      expect(sorted[2]._id).toBe('a')
+      expect(sorted[0]!._id).toBe('b')
+      expect(sorted[2]!._id).toBe('a')
     })
 
     it('should preserve order among same-status tasks', () => {
@@ -184,8 +184,8 @@ describe('TaskSidebar Logic', () => {
       })
 
       // Same status, order preserved
-      expect(sorted[0]._id).toBe('a')
-      expect(sorted[1]._id).toBe('b')
+      expect(sorted[0]!._id).toBe('a')
+      expect(sorted[1]!._id).toBe('b')
     })
   })
 

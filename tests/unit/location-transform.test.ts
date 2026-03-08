@@ -45,7 +45,7 @@ describe('location-transform', () => {
       const entity = makeEntuLocation({
         lat: [],
         long: [{ number: 24.745 }]
-      } as Partial<EntuLocation>)
+      } as unknown as Partial<EntuLocation>)
       const coords = extractCoordinates(entity)
       expect(coords).toBeNull()
     })

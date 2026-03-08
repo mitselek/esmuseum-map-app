@@ -122,8 +122,8 @@ describe('TaskResponseForm Logic', () => {
 
       expect(requestData.taskId).toBe('task-123')
       expect(requestData.responses).toHaveLength(1)
-      expect(requestData.responses[0].value).toBe('My answer')
-      expect(requestData.responses[0].type).toBe('text')
+      expect(requestData.responses[0]!.value).toBe('My answer')
+      expect(requestData.responses[0]!.type).toBe('text')
     })
 
     it('should include location reference when location is selected', () => {

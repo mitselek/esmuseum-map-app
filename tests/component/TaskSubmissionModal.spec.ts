@@ -50,13 +50,13 @@ describe('TaskSubmissionModal Logic', () => {
 
     it('should not allow close on submitting state', () => {
       const status: ModalStatus = 'submitting'
-      const shouldClose = status === 'error'
+      const shouldClose = (status as ModalStatus) === 'error'
       expect(shouldClose).toBe(false)
     })
 
     it('should not allow close on success state', () => {
       const status: ModalStatus = 'success'
-      const shouldClose = status === 'error'
+      const shouldClose = (status as ModalStatus) === 'error'
       expect(shouldClose).toBe(false)
     })
   })

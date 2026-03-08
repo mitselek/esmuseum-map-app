@@ -167,7 +167,7 @@ describe('TaskDetailPanel Logic', () => {
     })
 
     it('should return null when task has no deadline', () => {
-      const task = { _id: 'task-1', tahtaeg: undefined }
+      const task: { _id: string, tahtaeg?: Array<{ datetime: string }> } = { _id: 'task-1', tahtaeg: undefined }
       const deadlineRaw = task.tahtaeg?.[0]?.datetime
       expect(deadlineRaw).toBeUndefined()
     })
@@ -187,7 +187,7 @@ describe('TaskDetailPanel Logic', () => {
     })
 
     it('should return null when no description', () => {
-      const task = { _id: 'task-1', kirjeldus: undefined }
+      const task: { _id: string, kirjeldus?: Array<{ string: string }> } = { _id: 'task-1', kirjeldus: undefined }
       const description = task.kirjeldus?.[0]?.string || null
       expect(description).toBeNull()
     })

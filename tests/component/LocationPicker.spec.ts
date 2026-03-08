@@ -165,7 +165,7 @@ describe('LocationPicker Logic', () => {
         return name.includes(query)
       })
       expect(filtered).toHaveLength(1)
-      expect(filtered[0]._id).toBe('1')
+      expect(filtered[0]!._id).toBe('1')
     })
 
     it('should filter by description match', () => {
@@ -175,7 +175,7 @@ describe('LocationPicker Logic', () => {
         return desc.includes(query)
       })
       expect(filtered).toHaveLength(1)
-      expect(filtered[0]._id).toBe('2')
+      expect(filtered[0]!._id).toBe('2')
     })
 
     it('should return all locations when query is empty', () => {
@@ -193,7 +193,7 @@ describe('LocationPicker Logic', () => {
         return name.includes(query.toLowerCase())
       })
       expect(filtered).toHaveLength(1)
-      expect(filtered[0]._id).toBe('3')
+      expect(filtered[0]!._id).toBe('3')
     })
   })
 
