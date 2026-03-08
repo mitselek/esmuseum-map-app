@@ -86,7 +86,7 @@ export default defineI18nConfig(() => ({
 
         yourResponse: 'Sinu vastus',
         addFile: 'Lisa fail (valikuline)',
-        allowedFiles: 'Lubatud: pildid, PDF, Word dokumendid',
+        allowedFiles: 'Lubatud: pildid (JPEG, PNG, GIF, WebP)',
         dragDropFiles: 'Lohista failid siia või klõpsa valimiseks',
         maxFileSize: 'Maksimaalne failisuurus: 10MB',
         clickToAddMore: 'Klõpsa veel failide lisamiseks',
@@ -258,7 +258,7 @@ export default defineI18nConfig(() => ({
 
         yourResponse: 'Your Response',
         addFile: 'Add file (optional)',
-        allowedFiles: 'Allowed: images, PDF, Word documents',
+        allowedFiles: 'Allowed: images (JPEG, PNG, GIF, WebP)',
         dragDropFiles: 'Drag & drop files here or click to select',
         maxFileSize: 'Maximum file size: 10MB',
         clickToAddMore: 'Click to add more files',
@@ -428,7 +428,7 @@ export default defineI18nConfig(() => ({
 
         yourResponse: 'Ваша відповідь',
         addFile: 'Додати файл (необов\'язково)',
-        allowedFiles: 'Дозволено: зображення, PDF, документи Word',
+        allowedFiles: 'Дозволено: зображення (JPEG, PNG, GIF, WebP)',
         dragDropFiles: 'Перетягніть файли сюди або клацніть для вибору',
         maxFileSize: 'Максимальний розмір файлу: 10МБ',
         clickToAddMore: 'Клацніть, щоб додати більше файлів',
@@ -598,7 +598,7 @@ export default defineI18nConfig(() => ({
 
         yourResponse: 'Jūsu atbilde',
         addFile: 'Pievienot failu (neobligāti)',
-        allowedFiles: 'Atļauti: attēli, PDF, Word dokumenti',
+        allowedFiles: 'Atļauti: attēli (JPEG, PNG, GIF, WebP)',
         dragDropFiles: 'Velciet failus šeit vai noklikšķiniet, lai izvēlētos',
         maxFileSize: 'Maksimālais faila izmērs: 10MB',
         clickToAddMore: 'Noklikšķiniet, lai pievienotu vēl failus',
