@@ -85,3 +85,9 @@ Use `Reflect.deleteProperty(obj, key)` instead of `delete obj[key]` in test mock
 - useCompletedTasks/useTaskScoring: 75% → extended (7 new tests)
 - distance.js: 40 regression tests (Infinity bug)
 - Total: 1006 tests pass, lint clean, pushed as `567a5d7`
+
+## [CHECKPOINT] 2026-03-08 — Post-#39 complexity refactor verification
+
+- 1006 tests pass (61 suites, 2 skipped)
+- Coverage stable: 74.88% stmts, 84.6% branches, 87.6% funcs, 74.88% lines
+- ESLint: 0 errors, 3 warnings (useEntuAuth complexity 24, task-assigned-to-class complexity 17+cognitive 16)

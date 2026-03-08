@@ -58,3 +58,17 @@ Solution: create a plain object stub instead of real DOM element. The `@vueuse/c
 ## [DECISION] 2026-03-08 — Null coordinates instead of (0,0) default
 
 `extractCoordinates()` returns `null` when Entu entity lacks lat/lng. `NormalizedLocation.coordinates` type is `Coordinates | null`. Downstream: no map marker, "Koordinaadid puuduvad" in LocationPicker, console.warn for admin visibility.
+
+## [CHECKPOINT] 2026-03-08 — Issue #39 complexity refactoring (DONE)
+
+4 complexity warnings fixed in 2 files:
+
+**useLocation.ts** (2 warnings → 0):
+- `getArrayReference()` — extracts ref from Entu array, used by `extractMapReference()`
+- `extractEntuNumber()` — extracts number from direct/nested Entu formats, used by `extractRawCoordinates()`
+- `extractMapReference()` uses `??` chain instead of if/else cascade
+- `getLocationCoordinates()` delegates to `extractRawCoordinates()`
+
+**useMapStyleScheduler.ts** (2 warnings → 0):
+- `getRuleEta()` — ETA lookup by rule ID from pre-computed dates map
+- `logAstronomicalContext()` — extracted sun/moon logging from `getRuleStatus()`

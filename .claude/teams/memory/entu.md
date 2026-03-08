@@ -44,6 +44,7 @@
 - **P4 webhook tests**: 22 tests for student-added + task-assigned webhooks
 - **Dependency cleanup**: pinned versions, `.npmrc`, moved orphaned types to devDeps
 - **Lint fixes**: 16 test file lint errors fixed
+- **#39**: Complexity refactoring — 5 server files + 1 bonus (7 warnings eliminated, lint errors 19→8)
 
 ### [PATTERN] Webhook handler testing (2026-03-08)
 

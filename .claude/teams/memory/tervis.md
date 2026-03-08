@@ -16,3 +16,7 @@ Key findings:
 - `readonly` global stub missing — recurring issue
 
 Report: `.claude/teams/memory/health-report.md`
+
+## [PATTERN] 2026-03-08 — Audit timing
+
+Enne auditit peab ülejäänud tiimile shutdown tegema, et scratchpad'id oleksid värskelt salvestatud ja audit kajastaks viimast seisu. Audit peaks olema viimane tegevus enne sessiooni lõppu.

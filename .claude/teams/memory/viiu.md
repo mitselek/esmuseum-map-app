@@ -29,3 +29,13 @@
 - Full suite: 891 passed, 3 skipped
 
 [GOTCHA] 2026-03-08: No DOM testing environment available. vitest.config.ts uses `environment: 'node'`. Component tests must be logic-focused (extracted functions, prop interfaces, computed behavior). No mount/render possible without adding happy-dom + @vue/test-utils.
+
+[CHECKPOINT] 2026-03-08 session (issue #39 complexity refactoring):
+
+- Reduced lint warnings from 20 to 3 (0 errors) across 12 files
+- Critical: useEntuAuth.ts (extracted 6 helpers from init+getToken), TaskResponseForm.vue (3 helpers from submitResponse), useClientSideFileUpload.ts (uploadSingleFile), useTaskResponseCreation.ts (toEntuProperty+buildResponseData)
+- Moderate: TaskSidebar.vue (removed duplicate watcher!), EventDebugPanel.vue (lookup objects), useEntuOAuth.ts (3 helpers), useTaskDetail.ts (findUserResponse+early returns)
+- Duplicate strings: InteractiveMap.vue (createMarkerIcon+phase constants), useMapStyles.ts (ATTR_ constants), useEntuOAuth.ts (CALLBACK_PATH), TaskFileUpload.vue (FILE_ACCEPT+EMIT_UPDATE_FILES)
+- Typecheck fix: `Set<string>` annotation needed when using `.has(key: string)` on a Set initialized with narrow literal values
+
+[GOTCHA] 2026-03-08: `new Set([CONST_A, CONST_B])` infers narrow literal union type. When calling `.has(key: string)`, TS errors. Fix: annotate as `Set<string>`.

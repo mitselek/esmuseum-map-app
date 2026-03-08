@@ -16,6 +16,7 @@
 [LEARNED] `counter` property type exists (auto-generated codes)
 [LEARNED] `_sharing` replaces old `_public` property
 [LEARNED] Passkey (WebAuthn) auth added recently
+[GOTCHA] Our code sets 12h token expiry but Entu docs say 48h
 [GOTCHA] Best practice says NOT to proxy file uploads — but we must due to CORS
 [GOTCHA] Property deletion is per-property-value \_id, NOT per property name
 [GOTCHA] No batch/bulk endpoint — but can bundle multiple properties in single POST
@@ -36,3 +37,8 @@
 [LEARNED] "Infinity km" bug: distance.js getLocationCoordinates() doesn't check location.coordinates format → null → Infinity
 [LEARNED] PDF upload bug: ALLOWED_MIME_TYPES is images-only, no application/pdf. Duplicate whitelist in composable + component.
 [LEARNED] "Open in Maps": InteractiveMap.vue:587, uses maps:// (iOS), geo: (Android), google.com/maps (desktop). iPad detection broken.
+
+## Epic #31 Final Audit (2026-03-08)
+
+[CHECKPOINT] Epic #31 audit: 1006 tests, 74.31% coverage (threshold 60%), 0 lint errors (34 warnings = complexity), typecheck clean. All 6 sub-issues (#32-#37) CLOSED. Only #39 (complexity) remains as new scope.
+[LEARNED] types/ files (location.ts, onboarding.ts, priority.ts, workspace.ts) show 0% coverage — expected, they're pure type definitions
