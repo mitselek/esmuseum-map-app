@@ -44,7 +44,16 @@
           class="flex items-center justify-between rounded bg-white p-3 shadow-sm"
         >
           <div class="flex items-center space-x-3">
-            <div class="text-lg">
+            <img
+              v-if="file.type.startsWith('image/')"
+              :src="getPreviewUrl(file)"
+              :alt="file.name"
+              class="size-16 rounded object-cover"
+            >
+            <div
+              v-else
+              class="text-lg"
+            >
               {{ getFileIcon(file.type) }}
             </div>
             <div class="text-left">
@@ -79,7 +88,7 @@
       ref="fileInput"
       type="file"
       multiple
-      accept="image/*"
+      accept="image/jpeg,image/png,image/gif,image/webp,.jpg,.jpeg,.png,.gif,.webp"
       class="hidden"
       @change="handleFileInput"
     >
@@ -118,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
 
 const log = useClientLogger('TaskFileUpload')
 
@@ -199,11 +208,20 @@ const addFiles = (newFiles: File[]) => {
 }
 
 const removeFile = (index: number) => {
+  const file = files.value[index]
+  if (file) {
+    const url = previewUrls.get(file)
+    if (url) {
+      URL.revokeObjectURL(url)
+      previewUrls.delete(file)
+    }
+  }
   files.value.splice(index, 1)
   emit('update:files', files.value)
 }
 
 const clearFiles = () => {
+  revokePreviewUrls()
   files.value = []
   uploadProgress.value = []
   error.value = ''
@@ -231,6 +249,25 @@ const handleDrop = (event: DragEvent) => {
   if (droppedFiles.length > 0) {
     addFiles(droppedFiles)
   }
+}
+
+// Image preview URLs (cached to avoid re-creation)
+const previewUrls = new Map<File, string>()
+
+const getPreviewUrl = (file: File): string => {
+  let url = previewUrls.get(file)
+  if (!url) {
+    url = URL.createObjectURL(file)
+    previewUrls.set(file, url)
+  }
+  return url
+}
+
+const revokePreviewUrls = () => {
+  for (const url of previewUrls.values()) {
+    URL.revokeObjectURL(url)
+  }
+  previewUrls.clear()
 }
 
 // Utility functions
@@ -309,6 +346,9 @@ const uploadFiles = async (parentEntityId: string): Promise<UploadResult[]> => {
     throw uploadError
   }
 }
+
+// Cleanup object URLs on unmount
+onUnmounted(revokePreviewUrls)
 
 // Expose methods to parent
 defineExpose({
