@@ -82,7 +82,6 @@ export default defineI18nConfig(() => ({
         responsesProgress: '{actual} / {expected} vastust',
         totalResponses: '{count} vastust kokku',
         geolocationError: 'Asukoha määramisel tekkis viga: {error}',
-        noTitle: 'Nimetu ülesanne',
         selectLocation: 'Vali asukoht ({count} saadaval)',
 
         yourResponse: 'Sinu vastus',
@@ -255,7 +254,6 @@ export default defineI18nConfig(() => ({
         responsesProgress: '{actual} / {expected} responses',
         totalResponses: '{count} total responses',
         geolocationError: 'Geolocation error: {error}',
-        noTitle: 'Untitled Task',
         selectLocation: 'Select location ({count} available)',
 
         yourResponse: 'Your Response',
@@ -426,7 +424,6 @@ export default defineI18nConfig(() => ({
         responsesProgress: '{actual} / {expected} відповідей',
         totalResponses: '{count} всього відповідей',
         geolocationError: 'Помилка геолокації: {error}',
-        noTitle: 'Завдання без назви',
         selectLocation: 'Виберіть місцезнаходження ({count} доступно)',
 
         yourResponse: 'Ваша відповідь',
@@ -597,7 +594,6 @@ export default defineI18nConfig(() => ({
         responsesProgress: '{actual} / {expected} atbildes',
         totalResponses: '{count} atbildes kopā',
         geolocationError: 'Ģeolokācijas kļūda: {error}',
-        noTitle: 'Uzdevums bez nosaukuma',
         selectLocation: 'Izvēlieties atrašanās vietu ({count} pieejamas)',
 
         yourResponse: 'Jūsu atbilde',

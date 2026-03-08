@@ -32,28 +32,6 @@ export interface CreateResponseRequest {
   respondentName?: string
 }
 
-export interface UpdateResponseRequest {
-  responses: Array<{
-    questionId: string
-    value: string
-    type: 'text' | 'location' | 'file'
-    metadata?: {
-      fileName?: string
-      fileSize?: number
-      locationId?: string // Add location reference
-      coordinates?: {
-        lat: number
-        lng: number
-      }
-    }
-  }>
-}
-
-export interface ApiResponse<T = unknown> {
-  success: true
-  data: T
-}
-
 export interface ApiError {
   success: false
   error: {
@@ -248,34 +226,6 @@ export function validateCreateResponseRequest (body: unknown): CreateResponseReq
   }
 
   return result
-}
-
-/**
- * Validate update response request body
- */
-export function validateUpdateResponseRequest (body: unknown): UpdateResponseRequest {
-  if (!body || typeof body !== 'object') {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Request body must be a JSON object'
-    })
-  }
-
-  const bodyObj = body as Record<string, unknown>
-  const responsesArray = validateRequiredArray(bodyObj.responses, 'responses')
-  const responses = responsesArray.map((item, index) => validateResponseItem(item, index))
-
-  return { responses }
-}
-
-/**
- * Create standardized success response
- */
-export function createSuccessResponse<T> (data: T): ApiResponse<T> {
-  return {
-    success: true,
-    data
-  }
 }
 
 /**

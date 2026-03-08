@@ -35,6 +35,9 @@ jobs:
       - name: Lint
         run: npm run lint -- --max-warnings 0
 
+      - name: Check translations
+        run: npm run analyze-translations:ci
+
       - name: Type-check
         run: npm run typecheck
 

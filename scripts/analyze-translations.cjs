@@ -297,6 +297,7 @@ function cleanupUnusedKeys (unusedKeys) {
 function main () {
   const isDryRun = process.argv.includes('--dry-run')
   const shouldCleanup = process.argv.includes('--cleanup')
+  const isStrict = process.argv.includes('--strict')
 
   console.log('🌍 Translation Analysis Tool\n')
 
@@ -316,6 +317,14 @@ function main () {
     if (missingKeys.size > 0) {
       console.log('\n❗ Some translation keys are used but not defined!')
       console.log('   Add these keys to your i18n.config.ts file.')
+    }
+
+    if (isStrict && (unusedKeys.size > 0 || missingKeys.size > 0)) {
+      const problems = []
+      if (unusedKeys.size > 0) problems.push(`${unusedKeys.size} unused`)
+      if (missingKeys.size > 0) problems.push(`${missingKeys.size} missing`)
+      console.error(`\n❌ Strict mode: ${problems.join(' and ')} translation keys found`)
+      process.exit(1)
     }
   }
   catch (error) {
