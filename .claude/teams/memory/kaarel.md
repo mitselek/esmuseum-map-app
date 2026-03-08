@@ -25,10 +25,12 @@ Kõik 12 `no-await-in-loop` hoiatust lahendatud. Commit `e73a1ae` tehtud, Marcus
 ## [CHECKPOINT] 2026-03-08 — Issue #32 + #35 session
 
 **Issue #32 — console→logger migration (DONE):**
+
 - `useMapStyles.ts` — 7 replacements, logger at module level as `useClientLogger('MapStyles')`
 - `useMapStyleScheduler.ts` — 9 replacements, logger as `useClientLogger('MapStyleScheduler')`
 
 **Issue #35 — composable tests (DONE):**
+
 - `tests/composables/useMapStyles.test.ts` — 14 tests
 - `tests/composables/useMapStyleScheduler.test.ts` — 12 tests (SunCalc mocked, fake timers)
 - `tests/composables/useMapFullscreen.test.ts` — 10 tests (mock HTMLElement stub for Node env)
@@ -39,6 +41,7 @@ Kõik 12 `no-await-in-loop` hoiatust lahendatud. Commit `e73a1ae` tehtud, Marcus
 ## [PATTERN] 2026-03-08 — Testing composables with singleton state
 
 `useLocation.ts` uses module-level refs (singleton). To reset between tests:
+
 - `vi.resetModules()` in `beforeEach` clears module cache
 - Must re-setup `globalThis` mocks after `resetModules` (they get cleared)
 - Dynamic `await import()` to re-import the composable fresh

@@ -18,5 +18,5 @@
 [LEARNED] Passkey (WebAuthn) auth added recently
 [GOTCHA] Our code sets 12h token expiry but Entu docs say 48h
 [GOTCHA] Best practice says NOT to proxy file uploads — but we must due to CORS
-[GOTCHA] Property deletion is per-property-value _id, NOT per property name
+[GOTCHA] Property deletion is per-property-value \_id, NOT per property name
 [GOTCHA] No batch/bulk endpoint — but can bundle multiple properties in single POST
