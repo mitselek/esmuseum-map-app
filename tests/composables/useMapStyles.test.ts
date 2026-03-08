@@ -47,7 +47,7 @@ describe('useMapStyles', () => {
       const { getStyles } = useMapStyles()
       const styles = getStyles()
       expect(styles).toHaveLength(Object.keys(MAP_STYLES).length)
-      expect(styles[0].id).toBe('default')
+      expect(styles[0]!.id).toBe('default')
     })
   })
 
@@ -68,20 +68,20 @@ describe('useMapStyles', () => {
   describe('getCurrentStyle', () => {
     it('should return default style initially', () => {
       const { getCurrentStyle } = useMapStyles()
-      expect(getCurrentStyle.value.id).toBe('default')
-      expect(getCurrentStyle.value.name).toBe('OpenStreetMap')
+      expect(getCurrentStyle.value!.id).toBe('default')
+      expect(getCurrentStyle.value!.name).toBe('OpenStreetMap')
     })
 
     it('should update when currentStyle changes', () => {
       const { currentStyle, getCurrentStyle } = useMapStyles()
       currentStyle.value = 'vintage'
-      expect(getCurrentStyle.value.id).toBe('vintage')
+      expect(getCurrentStyle.value!.id).toBe('vintage')
     })
 
     it('should fall back to default for invalid currentStyle', () => {
       const { currentStyle, getCurrentStyle } = useMapStyles()
       currentStyle.value = 'nonexistent'
-      expect(getCurrentStyle.value.id).toBe('default')
+      expect(getCurrentStyle.value!.id).toBe('default')
     })
   })
 

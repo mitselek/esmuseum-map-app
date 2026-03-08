@@ -226,8 +226,8 @@ describe('useMapStyleScheduler', () => {
       const { styleRules, applyScheduledStyle } = useMapStyleScheduler()
 
       // Make a rule throw
-      const originalCheck = styleRules[0].check
-      styleRules[0].check = () => {
+      const originalCheck = styleRules[0]!.check
+      styleRules[0]!.check = () => {
         throw new Error('test error')
       }
 
@@ -239,7 +239,7 @@ describe('useMapStyleScheduler', () => {
       )
 
       // Restore
-      styleRules[0].check = originalCheck
+      styleRules[0]!.check = originalCheck
     })
   })
 

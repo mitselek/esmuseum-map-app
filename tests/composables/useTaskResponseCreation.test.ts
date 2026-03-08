@@ -133,7 +133,7 @@ describe('useTaskResponseCreation', () => {
       expect(mockCreateEntity).toHaveBeenCalled()
 
       // Verify the properties passed to createEntity
-      const entityData = mockCreateEntity.mock.calls[0][0]
+      const entityData = mockCreateEntity.mock.calls[0]![0]
       expect(entityData).toEqual(expect.arrayContaining([
         expect.objectContaining({ type: '_type', reference: '686917401749f351b9c82f58' }),
         expect.objectContaining({ type: '_inheritrights', boolean: true }),
@@ -158,7 +158,7 @@ describe('useTaskResponseCreation', () => {
         }]
       })
 
-      const entityData = mockCreateEntity.mock.calls[0][0]
+      const entityData = mockCreateEntity.mock.calls[0]![0]
       expect(entityData).toEqual(expect.arrayContaining([
         expect.objectContaining({ type: 'seadme_gps', string: '59.437,24.745' })
       ]))
@@ -177,7 +177,7 @@ describe('useTaskResponseCreation', () => {
         }]
       })
 
-      const entityData = mockCreateEntity.mock.calls[0][0]
+      const entityData = mockCreateEntity.mock.calls[0]![0]
       expect(entityData).toEqual(expect.arrayContaining([
         expect.objectContaining({ type: 'valitud_asukoht', reference: 'location-abc' })
       ]))

@@ -277,7 +277,7 @@ describe('useTaskWorkspace', () => {
         expect.any(String)
       )
 
-      const stored = JSON.parse(mockLocalStorage.setItem.mock.calls[0][1])
+      const stored = JSON.parse(mockLocalStorage.setItem.mock.calls[0]![1])
       expect(stored['task-1']).toEqual(response)
     })
   })
