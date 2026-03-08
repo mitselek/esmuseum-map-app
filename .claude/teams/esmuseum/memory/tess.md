@@ -64,9 +64,9 @@ Wrote 95 new tests across 6 files:
 `vi.stubGlobal('fetch', mockFn)` does NOT work when MSW is active (setup.ts has `onUnhandledRequest: 'error'`).
 Must use `server.use(http.get(...))` for custom handlers, or use existing MSW mock tokens (`mockTokens.valid`).
 
-## [GOTCHA] 2026-03-08 — `readonly` not in global setup
+## ~~[GOTCHA] 2026-03-08 — `readonly` not in global setup~~ RESOLVED
 
-setup.ts stubs `ref`, `computed`, `watch` but NOT `readonly`. Composables using `readonly()` (useCompletedTasks, useTaskResponseCreation) need `vi.stubGlobal('readonly', readonly)` in test file AND after `vi.resetModules()`.
+`readonly` is now in setup-globals.ts globally. No manual stubbing needed.
 
 ## [PATTERN] 2026-03-08 — no-dynamic-delete lint rule
 

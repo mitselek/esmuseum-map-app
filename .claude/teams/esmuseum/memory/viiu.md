@@ -35,7 +35,7 @@
 - Reduced lint warnings from 20 to 3 (0 errors) across 12 files
 - Critical: useEntuAuth.ts (extracted 6 helpers from init+getToken), TaskResponseForm.vue (3 helpers from submitResponse), useClientSideFileUpload.ts (uploadSingleFile), useTaskResponseCreation.ts (toEntuProperty+buildResponseData)
 - Moderate: TaskSidebar.vue (removed duplicate watcher!), EventDebugPanel.vue (lookup objects), useEntuOAuth.ts (3 helpers), useTaskDetail.ts (findUserResponse+early returns)
-- Duplicate strings: InteractiveMap.vue (createMarkerIcon+phase constants), useMapStyles.ts (ATTR_ constants), useEntuOAuth.ts (CALLBACK_PATH), TaskFileUpload.vue (FILE_ACCEPT+EMIT_UPDATE_FILES)
+- Duplicate strings: InteractiveMap.vue (createMarkerIcon+phase constants), useMapStyles.ts (ATTR\_ constants), useEntuOAuth.ts (CALLBACK_PATH), TaskFileUpload.vue (FILE_ACCEPT+EMIT_UPDATE_FILES)
 - Typecheck fix: `Set<string>` annotation needed when using `.has(key: string)` on a Set initialized with narrow literal values
 
 [GOTCHA] 2026-03-08: `new Set([CONST_A, CONST_B])` infers narrow literal union type. When calling `.has(key: string)`, TS errors. Fix: annotate as `Set<string>`.

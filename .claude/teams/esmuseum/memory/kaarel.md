@@ -64,11 +64,13 @@ Solution: create a plain object stub instead of real DOM element. The `@vueuse/c
 4 complexity warnings fixed in 2 files:
 
 **useLocation.ts** (2 warnings → 0):
+
 - `getArrayReference()` — extracts ref from Entu array, used by `extractMapReference()`
 - `extractEntuNumber()` — extracts number from direct/nested Entu formats, used by `extractRawCoordinates()`
 - `extractMapReference()` uses `??` chain instead of if/else cascade
 - `getLocationCoordinates()` delegates to `extractRawCoordinates()`
 
 **useMapStyleScheduler.ts** (2 warnings → 0):
+
 - `getRuleEta()` — ETA lookup by rule ID from pre-computed dates map
 - `logAstronomicalContext()` — extracted sun/moon logging from `getRuleStatus()`

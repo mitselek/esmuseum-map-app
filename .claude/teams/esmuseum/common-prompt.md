@@ -3,7 +3,7 @@
 ## Team
 
 - **Team name:** `esmuseum`
-- **Members:** lead, viiu (frontend), entu (backend/API), kaarel (map/geo), tess (testing), marcus (code review), finn (research)
+- **Members:** lead, viiu (frontend), entu (backend/API), kaarel (map/geo), tess (testing), marcus (code review), finn (research), tervis (health audit)
 
 ## Communication Rule
 
@@ -28,7 +28,7 @@ When you need codebase context, existing patterns, or GitHub issue details — m
 
 ## On Startup
 
-1. Read `.claude/teams/memory/<your-name>.md` if it exists — your scratchpad from previous sessions
+1. Read `.claude/teams/esmuseum/memory/<your-name>.md` if it exists — your scratchpad from previous sessions
 2. Read shared knowledge files relevant to your role
 3. Send a brief intro message to `lead` saying you're ready
 
@@ -36,7 +36,7 @@ When you need codebase context, existing patterns, or GitHub issue details — m
 
 ### Personal Scratchpads
 
-Each teammate maintains a file at `.claude/teams/memory/<your-name>.md`.
+Each teammate maintains a file at `.claude/teams/esmuseum/memory/<your-name>.md`.
 You own this file — only you write to it. Keep it under 100 lines; prune stale entries.
 
 Use tags (date every entry):
@@ -76,16 +76,30 @@ Only persist knowledge that:
 
 - `~/` = `app/` directory (Nuxt standard)
 - `~~/` = project root — use for `types/`, root `utils/`
+  - Example: `import { NormalizedLocation } from '~~/types/location'`
+  - **`types/` is at project root** — always use `~~/types/`, never `~/types/`
 - In test files: use relative paths (`../../app/...`), not `~/` or `~~/`
 
 ## Testing Notes
 
 - Vitest env is `node` — no DOM, no `document`, no `window` (except stubs in setup-globals.ts)
-- Component tests are logic-only (no jsdom/happy-dom)
+- Component tests are logic-only — test exported functions/computed, not mount/render (no jsdom/happy-dom)
+- Use plain object stubs for DOM elements when needed
 - Singleton composables need `vi.resetModules()` in `beforeEach` to clear module cache
-- After `vi.resetModules()`: re-stub globalThis mocks (they get cleared)
+- After `vi.resetModules()`: re-stub globalThis mocks (they get cleared), including `readonly`
 - Use dynamic `await import()` to get fresh composable instance
-- Research reports: Finn stores detailed reports as `finn-<topic>.md` in the memory directory
+- Research reports: Finn delivers reports via SendMessage (session-scoped, not persisted)
+
+### Test file locations
+
+- `tests/unit/` — utils, helpers, pure functions
+- `tests/composables/` — composables (use*.ts)
+- `tests/api/` — server API endpoints
+- `tests/integration/` — cross-module flows
+
+## Documentation Maintenance
+
+When closing issues that change documented behavior, verify CLAUDE.md references are still accurate. Report stale entries to lead.
 
 ## Shutdown Protocol
 
@@ -99,8 +113,8 @@ Only persist knowledge that:
 
 ### Lead — after ALL teammates have shut down
 
-1. Export task list to `.claude/teams/memory/task-list-snapshot.md`
-2. Commit scratchpads: `git add .claude/teams/memory/ && git commit -F /tmp/commit-msg.txt`
+1. Export task list to `.claude/teams/esmuseum/memory/task-list-snapshot.md`
+2. Commit scratchpads: `git add .claude/teams/esmuseum/memory/ && git commit -F /tmp/commit-msg.txt`
 
 ## Shared Workspace Protocol
 

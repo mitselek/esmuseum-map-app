@@ -1,0 +1,61 @@
+{
+  "name": "esmuseum",
+  "description": "Estonian War Museum Map Application — maintenance and feature development team. Nuxt 3 SPA with Entu CMS, Leaflet maps, OAuth auth, webhooks.",
+  "commonPromptFile": "common-prompt.md",
+  "members": [
+    {
+      "name": "lead",
+      "agentType": "team-lead",
+      "model": "claude-opus-4-6"
+    },
+    {
+      "name": "viiu",
+      "agentType": "general-purpose",
+      "model": "claude-sonnet-4-6",
+      "color": "green",
+      "planModeRequired": false
+    },
+    {
+      "name": "entu",
+      "agentType": "general-purpose",
+      "model": "claude-sonnet-4-6",
+      "color": "yellow",
+      "planModeRequired": false
+    },
+    {
+      "name": "kaarel",
+      "agentType": "general-purpose",
+      "model": "claude-sonnet-4-6",
+      "color": "cyan",
+      "planModeRequired": false
+    },
+    {
+      "name": "tess",
+      "agentType": "general-purpose",
+      "model": "claude-sonnet-4-6",
+      "color": "purple",
+      "planModeRequired": false
+    },
+    {
+      "name": "marcus",
+      "agentType": "general-purpose",
+      "model": "claude-opus-4-6",
+      "color": "blue",
+      "planModeRequired": false
+    },
+    {
+      "name": "finn",
+      "agentType": "general-purpose",
+      "model": "claude-haiku-4-5-20251001",
+      "color": "black",
+      "planModeRequired": false
+    },
+    {
+      "name": "tervis",
+      "agentType": "general-purpose",
+      "model": "claude-opus-4-6",
+      "color": "magenta",
+      "planModeRequired": false
+    }
+  ]
+}

@@ -91,7 +91,7 @@ tests/
 
 **Authentication:**
 
-- `useEntuAuth.ts` - Token management, 12-hour expiry, auto-refresh
+- `useEntuAuth.ts` - Token management, JWT exp-based expiry, auto-refresh
 - `useEntuOAuth.ts` - OAuth.ee integration (Google, Apple, Smart-ID, etc.)
 - `useServerAuth.ts` - Alternative server-side auth (see SERVER_AUTH_IMPLEMENTATION.md)
 
@@ -161,7 +161,7 @@ entity.reference = [{ reference: "other_entity_id" }];
 
 1. User clicks OAuth provider → `useEntuOAuth.ts` redirects to OAuth.ee
 2. OAuth callback returns JWT → stored in localStorage + sessionStorage
-3. `useEntuAuth.ts` exchanges OAuth token for Entu app token (12h validity)
+3. `useEntuAuth.ts` exchanges OAuth token for Entu app token (validity from JWT `exp` claim, typically 48h)
 4. `useEntuApi.ts` includes token in every request
 5. Auto-retry on 401: refreshes token and retries failed requests
 6. Middleware (`app/middleware/auth.ts`) protects routes by checking token expiry
@@ -247,7 +247,7 @@ Runtime feature flags for gradual rollout:
 **Debugging authentication issues:**
 
 1. Check browser localStorage for `entu_token`
-2. Verify token not expired (12-hour validity)
+2. Verify token not expired (validity parsed from JWT `exp` claim)
 3. Check Network tab for 401 responses
 4. See `docs/authentication/entu-authentication.md` for flow details
 5. Consider server-side auth approach (SERVER_AUTH_IMPLEMENTATION.md)
