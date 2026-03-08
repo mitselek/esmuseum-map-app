@@ -44,6 +44,30 @@ Use `await import()` instead (and make the test callback `async`).
 
 ## [CHECKPOINT] 2026-03-08 — Quality gates all green
 
-- `npx nuxi typecheck`: 0 project errors (2 nuxt-icons third-party errors, ignorable)
-- `npm test`: 15 suites passed, 157 tests passed
+- `npx nuxi typecheck`: 0 project errors
+- `npm test`: 30 suites passed, 388 tests passed
 - `npm run lint`: clean
+
+## [LEARNED] 2026-03-08 — Issue #35 composable test coverage
+
+Wrote 95 new tests across 6 files:
+
+- `useEntuApi.test.ts` (20) — uses MSW handlers from setup, not vi.stubGlobal('fetch')
+- `useTaskWorkspace.test.ts` (17) — needs vi.resetModules() per test for singleton state reset
+- `useTaskDetail.test.ts` (28) — parseCoordinates, checkTaskPermissions, initializeTask
+- `useCompletedTasks.test.ts` (16) — needs `vi.stubGlobal('readonly', readonly)` + resetModules
+- `useTaskResponseCreation.test.ts` (10) — needs `readonly` stub too
+- `useOptimisticTaskUpdate.test.ts` (4)
+
+## [GOTCHA] 2026-03-08 — MSW intercepts fetch globally
+
+`vi.stubGlobal('fetch', mockFn)` does NOT work when MSW is active (setup.ts has `onUnhandledRequest: 'error'`).
+Must use `server.use(http.get(...))` for custom handlers, or use existing MSW mock tokens (`mockTokens.valid`).
+
+## [GOTCHA] 2026-03-08 — `readonly` not in global setup
+
+setup.ts stubs `ref`, `computed`, `watch` but NOT `readonly`. Composables using `readonly()` (useCompletedTasks, useTaskResponseCreation) need `vi.stubGlobal('readonly', readonly)` in test file AND after `vi.resetModules()`.
+
+## [PATTERN] 2026-03-08 — no-dynamic-delete lint rule
+
+Use `Reflect.deleteProperty(obj, key)` instead of `delete obj[key]` in test mocks.

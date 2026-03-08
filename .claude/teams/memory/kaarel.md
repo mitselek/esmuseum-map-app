@@ -18,22 +18,32 @@ Both changes verified: file-level lint clean (`npx eslint ... --max-warnings 0`)
 
 Kõik 12 `no-await-in-loop` hoiatust lahendatud. Commit `e73a1ae` tehtud, Marcus andis GREEN review.
 
-Files changed:
-
-- `app/composables/useMapStyleScheduler.ts` — Promise.all + eslint-disable
-- `app/composables/useClientSideFileUpload.ts` — eslint-disable (sequential progress)
-- `server/api/webhooks/student-added-to-class.post.ts` — eslint-disable (rate limit + while-loop)
-- `server/api/webhooks/task-assigned-to-class.post.ts` — eslint-disable (while-loop)
-- `server/utils/entu-admin.ts` — eslint-disable / sync fix
-
 ## [LEARNED] 2026-03-08 — types/ import alias
 
 `types/` directory is at project root, not under `app/`. Use `~~/types/location` (double tilde = project root), NOT `~/types/location` (single tilde = `app/`).
 
-## [CHECKPOINT] 2026-03-08 — Typecheck fix session
+## [CHECKPOINT] 2026-03-08 — Issue #32 + #35 session
 
-Fixed TaskLocation imports + interface mismatch:
+**Issue #32 — console→logger migration (DONE):**
+- `useMapStyles.ts` — 7 replacements, logger at module level as `useClientLogger('MapStyles')`
+- `useMapStyleScheduler.ts` — 9 replacements, logger as `useClientLogger('MapStyleScheduler')`
 
-- `app/components/InteractiveMap.vue` — added `import type { TaskLocation } from '~~/types/location'`
-- `app/components/LocationPicker.vue` — added same import
-- `app/composables/useTaskGeolocation.ts` — added same import + fixed `onRequestLocation` return type from `Promise<void>` to `void` in interface (line 48)
+**Issue #35 — composable tests (DONE):**
+- `tests/composables/useMapStyles.test.ts` — 14 tests
+- `tests/composables/useMapStyleScheduler.test.ts` — 12 tests (SunCalc mocked, fake timers)
+- `tests/composables/useMapFullscreen.test.ts` — 10 tests (mock HTMLElement stub for Node env)
+- `tests/composables/useLocation.test.ts` — 38 tests (vi.resetModules per test to clear singleton)
+- `tests/composables/useTaskGeolocation.test.ts` — 13 tests
+- Total: 87 new tests, all passing, lint clean
+
+## [PATTERN] 2026-03-08 — Testing composables with singleton state
+
+`useLocation.ts` uses module-level refs (singleton). To reset between tests:
+- `vi.resetModules()` in `beforeEach` clears module cache
+- Must re-setup `globalThis` mocks after `resetModules` (they get cleared)
+- Dynamic `await import()` to re-import the composable fresh
+
+## [GOTCHA] 2026-03-08 — Node test env has no `document`
+
+`useMapFullscreen` uses `document.createElement` in real code but tests run in Node env.
+Solution: create a plain object stub instead of real DOM element. The `@vueuse/core` `useFullscreen` is mocked anyway so it doesn't need a real element.
