@@ -46,6 +46,12 @@
 - **Lint fixes**: 16 test file lint errors fixed
 - **#39**: Complexity refactoring — 5 server files + 1 bonus (7 warnings eliminated, lint errors 19→8)
 
+### [LEARNED] ESLint counts optional chaining as complexity (2026-03-09)
+
+- `?.` (optional chaining) counts as a cyclomatic complexity branch in ESLint's `complexity` rule
+- 5 lines of `data.entity?.email?.[0]?.string || ''` = 15 optional chains + 5 fallbacks = 20 branches alone
+- Fix: extract a helper like `getEntityString(prop)` that takes the array and returns `prop?.[0]?.string ?? ''`
+
 ### [PATTERN] Webhook handler testing (2026-03-08)
 
 - Mock `h3` with `vi.mock('h3')` — override `defineEventHandler` (passthrough) and `readBody` (return `event._body`)
