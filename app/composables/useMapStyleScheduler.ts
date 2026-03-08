@@ -17,6 +17,8 @@ export interface StyleRule {
   check: () => boolean | Promise<boolean>
 }
 
+const logger = useClientLogger('MapStyleScheduler')
+
 export function useMapStyleScheduler () {
   const { setStyle } = useMapStyles()
   const { userPosition } = useLocation() // Get user's GPS location
@@ -171,7 +173,7 @@ export function useMapStyleScheduler () {
           return matches ? rule : null
         }
         catch (error) {
-          console.error(`Error evaluating rule ${rule.id}:`, error)
+          logger.error(`Error evaluating rule ${rule.id}:`, error)
           return null
         }
       })
@@ -191,10 +193,8 @@ export function useMapStyleScheduler () {
     const matchingRule = await evaluateRules()
 
     if (matchingRule && matchingRule.id !== currentRule.value) {
-      // eslint-disable-next-line no-console
-      console.log(`🗺️ [Scheduler] Applying rule: ${matchingRule.name}`)
-      // eslint-disable-next-line no-console
-      console.log(`   ${matchingRule.description}`)
+      logger.debug(`[Scheduler] Applying rule: ${matchingRule.name}`)
+      logger.debug(`   ${matchingRule.description}`)
       setStyle(matchingRule.styleId)
       currentRule.value = matchingRule.id
     }
@@ -211,8 +211,7 @@ export function useMapStyleScheduler () {
     const intervalMs = intervalMinutes * 60 * 1000
     const interval = setInterval(applyScheduledStyle, intervalMs)
 
-    // eslint-disable-next-line no-console
-    console.log(`🗺️ [Scheduler] Started (checking every ${intervalMinutes} minutes)`)
+    logger.debug(`[Scheduler] Started (checking every ${intervalMinutes} minutes)`)
 
     // Cleanup on unmount
     if (import.meta.client) {
@@ -292,37 +291,36 @@ export function useMapStyleScheduler () {
    */
 
   const getRuleStatus = async (): Promise<void> => {
-    /* eslint-disable no-console */
-    console.log('🗺️ Map Style Schedule Status')
-    console.log('============================')
+    logger.debug('Map Style Schedule Status')
+    logger.debug('============================')
 
     const now = new Date()
-    console.log(`Current time: ${now.toLocaleString('et-EE')}`)
+    logger.debug(`Current time: ${now.toLocaleString('et-EE')}`)
 
     if (userPosition.value) {
-      console.log(`📍 Location: ${userPosition.value.lat.toFixed(4)}°, ${userPosition.value.lng.toFixed(4)}° (GPS)`)
+      logger.debug(`Location: ${userPosition.value.lat.toFixed(4)}°, ${userPosition.value.lng.toFixed(4)}° (GPS)`)
     }
     else {
-      console.log(`📍 Location: GPS not available - astronomical rules disabled`)
+      logger.debug(`Location: GPS not available - astronomical rules disabled`)
     }
 
     const moonIllumination = getMoonIllumination(now)
     const fullMoon = isFullMoon(now)
-    console.log(`\n🌙 Moon: ${(moonIllumination * 100).toFixed(0)}% illuminated ${fullMoon ? '(FULL MOON)' : ''}`)
+    logger.debug(`Moon: ${(moonIllumination * 100).toFixed(0)}% illuminated ${fullMoon ? '(FULL MOON)' : ''}`)
 
     if (userPosition.value) {
       const { sunrise, sunset } = getSunTimes(now)
       if (sunrise && sunset) {
-        console.log(`☀️  Sun: ${sunrise.toLocaleTimeString('et-EE')} → ${sunset.toLocaleTimeString('et-EE')}`)
+        logger.debug(`Sun: ${sunrise.toLocaleTimeString('et-EE')} → ${sunset.toLocaleTimeString('et-EE')}`)
       }
 
       const { rise: moonrise, set: moonset } = getMoonTimes(now)
       if (moonrise && moonset) {
-        console.log(`🌙 Moon: ${moonrise.toLocaleTimeString('et-EE')} → ${moonset.toLocaleTimeString('et-EE')}`)
+        logger.debug(`Moon: ${moonrise.toLocaleTimeString('et-EE')} → ${moonset.toLocaleTimeString('et-EE')}`)
       }
     }
 
-    console.log('\n📋 Rules:')
+    logger.debug('Rules:')
 
     // Calculate ETAs
     const independenceDayNext = getNextOccurrence(2, 24)
@@ -332,7 +330,7 @@ export function useMapStyleScheduler () {
     for (const rule of styleRules) {
       // eslint-disable-next-line no-await-in-loop -- debug-only function, single manual execution via console
       const matches = await Promise.resolve(rule.check())
-      const status = matches ? '✓ ACTIVE' : '  inactive'
+      const status = matches ? 'ACTIVE' : 'inactive'
 
       let eta = ''
       if (!matches) {
@@ -352,15 +350,14 @@ export function useMapStyleScheduler () {
         }
       }
 
-      console.log(`${status} [${rule.priority}] ${rule.name}${eta}`)
-      console.log(`        ${rule.description}`)
+      logger.debug(`${status} [${rule.priority}] ${rule.name}${eta}`)
+      logger.debug(`        ${rule.description}`)
     }
 
     const activeRule = await evaluateRules()
     if (activeRule) {
-      console.log(`\n🎨 Current active rule: ${activeRule.name}`)
+      logger.debug(`Current active rule: ${activeRule.name}`)
     }
-    /* eslint-enable no-console */
   }
 
   return {

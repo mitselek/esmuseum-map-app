@@ -211,6 +211,7 @@ interface Language {
   flag: string
 }
 
+const log = useClientLogger('SignupPage')
 const route = useRoute()
 const router = useRouter()
 const { locale, setLocale } = useI18n()
@@ -266,7 +267,7 @@ async function fetchGroupInfo () {
   }
   catch (error) {
     // Silent fail - group name is nice-to-have, not critical
-    console.warn('Failed to fetch group info:', error)
+    log.warn('Failed to fetch group info:', error)
   }
 }
 
@@ -380,7 +381,7 @@ async function handleJoinGroup () {
     }
   }
   catch (error) {
-    console.warn('Failed to check membership, will proceed with join:', error)
+    log.warn('Failed to check membership, will proceed with join:', error)
     // Continue with join flow even if check fails
   }
 

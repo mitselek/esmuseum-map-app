@@ -89,6 +89,7 @@ definePageMeta({
   middleware: 'auth'
 })
 
+const log = useClientLogger('ProfilePage')
 const router = useRouter()
 const { token, user, refreshUserData } = useEntuAuth()
 
@@ -147,7 +148,7 @@ async function handleSubmit () {
   }
   catch (err: unknown) {
     error.value = err instanceof Error ? err.message : 'Failed to update profile'
-    console.error('Profile update error:', err)
+    log.error('Profile update error:', err)
   }
   finally {
     isSubmitting.value = false

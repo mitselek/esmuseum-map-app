@@ -59,6 +59,7 @@ export interface UseTaskGeolocationReturn {
 // ============================================================================
 
 export const useTaskGeolocation = (): UseTaskGeolocationReturn => {
+  const log = useClientLogger('useTaskGeolocation')
   const { userPosition: gpsPosition, gettingLocation, locationError, sortByDistance } = useLocation()
 
   // Type-safe wrapper for sortByDistance (now from useLocation.ts)
@@ -89,7 +90,7 @@ export const useTaskGeolocation = (): UseTaskGeolocationReturn => {
       }
     }
     catch (err) {
-      console.error('Error in location request:', err)
+      log.error('Error in location request:', err)
     }
   }
 

@@ -6,6 +6,10 @@
  * client-side expiry checks before making API calls.
  */
 
+import { useClientLogger } from '~/composables/useClientLogger'
+
+const log = useClientLogger('token-validation')
+
 /**
  * JWT token payload structure
  *
@@ -57,7 +61,7 @@ export const decodeJWT = (token: string): TokenPayload | null => {
     // JWT format: header.payload.signature
     const parts = token.split('.')
     if (parts.length !== 3) {
-      console.error('[Token] Invalid JWT format: expected 3 parts')
+      log.error('Invalid JWT format: expected 3 parts')
       return null
     }
 
@@ -65,7 +69,7 @@ export const decodeJWT = (token: string): TokenPayload | null => {
     const payloadPart = parts[1]
 
     if (!payloadPart) {
-      console.error('[Token] Missing payload part')
+      log.error('Missing payload part')
       return null
     }
 
@@ -81,7 +85,7 @@ export const decodeJWT = (token: string): TokenPayload | null => {
     return parsed
   }
   catch (error) {
-    console.error('[Token] Failed to decode JWT:', error)
+    log.error('Failed to decode JWT:', error)
     return null
   }
 }

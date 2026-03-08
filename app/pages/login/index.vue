@@ -1,4 +1,5 @@
 <script setup>
+const log = useClientLogger('LoginPage')
 const { isAuthenticated, error, user, logout } = useEntuAuth()
 const { startOAuthFlow } = useEntuOAuth()
 const router = useRouter()
@@ -52,7 +53,7 @@ const loginWithOAuth = async (providerId) => {
     await startOAuthFlow(providerId)
   }
   catch (err) {
-    console.error('OAuth login error:', err)
+    log.error('OAuth login error:', err)
     activeProvider.value = null
   }
 }

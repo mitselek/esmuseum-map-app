@@ -111,6 +111,7 @@ const ALLOWED_MIME_TYPES = [
 // ============================================================================
 
 export const useClientSideFileUpload = (): UseClientSideFileUploadReturn => {
+  const log = useClientLogger('useClientSideFileUpload')
   const nuxtApp = useNuxtApp()
   const $fetch = nuxtApp.$fetch
   const { token } = useEntuAuth()
@@ -182,7 +183,7 @@ export const useClientSideFileUpload = (): UseClientSideFileUploadReturn => {
     }
     catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      console.error('F015: Failed to get upload URL:', error)
+      log.error('Failed to get upload URL:', error)
       throw new Error(`Failed to get upload URL: ${errorMessage}`)
     }
   }
@@ -305,7 +306,7 @@ export const useClientSideFileUpload = (): UseClientSideFileUploadReturn => {
       }
       catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Upload failed'
-        console.error(`F015: Failed to upload file ${file.name}:`, error)
+        log.error(`Failed to upload file ${file.name}:`, error)
 
         if (progressCallback) {
           progressCallback(i, 'error', 0)

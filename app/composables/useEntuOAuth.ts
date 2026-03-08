@@ -125,7 +125,7 @@ export const useEntuOAuth = (): UseEntuOAuthReturn => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to start OAuth flow'
       error.value = errorMessage
       isLoading.value = false
-      console.error('OAuth flow error:', err)
+      log.error('OAuth flow error:', err)
       return false
     }
   }
@@ -204,7 +204,7 @@ export const useEntuOAuth = (): UseEntuOAuthReturn => {
     catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'OAuth callback failed'
       error.value = errorMessage
-      console.error('OAuth callback error:', err)
+      log.error('OAuth callback error:', err)
       return null
     }
     finally {

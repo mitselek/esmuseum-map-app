@@ -120,6 +120,7 @@ export interface UseEntuApiReturn {
 // ============================================================================
 
 export const useEntuApi = (): UseEntuApiReturn => {
+  const log = useClientLogger('useEntuApi')
   const { token, isAuthenticated, refreshToken } = useEntuAuth()
 
   // Runtime configuration
@@ -169,7 +170,7 @@ export const useEntuApi = (): UseEntuApiReturn => {
       if (response.status === 401 || response.status === 403) {
         // Handle authentication (401) and authorization (403) errors differently
         const errorAnalysis = analyzeApiError(response.status, `API call to ${endpoint}`)
-        console.warn('[API] Auth error:', errorAnalysis.technicalMessage)
+        log.warn('Auth error:', errorAnalysis.technicalMessage)
 
         // Only handle 401 (authentication) - let 403 (authorization/permission) be thrown
         if (response.status === 401) {
@@ -217,7 +218,7 @@ export const useEntuApi = (): UseEntuApiReturn => {
       error.value = errorAnalysis.userMessage
 
       // Log technical details
-      console.error('Entu API error:', errorAnalysis.technicalMessage)
+      log.error('Entu API error:', errorAnalysis.technicalMessage)
 
       // If it's an auth error and we haven't already redirected, do it now
       if (errorAnalysis.shouldRedirectToLogin && import.meta.client) {

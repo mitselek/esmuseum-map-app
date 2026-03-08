@@ -93,7 +93,7 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
       // Fetch the task entity
       const taskResponse = await getEntity(taskId) as unknown as EntuEntityResponse<EntuTask> | null
       if (!taskResponse?.entity) {
-        console.warn('[Response Creation] Task not found:', taskId)
+        log.warn('Task not found:', taskId)
         return null
       }
 
@@ -102,14 +102,14 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
       // Get group reference from task
       const groupRef = task.grupp?.[0]?.reference
       if (!groupRef) {
-        console.warn('[Response Creation] Task has no group:', taskId)
+        log.warn('Task has no group:', taskId)
         return null
       }
 
       // Fetch the group entity
       const groupResponse = await getEntity(groupRef) as unknown as EntuEntityResponse<EntuGroup> | null
       if (!groupResponse?.entity) {
-        console.warn('[Response Creation] Group not found:', groupRef)
+        log.warn('Group not found:', groupRef)
         return null
       }
 
@@ -118,7 +118,7 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
       // Get group leader reference
       const leaderRef = group.grupijuht?.[0]?.reference
       if (!leaderRef) {
-        console.warn('[Response Creation] Group has no leader:', groupRef)
+        log.warn('Group has no leader:', groupRef)
         return null
       }
 
@@ -126,7 +126,7 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
       return leaderRef
     }
     catch (error) {
-      console.error('[Response Creation] Error getting group leader:', error)
+      log.error('Error getting group leader:', error)
       return null
     }
   }
@@ -143,7 +143,7 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
       return (result.entities?.length || 0) > 0
     }
     catch (error) {
-      console.error('Failed to check existing response:', error)
+      log.error('Failed to check existing response:', error)
       return false
     }
   }
@@ -190,7 +190,7 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
     }
     catch (error) {
       // Non-critical: Continue creating response even if group leader lookup fails
-      console.warn('[Response Creation] Could not add group leader as viewer:', error)
+      log.warn('Could not add group leader as viewer:', error)
     }
 
     for (const [key, value] of Object.entries(responseData)) {
@@ -248,7 +248,7 @@ export const useTaskResponseCreation = (): UseTaskResponseCreationReturn => {
     }
     catch (error) {
       if (useClientSideCreation.value) {
-        console.error('Client-side response creation failed:', error)
+        log.error('Client-side response creation failed:', error)
         throw new Error(`Client-side response creation failed: ${(error as Error).message}`)
       }
       throw error

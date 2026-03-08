@@ -6,6 +6,7 @@ import type { EntuEntity } from './useEntuApi'
  * Handles data refetch to ensure UI consistency after submission.
  */
 export function useOptimisticTaskUpdate (task: Ref<EntuEntity | null>) {
+  const log = useClientLogger('useOptimisticTaskUpdate')
   /**
    * Refetch task data from API to ensure consistency
    * Also reloads completed tasks list to update actual response count
@@ -34,7 +35,7 @@ export function useOptimisticTaskUpdate (task: Ref<EntuEntity | null>) {
       await loadCompletedTasks()
     }
     catch (error) {
-      console.error('Failed to refetch task:', error)
+      log.error('Failed to refetch task:', error)
       // Rethrow to allow error handling in the caller
       throw error
     }

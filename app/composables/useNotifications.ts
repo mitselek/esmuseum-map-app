@@ -6,9 +6,12 @@
  */
 
 import { createDiscreteApi } from 'naive-ui'
+import { useClientLogger } from './useClientLogger'
 
 // Create discrete notification API (doesn't require provider in template)
 const { notification } = createDiscreteApi(['notification'])
+
+const log = useClientLogger('useNotifications')
 
 /**
  * Notification options
@@ -84,8 +87,7 @@ export const notifySessionExpired = () => {
   // Debounce: Don't show multiple notifications within cooldown period
   const now = Date.now()
   if (now - lastSessionExpiredNotification < SESSION_NOTIFICATION_COOLDOWN) {
-    // eslint-disable-next-line no-console
-    console.log('🔔 Skipping duplicate session expired notification (cooldown active)')
+    log.debug('Skipping duplicate session expired notification (cooldown active)')
     return
   }
   lastSessionExpiredNotification = now
@@ -120,8 +122,7 @@ export const notifyAuthRequired = () => {
   // Debounce: Don't show multiple notifications within cooldown period
   const now = Date.now()
   if (now - lastAuthNotification < AUTH_NOTIFICATION_COOLDOWN) {
-    // eslint-disable-next-line no-console
-    console.log('🔔 Skipping duplicate auth notification (cooldown active)')
+    log.debug('Skipping duplicate auth notification (cooldown active)')
     return
   }
   lastAuthNotification = now

@@ -61,7 +61,7 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
 
     const userId = (user.value as EntuUser | null)?._id
     if (!userId) {
-      console.warn('No user ID available for loading completed tasks')
+      log.warn('No user ID available for loading completed tasks')
       return []
     }
 
@@ -111,7 +111,7 @@ export const useCompletedTasks = (): UseCompletedTasksReturn => {
       return Array.from(completedTaskIds.value)
     }
     catch (err) {
-      console.error('Failed to load completed tasks (client-side):', err)
+      log.error('Failed to load completed tasks (client-side):', err)
       error.value = 'Lõpetatud ülesannete laadimine ebaõnnestus'
       return []
     }

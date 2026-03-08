@@ -18,6 +18,7 @@ export interface FormData {
 }
 
 export const useFormPersistence = (taskId: string) => {
+  const log = useClientLogger('useFormPersistence')
   const { saveUserResponse, loadUserResponse } = useTaskWorkspace()
 
   // Form state
@@ -59,7 +60,7 @@ export const useFormPersistence = (taskId: string) => {
       lastSaved.value = new Date()
     }
     catch (error) {
-      console.error('Failed to save form data:', error)
+      log.error('Failed to save form data:', error)
     }
     finally {
       isSaving.value = false

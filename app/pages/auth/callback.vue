@@ -13,6 +13,7 @@
  */
 
 // Get the OAuth helper
+const log = useClientLogger('AuthCallback')
 const { handleOAuthCallback } = useEntuOAuth()
 
 // Process the callback IMMEDIATELY when the component mounts
@@ -28,7 +29,7 @@ onMounted(async () => {
   catch (err) {
     // Error is logged in the handler
     // The template will show the fallback link if redirect fails
-    console.error('OAuth callback error:', err)
+    log.error('OAuth callback error:', err)
   }
 })
 </script>

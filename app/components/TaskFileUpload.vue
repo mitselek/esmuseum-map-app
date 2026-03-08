@@ -297,7 +297,7 @@ const uploadFiles = async (parentEntityId: string): Promise<UploadResult[]> => {
   }
   catch (error: unknown) {
     const uploadError = error instanceof Error ? error : new Error('Upload failed')
-    console.error('F015: Upload process failed:', uploadError)
+    log.error('F015: Upload process failed:', uploadError)
 
     // Update progress to show error
     uploadProgress.value.forEach((progress) => {

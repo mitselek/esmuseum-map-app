@@ -195,7 +195,7 @@ const onFileUploadComplete = (results: UploadResult[]): void => {
 }
 
 const onFileUploadError = (error: Error): void => {
-  console.error('File upload error:', error)
+  log.error('File upload error:', error)
 }
 
 // Form submission
@@ -299,7 +299,7 @@ const submitResponse = async () => {
     }
   }
   catch (error) {
-    console.error('Failed to submit response:', error)
+    log.error('Failed to submit response:', error)
   }
   finally {
     submitting.value = false

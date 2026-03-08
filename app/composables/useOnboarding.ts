@@ -13,6 +13,7 @@ import { ref, onUnmounted } from 'vue'
 import type { OnboardingState, GroupAssignmentResponse } from '../../types/onboarding'
 
 export function useOnboarding () {
+  const log = useClientLogger('useOnboarding')
   const state = ref<OnboardingState>({
     isWaiting: false,
     error: null,
@@ -94,7 +95,7 @@ export function useOnboarding () {
         }
         catch (error: unknown) {
           // Continue polling on errors (network issues, etc.)
-          console.warn('Polling error:', error)
+          log.warn('Polling error:', error)
         }
 
         // Check for timeout AFTER polling attempt

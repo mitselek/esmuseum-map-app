@@ -6,6 +6,10 @@
  * other errors (network, server) that can be retried.
  */
 
+import { useClientLogger } from '~/composables/useClientLogger'
+
+const log = useClientLogger('error-handling')
+
 /**
  * API error types
  */
@@ -153,7 +157,7 @@ export const isRetryableError = (error: unknown): boolean => {
 export const handleAuthError = (redirectPath?: string): void => {
   if (!import.meta.client) return
 
-  console.warn('[Auth] Handling authentication error - clearing stored auth')
+  log.warn('Handling authentication error - clearing stored auth')
 
   // Clear expired tokens
   localStorage.removeItem('esm_token')

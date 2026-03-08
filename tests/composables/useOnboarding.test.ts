@@ -15,6 +15,9 @@ import { useOnboarding } from '../../app/composables/useOnboarding'
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
 
+// Mock useClientLogger (Nuxt auto-import not available in tests)
+vi.stubGlobal('useClientLogger', () => ({ debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() }))
+
 describe('useOnboarding', () => {
   beforeEach(() => {
     vi.clearAllMocks()

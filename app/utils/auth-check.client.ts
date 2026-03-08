@@ -1,6 +1,10 @@
 // Centralized client-side auth check using localStorage
 // SSR-safe: this file is only bundled for client due to .client suffix
 
+import { useClientLogger } from '~/composables/useClientLogger'
+
+const log = useClientLogger('auth-check')
+
 export function getStoredAuth () {
   const token = localStorage.getItem('esm_token')
   const userRaw = localStorage.getItem('esm_user')
@@ -57,7 +61,6 @@ export function logAuthStorage () {
   }
 
   if (allKeys.length > 0) {
-    // eslint-disable-next-line no-console
-    console.log('Auth storage:', allKeys.join(', '))
+    log.debug('Auth storage:', allKeys.join(', '))
   }
 }
