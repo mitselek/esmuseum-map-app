@@ -1,35 +1,21 @@
 # Tervis Scratchpad
 
-## [CHECKPOINT] 2026-03-08 — First audit completed
+## [CHECKPOINT] 2026-04-20 — Third audit completed
 
-Audited 6 scratchpads (finn, marcus, viiu, kaarel, entu, tess) + 3 supplementary finn reports.
-Cross-referenced against roster prompts, common-prompt, CLAUDE.md, and source code.
+Audited 6 scratchpads + lead prompt + common-prompt + CLAUDE.md + MEMORY.md.
+Cross-referenced against source code (useEntuAuth.ts, setup-globals.ts, distance.js, vitest.config.ts) and GitHub issues.
 
-18 recommendations: 3 PROMOTE, 3 CONSOLIDATE, 2 CROSSPOLL, 4 STALE, 3 GAP, 3 COMMON.
+12 recommendations: 3 STALE, 2 PROMOTE, 2 CROSSPOLL, 2 GAP, 2 COMMON, 1 CONSOLIDATE.
 
 Key findings:
-
-- `~~/` import convention noted by 3 agents independently — not in any shared doc
-- MSW constraints hit 3+ agents — biggest gap in test prompts
-- nuxt-icons removal made 3 scratchpad entries stale
-- Token expiry fix (#38) resolved finn's gotcha
-- `readonly` global stub missing — recurring issue
-
-Report: `.claude/teams/esmuseum/memory/health-report.md`
-
-## [CHECKPOINT] 2026-03-08 — Second audit (lead/MEMORY/common focus)
-
-Audited lead prompt, MEMORY.md, common-prompt.md, and all scratchpads against current project state.
-
-19 recommendations: 4 STALE, 4 PROMOTE, 3 GAP, 3 COMMON, 3 CONSOLIDATE, 2 CROSSPOLL.
-
-Top findings:
-
-- **MEMORY.md GitHub Issues section fully stale** — 6 issues listed OPEN are CLOSED, 2 new issues missing
-- **CLAUDE.md token expiry wrong in 3 places** — still says "12h" after #38 fixed it to JWT `exp` (48h)
-- **Tess `readonly` gotcha resolved** — setup-globals.ts now has it, scratchpad still warns
-- **Lead prompt missing maintenance duties** — no guidance on keeping CLAUDE.md/MEMORY.md current
-- **Roster model inconsistency** — finn uses "haiku" while others use full model IDs
+- Previous audit's 9 flagged items ALL fixed — excellent maintenance
+- MEMORY.md has new false claim (#40 is OPEN, not "all closed")
+- Finn's token-expiry gotcha still lingers (describes fixed bug)
+- Finn's "0% server coverage" also outdated (entu wrote 22 tests)
+- Tess scratchpad at 93/100 lines — needs pruning
+- ESLint optional-chaining complexity pattern deserves promotion to common-prompt
+- Webhook test pattern (entu) should be in Tess's prompt
+- Two legacy .js files (distance.js, location-sync.js) undocumented
 
 Report: `.claude/teams/esmuseum/memory/health-report.md`
 
