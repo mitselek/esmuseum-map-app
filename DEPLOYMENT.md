@@ -35,7 +35,7 @@ But this is **not recommended** because:
 #### Check Current Callback URL
 When starting OAuth flow, look for logs showing:
 ```
-Full Auth URL: https://entu.app/api/auth/google?account=esmuuseum&next=https%3A//esmuseum.entu.ee/auth/callback%3Fjwt%3D
+Full Auth URL: https://api.entu.app/auth/google?account=esmuuseum&next=https%3A//esmuseum.entu.ee/auth/callback%3Fjwt%3D
 ```
 
 #### Expected Behavior After Fix

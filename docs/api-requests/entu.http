@@ -3,8 +3,7 @@
 # Use with VS Code REST Client extension or similar tools.
 # Replace {{esm_key}} and {{esm_token}} with your own credentials or use environment variables.
 
-# All endpoints are in /api/...
-@api_hostname=entu.app/api
+@api_hostname=api.entu.app
 @account=esmuuseum
 @callback=https://example.com/auth/callback
 
