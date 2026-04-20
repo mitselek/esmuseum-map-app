@@ -271,7 +271,7 @@ Required in `.env`:
 
 ```bash
 NUXT_ENTU_KEY=your_server_side_api_key
-NUXT_PUBLIC_ENTU_URL=https://entu.app
+NUXT_PUBLIC_ENTU_URL=https://api.entu.app
 NUXT_PUBLIC_ENTU_ACCOUNT=esmuuseum
 NUXT_PUBLIC_ENTU_CLIENT_ID=your_oauth_client_id
 NUXT_WEBHOOK_SECRET=your_webhook_secret
