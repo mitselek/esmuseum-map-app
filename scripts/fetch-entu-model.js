@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 dotenv.config({ path: path.resolve(__dirname, '../.env') })
 
-const HOST = process.env.ENTU_HOST || 'entu.app'
+const HOST = process.env.ENTU_HOST || 'api.entu.app'
 const ACCOUNT = process.env.ENTU_ACCOUNT || 'esmuuseum'
 const ESM_KEY = process.env.ESM_KEY
 
@@ -21,7 +21,7 @@ if (!ESM_KEY) {
   process.exit(1)
 }
 
-const apiBase = `https://${HOST}/api/${ACCOUNT}`
+const apiBase = `https://${HOST}/${ACCOUNT}`
 
 function apiGet (endpoint, token) {
   return new Promise((resolve, reject) => {
