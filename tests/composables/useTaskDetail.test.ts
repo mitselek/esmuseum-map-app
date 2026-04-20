@@ -52,7 +52,7 @@ vi.stubGlobal('useLocation', () => ({
 }))
 
 vi.stubGlobal('useRuntimeConfig', () => ({
-  public: { entuUrl: 'https://entu.app', entuAccount: 'esmuuseum' }
+  public: { entuUrl: 'https://api.entu.app', entuAccount: 'esmuuseum' }
 }))
 
 vi.stubGlobal('useRouter', () => ({ push: vi.fn() }))

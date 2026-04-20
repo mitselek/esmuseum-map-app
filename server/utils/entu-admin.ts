@@ -25,7 +25,7 @@ export function getAdminApiConfig (
 ): EntuApiOptions {
   const config = useRuntimeConfig()
   // Use public config for consistency with client-side code
-  const apiUrl = config.public.entuUrl as string || 'https://entu.app'
+  const apiUrl = config.public.entuUrl as string || 'https://api.entu.app'
   const accountName = config.public.entuAccount as string || 'esmuuseum'
 
   if (!apiUrl || !accountName) {

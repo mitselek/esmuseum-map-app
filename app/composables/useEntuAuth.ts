@@ -261,10 +261,10 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
    * This ensures we have the latest user information including any name changes
    */
   const fetchFreshUserData = async (userId: string, jwtToken: string): Promise<EntuUser> => {
-    const apiUrl = config.public.entuUrl || 'https://entu.app'
+    const apiUrl = config.public.entuUrl || 'https://api.entu.app'
     const accountName = config.public.entuAccount || 'esmuuseum'
 
-    const response = await fetch(`${apiUrl}/api/${accountName}/entity/${userId}`, {
+    const response = await fetch(`${apiUrl}/${accountName}/entity/${userId}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${jwtToken}`,
@@ -286,9 +286,9 @@ export const useEntuAuth = (): UseEntuAuthReturn => {
    * Fetch auth response from Entu API
    */
   const fetchAuthResponse = async (oauthToken: string): Promise<EntuAuthResponse> => {
-    const apiUrl = config.public.entuUrl || 'https://entu.app'
+    const apiUrl = config.public.entuUrl || 'https://api.entu.app'
     const accountName = config.public.entuAccount || 'esmuuseum'
-    const url = `${apiUrl}/api/auth?account=${accountName}`
+    const url = `${apiUrl}/auth?account=${accountName}`
 
     const response = await fetch(url, {
       method: 'GET',

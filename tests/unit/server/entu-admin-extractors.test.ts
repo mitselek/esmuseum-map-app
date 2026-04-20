@@ -31,7 +31,7 @@ vi.stubGlobal('createError', (opts: { statusCode: number, statusMessage: string 
 // Mock useRuntimeConfig (Nuxt global, used by getAdminApiConfig)
 vi.stubGlobal('useRuntimeConfig', () => ({
   public: {
-    entuUrl: 'https://entu.app',
+    entuUrl: 'https://api.entu.app',
     entuAccount: 'esmuuseum'
   }
 }))

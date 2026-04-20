@@ -149,7 +149,7 @@ export const taskApiMocks = [
   }),
 
   // Mock individual entity lookups for referenced entities
-  http.get('*/api/esmuuseum/entity/:id', ({ params, request }) => {
+  http.get('*/esmuuseum/entity/:id', ({ params, request }) => {
     const auth = authenticateRequest(request)
 
     if (!auth.authenticated) {
@@ -211,7 +211,7 @@ export const taskApiMocks = [
   }),
 
   // Mock general search endpoint for testing various queries
-  http.get('*/api/esmuuseum/entity', ({ request }) => {
+  http.get('*/esmuuseum/entity', ({ request }) => {
     const auth = authenticateRequest(request)
 
     if (!auth.authenticated) {

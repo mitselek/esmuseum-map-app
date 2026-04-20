@@ -35,7 +35,7 @@ vi.stubGlobal('useEntuApi', () => ({
 }))
 
 vi.stubGlobal('useRuntimeConfig', () => ({
-  public: { entuUrl: 'https://entu.app', entuAccount: 'esmuuseum' }
+  public: { entuUrl: 'https://api.entu.app', entuAccount: 'esmuuseum' }
 }))
 
 // Need to reset module state between tests

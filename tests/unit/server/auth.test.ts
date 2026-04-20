@@ -201,7 +201,7 @@ describe('server/utils/auth', () => {
   describe('checkTaskPermission', () => {
     const apiConfig = {
       token: 'test-token',
-      apiUrl: 'https://entu.app',
+      apiUrl: 'https://api.entu.app',
       accountName: 'esmuuseum'
     }
 
@@ -262,7 +262,7 @@ describe('server/utils/auth', () => {
   describe('checkResponsePermission', () => {
     const apiConfig = {
       token: 'test-token',
-      apiUrl: 'https://entu.app',
+      apiUrl: 'https://api.entu.app',
       accountName: 'esmuuseum'
     }
 

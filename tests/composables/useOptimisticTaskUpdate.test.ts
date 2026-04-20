@@ -29,7 +29,7 @@ vi.stubGlobal('useCompletedTasks', () => ({
 }))
 
 vi.stubGlobal('useRuntimeConfig', () => ({
-  public: { entuUrl: 'https://entu.app', entuAccount: 'esmuuseum' }
+  public: { entuUrl: 'https://api.entu.app', entuAccount: 'esmuuseum' }
 }))
 
 const { useOptimisticTaskUpdate } = await import('../../app/composables/useOptimisticTaskUpdate')

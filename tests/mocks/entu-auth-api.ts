@@ -6,7 +6,7 @@ import { mockTokens, mockUsers, mockAuthResponses } from './jwt-tokens'
 
 export const authApiMocks = [
   // Mock the Entu auth endpoint for token validation
-  http.get('*/api/esmuuseum', ({ request }) => {
+  http.get('*/esmuuseum', ({ request }) => {
     const authHeader = request.headers.get('authorization')
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -42,7 +42,7 @@ export const authApiMocks = [
   }),
 
   // Mock token refresh/authentication endpoint
-  http.get('*/api/auth', ({ request }) => {
+  http.get('*/auth', ({ request }) => {
     const authHeader = request.headers.get('authorization')
     const url = new URL(request.url)
     const account = url.searchParams.get('account')
@@ -71,7 +71,7 @@ export const authApiMocks = [
   }),
 
   // Mock entity endpoints for testing user profile fetching
-  http.get('*/api/esmuuseum/entity/:id', ({ params }) => {
+  http.get('*/esmuuseum/entity/:id', ({ params }) => {
     const { id } = params
 
     if (id === mockUsers.student._id) {
@@ -100,7 +100,7 @@ export const authApiMocks = [
   }),
 
   // Mock search endpoints
-  http.get('*/api/esmuuseum/search', ({ request }) => {
+  http.get('*/esmuuseum/search', ({ request }) => {
     const url = new URL(request.url)
     const typeParam = url.searchParams.get('_type.string')
 
@@ -129,7 +129,7 @@ export const authApiMocks = [
   }),
 
   // Mock rate limiting scenario
-  http.get('*/api/esmuuseum/rate-limited', () => {
+  http.get('*/esmuuseum/rate-limited', () => {
     return new HttpResponse(null, {
       status: 429,
       headers: {
@@ -139,7 +139,7 @@ export const authApiMocks = [
   }),
 
   // Mock server error scenario
-  http.get('*/api/esmuuseum/server-error', () => {
+  http.get('*/esmuuseum/server-error', () => {
     return new HttpResponse(null, { status: 500 })
   })
 ]

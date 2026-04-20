@@ -3,7 +3,7 @@
  * These functions call Entu API directly from the browser using user's JWT token
  */
 
-const ENTU_API_URL = 'https://entu.app/api/esmuuseum'
+const ENTU_API_URL = 'https://api.entu.app/esmuuseum'
 
 /**
  * Update user's forename and surname

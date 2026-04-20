@@ -192,13 +192,13 @@ export async function authenticateUser (event: H3Event): Promise<AuthenticatedUs
  */
 async function authenticateUserViaAPI (event: H3Event, token: string): Promise<AuthenticatedUser> {
   const config = useRuntimeConfig()
-  const apiUrl = config.public.entuUrl || 'https://entu.app'
+  const apiUrl = config.public.entuUrl || 'https://api.entu.app'
   const accountName = config.public.entuAccount || 'esmuuseum'
 
-  logger.debug('Calling Entu auth endpoint', { url: `${apiUrl}/api/${accountName}` })
+  logger.debug('Calling Entu auth endpoint', { url: `${apiUrl}/${accountName}` })
 
   // Call the same endpoint that client uses for auth verification
-  const response = await fetch(`${apiUrl}/api/${accountName}`, {
+  const response = await fetch(`${apiUrl}/${accountName}`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -210,7 +210,7 @@ async function authenticateUserViaAPI (event: H3Event, token: string): Promise<A
   logger.info('Entu auth API response', {
     status: response.status,
     statusText: response.statusText,
-    url: `${apiUrl}/api/${accountName}`
+    url: `${apiUrl}/${accountName}`
   })
 
   if (!response.ok) {
@@ -221,7 +221,7 @@ async function authenticateUserViaAPI (event: H3Event, token: string): Promise<A
       logger.error('Auth API error response body', {
         status: response.status,
         body: errorBody,
-        url: `${apiUrl}/api/${accountName}`
+        url: `${apiUrl}/${accountName}`
       })
     }
     catch (e) {

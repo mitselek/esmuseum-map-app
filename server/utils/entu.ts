@@ -26,7 +26,7 @@ interface EntuProperty {
  * Make authenticated API call to Entu
  */
 export async function callEntuApi (endpoint: string, options: Partial<RequestInit> = {}, apiConfig: EntuApiOptions) {
-  const url = `${apiConfig.apiUrl}/api/${apiConfig.accountName}${endpoint}`
+  const url = `${apiConfig.apiUrl}/${apiConfig.accountName}${endpoint}`
 
   const requestOptions: RequestInit = {
     headers: {
@@ -192,7 +192,7 @@ export function getEntuApiConfig (token: string): EntuApiOptions {
 
   return {
     token,
-    apiUrl: (config.entuApiUrl as string) || 'https://entu.app',
+    apiUrl: (config.public.entuUrl as string) || 'https://api.entu.app',
     accountName: (config.entuClientId as string) || 'esmuuseum'
   }
 }
@@ -203,10 +203,10 @@ export function getEntuApiConfig (token: string): EntuApiOptions {
  */
 export async function exchangeApiKeyForToken (apiKey: string): Promise<string> {
   const config = useRuntimeConfig()
-  const apiUrl = (config.entuApiUrl as string) || 'https://entu.app'
+  const apiUrl = (config.public.entuUrl as string) || 'https://api.entu.app'
   const accountName = (config.entuClientId as string) || 'esmuuseum'
 
-  const authUrl = `${apiUrl}/api/auth?account=${accountName}`
+  const authUrl = `${apiUrl}/auth?account=${accountName}`
 
   try {
     const response = await fetch(authUrl, {
