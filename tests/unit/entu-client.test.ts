@@ -22,7 +22,7 @@ describe('entu-client', () => {
 
       expect(mockFetch).toHaveBeenCalledOnce()
       const [url, options] = mockFetch.mock.calls[0]!
-      expect(url).toBe('https://entu.app/api/esmuuseum/entity/user-123')
+      expect(url).toBe('https://api.entu.app/esmuuseum/entity/user-123')
       expect(options.method).toBe('POST')
       expect(options.headers.Authorization).toBe('Bearer test-token')
       expect(options.headers['Content-Type']).toBe('application/json')
@@ -79,7 +79,7 @@ describe('entu-client', () => {
 
       expect(mockFetch).toHaveBeenCalledOnce()
       const [url, options] = mockFetch.mock.calls[0]!
-      expect(url).toBe('https://entu.app/api/esmuuseum/entity/user-456')
+      expect(url).toBe('https://api.entu.app/esmuuseum/entity/user-456')
       expect(options.method).toBe('POST')
       expect(options.headers.Authorization).toBe('Bearer my-token')
 

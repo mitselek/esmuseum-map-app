@@ -165,7 +165,7 @@ export const useEntuApi = (): UseEntuApiReturn => {
 
   // Runtime configuration
   const config = useRuntimeConfig()
-  const apiUrl = computed(() => config.public.entuUrl as string || 'https://entu.app')
+  const apiUrl = computed(() => config.public.entuUrl as string || 'https://api.entu.app')
   const accountName = computed(() => config.public.entuAccount as string || 'esmuuseum')
 
   // API state
@@ -176,7 +176,7 @@ export const useEntuApi = (): UseEntuApiReturn => {
    * Get base API URL for the current account
    */
   const getApiBase = (): string => {
-    return `${apiUrl.value}/api/${accountName.value}`
+    return `${apiUrl.value}/${accountName.value}`
   }
 
   /**

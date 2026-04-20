@@ -1,0 +1,40 @@
+# esmuseum tmux layout — 8 panes.
+#
+#  +-----------+-----------+-----------+
+#  |   viiu    |  kaarel   |   tess    |   featured row (~30% height)
+#  +-----------+-----+-----+-----------+
+#  |                 | entu  | marcus  |
+#  |      lead       +-------+---------+
+#  |                 |tervis |  finn   |
+#  +-----------------+-------+---------+
+#
+# lead runs claude; others are bare shells.
+# Upgrade a pane later with, e.g.:
+#   command: "tail -F .claude/teams/esmuseum/memory/<name>.md"
+
+initial: viiu
+
+splits:
+  # separate top strip from bottom area (top 30%, bottom 70%)
+  - { from: viiu,   below: lead,    size: 70% }
+  # top row columns: viiu | kaarel | tess
+  - { from: viiu,   right: kaarel,  size: 67% }
+  - { from: kaarel, right: tess,    size: 50% }
+  # bottom: lead (left 50%) | 2x2 quadrant (right 50%)
+  - { from: lead,   right: entu,    size: 50% }
+  # 2x2 quadrant: split into top/bottom halves, then each into left/right
+  - { from: entu,   below: tervis,  size: 50% }
+  - { from: entu,   right: marcus,  size: 50% }
+  - { from: tervis, right: finn,    size: 50% }
+
+panes:
+  viiu:   { label: viiu }
+  kaarel: { label: kaarel }
+  tess:   { label: tess }
+  lead:   { label: lead, command: "claude --dangerously-skip-permissions --continue", send_after: "Read .claude/startup.md and execute the esmuseum team-lead startup procedure." }
+  entu:   { label: entu }
+  marcus: { label: marcus }
+  tervis: { label: tervis }
+  finn:   { label: finn }
+
+focus: lead

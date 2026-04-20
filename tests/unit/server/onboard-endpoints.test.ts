@@ -37,7 +37,7 @@ describe('onboard endpoints', () => {
   beforeEach(() => {
     installNuxtMocks({
       entuKey: 'test-key',
-      entuApiUrl: 'https://entu.app',
+      entuApiUrl: 'https://api.entu.app',
       entuClientId: 'esmuuseum'
     })
     // Add entuManagerKey to the config

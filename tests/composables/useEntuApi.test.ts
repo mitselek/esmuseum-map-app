@@ -34,7 +34,7 @@ vi.stubGlobal('useEntuAuth', () => ({
 
 vi.stubGlobal('useRuntimeConfig', () => ({
   public: {
-    entuUrl: 'https://entu.app',
+    entuUrl: 'https://api.entu.app',
     entuAccount: 'esmuuseum'
   }
 }))
@@ -81,13 +81,13 @@ describe('useEntuApi', () => {
   describe('getApiBase', () => {
     it('should return correct base URL', () => {
       const { getApiBase } = useEntuApi()
-      expect(getApiBase()).toBe('https://entu.app/api/esmuuseum')
+      expect(getApiBase()).toBe('https://api.entu.app/esmuuseum')
     })
   })
 
   describe('callApi', () => {
     it('should return parsed JSON response on success', async () => {
-      // The MSW handler for */api/esmuuseum returns account info for valid tokens
+      // The MSW handler for */esmuuseum returns account info for valid tokens
       const { callApi } = useEntuApi()
       const result = await callApi<any>('')
 
@@ -136,7 +136,7 @@ describe('useEntuApi', () => {
     it('should throw on non-ok responses', async () => {
       // Add a custom MSW handler that returns 500
       server.use(
-        http.get('*/api/esmuuseum/custom-error-endpoint', () => {
+        http.get('*/esmuuseum/custom-error-endpoint', () => {
           return new HttpResponse(null, { status: 500, statusText: 'Internal Server Error' })
         })
       )
@@ -157,7 +157,7 @@ describe('useEntuApi', () => {
       })
 
       server.use(
-        http.get('*/api/esmuuseum/forbidden-resource', () => {
+        http.get('*/esmuuseum/forbidden-resource', () => {
           return new HttpResponse(null, { status: 403, statusText: 'Forbidden' })
         })
       )
@@ -253,7 +253,7 @@ describe('useEntuApi', () => {
     it('should POST entity data as JSON', async () => {
       // Add MSW handler for entity creation
       server.use(
-        http.post('*/api/esmuuseum/entity', async ({ request }) => {
+        http.post('*/esmuuseum/entity', async ({ request }) => {
           const body = await request.json() as any
           return HttpResponse.json({ _id: 'new-entity-123', ...body })
         })
@@ -273,7 +273,7 @@ describe('useEntuApi', () => {
   describe('updateEntity', () => {
     it('should POST update to entity endpoint', async () => {
       server.use(
-        http.post('*/api/esmuuseum/entity/entity-to-update', async ({ request }) => {
+        http.post('*/esmuuseum/entity/entity-to-update', async ({ request }) => {
           const body = await request.json() as any
           return HttpResponse.json({ _id: 'entity-to-update', ...body })
         })
@@ -289,7 +289,7 @@ describe('useEntuApi', () => {
   describe('deleteEntity', () => {
     it('should send DELETE request', async () => {
       server.use(
-        http.delete('*/api/esmuuseum/entity/entity-to-delete', () => {
+        http.delete('*/esmuuseum/entity/entity-to-delete', () => {
           return HttpResponse.json({ deleted: true })
         })
       )
@@ -322,7 +322,7 @@ describe('useEntuApi', () => {
       const { getAccountInfo } = useEntuApi()
       const result = await getAccountInfo()
 
-      // The MSW handler for */api/esmuuseum returns user data for valid token
+      // The MSW handler for */esmuuseum returns user data for valid token
       expect(result).toBeDefined()
     })
   })

@@ -31,7 +31,7 @@ vi.stubGlobal('useRoute', () => ({
 
 vi.stubGlobal('useRuntimeConfig', () => ({
   public: {
-    entuUrl: 'https://entu.app',
+    entuUrl: 'https://api.entu.app',
     entuAccount: 'esmuuseum'
   }
 }))
@@ -100,7 +100,7 @@ describe('useTaskWorkspace', () => {
 
     vi.stubGlobal('useRuntimeConfig', () => ({
       public: {
-        entuUrl: 'https://entu.app',
+        entuUrl: 'https://api.entu.app',
         entuAccount: 'esmuuseum'
       }
     }))

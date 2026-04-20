@@ -117,7 +117,7 @@ export const useEntuOAuth = (): UseEntuOAuthReturn => {
       }
 
       // Build the authentication URL
-      const apiUrl = config.public.entuUrl as string || 'https://entu.app'
+      const apiUrl = config.public.entuUrl as string || 'https://api.entu.app'
       const accountName = config.public.entuAccount as string || 'esmuuseum'
 
       // Store the current URL to redirect back after auth
@@ -143,7 +143,7 @@ export const useEntuOAuth = (): UseEntuOAuthReturn => {
       // Build the OAuth URL with callback
       const callback = encodeURIComponent(callbackUrl.value || '')
       // Use the /api/auth/{provider} endpoint as per documentation
-      const authUrl = `${apiUrl}/api/auth/${provider}?account=${accountName}&next=${callback}`
+      const authUrl = `${apiUrl}/auth/${provider}?account=${accountName}&next=${callback}`
 
       // In client context, redirect to OAuth
       if (import.meta.client) {

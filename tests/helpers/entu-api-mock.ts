@@ -86,7 +86,7 @@ export function clearCreatedEntities (): void {
 // MSW Handlers
 // ---------------------------------------------------------------------------
 
-const ENTU_BASE = '*/api/:account'
+const ENTU_BASE = '*/:account'
 
 /**
  * Handler: GET /api/:account/entity/:id
@@ -172,7 +172,7 @@ const entityUpdateHandler = http.post(
  * Returns a mock auth response.
  */
 const authHandler = http.get(
-  '*/api/auth',
+  '*/auth',
   ({ request }) => {
     const authHeader = request.headers.get('authorization')
 

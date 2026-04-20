@@ -57,7 +57,7 @@ describe('server/utils/entu-admin API functions', () => {
     it('should return config with user token', () => {
       const config = getAdminApiConfig('user-jwt-token', 'user-1', 'user@test.ee')
       expect(config.token).toBe('user-jwt-token')
-      expect(config.apiUrl).toBe('https://entu.app')
+      expect(config.apiUrl).toBe('https://api.entu.app')
       expect(config.accountName).toBe('esmuuseum')
     })
 

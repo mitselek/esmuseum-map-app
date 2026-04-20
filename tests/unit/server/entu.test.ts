@@ -37,7 +37,7 @@ vi.mock('../../../server/utils/logger', () => ({
 
 const apiConfig = {
   token: 'test-token',
-  apiUrl: 'https://entu.app',
+  apiUrl: 'https://api.entu.app',
   accountName: 'esmuuseum'
 }
 

@@ -25,11 +25,11 @@ export interface MockRuntimeConfig {
 
 export const defaultMockRuntimeConfig: MockRuntimeConfig = {
   entuKey: 'test-key-not-real',
-  entuApiUrl: 'https://entu.app',
+  entuApiUrl: 'https://api.entu.app',
   entuClientId: 'esmuuseum',
   webhookSecret: 'test-webhook-secret',
   public: {
-    entuUrl: 'https://entu.app',
+    entuUrl: 'https://api.entu.app',
     entuAccount: 'esmuuseum',
     entuClientId: 'test-client-id',
     callbackOrigin: 'http://localhost:3000'
