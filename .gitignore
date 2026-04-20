@@ -5,6 +5,7 @@
 dist
 node_modules
 coverage
+.tmp
 
 # SSL certificates for local development
 *.pem
