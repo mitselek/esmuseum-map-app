@@ -1,5 +1,5 @@
 # Entu API HTTP Request Examples
-@api_hostname=entu.app/api
+@api_hostname=api.entu.app
 @account=esmuuseum
 
 ### Entity GET sample response

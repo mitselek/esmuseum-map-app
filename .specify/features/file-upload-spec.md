@@ -31,8 +31,8 @@ This document specifies the end-to-end file upload flow implemented by `import/i
 
 - Endpoint:
   - POST https://{entu_hostname}/{entu_account}/entity/{entity_eid}
-  - In the repo: `entu_hostname = 'entu.app/api'`, `entu_account = 'esmuuseum'`.
-  - Example: `POST https://entu.app/api/esmuuseum/entity/12345`
+  - In the repo: `entu_hostname = 'api.entu.app'`, `entu_account = 'esmuuseum'`.
+  - Example: `POST https://api.entu.app/esmuuseum/entity/12345`
 
 - Headers:
   - `Authorization: Bearer <ENTU_TOKEN>`
@@ -127,7 +127,7 @@ async function uploadFile(entityEid, filename, filePath, token) {
   const filesize = stats.size;
 
   // 1) request upload metadata
-  const postRes = await fetch(`https://entu.app/api/esmuuseum/entity/${entityEid}`, {
+  const postRes = await fetch(`https://api.entu.app/esmuuseum/entity/${entityEid}`, {
     method: 'POST',
     headers: {
       'Accept-Encoding': 'deflate',

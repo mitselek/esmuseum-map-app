@@ -21,7 +21,7 @@ Authentication requires the following environment variables:
 ```dotenv
 # .env file
 NUXT_ENTU_KEY=your_private_entu_key
-NUXT_PUBLIC_ENTU_URL=https://entu.app
+NUXT_PUBLIC_ENTU_URL=https://api.entu.app
 NUXT_PUBLIC_ENTU_ACCOUNT=esmuuseum
 ```
 
@@ -137,7 +137,7 @@ const fetchData = async () => {
 ## References
 
 - Entu API authentication is based on the approach seen in `entity-types-creation.http` and `scripts/fetch-entu-model.js`
-- The authentication endpoint is `https://entu.app/api/auth?account=esmuuseum`
+- The authentication endpoint is `https://api.entu.app/auth?account=esmuuseum`
 - API endpoints require a Bearer token in the Authorization header
 - Token management is handled automatically by the composables
 
