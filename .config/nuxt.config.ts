@@ -24,7 +24,6 @@ export default defineNuxtConfig({
   spaLoadingTemplate: false,
   runtimeConfig: {
     entuKey: '',
-    entuApiUrl: '',
     entuClientId: '',
     // F020: Webhook security secret
     webhookSecret: '',

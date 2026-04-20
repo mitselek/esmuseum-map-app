@@ -12,7 +12,6 @@ import { vi } from 'vitest'
  */
 export interface MockRuntimeConfig {
   entuKey: string
-  entuApiUrl: string
   entuClientId: string
   webhookSecret: string
   public: {
@@ -25,7 +24,6 @@ export interface MockRuntimeConfig {
 
 export const defaultMockRuntimeConfig: MockRuntimeConfig = {
   entuKey: 'test-key-not-real',
-  entuApiUrl: 'https://api.entu.app',
   entuClientId: 'esmuuseum',
   webhookSecret: 'test-webhook-secret',
   public: {

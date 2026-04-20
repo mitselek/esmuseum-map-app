@@ -29,15 +29,14 @@ vi.mock('../../../server/utils/logger', () => ({
   })
 }))
 
-// The endpoints use exchangeApiKeyForToken which calls /api/auth.
-// MSW's authHandler handles that. getEntuApiConfig uses config.entuApiUrl and config.entuClientId.
+// The endpoints use exchangeApiKeyForToken which calls /auth.
+// MSW's authHandler handles that. getEntuApiConfig uses config.public.entuUrl and config.entuClientId.
 // We need to match these in the runtime config.
 
 describe('onboard endpoints', () => {
   beforeEach(() => {
     installNuxtMocks({
       entuKey: 'test-key',
-      entuApiUrl: 'https://api.entu.app',
       entuClientId: 'esmuuseum'
     })
     // Add entuManagerKey to the config
