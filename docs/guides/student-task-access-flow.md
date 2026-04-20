@@ -498,7 +498,7 @@ Both directions = No missing permissions
 
 ```bash
 # Required
-NUXT_PUBLIC_ENTU_URL=https://entu.app
+NUXT_PUBLIC_ENTU_URL=https://api.entu.app
 NUXT_PUBLIC_ENTU_ACCOUNT=esmuuseum
 
 # Optional - for webhook signature validation
