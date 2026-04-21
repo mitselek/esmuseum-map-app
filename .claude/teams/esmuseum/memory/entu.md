@@ -71,7 +71,11 @@
 - Mihkel is `_owner` on all VR entities (vr_kavaler, vr_aum2rk) → can modify their rights
 - **Issue #42 (Juhendid folder)**: FULLY SCRIPTABLE — create folder, set `_sharing: "domain"`
 - **Issue #41 (VR restriction)**: FULLY SCRIPTABLE — Mihkel is owner, can change `_sharing` + add `_viewer`
-- Entity type IDs (for `_type` reference): folder=66b624597efc9ac06a4378a6, grupp=686914521749f351b9c82f35, ulesanne=686917231749f351b9c82f4c, vastus=686917401749f351b9c82f58, asukoht=687d27c9259fc48ba59cf726, kaart=687d27c8259fc48ba59cf71a, **link=69e65f5f2cd89347a7f383e5** (recreated 2026-04-20; previous `69e64a3c2cd89347a7f382af` deleted)
+- Entity type IDs (for `_type` reference): folder=66b624597efc9ac06a4378a6, grupp=686914521749f351b9c82f35, ulesanne=686917231749f351b9c82f4c, vastus=686917401749f351b9c82f58, asukoht=687d27c9259fc48ba59cf726, kaart=687d27c8259fc48ba59cf71a, **link=69e6c1c690c8df7a1cc7aa8b** (recreated 2026-04-21 with ADMIN_KEY/Mihkel; all previous link types deleted)
+- **entity entity type** (meta-type for defining new types): `66b624597efc9ac06a437840` — use this as `_type` reference when creating new entity type definitions. The ID `66b6245c7efc9ac06a437920` that appears in some notes returns 404 (wrong/inaccessible).
+- **link type property defs (2026-04-21)**: name prop=`69e6c3da90c8df7a1cc7aa96` (string, ordinal 1, search:true), url prop=`69e6c3da90c8df7a1cc7aaa2` (url, ordinal 2). Both Mihkel-owned, parent=link type.
+- **link instances in Juhendid (2026-04-21)**: "Loo uus grupp ja kutsu õpilased"=`69e6c4f990c8df7a1cc7aaad`, "KML-failide import Entusse"=`69e6c4f990c8df7a1cc7aab6`. Both `_parent: 69e64b1f2cd89347a7f382e6` (Juhendid folder). URL value stored as `{"type":"url","string":"https://..."}` — `string` field works, no `url:` field needed.
+- **[GOTCHA] MANAGER_KEY vs ADMIN_KEY (2026-04-21)**: Always use `ENTU_ADMIN_KEY` from `.env.admin` for entity creation that should be Mihkel-owned. `NUXT_ENTU_MANAGER_KEY` from `.env` authenticates as Kaardirakenduse Automaat — creates Automaat-owned entities silently. Earlier scratchpad note "MANAGER_KEY is read-only/403 on write" was wrong — it CAN write, just as the wrong user.
 - Property type meta-ID (for defining properties of a type): `66b6245a7efc9ac06a437a42`
 - Database root entity (account parent): `66b6245c7efc9ac06a437ba0`
 
@@ -95,16 +99,14 @@
 - Eli Pilve person entity: `66d97072f2daf46b3145403c` (eli.pilve@esm.ee) — needed for _expander grant on Juhendid
 - Kasutusjuhendid menu _id: `69e64cae2cd89347a7f38300` (group=Kaardirakendus, query filters link+parent=Juhendid)
 
-### [LEARNED] NUXT_ENTU_MANAGER_KEY scope (2026-04-20)
+### [LEARNED] NUXT_ENTU_MANAGER_KEY scope (2026-04-20, revised 2026-04-21)
 
-- Active server key is `NUXT_ENTU_MANAGER_KEY` — NOT `NUXT_ENTU_KEY` (latter is defined in nuxt.config but unused and unset in .env)
+- Active server key is `NUXT_ENTU_MANAGER_KEY` in `.env` — NOT `NUXT_ENTU_KEY`
 - JWT audience is IP-restricted to `82.131.122.238` (production server IP)
-- **Scope: read-only, VR data only** — sees ~3,116 `vr_kavaler` and ~3,236 `vr_aum2rk` entities
-- Sees 0 of: `ülesanne`, `vastus`, `asukoht`, `kaart`, `grupp`, `person`, `folder`
-- Any write attempt (create entity, modify permissions) → `403 "No user"` — key has no Entu user identity
-- VR entities are `_sharing: "public"` so the key reads them as a public reader, not an authenticated user
-- Confirmed: neither #41 (restrict VR entity types) nor #42 (create "Juhendid" folder) can be automated with this key
-- Both require admin escalation: Entu UI is the lowest-effort path (Mihkel or Eli clicks in entu.app)
+- Authenticates as **`Kaardirakenduse Automaat`** (`68e645ab655fbc0f5c1969d1`) — a service account person entity, NOT Mihkel
+- Earlier 2026-04-20 note said "read-only, 403 on write" — that was wrong or outdated. On 2026-04-21, MANAGER_KEY successfully created an entity type AND added `_viewer`. Scope may have evolved or the earlier write test hit an unrelated failure.
+- **[GOTCHA]** Do NOT use MANAGER_KEY for admin work — it creates entities owned by Automaat, not Mihkel. Use `ENTU_ADMIN_KEY` from `.env.admin` for all entity creation that should be Mihkel-owned.
+- VR entities are `_sharing: "public"` so the key reads them as a public reader
 
 ### [GOTCHA] ENTU_ADMIN_KEY auto-assigns Mihkel as `_owner` on creation (2026-04-20)
 
