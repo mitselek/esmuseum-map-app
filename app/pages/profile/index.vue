@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-dvh bg-esm-beige">
     <!-- App Header -->
-    <AppHeader />
+    <AppHeader :show-greeting="false" />
 
     <div class="flex items-center justify-center px-4 py-12">
       <div class="w-full max-w-md space-y-8">

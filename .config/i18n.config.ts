@@ -162,13 +162,13 @@ export default defineI18nConfig(() => ({
       },
       // Profile
       profile: {
-        title: 'Täida Oma Profiil',
+        title: 'Täida oma profiil',
         subtitle: 'Palun sisesta oma nimi jätkamiseks',
         forename: 'Eesnimi',
         forenamePlaceholder: 'Sisesta oma eesnimi',
         surname: 'Perekonnanimi',
         surnamePlaceholder: 'Sisesta oma perekonnanimi',
-        submit: 'Salvesta Profiil',
+        submit: 'Salvesta profiil',
         submitting: 'Salvestamine...',
         pageTitle: 'Profiili Seadistamine'
       }
