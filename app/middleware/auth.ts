@@ -21,6 +21,7 @@ import { notifySessionExpired } from '~/composables/useNotifications'
 import { getStoredAuth, isClientAuthenticated, rememberRedirect } from '~/utils/auth-check.client'
 import { useEntuAuth } from '~/composables/useEntuAuth'
 import { useClientLogger } from '~/composables/useClientLogger'
+import { isUserNameComplete } from '~/utils/profile-validation'
 
 const log = useClientLogger('auth-middleware')
 
@@ -86,6 +87,12 @@ export default defineNuxtRouteMiddleware((to: RouteLocationNormalized, from: Rou
       log.info('🔒 [EVENT] auth middleware - Stored redirect path:', to.fullPath)
     }
     return navigateTo('/login')
+  }
+
+  const { user: authUser } = useEntuAuth()
+  if (!isUserNameComplete(authUser.value) && to.path !== '/profile') {
+    log.info('🔒 [EVENT] auth middleware - Incomplete name, redirecting to /profile')
+    return navigateTo('/profile')
   }
 
   log.info('🔒 [EVENT] auth middleware - Authenticated, proceeding')
