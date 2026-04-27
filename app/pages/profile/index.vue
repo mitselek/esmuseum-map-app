@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-esm-beige">
+  <div class="min-h-dvh bg-esm-beige">
     <!-- App Header -->
     <AppHeader />
 
