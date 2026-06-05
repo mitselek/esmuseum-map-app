@@ -2,7 +2,7 @@
 
 ## Entu API Research (2026-03-08)
 
-[LEARNED] Token expiry is 48h (not 12h as our code assumes)
+[LEARNED] Token validity is parsed from JWT exp claim (typically 48h)
 [LEARNED] Webhook token is 1-minute short-lived JWT
 [LEARNED] Webhook delivery NOT guaranteed — our queue system is correct approach
 [LEARNED] File upload signed URLs expire after 15 minutes
@@ -16,14 +16,13 @@
 [LEARNED] `counter` property type exists (auto-generated codes)
 [LEARNED] `_sharing` replaces old `_public` property
 [LEARNED] Passkey (WebAuthn) auth added recently
-[GOTCHA] Our code sets 12h token expiry but Entu docs say 48h
 [GOTCHA] Best practice says NOT to proxy file uploads — but we must due to CORS
 [GOTCHA] Property deletion is per-property-value \_id, NOT per property name
 [GOTCHA] No batch/bulk endpoint — but can bundle multiple properties in single POST
 
 ## Server Test Coverage Audit (2026-03-08)
 
-[LEARNED] server/ has 15 files, 3149 lines total. 0% real coverage (existing API tests only test MSW mocks)
+[LEARNED] server/ baseline as of 2026-04-20: 22 webhook handler tests + helpers (Entu wrote in #35). Server coverage is no longer 0%; re-audit only if a new sprint targets server.
 [LEARNED] Best first targets: webhook-queue.ts (pure state machine), validation.ts (pure validators), webhook-validation.ts extractors
 [LEARNED] ~900 lines testable as pure unit tests with no backend help (P1)
 [LEARNED] entu-admin.ts has 2 pure extractors (extractGroupsFromPerson, extractGroupFromTask) amid API-dependent code

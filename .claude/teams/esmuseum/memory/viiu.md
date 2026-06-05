@@ -28,8 +28,6 @@
   - Round 2: TaskSidebar(15), AppHeader(20), TaskLocationOverride(26), GPSPermissionPrompt(26), TaskWorkspaceHeader(11), TaskInfoCard(10)
 - Full suite: 891 passed, 3 skipped
 
-[GOTCHA] 2026-03-08: No DOM testing environment available. vitest.config.ts uses `environment: 'node'`. Component tests must be logic-focused (extracted functions, prop interfaces, computed behavior). No mount/render possible without adding happy-dom + @vue/test-utils.
-
 [CHECKPOINT] 2026-03-08 session (issue #39 complexity refactoring):
 
 - Reduced lint warnings from 20 to 3 (0 errors) across 12 files

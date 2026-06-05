@@ -64,10 +64,6 @@ Wrote 95 new tests across 6 files:
 `vi.stubGlobal('fetch', mockFn)` does NOT work when MSW is active (setup.ts has `onUnhandledRequest: 'error'`).
 Must use `server.use(http.get(...))` for custom handlers, or use existing MSW mock tokens (`mockTokens.valid`).
 
-## ~~[GOTCHA] 2026-03-08 — `readonly` not in global setup~~ RESOLVED
-
-`readonly` is now in setup-globals.ts globally. No manual stubbing needed.
-
 ## [PATTERN] 2026-03-08 — no-dynamic-delete lint rule
 
 Use `Reflect.deleteProperty(obj, key)` instead of `delete obj[key]` in test mocks.
@@ -76,18 +72,27 @@ Use `Reflect.deleteProperty(obj, key)` instead of `delete obj[key]` in test mock
 
 `import.meta.client` and `import.meta.dev` are Nuxt compile-time constants. In vitest node env they are `undefined` (falsy), so client-only code paths (guarded by `if (import.meta.client)`) never execute. Fix: add `define: { 'import.meta.client': true, 'import.meta.dev': true }` to vitest.config.ts. This requires a `window` stub in setup-globals.ts since client code paths may reference `window`.
 
-## [CHECKPOINT] 2026-03-08 — Coverage sprint 66% → 74%
+## [CHECKPOINT] 2026-03-08 — Coverage sprint + #39 complexity refactor verification
 
-- token-validation: 19% → 97% (29 tests)
-- auth-check.client: 16% → 92% (14 tests)
-- useClientSideFileUpload: 0% → covered (31 tests, rewritten from scratch)
-- useNotifications: 55% → 100% (6 new debounce tests)
-- useCompletedTasks/useTaskScoring: 75% → extended (7 new tests)
-- distance.js: 40 regression tests (Infinity bug)
-- Total: 1006 tests pass, lint clean, pushed as `567a5d7`
+1006 tests pass (61 suites, 2 skipped); coverage 74.88% stmts; lint clean (3 complexity warnings remain — useEntuAuth.ts:241 cyclomatic 24, task-assigned-to-class.post.ts:116 cyclomatic 17 / cognitive 16). Shipped as `567a5d7`.
 
-## [CHECKPOINT] 2026-03-08 — Post-#39 complexity refactor verification
+## [WIP] 2026-04-27 — Issue #49 TDD red phase (profile redirect)
 
-- 1006 tests pass (61 suites, 2 skipped)
-- Coverage stable: 74.88% stmts, 84.6% branches, 87.6% funcs, 74.88% lines
-- ESLint: 0 errors, 3 warnings (useEntuAuth complexity 24, task-assigned-to-class complexity 17+cognitive 16)
+Helper signature chosen: `isUserNameComplete(user: EntuUser | null | undefined): boolean`
+- `EntuUser` (from useEntuAuth) uses plain `forename?: string` / `surname?: string` (already extracted from Entu entity arrays)
+- NOT `EntuPerson` (which has array-typed properties) — middleware uses the auth composable user, not raw Entu entity
+- Trims before length check: `"  "` → incomplete, `" X"` → incomplete (1 char after trim)
+
+Files written (red phase — NOT yet committed):
+- `tests/unit/profile-validation.test.ts` — 13 tests for `isUserNameComplete`
+- `tests/composables/auth-middleware.test.ts` — 7 tests for middleware (3 failing, 4 passing existing behaviour)
+
+Expected implementation targets:
+- `app/utils/profile-validation.ts` — new file, exports `isUserNameComplete`
+- `app/middleware/auth.ts` — add name check after existing auth check, redirect to `/profile` if `!isUserNameComplete(user.value)` and `to.path !== '/profile'`
+
+## [GOTCHA] 2026-04-27 — Middleware mock pattern for Nuxt auto-imports
+
+stub `defineNuxtRouteMiddleware` as identity fn before import so default export is the raw handler.
+`vi.mock` for composables/utils works; `vi.stubGlobal` for `navigateTo`.
+Must `vi.resetModules()` + re-stub in `beforeEach` because resetModules clears vi.mock cache.
