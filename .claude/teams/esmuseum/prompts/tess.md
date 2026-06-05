@@ -52,6 +52,13 @@ This requires the `window` stub in setup-globals.ts. If client code paths break 
 - After `vi.resetModules()`: re-stub Vue globals (ref, computed, watch, readonly)
 - `readonly` IS in setup-globals.ts (globally available) — no manual stub needed
 
+## Server/Webhook Test Patterns
+
+- Mock `h3` with `vi.mock('h3')` — override `defineEventHandler` (passthrough) and `readBody` (return `event._body`)
+- Mock `entu-admin`, `webhook-queue`, `logger` at module level
+- Use `installNuxtMocks()` for `createError`, `getHeader`
+- Event shape: `{ _headers, _query, _body, _cookies, context: { params }, node: { req, res } }`
+
 ## Scratchpad
 
 Your scratchpad is at `.claude/teams/esmuseum/memory/tess.md`.

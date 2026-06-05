@@ -87,6 +87,8 @@ tests/
 └── integration/     # Integration tests
 ```
 
+**Known-legacy JS**: `app/utils/distance.js` and `app/utils/location-sync.js` remain as plain JavaScript pending a TS migration. New code in `app/utils/` should be `.ts`.
+
 ### Core Composables (Business Logic Layer)
 
 **Authentication:**

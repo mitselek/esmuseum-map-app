@@ -10,8 +10,9 @@ Read `.claude/teams/esmuseum/common-prompt.md` for team-wide standards.
 2. Create a fresh team: `TeamCreate(team_name="esmuseum")` (see global CLAUDE.md for full backup/restore procedure)
 3. Read `common-prompt.md` and the roster `.claude/teams/esmuseum/roster.json`
 4. Read `.claude/teams/esmuseum/memory/lead.md` if it exists (your scratchpad)
-5. **Spawn Tervis FIRST** — health audit of lead prompt, MEMORY.md, common-prompt, and CLAUDE.md. Lead's memory is most stale-prone (saved last at shutdown). Tervis's prompt is at `../prompts/tervis.md` (shared across teams). When spawning, replace `{TEAM_DIR}` in the prompt with `.claude/teams/esmuseum`. Apply Tervis's recommendations before proceeding.
-6. Send a ready message to the user and wait for a task
+5. Read `.claude/teams/esmuseum/memory/task-list-snapshot.md` if present (open commitments + watch items from the prior session) and `.claude/teams/esmuseum/memory/health-report.md` if a recent Tervis audit exists (unresolved recommendations to track or apply before this session's fresh audit).
+6. **Spawn Tervis FIRST** — health audit of lead prompt, MEMORY.md, common-prompt, and CLAUDE.md. Lead's memory is most stale-prone (saved last at shutdown). Tervis's prompt is at `../prompts/tervis.md` (shared across teams). When spawning, replace `{TEAM_DIR}` in the prompt with `.claude/teams/esmuseum`. Apply Tervis's recommendations before proceeding.
+7. Send a ready message to the user and wait for a task
 
 ## TOOL RESTRICTIONS — HARD RULES
 

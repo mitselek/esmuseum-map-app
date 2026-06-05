@@ -39,6 +39,8 @@ When you need codebase context, existing patterns, or GitHub issue details — m
 Each teammate maintains a file at `.claude/teams/esmuseum/memory/<your-name>.md`.
 You own this file — only you write to it. Keep it under 100 lines; prune stale entries.
 
+**Entry header format**: `## [TAG] YYYY-MM-DD — short title` (one heading per discrete entry)
+
 Use tags (date every entry):
 
 | Tag            | Purpose                               |
@@ -116,6 +118,10 @@ When closing issues that change documented behavior, verify CLAUDE.md references
 1. Export task list to `.claude/teams/esmuseum/memory/task-list-snapshot.md`
 2. Commit scratchpads: `git add .claude/teams/esmuseum/memory/ && git commit -F /tmp/commit-msg.txt`
 
+### Pruning trigger
+
+Run `wc -l <your-scratchpad>` at session start. If >70 lines: before adding new entries, remove resolved [GOTCHA]s, collapse old [CHECKPOINT]s into one-line summaries, and delete anything now in your prompt or common-prompt. If >100 lines: prune is mandatory before shutdown.
+
 ## Shared Workspace Protocol
 
 The team shares one git working directory. To prevent conflicts:
@@ -134,3 +140,9 @@ Marcus reviews all changes before they are considered done:
 - **GREEN** — clean, ready
 
 Lead closes tasks only after GREEN review.
+
+## Lint Notes
+
+- `complexity` and `sonarjs/cognitive-complexity` thresholds: 15
+- `?.` (optional chaining) counts as a cyclomatic branch in ESLint's `complexity` rule
+- Extract helpers like `getEntityString(prop)` to reduce branch counts in Entu property access
