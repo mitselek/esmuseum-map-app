@@ -1,5 +1,15 @@
 # Tervis Scratchpad
 
+## [CHECKPOINT] 2026-06-05 — Fifth audit completed
+
+Best follow-through yet: 11/13 of the 2026-04-27 recs fully applied via commit `6ce1dd6` (cross-cutting doc edits) + `e0cec22` (agent self-pruning). entu.md 204→36 lines (FIXED). All scratchpads under cap except tess (98). Only 2 prior items left: #40 triage (now 89 days, third flag) and tess pruning (partial — grew with #49 WIP).
+
+5 new recs: 2 STALE (marcus "tervis=haiku" vs roster opus-4-6; task-list-snapshot #42/#43 now closed), 1 GAP (#40 escalating), 1 PROMOTE (tess #49 middleware-mock → tess prompt), 1 HOUSEKEEPING (tess prune).
+
+#42/#43 CLOSED since last audit. #45 (p1 security, restrict vastus) is highest-priority untouched item. Auto-memory MEMORY.md still shows #42/#43 OPEN (out of strict scope).
+
+[PATTERN confirmed] The lead.md step-5 change (read task-list-snapshot + health-report at startup) is what enabled the cross-cutting edits to actually land this time — closes the "audit fires but nobody actions it" loop from the 2026-04-27 [PATTERN]. The remaining failure mode is product *decisions* (issue triage), which no doc edit can force.
+
 ## [CHECKPOINT] 2026-04-27 — Fourth audit completed
 
 Re-audit of 2026-04-20 report. 12 prior recommendations — only 1 fully applied (MEMORY.md "all closed" claim now correctly enumerates per-issue status), 1 partially (no-DOM dedup), 10 outstanding.

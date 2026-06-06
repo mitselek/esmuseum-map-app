@@ -1,199 +1,124 @@
-# Team Health Report — 2026-04-27
+# Team Health Report — 2026-06-05
 
 ## Summary
 
-- **13 recommendations total**
-- **2 STALE, 2 PROMOTE, 0 CROSSPOLL, 3 GAP, 2 COMMON, 1 CONSOLIDATE, 3 PRUNE/HOUSEKEEPING**
-- Of last audit's 12 recommendations: **1 fully applied, 1 partially, 10 still outstanding**
+- **5 recommendations total**
+- **2 STALE, 1 GAP, 1 PROMOTE, 1 HOUSEKEEPING**
+- Of last audit's (2026-04-27) 13 recommendations: **11 fully applied, 0 partial, 2 by-design-only (issue triage)**
+- **Major improvement vs. prior audits.** Commit `6ce1dd6` ("apply Tervis 2026-04-27 health audit recommendations") plus the agents' own pruning genuinely resolved the long-standing backlog. The entu.md 204-line bloat is fixed (now 36 lines). All scratchpads are under the 100-line cap.
 
-## Previous Audit Follow-Up (from 2026-04-20)
+---
 
-| # | Recommendation | Status |
+## Previous Audit Follow-Up (from 2026-04-27)
+
+Commit `6ce1dd6` (2026-06-05, "chore: apply Tervis 2026-04-27 health audit recommendations") + `e0cec22` (session-close scratchpad updates) applied the cross-cutting edits. Agents also pruned their own scratchpads. Verified each:
+
+| # (2026-04-27) | Recommendation | Status |
 |---|----------------|--------|
-| STALE 1 | MEMORY.md "all closed" claim | **FIXED** — auto-memory MEMORY.md now lists each issue (#40 OPEN, #41/#42/#43/#45 OPEN, #44/#47 CLOSED) |
-| STALE 2 | Finn 12h token gotcha | **NOT APPLIED** — finn.md:19 still says `Our code sets 12h token expiry but Entu docs say 48h`. Source: useEntuAuth.ts uses `decodeJWT(...).exp * 1000` since #38; no 12h literal exists. |
-| STALE 3 | Finn "0% real server coverage" | **NOT APPLIED** — finn.md:26 still says `server/ has 15 files, 3149 lines total. 0% real coverage`. Source: 22 webhook tests + others now exist; coverage metric is not zero. |
-| PROMOTE 1 | ESLint optional chaining → common-prompt | **NOT APPLIED** — common-prompt has no "Lint Notes"; entu.md:49-53 still the only place this exists. |
-| PROMOTE 2 | Webhook test pattern → Tess prompt | **NOT APPLIED** — tess prompt has no webhook section; entu.md:199-204 still the only place. |
-| CROSSPOLL 1 | Kaarel Infinity-km boundary awareness | N/A — noted only |
-| CROSSPOLL 2 | Viiu refreshToken sync → Entu | Already in Entu prompt line 31 ✓ |
-| GAP 1 | Legacy .js files (distance.js, location-sync.js) | **NOT APPLIED** — both files unchanged on disk; CLAUDE.md still silent. |
-| GAP 2 | Issue #40 unowned (was 42 days) | **NOT APPLIED** — now **50 days** open (opened 2026-03-08), still no assignee. |
-| COMMON 1 | Pruning trigger in Shutdown Protocol | **NOT APPLIED** — common-prompt:40 still only says "under 100 lines; prune stale entries". |
-| COMMON 2 | Standardize scratchpad entry header format | **NOT APPLIED** — formats still inconsistent across agents. |
-| CONSOLIDATE 1 | "No DOM testing" duplication | **PARTIALLY** — only viiu.md:31 still has the entry; kaarel/tess no longer duplicate it. The remaining viiu entry can also go (already in common-prompt:85). |
+| STALE 1 | Finn 12h token gotcha | **FIXED** — finn.md:5 now reads `Token validity is parsed from JWT exp claim (typically 48h)`; the `[GOTCHA] 12h` line is gone. |
+| STALE 2 | Finn "0% real server coverage" | **FIXED** — finn.md:25 now reads `server/ baseline as of 2026-04-20: 22 webhook handler tests + helpers ... Server coverage is no longer 0%`. |
+| PROMOTE 1 | ESLint optional chaining → common-prompt | **FIXED** — common-prompt.md now has a `## Lint Notes` section (complexity threshold 15, `?.` counts as a branch, getEntityString helper). |
+| PROMOTE 2 | Webhook test pattern → Tess prompt | **FIXED** — `prompts/tess.md` now has `## Server/Webhook Test Patterns`; the source PATTERN was dropped from entu.md per commit message edit #7. |
+| GAP 1 | Legacy .js files | **FIXED** — CLAUDE.md "Architecture Overview" now has the `**Known-legacy JS**:` one-liner. Both files still exist on disk (expected; doc note was the ask). |
+| GAP 2 | Issue #40 unowned | **NOT TRIAGED** — still OPEN, no assignee, now **89 days** old (opened 2026-03-08). See [GAP] #1 below. |
+| GAP 3 | task-list-snapshot + new issues not in prompts | **FIXED** — `prompts/lead.md` step 5 now reads `Read .claude/teams/esmuseum/memory/task-list-snapshot.md if present ... and ... health-report.md`. Steps renumbered correctly (Tervis-first is now step 6). |
+| COMMON 1 | Scratchpad pruning trigger | **FIXED** — common-prompt.md Shutdown Protocol now has `### Pruning trigger` (wc -l at session start, >70 / >100 line rules). |
+| COMMON 2 | Scratchpad entry header format | **FIXED** — common-prompt.md now states `**Entry header format**: ## [TAG] YYYY-MM-DD — short title`. |
+| CONSOLIDATE 1 | viiu "no DOM" duplicate line | **FIXED** — viiu.md no longer contains a "no DOM" entry; common-prompt.md:87 is now the single source. |
+| PRUNE 1 | entu.md 204 lines | **FIXED** — entu.md is **36 lines**, with a header pointer to auto-memory `entu_admin_api.md` and git history. Verbatim REPORT dumps and one-session checkpoints removed. |
+| PRUNE 2 | tess.md 93 lines | **PARTIAL** — tess.md is **98 lines** (grew, not shrank). New `[WIP]`/`[GOTCHA]` issue-#49 entries were added (2026-04-27) without collapsing the old 2026-03-08 CHECKPOINTs. Now 2 lines from the cap. See [HOUSEKEEPING] #1. |
+| PRUNE 3 | finn 12h (dup of STALE 1) | **FIXED** — see STALE 1. |
 
-**Net: 1/12 fully applied + 1/12 partially. 10 still outstanding.** Likely cause: 2026-04-20 session pivoted entirely into Entu admin-key / Juhendid work; documentation maintenance was deferred. Lead's MAINTAIN step (lead.md:54) didn't trigger because the 2026-04-21 session closed PRs but didn't re-open the audit's recommendations.
+**Net: 11/13 fully applied, 1 partial (tess pruning), 1 not actioned (issue #40 triage — a product decision, not a doc edit).** This is the best follow-through rate across all five audits to date.
+
+Also closed since last audit: **#42** (Juhendid folder) and **#43** (link entity type) are both now CLOSED. The work was done in production 2026-04-21; the issues were finally closed. task-list-snapshot.md:21-22 still describes them as open/"can be closed" — minor staleness, covered in [HOUSEKEEPING] #1.
 
 ---
 
 ## Recommendations
 
-### [STALE] #1: Finn scratchpad — "12h token expiry" gotcha (re-flag)
+### [STALE] #1: marcus.md — tervis "haiku model" claim
 
-**Source**: `finn.md:19` `[GOTCHA] Our code sets 12h token expiry but Entu docs say 48h` (and the matching `[LEARNED]` on line 5)
-**Verified**: useEntuAuth.ts line 316-318 parses JWT `exp`, no 12h literal exists. CLAUDE.md says "App token validity: 48h (parsed from JWT `exp` claim)".
-**Recommendation**: Remove `finn.md:19` and reword line 5 to `Token validity is parsed from JWT exp claim (typically 48h)`.
-**Rationale**: Re-flagged from 2026-04-20 audit. Describes a non-existent bug — actively misleading.
-
----
-
-### [STALE] #2: Finn scratchpad — "0% real server coverage" (re-flag)
-
-**Source**: `finn.md:26` `[LEARNED] server/ has 15 files, 3149 lines total. 0% real coverage`
-**Verified**: entu.md:43-44 records 22 webhook tests written; tess.md `[CHECKPOINT] 1006 tests pass`. The "0%" claim was a 2026-03-08 baseline that is no longer accurate.
-**Recommendation**: Replace with: `Server initial coverage was 0% on 2026-03-08; baseline is now ~22 webhook tests + helpers. Re-audit coverage if a new sprint targets server`.
-**Rationale**: Re-flagged from 2026-04-20 audit. Agents prioritising work on this would waste tokens re-confirming.
+**Source**: `marcus.md:15` `[LEARNED] Designed "tervis" health checker agent ... write-restricted to report file only, haiku model.`
+**Verified**: `roster.json` sets tervis `"model": "claude-opus-4-6"`. Tervis is not (or no longer) a haiku agent.
+**Recommendation**: Marcus edit line 15 — drop `haiku model` (or change to "opus model"). The design rationale (6-category taxonomy, write-restriction) is still accurate and worth keeping.
+**Rationale**: A model-tier claim that is wrong could mislead anyone reasoning about tervis's cost/capability. Low urgency, single-word fix.
 
 ---
 
-### [PROMOTE] #1: Entu → common-prompt — ESLint optional chaining complexity (re-flag)
+### [STALE] #2: task-list-snapshot.md — #42/#43 described as open
 
-**Source**: `entu.md:49-53` `[LEARNED] ESLint counts optional chaining as complexity`
-**Verified**: `.config/eslint.config.js:35` sets `complexity: ['warn', 15]` and `sonarjs/cognitive-complexity: ['warn', 15]`. useEntuAuth.ts still has remaining complexity warnings (per finn.md:51-53). The next refactor will rediscover this without prompting.
-**Recommendation**: Append to `common-prompt.md` (new "## Lint Notes" section):
+**Source**: `task-list-snapshot.md:21-22` (`#42 ... folder created; Eli-grant follow-up still outstanding`, `#43 ... issue can be closed`) and line 28 (`#40 ... open >42 days`).
+**Verified**: #42 and #43 are both CLOSED. #40 is now 89 days open, not 42.
+**Recommendation**: This is a dated session snapshot (2026-04-21), so editing history is optional. Better: when the lead next exports a snapshot at session close, it overwrites this file with current state. No agent action needed beyond awareness — flagging so the lead doesn't re-read stale "outstanding" items as live commitments. The lead.md step-5 read of this file should reconcile against `gh issue list`.
+**Rationale**: The file is a point-in-time snapshot; the open-issue claims in it are now stale. The #42 Eli-grant follow-up is the one item to confirm: verify whether Eli's `_expander` grant on Juhendid was completed before treating #42 as fully done.
+
+---
+
+### [GAP] #1: Issue #40 still unowned — now 89 days (re-flag, escalating)
+
+**Verified**: `gh issue list` shows #40 ("Workflow improvements from Claude Code Insights analysis", `enhancement`) OPEN since 2026-03-08, no assignee, no priority label. This is the only one of the four prior-flagged OPEN issues that has neither moved nor been triaged.
+**Recommendation**: Lead must make a call this session — (a) assign + schedule, (b) close as won't-fix/superseded, or (c) split into labelled sub-issues. Three audits have now flagged it; the lead.md step-5 change should surface it but nothing forces a *decision*.
+**Rationale**: 89 days unowned with a vague title is dead weight. The mechanism to *see* it now exists (lead.md step 5); what's missing is the will to *act*. Recommend closing unless someone owns it — re-opening later is cheap.
+
+---
+
+### [PROMOTE] #1: Tess #49 middleware-mock pattern → Tess prompt
+
+**Source**: `tess.md:94-98` `[GOTCHA] 2026-04-27 — Middleware mock pattern for Nuxt auto-imports` (stub `defineNuxtRouteMiddleware` as identity fn; `vi.stubGlobal('navigateTo')`; `vi.resetModules()` + re-stub in beforeEach).
+**Verified**: `prompts/tess.md` has sections for composable singletons and server/webhook tests, but no middleware-testing guidance. This GOTCHA cost real discovery time and is stable (middleware testing recurs).
+**Recommendation**: Add to `prompts/tess.md` under a new bullet in an existing or new "## Middleware Test Patterns" subsection:
 ```markdown
-## Lint Notes
-- `complexity` and `sonarjs/cognitive-complexity` thresholds: 15
-- `?.` (optional chaining) counts as a cyclomatic branch in ESLint's `complexity` rule
-- Extract helpers like `getEntityString(prop)` to reduce branch counts in Entu property access
+## Middleware Test Patterns
+- Stub `defineNuxtRouteMiddleware` as an identity fn before import so the default export is the raw handler
+- `vi.mock` composables/utils; `vi.stubGlobal('navigateTo', ...)` for navigation
+- `vi.resetModules()` + re-stub in `beforeEach` (resetModules clears the vi.mock cache)
 ```
-**Rationale**: Re-flagged from 2026-04-20. Affects every agent who refactors for complexity — currently only Entu knows.
+**Rationale**: Next middleware test sprint rediscovers this without the prompt. Low cost, and it lets tess.md drop the GOTCHA during pruning (helping [HOUSEKEEPING] #1).
 
 ---
 
-### [PROMOTE] #2: Entu → Tess prompt — Webhook handler testing pattern (re-flag)
+### [HOUSEKEEPING] #1: tess.md at 98 lines — prune before next entry
 
-**Source**: `entu.md:199-204` `[PATTERN] Webhook handler testing (2026-03-08)`
-**Verified**: tess prompt has no server/webhook section. Tess prompt's "Test categories" lists `tests/api/` but provides no h3/event-shape guidance.
-**Recommendation**: Add to `prompts/tess.md` under a new section "## Server/Webhook Test Patterns":
-```markdown
-- Mock `h3` with `vi.mock('h3')` — override `defineEventHandler` (passthrough) and `readBody` (return `event._body`)
-- Mock `entu-admin`, `webhook-queue`, `logger` at module level
-- Use `installNuxtMocks()` for `createError`, `getHeader`
-- Event shape: `{ _headers, _query, _body, _cookies, context: { params }, node: { req, res } }`
-```
-**Rationale**: Re-flagged. Entu's pattern saves Tess significant rediscovery cost on the next webhook test sprint.
-
----
-
-### [GAP] #1: Issue #40 still unowned — now 50 days (re-flag, escalating)
-
-**Verified**: `gh issue list` shows #40 OPEN since 2026-03-08, no assignee. Auto-memory MEMORY.md:94 confirms "unowned as of 2026-04-20".
-**Recommendation**: Lead must triage this session: (a) assign + schedule, (b) close as won't-fix, or (c) split into actionable sub-issues. The "Workflow improvements from Insights analysis" title alone won't survive much longer as a useful tracker.
-**Rationale**: 50 days unowned is a real signal that nobody believes this matters. Either prove that wrong by acting, or close it. Drift grows worse the longer it sits.
-
----
-
-### [GAP] #2: Legacy .js files in app/utils/ (re-flag)
-
-**Verified**: `app/utils/distance.js` and `app/utils/location-sync.js` both still exist as plain JavaScript. CLAUDE.md still silent.
-**Recommendation**: Either (a) add a one-liner to CLAUDE.md "Architecture Overview" noting these as known-legacy JS pending migration, or (b) open a tracked issue for the conversion.
-**Rationale**: Re-flagged. distance.js was directly involved in the Infinity-km bug (kaarel.md:54-58) — its untyped status increases bug surface for geo work.
-
----
-
-### [GAP] #3: Backlog of new OPEN issues (#41, #42, #43, #45) — none referenced from any prompt
-
-**Verified**: `gh issue list` shows #41 (p3), #42 (p2), #43 (p2), #45 (p1, security) all OPEN. Task-list-snapshot.md:21-25 records them as filed 2026-04-21. None appear in any prompt or scratchpad as ongoing work.
-**Recommendation**: Add a single line to `lead.md` "Before Starting Work" step list: `Read .claude/teams/esmuseum/memory/task-list-snapshot.md if present — picks up commitments from previous session.` — or have lead spawn finn at session start to summarise OPEN issues and unowned tickets.
-**Rationale**: Without an entry-point reminder, these issues will drift exactly like #40. The snapshot file already exists (task-list-snapshot.md:18-25) and is the right artifact — but nothing in the prompts tells lead to read it.
-
----
-
-### [COMMON] #1: Scratchpad pruning trigger (re-flag)
-
-**Source**: common-prompt.md:40 says only "Keep it under 100 lines; prune stale entries."
-**Verified**: This audit found `entu.md` at **204 lines** (over 2× the limit). No automatic trigger forced pruning.
-**Recommendation**: Add to `common-prompt.md` Shutdown Protocol section:
-```markdown
-### Pruning trigger
-
-Run `wc -l <your-scratchpad>` at session start. If >70 lines: before adding new entries, remove resolved [GOTCHA]s, collapse old [CHECKPOINT]s into one-line summaries, and delete anything now in your prompt or common-prompt. If >100 lines: prune is mandatory before shutdown.
-```
-**Rationale**: Re-flagged. The 100-line cap is regularly overrun without an actionable trigger.
-
----
-
-### [COMMON] #2: Scratchpad entry header format (re-flag)
-
-**Verified**: Still inconsistent — finn uses `## Heading (date)` with inline `[TAG]`, others use `## [TAG] date — title`, marcus uses `## date` with bullet list.
-**Recommendation**: Add to common-prompt.md memory tag table (right above the table at line 42):
-```markdown
-**Entry header format**: `## [TAG] YYYY-MM-DD — short title` (one heading per discrete entry)
-```
-**Rationale**: Re-flagged. Consistent format makes auditing and staleness detection cheaper.
-
----
-
-### [CONSOLIDATE] #1: viiu.md "no DOM" entry — now redundant (downgrade from previous audit)
-
-**Source**: viiu.md:31
-**Verified**: Common-prompt.md:85 says `Vitest env is node — no DOM, no document, no window (except stubs in setup-globals.ts)`. Viiu's entry adds no information beyond the common-prompt rule.
-**Recommendation**: Viiu can prune line 31 during her next pruning cycle.
-**Rationale**: Single source of truth already exists. Last remnant of the original 3-way duplication.
-
----
-
-### [PRUNE] #1: Entu scratchpad — 204 lines (BLOAT, urgent)
-
-**Source**: `entu.md` (204 lines vs 100-line cap, 2× over)
-**Findings**:
-- Lines 36-47 `[CHECKPOINT] Completed this session (2026-03-08)` — list of closed issues #32-#39, completed weeks ago. Belongs in PR/issue history.
-- Lines 129-167 `[REPORT] Raw ownership dump` and `[REPORT] _editor + _expander verbatim` — verbatim API dumps from one debugging session, unique IDs, will never be re-read.
-- Lines 145-167 — duplicates information already at lines 60-78 in compressed form.
-- Lines 181-197 `[REPORT] Session 2026-04-20 outcomes` — duplicates the same information that's in `[LEARNED] link entity type` (lines 90-100) and the compressed admin-key block (60-78).
-**Recommendation**: Entu should prune: keep 60-78 (admin-key facts), 79-80 (meta-IDs), 82-88 (entity-type creation quirk), 199-204 (webhook pattern, until promoted to Tess prompt). Move stable cross-session facts to auto-memory `entu_admin_api.md` (already referenced from MEMORY.md:11). Delete the verbatim dumps and one-session checkpoints.
-**Rationale**: Largest single hygiene problem in the team. Reading 204 lines on every Entu session start is a real token cost.
-
----
-
-### [PRUNE] #2: Tess scratchpad — 93 lines (still near limit, re-flag)
-
-**Source**: `tess.md` (93 lines, unchanged from 2026-04-20 audit)
-**Recommendation**: Tess should compress at next session: line 67-69 (struck-through resolved GOTCHA — delete), lines 79-94 (two CHECKPOINTS from 2026-03-08 — collapse to one line each since the work is shipped).
-**Rationale**: Re-flagged. Will hit 100 immediately on first new entry.
-
----
-
-### [PRUNE] #3: Finn scratchpad — both `[LEARNED] 12h` and `[GOTCHA] 12h` are stale (re-flag with bigger picture)
-
-Already covered in [STALE] #1 above. Listing here so the lead has a single "scratchpads to prune" list.
+**Source**: `tess.md` = 98 lines (2 from the 100 cap). The new common-prompt "Pruning trigger" (>70 lines) already applies.
+**Recommendation**: Tess prune at next session start: collapse the two 2026-03-08 CHECKPOINTs (lines 45-49, 75-77) to one line each (work shipped, captured in git/issues); once [PROMOTE] #1 lands in the prompt, drop the #49 middleware GOTCHA (94-98). The #49 `[WIP]` (79-92) can collapse to one line if #49 shipped — lead should confirm #49's status (it is not in the open-issue list, suggesting it closed).
+**Rationale**: The only scratchpad over the soft 70-line trigger. Will breach 100 on the next entry. Everything else is healthy.
 
 ---
 
 ## Scratchpad Health (snapshot)
 
-| Agent | Lines | Health | Action |
-| ----- | ----- | ------ | ------ |
-| entu | **204** | **CRITICAL** — 2× over cap | Prune verbatim API dumps + 2026-04-20 duplicate REPORTs; promote webhook pattern to Tess prompt then drop |
-| tess | 93 | Near limit (unchanged) | Drop resolved GOTCHA + collapse 2026-03-08 CHECKPOINTs |
-| kaarel | 76 | OK | No urgent action |
-| entu (post-prune target) | <100 | — | — |
-| viiu | 41 | Healthy | Drop "no DOM" line 31 |
-| finn | 55 | 2 stale gotchas | Re-flag from last audit — prune lines 19, 26 |
-| marcus | 15 | Healthy | No action |
-| tervis | 32 | Healthy | (this audit will append) |
+| Agent  | Lines | Health | Action |
+| ------ | ----- | ------ | ------ |
+| entu   | 36  | Excellent — was 204, now lean with auto-memory pointer | None |
+| finn   | 54  | Healthy — both stale gotchas fixed | None |
+| kaarel | 76  | OK | None urgent |
+| marcus | 15  | Healthy | Fix tervis "haiku" claim ([STALE] #1) |
+| tess   | 98  | Near cap | Prune ([HOUSEKEEPING] #1) |
+| viiu   | 39  | Healthy — "no DOM" dup removed | None |
+| tervis | 48  | Healthy | (this audit appends) |
+
+(health-report.md = 199 lines and task-list-snapshot.md = 38 are output/snapshot artifacts, not agent scratchpads — no cap.)
 
 ---
 
-## New Since Last Audit (2026-04-20 → 2026-04-27)
+## New Since Last Audit (2026-04-27 → 2026-06-05)
 
-- **PR #46** (closes #44): Entu API URL migration to `api.entu.app/{db}/`. Marcus GREEN, shipped.
-- **PR #48** (closes #47): Follow-up cleanup of dead `entuApiUrl` config + script defaults + 10+ doc updates. Marcus GREEN, shipped.
-- **Entu scratchpad** doubled in size with admin-key / Juhendid investigation — stable facts likely belong in auto-memory `entu_admin_api.md` (referenced from MEMORY.md:11), not the scratchpad.
-- Issue #40 ageing — 42 → 50 days unowned.
-- New issues #41, #42, #43, #45 filed 2026-04-21, none yet started.
-- Auto-memory MEMORY.md is up-to-date as of 2026-04-20 (lists each issue's status correctly). No staleness detected there.
+- **Commit `6ce1dd6`** applied 7 cross-cutting doc edits from the 2026-04-27 audit (common-prompt Lint Notes / Pruning trigger / header format; tess webhook patterns; lead.md snapshot read; CLAUDE.md legacy-JS note; entu.md webhook-pattern drop). Verified all 7 landed.
+- **Commit `e0cec22`** "session-close scratchpad updates" — agents pruned their own scratchpads (finn stale fixes, entu 204→36, viiu no-DOM removal, tess #49 WIP added).
+- **PRs #50, #51** shipped (mobile keyboard fix, profile-page polish) per git log `5e6a5d5`, `61565c8`.
+- **Issues #42, #43 CLOSED**; **#52** filed 2026-04-27 (uk/lv locale sentence-case, p3 follow-up to #51).
+- **Open issues now**: #40 (enhancement, 89d, untriaged), #41 (p3), #45 (p1 security), #52 (p3). #45 (restrict vastus visibility) remains the highest-priority untouched item.
+- Auto-memory MEMORY.md still lists #42/#43 as OPEN (lines under "GitHub Issues") — minor drift; not a team-scratchpad so out of strict audit scope, but worth a one-line fix when convenient.
 
 ## Priority Order for Lead
 
-1. **Prune entu.md (204 lines)** — biggest token waste; Entu can do this in 5 minutes
-2. **Apply re-flagged STALE fixes to finn.md** — 2-line edit, prevents misleading 12h gotcha
-3. **Promote ESLint chaining + webhook test pattern** — single edit each to common-prompt.md and tess prompt
-4. **Triage issue #40** — 50 days unowned, decide and act
-5. **Add pruning trigger + entry-format rule to common-prompt.md** — small edits with high downstream value
+1. **Triage issue #40** (89 days, third flag) — assign, split, or close. Decision, not a doc edit.
+2. **Confirm #45 (p1 security) ownership** — highest-priority open ticket, untouched since 2026-04-20.
+3. **tess.md prune + [PROMOTE] #1** — single combined pass keeps tess under cap and captures the middleware pattern.
+4. **marcus.md tervis-model fix** ([STALE] #1) — one word.
+5. **Verify #42 Eli-grant follow-up** actually completed before treating Juhendid as fully done.
 
 ---
 
-*Audit performed by Tervis at 2026-04-27 18:29. Working directory: `/home/michelek/Documents/github/esmuseum-map-app`. Source files verified: `app/composables/useEntuAuth.ts`, `app/utils/distance.js`, `app/utils/location-sync.js`, `.config/eslint.config.js`, `.claude/teams/esmuseum/common-prompt.md`, all team prompts and scratchpads, auto-memory MEMORY.md, and `gh issue list` output.*
+*Audit performed by Tervis at 2026-06-05. Working directory: `/home/michelek/Documents/github/esmuseum-map-app`. Verified: commit `6ce1dd6`/`e0cec22` diffs, all 7 scratchpads, `prompts/lead.md`/`tess.md`, `common-prompt.md`, `CLAUDE.md`, `roster.json`, `app/utils/distance.js` + `location-sync.js` (exist), `server/` (16 files), and `gh issue list` / `gh issue view 42,43`.*
