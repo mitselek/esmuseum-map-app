@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-esm-beige">
+  <div class="flex h-dvh bg-esm-beige">
     <!-- Sidebar - Show when no task selected, hide when task selected -->
     <div
       v-show="!isTaskSelected"
