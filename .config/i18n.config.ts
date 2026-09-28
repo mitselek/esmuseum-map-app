@@ -169,7 +169,7 @@ export default defineI18nConfig(() => ({
         surnamePlaceholder: 'Sisesta oma perekonnanimi',
         submit: 'Salvesta profiil',
         submitting: 'Salvestamine...',
-        pageTitle: 'Profiili Seadistamine'
+        pageTitle: 'Profiili seadistamine'
       }
     },
     en: {
@@ -513,7 +513,7 @@ export default defineI18nConfig(() => ({
         surnamePlaceholder: 'Введіть ваше прізвище',
         submit: 'Зберегти профіль',
         submitting: 'Збереження...',
-        pageTitle: 'Налаштування Профілю'
+        pageTitle: 'Налаштування профілю'
       }
     },
     lv: {
@@ -540,7 +540,7 @@ export default defineI18nConfig(() => ({
       },
       login: 'Pieteikties',
       logout: 'Izrakstīties',
-      appName: 'IKM Kartes Lietotne',
+      appName: 'IKM kartes lietotne',
 
       museumLogoAlt: 'Igaunijas Kara muzeja logotips',
       title: 'Laipni lūdzam Igaunijas Kara muzejā',
@@ -681,7 +681,7 @@ export default defineI18nConfig(() => ({
         surnamePlaceholder: 'Ievadiet savu uzvārdu',
         submit: 'Saglabāt profilu',
         submitting: 'Saglabāšana...',
-        pageTitle: 'Profila Iestatīšana'
+        pageTitle: 'Profila iestatīšana'
       }
     }
   },
