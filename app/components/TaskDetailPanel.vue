@@ -74,6 +74,7 @@
 </template>
 
 <script setup lang="ts">
+import { SUBMISSION_SUCCESS_DISPLAY_MS } from '~/constants/ui'
 import type { TaskLocation } from '~~/types/location'
 import { getLocationIdentifier } from '~/utils/location-sync'
 import { getTaskName } from '~~/utils/entu-helpers'
@@ -277,7 +278,7 @@ const handleResponseSubmitted = async (_responseData: unknown): Promise<void> =>
     // Auto-close modal after success
     setTimeout(() => {
       showSubmissionModal.value = false
-    }, 1500)
+    }, SUBMISSION_SUCCESS_DISPLAY_MS)
   }
   catch (error) {
     // Show error state
