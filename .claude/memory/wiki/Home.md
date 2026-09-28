@@ -8,6 +8,7 @@ scratchpad happens at every session close).
 
 - [[Laidoner]] -- who tends this garden and how
 - [[Architecture]] -- app structure, Entu integration, key composables
+- [[Deployment]] -- how a push reaches students, how to verify and roll back
 - [[Decisions]] -- rulings with dates and reasons
 - [[Gotchas]] -- traps that cost real time
 

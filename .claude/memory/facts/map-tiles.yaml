@@ -1,0 +1,19 @@
+# Subject: base map tile providers.
+
+facts:
+  - fact: "CARTO basemaps require an API key and serve an API KEY REQUIRED watermark tile with HTTP 200 without one."
+    ref: "#54"
+    refute: "curl -s https://a.basemaps.cartocdn.com/rastertiles/voyager/12/2330/1180.png | md5sum"
+    verified: "2026-09-29"
+  - fact: "Stadia/Stamen tiles return HTTP 401 for the esm.entu.ee referer; the PO ruled they will not be licensed."
+    ref: "#54"
+    refute: "curl -s -o /dev/null -w '%{http_code}' https://tiles.stadiamaps.com/tiles/stamen_toner/12/2330/1180.png"
+    verified: "2026-09-29"
+  - fact: "Only two styles remain: default (OSM standard, everyday) and topo (OpenTopoMap, Feb 24 daylight, Jun 23, full-moon Thursdays)."
+    ref: bdfdb2b
+    refute: app/composables/useMapStyles.ts
+    verified: "2026-09-29"
+  - fact: "OpenTopoMap serves tiles up to zoom 17 and a max-zoom placeholder above it, so topo sets maxNativeZoom 17 while the map allows zoom 18."
+    ref: bdfdb2b
+    refute: "curl -s https://a.tile.opentopomap.org/18/149120/75520.png"
+    verified: "2026-09-29"

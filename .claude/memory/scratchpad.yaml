@@ -7,13 +7,28 @@
 
 current:
   - label: WIP
-    record: "Tonight's tasks are all UI-related; Mihkel briefs them directly in-session."
+    record: "#56 is live (158fb20) but unverified: needs Android Chrome + Messenger check, then close."
+    ref: "#56"
+  - label: DEFERRED
+    record: "#53 left out: failed submit shows nothing (TaskResponseForm only logs). Needs its own issue."
+    ref: "#53"
+  - label: DEFERRED
+    record: "Eli wrote 'vastus esitatud'; UI still says 'Vastus saadetud!'. Ask Mihkel before changing."
     ref: "mihkel:2026-09-28"
-  - label: LEARNED
-    record: "main was 1 commit ahead of origin at plant time (26d2bdd, team-era chore); pushed with the plant."
-    ref: "2026-09-28"
+  - label: DEFERRED
+    record: "Add memory-kit/ to ESLint ignores; npm run lint rewrites 12 vendored files each run."
+    ref: "2026-09-29"
+  - label: DEFERRED
+    record: "DEPLOYMENT.md is stale (old host and IP); rewrite from wiki/Deployment.md."
+    ref: DEPLOYMENT.md
+  - label: DEFERRED
+    record: "uk appName translation wants a native speaker check."
+    ref: afa8560
+  - label: WARNING
+    record: "Push to main deploys to students at once. Daytime changes need Mihkel's go-ahead."
+    ref: "mihkel:2026-09-28"
   - label: WIP
-    record: "First session: read rules.yaml and this file, then wait for Mihkel's UI task brief."
-    ref: .claude/startup.md
+    record: "Oldest open priority: #45 (P1 security, restrict vastus visibility to task creator)."
+    ref: "#45"
 
 staging: []

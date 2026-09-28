@@ -25,7 +25,7 @@ All tiers live under `.claude/memory/` (see `memory-kit.conf`):
   `Home.md` is the index). This replaces a librarian: YOU promote knowledge here.
 - `dormant/`, `lessons/`, `urls/`, `secrets/`, `keys.yaml` — per kit README.
 
-Lint: `bash memory-kit/lint/memory-lint.sh` — mode is **gate**; it must pass before any
+Lint: `bash memory-kit/lint/memory-lint.sh .claude/memory` (the path is required) — mode is **gate**; it must pass before any
 commit that touches memory.
 
 ## Session order

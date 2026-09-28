@@ -1,0 +1,27 @@
+# Subject: how the app reaches production.
+
+facts:
+  - fact: "Production is DigitalOcean App Platform app esm-map-app (id e3d523b3-f012-469e-8029-fe6e7339e4da) in the Entu team, doctl context entu, region fra."
+    ref: "2026-09-29"
+    refute: "doctl apps spec get e3d523b3-f012-469e-8029-fe6e7339e4da --context entu"
+    verified: "2026-09-29"
+  - fact: "Every push to main auto-deploys to production (deploy_on_push); there is no preview or staging app."
+    ref: "2026-09-29"
+    refute: "doctl apps spec get e3d523b3-f012-469e-8029-fe6e7339e4da --context entu"
+    verified: "2026-09-29"
+  - fact: "Production domains are esm.entu.ee (primary) and geokool.esm.ee (alias); DEPLOYMENT.md still names an old host and IP."
+    ref: urls/esm-prod
+    refute: "doctl apps spec get e3d523b3-f012-469e-8029-fe6e7339e4da --context entu"
+    verified: "2026-09-29"
+  - fact: "GitHub CI does not gate the deploy; only the local pre-push hook (typecheck and tests) stands between a push and production."
+    ref: .github/workflows/ci.yml
+    refute: "gh api repos/mitselek/esmuseum-map-app/deployments"
+    verified: "2026-09-29"
+  - fact: "A deploy is done when the newest row of doctl apps list-deployments for the app shows the pushed short sha as ACTIVE, typically 2-4 minutes after push."
+    ref: "2026-09-29"
+    refute: "doctl apps list-deployments e3d523b3-f012-469e-8029-fe6e7339e4da --context entu"
+    verified: "2026-09-29"
+  - fact: "App Platform keeps previous deployments, so a bad deploy is rolled back in DigitalOcean without a git revert."
+    ref: "mihkel:2026-09-29"
+    refute: ""
+    verified: "2026-09-29"

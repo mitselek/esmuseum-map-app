@@ -2,10 +2,10 @@
 # here only what stays true until deliberately changed.
 
 facts:
-  - fact: "Open issues at plant time: #45 (P1, security: restrict vastus visibility to task creator), #52 (i18n sentence-case uk/lv), #40 (workflow improvements)."
-    ref: "2026-09-28"
-    refute: "=ref"
-    verified: "2026-09-28"
+  - fact: "Open issues after the 2026-09-28 night session: #56 (keyboard, awaiting device check), #45 (P1 security, vastus visibility), #40 (workflow improvements)."
+    ref: "2026-09-29"
+    refute: "gh issue list --state open"
+    verified: "2026-09-29"
   - fact: "The previous team-based workflow (8 seats, spawn scripts) ended 2026-04-27; its scratchpads live in .claude/teams/esmuseum/memory/."
     ref: .claude/startup-team-archive.md
     refute: "=ref"
