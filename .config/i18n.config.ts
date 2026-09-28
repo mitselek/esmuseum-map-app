@@ -1,4 +1,3 @@
-// @ts-expect-error - defineI18nConfig is auto-imported by Nuxt i18n
 export default defineI18nConfig(() => ({
   legacy: false,
   strategy: 'no_prefix',
