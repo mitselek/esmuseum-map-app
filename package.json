@@ -63,7 +63,9 @@
     "naive-ui": "2.42.0",
     "nuxt": "3.17.6",
     "simple-git-hooks": "2.13.1",
-    "vitest": "3.2.4"
+    "typescript": "5.9.2",
+    "vitest": "3.2.4",
+    "vue-tsc": "3.3.11"
   },
   "dependencies": {
     "@vue-leaflet/vue-leaflet": "0.10.1",
