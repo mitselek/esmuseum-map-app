@@ -506,13 +506,13 @@ export default defineI18nConfig(() => ({
       },
       // Profile
       profile: {
-        title: 'Заповніть Свій Профіль',
+        title: 'Заповніть свій профіль',
         subtitle: 'Будь ласка, вкажіть ваше ім\'я для продовження',
         forename: 'Ім\'я',
         forenamePlaceholder: 'Введіть ваше ім\'я',
         surname: 'Прізвище',
         surnamePlaceholder: 'Введіть ваше прізвище',
-        submit: 'Зберегти Профіль',
+        submit: 'Зберегти профіль',
         submitting: 'Збереження...',
         pageTitle: 'Налаштування Профілю'
       }
@@ -674,13 +674,13 @@ export default defineI18nConfig(() => ({
       },
       // Profile
       profile: {
-        title: 'Aizpildiet Savu Profilu',
+        title: 'Aizpildiet savu profilu',
         subtitle: 'Lūdzu, norādiet savu vārdu, lai turpinātu',
         forename: 'Vārds',
         forenamePlaceholder: 'Ievadiet savu vārdu',
         surname: 'Uzvārds',
         surnamePlaceholder: 'Ievadiet savu uzvārdu',
-        submit: 'Saglabāt Profilu',
+        submit: 'Saglabāt profilu',
         submitting: 'Saglabāšana...',
         pageTitle: 'Profila Iestatīšana'
       }
