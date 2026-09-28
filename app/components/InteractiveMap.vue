@@ -69,7 +69,7 @@
           :key="currentMapStyle.id"
           :url="currentMapStyle.url"
           :attribution="currentMapStyle.attribution"
-          :options="tileOptions"
+          :options="{ ...tileOptions, maxNativeZoom: currentMapStyle.maxNativeZoom }"
         />
 
         <!-- User location marker -->

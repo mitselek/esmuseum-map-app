@@ -106,7 +106,7 @@ describe('useMapStyleScheduler', () => {
       const { applyScheduledStyle } = useMapStyleScheduler()
       await applyScheduledStyle()
 
-      expect(mockSetStyle).toHaveBeenCalledWith('vintage')
+      expect(mockSetStyle).toHaveBeenCalledWith('topo')
     })
 
     it('should apply victory day style on Jun 23', async () => {
@@ -115,10 +115,10 @@ describe('useMapStyleScheduler', () => {
       const { applyScheduledStyle } = useMapStyleScheduler()
       await applyScheduledStyle()
 
-      expect(mockSetStyle).toHaveBeenCalledWith('terrain')
+      expect(mockSetStyle).toHaveBeenCalledWith('topo')
     })
 
-    it('should apply toner style on full moon Thursday', async () => {
+    it('should apply topo style on full moon Thursday', async () => {
       // 2026-03-05 is a Thursday
       vi.setSystemTime(new Date('2026-03-05T22:00:00'))
       mockUserPosition.value = { lat: 59.437, lng: 24.745 }
@@ -137,7 +137,7 @@ describe('useMapStyleScheduler', () => {
       const { applyScheduledStyle } = useMapStyleScheduler()
       await applyScheduledStyle()
 
-      expect(mockSetStyle).toHaveBeenCalledWith('toner')
+      expect(mockSetStyle).toHaveBeenCalledWith('topo')
     })
 
     it('should not apply full moon Thursday without GPS', async () => {
@@ -172,7 +172,7 @@ describe('useMapStyleScheduler', () => {
       const { applyScheduledStyle } = useMapStyleScheduler()
       await applyScheduledStyle()
 
-      expect(mockSetStyle).toHaveBeenCalledWith('vintage')
+      expect(mockSetStyle).toHaveBeenCalledWith('topo')
     })
   })
 

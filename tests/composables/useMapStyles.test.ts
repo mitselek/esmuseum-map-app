@@ -25,8 +25,12 @@ describe('useMapStyles', () => {
 
   describe('MAP_STYLES constant', () => {
     it('should contain all expected style entries', () => {
-      const expectedIds = ['default', 'vintage', 'toner', 'tonerLite', 'terrain', 'topo', 'positron', 'darkMatter', 'voyager']
+      const expectedIds = ['default', 'topo']
       expect(Object.keys(MAP_STYLES)).toEqual(expectedIds)
+    })
+
+    it('topo upscales beyond its native max zoom 17 (#54)', () => {
+      expect(MAP_STYLES.topo!.maxNativeZoom).toBe(17)
     })
 
     it('should have required properties on each style', () => {
@@ -54,9 +58,9 @@ describe('useMapStyles', () => {
   describe('getStyle', () => {
     it('should return specific style by ID', () => {
       const { getStyle } = useMapStyles()
-      const vintage = getStyle('vintage')
-      expect(vintage).toBeDefined()
-      expect(vintage!.name).toBe('Stamen Watercolor')
+      const topo = getStyle('topo')
+      expect(topo).toBeDefined()
+      expect(topo!.name).toBe('OpenTopoMap')
     })
 
     it('should return undefined for unknown style', () => {
@@ -74,8 +78,8 @@ describe('useMapStyles', () => {
 
     it('should update when currentStyle changes', () => {
       const { currentStyle, getCurrentStyle } = useMapStyles()
-      currentStyle.value = 'vintage'
-      expect(getCurrentStyle.value!.id).toBe('vintage')
+      currentStyle.value = 'topo'
+      expect(getCurrentStyle.value!.id).toBe('topo')
     })
 
     it('should fall back to default for invalid currentStyle', () => {
@@ -88,16 +92,16 @@ describe('useMapStyles', () => {
   describe('setStyle', () => {
     it('should set a valid style and return true', () => {
       const { setStyle, currentStyle } = useMapStyles()
-      const result = setStyle('vintage')
+      const result = setStyle('topo')
       expect(result).toBe(true)
-      expect(currentStyle.value).toBe('vintage')
+      expect(currentStyle.value).toBe('topo')
     })
 
     it('should log on successful style change', () => {
       const { setStyle } = useMapStyles()
-      setStyle('toner')
+      setStyle('topo')
       expect(mockLogger.debug).toHaveBeenCalledWith(
-        expect.stringContaining('Stamen Toner')
+        expect.stringContaining('OpenTopoMap')
       )
     })
 
@@ -133,8 +137,8 @@ describe('useMapStyles', () => {
     it('should share currentStyle across instances', () => {
       const instance1 = useMapStyles()
       const instance2 = useMapStyles()
-      instance1.setStyle('terrain')
-      expect(instance2.currentStyle.value).toBe('terrain')
+      instance1.setStyle('topo')
+      expect(instance2.currentStyle.value).toBe('topo')
     })
   })
 })

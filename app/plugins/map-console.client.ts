@@ -5,7 +5,7 @@
  *
  * Usage in browser console:
  * - window.$map.listStyles()        // Show all available styles
- * - window.$map.setStyle('vintage') // Switch to vintage style
+ * - window.$map.setStyle('topo') // Switch to topographic style
  * - window.$map.currentStyle()      // Show current style
  */
 
@@ -42,7 +42,7 @@ export default defineNuxtPlugin(() => {
         console.log('window.$map.setStyle("id")      - Switch to a different style')
         console.log('window.$map.currentStyle()      - Show current active style')
         console.log('window.$map.help()              - Show this help')
-        console.log('\n💡 Try: window.$map.setStyle("vintage")')
+        console.log('\n💡 Try: window.$map.setStyle("topo")')
       }
     }
 

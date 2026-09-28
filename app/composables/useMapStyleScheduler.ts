@@ -131,24 +131,24 @@ export function useMapStyleScheduler () {
     {
       id: 'independence-day',
       name: 'Estonian Independence Day',
-      description: 'Vintage watercolor style on Feb 24 during daylight (sunrise to sunset)',
-      styleId: 'vintage',
+      description: 'Topographic style on Feb 24 during daylight (sunrise to sunset)',
+      styleId: 'topo',
       priority: 100,
       check: isIndependenceDay
     },
     {
       id: 'victory-day',
       name: 'Victory Day',
-      description: 'Terrain style on Jun 23',
-      styleId: 'terrain',
+      description: 'Topographic style on Jun 23',
+      styleId: 'topo',
       priority: 90,
       check: isVictoryDay
     },
     {
       id: 'full-moon-thursday',
       name: 'Full Moon Thursday',
-      description: 'Black & white toner style during full moon on Thursdays (moonrise to moonset)',
-      styleId: 'toner',
+      description: 'Topographic style during full moon on Thursdays (moonrise to moonset)',
+      styleId: 'topo',
       priority: 80,
       check: isFullMoonThursday
     },

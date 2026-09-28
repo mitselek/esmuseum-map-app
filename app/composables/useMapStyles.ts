@@ -1,6 +1,6 @@
 /**
  * Map style configurations for easy switching
- * Use in console: window.$map.setStyle('vintage') or window.$map.listStyles()
+ * Use in console: window.$map.setStyle('topo') or window.$map.listStyles()
  */
 
 export interface MapStyle {
@@ -9,12 +9,12 @@ export interface MapStyle {
   description: string
   url: string
   attribution: string
+  /** Highest zoom the provider serves; Leaflet upscales tiles above it */
+  maxNativeZoom?: number
 }
 
-// Shared attribution strings
+// Only keyless tile providers: CARTO and Stadia now require API keys (#54)
 const ATTR_OSM = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-const ATTR_STADIA = '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://stamen.com">Stamen Design</a>'
-const ATTR_CARTO = '&copy; <a href="https://carto.com/">CARTO</a>'
 
 export const MAP_STYLES: Record<string, MapStyle> = {
   default: {
@@ -25,68 +25,13 @@ export const MAP_STYLES: Record<string, MapStyle> = {
     attribution: ATTR_OSM
   },
 
-  vintage: {
-    id: 'vintage',
-    name: 'Stamen Watercolor',
-    description: 'Artistic vintage watercolor style',
-    url: 'https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg',
-    attribution: ATTR_STADIA
-  },
-
-  toner: {
-    id: 'toner',
-    name: 'Stamen Toner',
-    description: 'Black & white vintage print style',
-    url: 'https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}.png',
-    attribution: ATTR_STADIA
-  },
-
-  tonerLite: {
-    id: 'tonerLite',
-    name: 'Stamen Toner Lite',
-    description: 'Light black & white style',
-    url: 'https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}.png',
-    attribution: ATTR_STADIA
-  },
-
-  terrain: {
-    id: 'terrain',
-    name: 'Stamen Terrain',
-    description: 'Terrain with natural colors',
-    url: 'https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}.png',
-    attribution: ATTR_STADIA
-  },
-
   topo: {
     id: 'topo',
     name: 'OpenTopoMap',
     description: 'Topographic map (like military maps)',
     url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
-  },
-
-  positron: {
-    id: 'positron',
-    name: 'CartoDB Positron',
-    description: 'Minimal light style',
-    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-    attribution: ATTR_CARTO
-  },
-
-  darkMatter: {
-    id: 'darkMatter',
-    name: 'CartoDB Dark Matter',
-    description: 'Dark theme',
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-    attribution: ATTR_CARTO
-  },
-
-  voyager: {
-    id: 'voyager',
-    name: 'CartoDB Voyager',
-    description: 'Colorful modern style',
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-    attribution: ATTR_CARTO
+    attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
+    maxNativeZoom: 17
   }
 }
 
@@ -144,7 +89,7 @@ export function useMapStyles () {
       logger.debug(`  ${' '.repeat(15)}   ${style.description}`)
     })
     logger.debug('\nUsage: window.$map.setStyle("styleId")')
-    logger.debug('Example: window.$map.setStyle("vintage")')
+    logger.debug('Example: window.$map.setStyle("topo")')
   }
 
   return {
