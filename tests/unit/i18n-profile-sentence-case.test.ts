@@ -36,6 +36,10 @@ describe('profile page strings use sentence case', () => {
     expect(messages.lv!.profile.pageTitle).toBe('Profila iestatīšana')
   })
 
+  it('uk appName is translated', () => {
+    expect(messages.uk!.appName).toBe('Карта Естонського військового музею')
+  })
+
   it('lv appName', () => {
     expect(messages.lv!.appName).toBe('IKM kartes lietotne')
   })

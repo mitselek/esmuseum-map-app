@@ -370,7 +370,7 @@ export default defineI18nConfig(() => ({
       },
       login: 'Увійти',
       logout: 'Вийти',
-      appName: 'EWM Map App',
+      appName: 'Карта Естонського військового музею',
 
       museumLogoAlt: 'Логотип Естонського військового музею',
       title: 'Ласкаво просимо до Естонського військового музею',
