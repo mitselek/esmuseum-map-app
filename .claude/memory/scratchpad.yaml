@@ -1,0 +1,19 @@
+# Scratchpad of Laidoner. Shape: types/memory-scratchpad.ts.
+# A claim about sources, never a source. Open the ref before citing.
+#
+# current: act on these next session. Capped. REGENERATED at close, never appended.
+# staging: do not re-derive these; waiting for promotion into a durable tier.
+# No date field -- a date is provenance and lives in ref (<person>:<date>, or a bare <date>).
+
+current:
+  - label: WIP
+    record: "Tonight's tasks are all UI-related; Mihkel briefs them directly in-session."
+    ref: "mihkel:2026-09-28"
+  - label: LEARNED
+    record: "main was 1 commit ahead of origin at plant time (26d2bdd, team-era chore); pushed with the plant."
+    ref: "2026-09-28"
+  - label: WIP
+    record: "First session: read rules.yaml and this file, then wait for Mihkel's UI task brief."
+    ref: .claude/startup.md
+
+staging: []

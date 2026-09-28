@@ -1,0 +1,19 @@
+# Subject: the application itself.
+
+facts:
+  - fact: "ES in the name means Eesti Soja (Estonian War), never Estonian Sports."
+    ref: docs/PROJECT-NAMING.md
+    refute: "=ref"
+    verified: "2026-09-28"
+  - fact: "The app is a mobile-first Nuxt 3 / Vue 3 task application: students complete location-based learning assignments on an interactive map."
+    ref: CLAUDE.md
+    refute: "=ref"
+    verified: "2026-09-28"
+  - fact: "Entu is the backend data platform; the data model is documented in CLAUDE.md."
+    ref: CLAUDE.md
+    refute: "=ref"
+    verified: "2026-09-28"
+  - fact: "The GitHub wiki is enabled but uninitialized and unused; the stable knowledge tier is .claude/memory/wiki/ instead."
+    ref: "mihkel:2026-09-28"
+    refute: "gh repo view mitselek/esmuseum-map-app --json hasWikiEnabled"
+    verified: "2026-09-28"

@@ -1,0 +1,4 @@
+# GENERATED from the lesson files -- never hand-carried. Shape: types/memory-lessons.ts.
+# A hand-maintained index rots while its bodies stay right, and the index is what gets read.
+
+lessons: []

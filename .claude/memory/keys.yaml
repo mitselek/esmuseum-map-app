@@ -1,0 +1,5 @@
+# Access grants this home holds or has handed out. Shape: types/memory-keys.ts.
+# The tier exists for the revoke column: a grant nobody can withdraw is permanent by accident.
+# A blank `revoke` is a finding, not a blank.
+
+keys: []

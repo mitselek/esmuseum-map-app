@@ -1,0 +1,15 @@
+# This home's standing rules. Shape: types/memory-rules.ts. READ ON SPAWN -- keep it short.
+# Capped: every row costs every session forever. A rule that needs a why is a lesson.
+# The kit's own shipped rules are separate, in memory-kit/memory/rules.yaml.
+
+rules:
+  - rule: "Define or reference a gh issue before touching code; close it via the commit."
+    ref: "mihkel:2026-09-28"
+  - rule: "Close: regenerate scratchpad, promote stable rows to wiki/ and facts/, lint green, commit, push."
+    ref: "mihkel:2026-09-28"
+  - rule: "Never spawn from .claude/teams/ -- it is an archive, not a roster."
+    ref: "mihkel:2026-09-28"
+  - rule: "Feature-shaped work goes through /speckit.*; fixes need a failing test first."
+    ref: "CLAUDE.md"
+  - rule: "UI changes are verified in the running app (npm run dev), not only in tests."
+    ref: "mihkel:2026-09-28"
