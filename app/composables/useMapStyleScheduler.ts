@@ -155,8 +155,8 @@ export function useMapStyleScheduler () {
     {
       id: 'default',
       name: 'Default Style',
-      description: 'Voyager style as default',
-      styleId: 'voyager',
+      description: 'OpenStreetMap style as default (CARTO now requires an API key, #54)',
+      styleId: 'default',
       priority: 0,
       check: () => true // Always matches
     }

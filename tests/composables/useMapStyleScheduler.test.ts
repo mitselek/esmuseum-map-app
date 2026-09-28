@@ -89,7 +89,7 @@ describe('useMapStyleScheduler', () => {
       const { applyScheduledStyle } = useMapStyleScheduler()
       await applyScheduledStyle()
 
-      expect(mockSetStyle).toHaveBeenCalledWith('voyager')
+      expect(mockSetStyle).toHaveBeenCalledWith('default')
     })
 
     it('should apply independence day style on Feb 24 during daylight', async () => {
@@ -152,8 +152,8 @@ describe('useMapStyleScheduler', () => {
       const { applyScheduledStyle } = useMapStyleScheduler()
       await applyScheduledStyle()
 
-      // Should fall back to default (voyager) since full-moon-thursday needs GPS
-      expect(mockSetStyle).toHaveBeenCalledWith('voyager')
+      // Should fall back to default (OSM) since full-moon-thursday needs GPS
+      expect(mockSetStyle).toHaveBeenCalledWith('default')
     })
   })
 
