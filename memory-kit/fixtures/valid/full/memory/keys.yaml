@@ -1,0 +1,7 @@
+keys:
+  - subject: "example service"
+    holder: "the home"
+    scope: "read"
+    granted: "2026-09-21"
+    revoke: "Settings -> revoke token."
+    ref: urls/example-link

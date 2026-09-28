@@ -1,0 +1,7 @@
+keys:
+  - subject: "example"
+    holder: "the home"
+    scope: "read"
+    granted: "2026-13-45"
+    revoke: "Settings -> revoke."
+    ref: ""

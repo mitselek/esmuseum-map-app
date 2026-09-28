@@ -1,0 +1,24 @@
+# Access grants the kit holds or has handed out. Shape: types/memory-keys.ts.
+# The tier exists for the revoke column. A blank revoke is a finding, not a blank.
+
+keys:
+  - subject: "codeberg.org/mitselek/memory-kit"
+    holder: "mitselek (owner)"
+    scope: "admin: push, issues, settings"
+    granted: "2026-09-21"
+    revoke: "Codeberg repo settings -> Collaborators, or delete the repo."
+    ref: urls/memory-kit-repo
+
+  - subject: "github.com/mitselek/memory-kit (mirror)"
+    holder: "mitselek (owner)"
+    scope: "push; mirror only, never the source of truth"
+    granted: "2026-09-21"
+    revoke: "GitHub repo settings -> delete, or drop the github remote in the source repo."
+    ref: urls/memory-kit-mirror
+
+  - subject: "Passepartout (household assistant)"
+    holder: "Passepartout"
+    scope: "push to codeberg + github remotes via account SSH key"
+    granted: "2026-09-21"
+    revoke: "Remove the key from the Codeberg account; rotate if it was ever shared."
+    ref: mihkel:2026-09-21

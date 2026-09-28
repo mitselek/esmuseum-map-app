@@ -1,0 +1,2 @@
+rules:
+  - {rule: "Open the ref before citing a memory record elsewhere.", ref: types/memory-common.ts}

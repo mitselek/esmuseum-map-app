@@ -1,0 +1,35 @@
+# GENERATED from types/caps.ts by tools/extract-caps.py. Do not hand-edit.
+# The TypeScript interfaces are the canon; this is the flat extract the lint reads,
+# so a home needs python3 and nothing else to lint its memory.
+
+version: 0.1.0-alpha.1
+
+scratchpad:
+  current_rows: 15
+  total_rows: 100
+  record_chars: 100
+
+facts:
+  per_file: 30
+  fact_words: 42
+
+dormant:
+  per_file: 30
+
+rules:
+  rows: 20
+  rule_chars: 100
+
+core:
+  rules: 8
+  facts: 10
+
+obligations:
+  obligation_chars: 120
+
+lessons:
+  index_line_chars: 120
+
+ref_grammar:
+  pattern: '^$|^[0-9a-f]{7,40}$|^[A-Za-z0-9._\/-]+$|^#[0-9]+$|^urls\/[a-z0-9-]+$|^po:S[0-9]+$|^[a-z][a-z0-9_-]*:[0-9]{4}-[0-9]{2}-[0-9]{2}$|^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+  refute_same_as_ref: '=ref'

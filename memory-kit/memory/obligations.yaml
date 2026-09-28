@@ -1,0 +1,19 @@
+# What someone must do. Shape: types/memory-obligations.ts.
+# Not facts: an obligation rots when the COUNTERPARTY ACTS and nobody looked, so it carries
+# a resolution check and an expiry instead of a refutation address.
+# Resolved obligations are deleted; if the resolution mattered it became a fact or a lesson.
+
+obligations:
+  - obligation: "Decide whether obligations ship as a tier in v0.1 or wait for a proving home."
+    actor: "mitselek (PO)"
+    since: "2026-09-21"
+    check: "Read memory/scratchpad.yaml DEFERRED rows and the kit issue #1 thread."
+    expires: "2026-10-05"
+    ref: "#1"
+
+  - obligation: "Execute ADOPTION.md against a real home; it has never been run."
+    actor: "Passepartout (household)"
+    since: "2026-09-21"
+    check: "Does the household have memory/*.yaml and memory-kit/VERSION?"
+    expires: "2026-10-10"
+    ref: ADOPTION.md

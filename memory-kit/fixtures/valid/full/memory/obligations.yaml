@@ -1,0 +1,13 @@
+obligations:
+  - obligation: "Answer the schema question."
+    actor: "the PO"
+    since: "2026-09-21"
+    check: "Read the issue thread."
+    expires: "2099-01-01"
+    ref: "#1"
+  - obligation: "A blank check is legal and counted."
+    actor: "a colleague"
+    since: "2026-09-21"
+    check: ""
+    expires: "2099-01-01"
+    ref: "mihkel:2026-09-21"

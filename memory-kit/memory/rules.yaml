@@ -1,0 +1,52 @@
+# Core rules. Read on every spawn in every home that adopts the kit, so the cap is hard.
+# Shape: schemas/rules.json. Cap: 8.
+#
+# MANDATORY rows are the kit's own operating rules -- a home that opts out of them cannot
+# upgrade or report correctly. OPTIONAL rows are memory-hygiene universals; a home may
+# disable one by naming it with a reason in its config, and the lint reports the divergence.
+#
+# Admission test: would a home lacking this rule make a specific, repeated, recorded mistake?
+# Each row cites the incident. No incident, no core -- it is a lesson.
+
+rules:
+  # -- mandatory: the kit's own operation
+  - rule: "Never edit anything inside memory-kit/. Changes go upstream as an issue."
+    ref: memory-kit/README.md
+    core: mandatory
+    incident: "A local edit inside a vendored subtree survives until the next pull, then vanishes or conflicts."
+
+  - rule: "After adopting or upgrading, report what did not fit as an experience report."
+    ref: memory-kit/ADOPTION.md
+    core: mandatory
+    incident: "The obligations tier gap was found only because one adopting home reported it (kit issue #1)."
+
+  # -- optional: memory hygiene
+  - rule: "Never write a number you had to carry by hand. Write the command that derives it."
+    ref: urls/memory-kit-charter-discussion
+    core: optional
+    incident: "Every hand-carried count audited in framework-research was wrong: 264 vs 540 cards, 39 of 49 records mis-measured."
+
+  - rule: "Open the ref before citing a memory record elsewhere. This tier is a claim, not a source."
+    ref: memory-kit/SPEC.md
+    core: optional
+    incident: "A guessed network name survived one session unmarked and was defended as fact in the next (kit issue #1)."
+
+  - rule: "Refuted facts, dead links and closed items are deleted, not annotated. Git is the archive."
+    ref: memory-kit/SPEC.md
+    core: optional
+    incident: "Annotated-dead entries accumulate and are re-read as live; four conversions deleted 51 such rows."
+
+  - rule: "URLs never go inline in memory. One file per URL in urls/; cite the short name."
+    ref: memory-kit/SPEC.md
+    core: optional
+    incident: "Long URLs consume a row cap and break line-shaped linting."
+
+  - rule: "One idea per record. If it does not fit the char cap, it is two records."
+    ref: memory-kit/SPEC.md
+    core: optional
+    incident: "A row cap alone displaced growth into page-spanning rows in 10 of 10 scratchpads measured."
+
+  - rule: "A credential value never appears in the clear in memory, chat, or a commit."
+    ref: memory-kit/templates/secrets-README.md
+    core: mandatory
+    incident: "Standing risk; the tier exists precisely because plaintext secrets in memory are unrecoverable once pushed."

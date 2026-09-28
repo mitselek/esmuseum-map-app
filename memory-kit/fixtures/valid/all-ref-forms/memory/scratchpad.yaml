@@ -1,0 +1,10 @@
+current:
+  - {label: DECISION, record: "a sha ref", ref: a1b2c3d}
+  - {label: LEARNED,  record: "a path ref", ref: types/caps.ts}
+  - {label: WIP,      record: "an issue ref", ref: "#122"}
+  - {label: GOTCHA,   record: "a url-tier ref", ref: urls/example-link}
+  - {label: PATTERN,  record: "a ruling ref", ref: "po:S70"}
+  - {label: WARNING,  record: "a person-date ref", ref: "mihkel:2026-09-21"}
+  - {label: DEFERRED, record: "a bare date ref", ref: "2026-09-21"}
+  - {label: LEARNED,  record: "blank ref is counted, never failed", ref: ""}
+staging: []

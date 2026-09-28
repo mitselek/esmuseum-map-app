@@ -1,0 +1,45 @@
+# memory-kit's own scratchpad. Shape: types/memory-scratchpad.ts.
+# A claim about sources, never a source. Open the ref before citing.
+
+current:
+  - label: LEARNED
+    record: "680 tok/session is 0.07% of 1M -- measured right, judged wrong. Cost stated, not feared."
+    ref: mihkel:2026-09-21
+  - label: WIP
+    record: "lint/memory-lint.sh unwritten -- the tier that makes every other tier enforceable."
+    ref: types/caps.ts
+  - label: WIP
+    record: "fixtures/ unwritten. They are the contract; until they exist the kit has none."
+    ref: README.md
+  - label: WIP
+    record: "No migrations/ yet. Needed before the first major, not before v0.1.0."
+    ref: GOVERNANCE.md
+  - label: DECISION
+    record: "Types are the canon; caps.yaml is generated from them. No JSON Schema in this repo."
+    ref: 2e7dac0
+  - label: DECISION
+    record: "Minor upgrades are pull-only. Anything touching data shape on disk is a major."
+    ref: UPGRADE.md
+  - label: DECISION
+    record: "Model- and harness-agnostic: no vendor mechanism in the core; adapters carry it."
+    ref: README.md
+  - label: WARNING
+    record: "Caps are asserted, not measured. Every number in caps.ts awaits a real home."
+    ref: types/caps.ts
+  - label: WARNING
+    record: "ADOPTION.md has never been executed. Until it has, it is a draft that reads well."
+    ref: ADOPTION.md
+  - label: GOTCHA
+    record: "The kit broke its own urls-never-inline rule on day one; its own check caught it."
+    ref: 4a589aa
+  - label: DECISION
+    record: "Obligations ship as a tier in v0.1: current is regenerated, so it cannot hold them."
+    ref: #1
+
+staging:
+  - label: PATTERN
+    record: "Three independent homes arrived at a provenance token per claim before meeting."
+    ref: urls/memory-kit-charter-discussion
+  - label: LEARNED
+    record: "A fact about a home is never universal; only facts about the kit itself ship."
+    ref: types/memory-shipped.ts

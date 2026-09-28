@@ -1,0 +1,40 @@
+# Facts about memory-kit itself. Ships with the kit; installed into an adopting home. Installed in every adopting home so that the home's
+# assistant knows what its own memory convention is, where it lives, and how to talk back.
+# Shape: schemas/facts.json. These are MANDATORY core: a home cannot opt out of knowing
+# where its own kit comes from.
+
+facts:
+  - fact: "The kit lives at the repo in urls/memory-kit-repo; urls/memory-kit-mirror is a read-only mirror."
+    ref: urls/memory-kit-repo
+    refute: "Fetch both remotes and compare the tip of main."
+    verified: "2026-09-21"
+
+  - fact: "The version this home runs is written in memory-kit/VERSION inside the subtree."
+    ref: memory-kit/VERSION
+    refute: "cat memory-kit/VERSION"
+    verified: "2026-09-21"
+
+  - fact: "Upgrading is: pull the subtree, then execute UPGRADE.md. A minor upgrade is a pull and nothing else."
+    ref: memory-kit/UPGRADE.md
+    refute: "=ref"
+    verified: "2026-09-21"
+
+  - fact: "Adoption runs once, from ADOPTION.md. After that, only UPGRADE.md."
+    ref: memory-kit/ADOPTION.md
+    refute: "=ref"
+    verified: "2026-09-21"
+
+  - fact: "Feedback goes to the kit's issue tracker as an experience report: what fit, what did not, what the caps got wrong."
+    ref: urls/memory-kit-issues
+    refute: "=ref"
+    verified: "2026-09-21"
+
+  - fact: "The lint is lint/memory-lint.sh, --gate (fail-closed) or --report (exit 0); it needs python3 + PyYAML and fails closed without it."
+    ref: memory-kit/lint/memory-lint.sh
+    refute: "Run it with PyYAML uninstalled; it must refuse, not skip."
+    verified: "2026-09-21"
+
+  - fact: "The kit owns memory-kit/; the home owns its own memory directory. They never interleave."
+    ref: memory-kit/README.md
+    refute: "=ref"
+    verified: "2026-09-21"

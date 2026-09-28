@@ -1,0 +1,7 @@
+obligations:
+  - obligation: "An obligation with no named actor is a wish."
+    actor: ""
+    since: "2026-09-21"
+    check: "ask"
+    expires: "2099-01-01"
+    ref: ""

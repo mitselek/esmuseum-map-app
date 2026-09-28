@@ -1,0 +1,6 @@
+lessons:
+  - slug: nowhere
+    summary: "Indexed but not on disk."
+    learned: "2026-09-21"
+    ref: ""
+    enforcement: recognition

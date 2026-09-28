@@ -1,0 +1,9 @@
+facts:
+  - fact: "A fact is a present-tense claim with an address that could prove it wrong."
+    ref: types/memory-facts.ts
+    refute: "=ref"
+    verified: "2026-09-21"
+  - fact: "A fact may rest on trust; the blank test is counted, not failed."
+    ref: "mihkel:2026-09-21"
+    refute: ""
+    verified: "2026-09-21"

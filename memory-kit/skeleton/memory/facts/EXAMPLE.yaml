@@ -1,0 +1,8 @@
+# One file per SUBJECT; the filename names the subject, never the moment. `ls` is the index.
+# Shape: types/memory-facts.ts. Delete this file once the home has real subjects.
+
+facts:
+  - fact: "A fact is one present-tense sentence with an address that could prove it wrong."
+    ref: memory-kit/types/memory-facts.ts
+    refute: "=ref"
+    verified: "2026-09-21"

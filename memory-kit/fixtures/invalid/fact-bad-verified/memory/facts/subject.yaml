@@ -1,0 +1,5 @@
+facts:
+  - fact: "verified must be a real ISO date."
+    ref: ""
+    refute: ""
+    verified: "last Tuesday"

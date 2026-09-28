@@ -1,0 +1,3 @@
+current:
+  - {label: CHECKPOINT, record: "current is regenerated, so it has no job", ref: ""}
+staging: []

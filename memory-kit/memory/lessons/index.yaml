@@ -1,0 +1,27 @@
+# GENERATED from the lesson files -- never hand-carried. Shape: types/memory-lessons.ts.
+# Regenerate with tools/gen-lesson-index.py (unwritten: see scratchpad).
+
+lessons:
+  - slug: obligations-are-not-facts
+    summary: "Why waiting-on claims need an actor, a check and an expiry instead of a refutation address."
+    learned: "2026-09-21"
+    ref: "#1"
+    enforcement: linted
+
+  - slug: talking-back-to-the-kit
+    summary: "What to report upstream after adopting or upgrading, and what stays home."
+    learned: "2026-09-21"
+    ref: "#1"
+    enforcement: recognition
+
+  - slug: the-genus-of-a-claim
+    summary: "Which tier a claim belongs to, decided by how it rots rather than what it is about."
+    learned: "2026-09-21"
+    ref: types/memory-facts.ts
+    enforcement: recognition
+
+  - slug: two-caps
+    summary: "A row cap alone displaces growth into longer rows; cap characters too."
+    learned: "2026-09-21"
+    ref: types/caps.ts
+    enforcement: linted

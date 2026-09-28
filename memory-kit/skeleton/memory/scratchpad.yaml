@@ -1,0 +1,10 @@
+# Scratchpad (rename to <your-name>.yaml if the home has several). Shape: types/memory-scratchpad.ts.
+# A claim about sources, never a source. Open the ref before citing.
+#
+# current: act on these next session. Capped. REGENERATED at close, never appended.
+# staging: do not re-derive these; waiting for promotion into a durable tier.
+# No date field -- a date is provenance and lives in ref (<person>:<date>, or a bare <date>).
+
+current: []
+
+staging: []

@@ -1,0 +1,7 @@
+facts:
+  - fact: "A parked fact keeps its shape and gains a reason and a review cadence."
+    ref: types/memory-dormant.ts
+    refute: "=ref"
+    verified: "2026-09-21"
+    parked: "The project it describes is paused."
+    reviewed: "When the project resumes; check the board."

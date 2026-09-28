@@ -1,0 +1,6 @@
+facts:
+  - fact: "A parked fact without a reason is just a hidden fact."
+    ref: ""
+    refute: ""
+    verified: "2026-09-21"
+    reviewed: "someday"

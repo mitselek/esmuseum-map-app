@@ -1,0 +1,5 @@
+# This home's standing rules. Shape: types/memory-rules.ts. READ ON SPAWN -- keep it short.
+# Capped: every row costs every session forever. A rule that needs a why is a lesson.
+# The kit's own shipped rules are separate, in memory-kit/memory/rules.yaml.
+
+rules: []
