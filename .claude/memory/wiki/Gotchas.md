@@ -16,6 +16,7 @@ change unless the viewport meta has `interactive-widget=resizes-content` (now se
 shells (`h-screen`) with an inner scroll box put the bottom of the box under the keyboard.
 The #50 fix (`min-h-dvh`) rested on the wrong mechanism and was never device-verified.
 In-app browsers (Messenger) follow the host app's keyboard mode, so results vary by app.
+Fix 158fb20 (meta + `h-dvh` on the workspace) was confirmed on a phone by Mihkel on 2026-09-29.
 Source: urls/chrome-viewport-resize.
 
 ## Importing a config file into a test changes typecheck (2026-09-29)

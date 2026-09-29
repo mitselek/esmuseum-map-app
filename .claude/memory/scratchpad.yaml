@@ -6,9 +6,6 @@
 # No date field -- a date is provenance and lives in ref (<person>:<date>, or a bare <date>).
 
 current:
-  - label: WIP
-    record: "#56 is live (158fb20) but unverified: needs Android Chrome + Messenger check, then close."
-    ref: "#56"
   - label: DEFERRED
     record: "#53 left out: failed submit shows nothing (TaskResponseForm only logs). Needs its own issue."
     ref: "#53"
