@@ -22,10 +22,17 @@
           <!-- Logout Button -->
           <button
             v-if="isAuthenticated"
-            class="text-sm text-gray-600 hover:text-gray-900"
+            class="flex min-w-0 flex-col items-end text-sm text-gray-600 hover:text-gray-900"
+            :title="sessionLabel || undefined"
             @click="handleLogout"
           >
-            {{ $t('logout') }}
+            <span>{{ $t('logout') }}</span>
+            <span
+              v-if="sessionLabel"
+              class="max-w-[40vw] truncate text-xs text-gray-500"
+            >
+              {{ sessionLabel }}
+            </span>
           </button>
 
           <!-- Login Link -->
@@ -51,6 +58,7 @@
 </template>
 
 <script setup lang="ts">
+import { getSessionIdentity, formatSessionIdentity } from '~/utils/session-identity'
 // Language code type
 type LanguageCode = 'et' | 'en' | 'uk' | 'lv'
 
@@ -67,7 +75,10 @@ withDefaults(defineProps<Props>(), {
 
 // Composables
 const { locale, setLocale } = useI18n()
-const { isAuthenticated, user, logout: authLogout } = useEntuAuth()
+const { isAuthenticated, user, authResponse, logout: authLogout } = useEntuAuth()
+
+// Who is signed in, shown under the logout link (#57)
+const sessionLabel = computed(() => formatSessionIdentity(getSessionIdentity(user.value, authResponse.value)))
 const route = useRoute()
 
 // Check if we're on login page
