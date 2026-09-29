@@ -1,53 +1,37 @@
 /**
- * Who is signed in, as shown next to the logout link (#57).
+ * Which account is signed in, as shown under the logout link (#57).
  */
 import { describe, it, expect } from 'vitest'
-import { getSessionIdentity, formatSessionIdentity } from '../../app/utils/session-identity'
+import { getSessionAccount, shortenAccount } from '../../app/utils/session-identity'
 
-describe('getSessionIdentity', () => {
-  it('prefers displayname and the login identity email', () => {
-    const identity = getSessionIdentity(
-      { _id: 'p1', displayname: 'Mari Maasikas', forename: 'Mari', surname: 'M', email: 'person@example.com' },
+describe('getSessionAccount', () => {
+  it('prefers the login identity email', () => {
+    expect(getSessionAccount(
+      { _id: 'p1', email: 'person@example.com' },
       { token: 't', user: { email: 'login@example.com' } }
-    )
-    expect(identity).toEqual({ name: 'Mari Maasikas', account: 'login@example.com' })
-  })
-
-  it('falls back to forename and surname, then name', () => {
-    expect(getSessionIdentity({ _id: 'p1', forename: 'Mari', surname: 'Maasikas' }, null).name).toBe('Mari Maasikas')
-    expect(getSessionIdentity({ _id: 'p1', name: 'Mari' }, null).name).toBe('Mari')
+    )).toBe('login@example.com')
   })
 
   it('falls back to the person email when the login email is missing', () => {
-    expect(getSessionIdentity({ _id: 'p1', email: 'person@example.com' }, { token: 't' }).account).toBe('person@example.com')
+    expect(getSessionAccount({ _id: 'p1', email: 'person@example.com' }, { token: 't' })).toBe('person@example.com')
   })
 
   it('treats blank values as missing', () => {
-    expect(getSessionIdentity({ _id: 'p1', displayname: '  ', forename: '', surname: '' }, null)).toEqual({ name: '', account: '' })
+    expect(getSessionAccount({ _id: 'p1', email: '  ' }, { token: 't', user: { email: '' } })).toBe('')
   })
 
   it('handles no user at all', () => {
-    expect(getSessionIdentity(null, null)).toEqual({ name: '', account: '' })
+    expect(getSessionAccount(null, null)).toBe('')
   })
 })
 
-describe('formatSessionIdentity', () => {
-  it('joins name and account', () => {
-    expect(formatSessionIdentity({ name: 'Mari Maasikas', account: 'mari@example.com' })).toBe('Mari Maasikas · mari@example.com')
+describe('shortenAccount', () => {
+  it('keeps the first 20 characters and adds an ellipsis', () => {
+    expect(shortenAccount('mari.maasikas@example.com')).toBe('mari.maasikas@exampl…')
   })
 
-  it('shortens the account to 20 characters with an ellipsis', () => {
-    expect(formatSessionIdentity({ name: 'Mari', account: 'mari.maasikas@example.com' }, 20)).toBe('Mari · mari.maasikas@exampl…')
-    expect(formatSessionIdentity({ name: '', account: 'exactly20chars@ab.ee' }, 20)).toBe('exactly20chars@ab.ee')
-  })
-
-  it('keeps the full account when no limit is given (tooltip)', () => {
-    expect(formatSessionIdentity({ name: 'Mari', account: 'mari.maasikas@example.com' })).toBe('Mari · mari.maasikas@example.com')
-  })
-
-  it('shows only what is known, without a stray separator', () => {
-    expect(formatSessionIdentity({ name: '', account: 'mari@example.com' })).toBe('mari@example.com')
-    expect(formatSessionIdentity({ name: 'Mari', account: '' })).toBe('Mari')
-    expect(formatSessionIdentity({ name: '', account: '' })).toBe('')
+  it('leaves 20 characters or fewer untouched', () => {
+    expect(shortenAccount('exactly20chars@ab.ee')).toBe('exactly20chars@ab.ee')
+    expect(shortenAccount('')).toBe('')
   })
 })
