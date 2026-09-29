@@ -36,6 +36,15 @@ describe('formatSessionIdentity', () => {
     expect(formatSessionIdentity({ name: 'Mari Maasikas', account: 'mari@example.com' })).toBe('Mari Maasikas · mari@example.com')
   })
 
+  it('shortens the account to 20 characters with an ellipsis', () => {
+    expect(formatSessionIdentity({ name: 'Mari', account: 'mari.maasikas@example.com' }, 20)).toBe('Mari · mari.maasikas@exampl…')
+    expect(formatSessionIdentity({ name: '', account: 'exactly20chars@ab.ee' }, 20)).toBe('exactly20chars@ab.ee')
+  })
+
+  it('keeps the full account when no limit is given (tooltip)', () => {
+    expect(formatSessionIdentity({ name: 'Mari', account: 'mari.maasikas@example.com' })).toBe('Mari · mari.maasikas@example.com')
+  })
+
   it('shows only what is known, without a stray separator', () => {
     expect(formatSessionIdentity({ name: '', account: 'mari@example.com' })).toBe('mari@example.com')
     expect(formatSessionIdentity({ name: 'Mari', account: '' })).toBe('Mari')

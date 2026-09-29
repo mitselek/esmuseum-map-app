@@ -31,7 +31,7 @@
           <button
             v-if="isAuthenticated"
             class="flex min-w-0 flex-col items-end text-sm text-gray-600 hover:text-gray-900"
-            :title="sessionLabel || undefined"
+            :title="sessionTooltip || undefined"
             @click="handleLogout"
           >
             <span>{{ $t('logout') }}</span>
@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { getSessionIdentity, formatSessionIdentity } from '~/utils/session-identity'
+import { getSessionIdentity, formatSessionIdentity, ACCOUNT_DISPLAY_CHARS } from '~/utils/session-identity'
 import { useInstallPrompt } from '~/composables/useInstallPrompt'
 // Language code type
 type LanguageCode = 'et' | 'en' | 'uk' | 'lv'
@@ -88,7 +88,9 @@ const { isAuthenticated, user, authResponse, logout: authLogout } = useEntuAuth(
 const { canInstall, install } = useInstallPrompt()
 
 // Who is signed in, shown under the logout link (#57)
-const sessionLabel = computed(() => formatSessionIdentity(getSessionIdentity(user.value, authResponse.value)))
+const sessionIdentity = computed(() => getSessionIdentity(user.value, authResponse.value))
+const sessionLabel = computed(() => formatSessionIdentity(sessionIdentity.value, ACCOUNT_DISPLAY_CHARS))
+const sessionTooltip = computed(() => formatSessionIdentity(sessionIdentity.value))
 const route = useRoute()
 
 // Check if we're on login page

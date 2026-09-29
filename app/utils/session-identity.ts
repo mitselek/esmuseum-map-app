@@ -25,6 +25,15 @@ export const getSessionIdentity = (
   }
 }
 
-export const formatSessionIdentity = ({ name, account }: SessionIdentity): string => {
-  return [name, account].filter(Boolean).join(' · ')
+/** Longest account shown under the logout link before it is cut with an ellipsis */
+export const ACCOUNT_DISPLAY_CHARS = 20
+
+const shorten = (value: string, maxChars?: number): string => {
+  const chars = Array.from(value)
+  if (!maxChars || chars.length <= maxChars) return value
+  return chars.slice(0, maxChars).join('') + '…'
+}
+
+export const formatSessionIdentity = ({ name, account }: SessionIdentity, maxAccountChars?: number): string => {
+  return [name, shorten(account, maxAccountChars)].filter(Boolean).join(' · ')
 }
