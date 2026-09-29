@@ -11,7 +11,12 @@ export default defineNuxtConfig({
   app: {
     head: {
       meta: [
-        { name: 'viewport', content: 'width=device-width, initial-scale=1, interactive-widget=resizes-content' }
+        { name: 'viewport', content: 'width=device-width, initial-scale=1, interactive-widget=resizes-content' },
+        { name: 'theme-color', content: '#008298' }
+      ],
+      link: [
+        { rel: 'manifest', href: '/manifest.webmanifest' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' }
       ]
     }
   },

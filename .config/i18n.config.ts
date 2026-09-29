@@ -28,6 +28,7 @@ export default defineI18nConfig(() => ({
       },
       login: 'Logi sisse',
       logout: 'Logi välja',
+      installApp: 'Paigalda äpp',
       appName: 'ESM Kaardirakendus',
 
       museumLogoAlt: 'Eesti sõjamuuseumi logo',
@@ -196,6 +197,7 @@ export default defineI18nConfig(() => ({
       },
       login: 'Login',
       logout: 'Logout',
+      installApp: 'Install app',
       appName: 'EWM Map App',
 
       museumLogoAlt: 'Estonian War Museum logo',
@@ -370,6 +372,7 @@ export default defineI18nConfig(() => ({
       },
       login: 'Увійти',
       logout: 'Вийти',
+      installApp: 'Встановити застосунок',
       appName: 'Карта Естонського військового музею',
 
       museumLogoAlt: 'Логотип Естонського військового музею',
@@ -540,6 +543,7 @@ export default defineI18nConfig(() => ({
       },
       login: 'Pieteikties',
       logout: 'Izrakstīties',
+      installApp: 'Instalēt lietotni',
       appName: 'IKM kartes lietotne',
 
       museumLogoAlt: 'Igaunijas Kara muzeja logotips',

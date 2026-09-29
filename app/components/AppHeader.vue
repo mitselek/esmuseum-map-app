@@ -2,9 +2,17 @@
   <header class="border-b bg-white shadow-sm">
     <div class="px-4 py-3">
       <div class="flex items-center justify-between">
-        <h1 class="text-xl font-semibold text-esm-dark">
+        <div class="flex items-center">
           <!-- {{ title || $t('appName') }} -->
-        </h1>
+          <!-- Install as app (#58): only where the browser offers it -->
+          <button
+            v-if="canInstall"
+            class="rounded border border-esm-blue px-3 py-1 text-sm text-esm-blue hover:bg-esm-blue hover:text-white"
+            @click="install"
+          >
+            {{ $t('installApp') }}
+          </button>
+        </div>
         <div class="flex items-center space-x-4">
           <!-- Language Switcher -->
           <div class="flex items-center space-x-2">
@@ -59,6 +67,7 @@
 
 <script setup lang="ts">
 import { getSessionIdentity, formatSessionIdentity } from '~/utils/session-identity'
+import { useInstallPrompt } from '~/composables/useInstallPrompt'
 // Language code type
 type LanguageCode = 'et' | 'en' | 'uk' | 'lv'
 
@@ -76,6 +85,7 @@ withDefaults(defineProps<Props>(), {
 // Composables
 const { locale, setLocale } = useI18n()
 const { isAuthenticated, user, authResponse, logout: authLogout } = useEntuAuth()
+const { canInstall, install } = useInstallPrompt()
 
 // Who is signed in, shown under the logout link (#57)
 const sessionLabel = computed(() => formatSessionIdentity(getSessionIdentity(user.value, authResponse.value)))
