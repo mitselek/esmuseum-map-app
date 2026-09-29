@@ -1,0 +1,19 @@
+# Subject: where the app's data lives in Entu and who can read it.
+
+facts:
+  - fact: "A vastus links its task through the reference property ulesanne, not through _parent."
+    ref: app/constants/entu.ts
+    refute: "=ref"
+    verified: "2026-09-29"
+  - fact: "New vastus entities land in the type's default_parent folder vastused (68ff1b477336d84ccb2b6e9d), Private, with _inheritrights true."
+    ref: "#45"
+    refute: "Entu UI as superuser: open entity 68ff1b477336d84ccb2b6e9d"
+    verified: "2026-09-29"
+  - fact: "Only Eli Pilve and superusers can read the vastused folder; Mihkel's admin key sees neither the folder nor its answers."
+    ref: "#45"
+    refute: "Entu UI as superuser: rights tab of 68ff1b477336d84ccb2b6e9d"
+    verified: "2026-09-29"
+  - fact: "Task property vastuseid is a plain number of expected answers, not a count of submitted ones."
+    ref: "2026-09-29"
+    refute: "GET /esmuuseum/entity?_type.string=ulesanne&props=vastuseid"
+    verified: "2026-09-29"
