@@ -24,9 +24,9 @@ current:
   - label: DEFERRED
     record: "uk appName translation wants a native speaker check."
     ref: afa8560
-  - label: WARNING
-    record: "Push to main deploys to students at once. Daytime changes need Mihkel's go-ahead."
-    ref: "mihkel:2026-09-28"
+  - label: DECISION
+    record: "Live-deploy window extended into 2026-09-29 daytime; push to main is fine until Mihkel ends it."
+    ref: "mihkel:2026-09-29"
   - label: DECISION
     record: "#45 parked until a second teacher joins; Eli alone reads all answers. Premise was inverted."
     ref: "mihkel:2026-09-29"

@@ -2,6 +2,12 @@
 
 Rulings with dates and reasons. Newest first.
 
+## 2026-09-29 -- Live-deploy window continues into the day
+
+Mihkel (relayed by Passepartout), asked whether to hold daytime changes: "Yes. Window lasts".
+Pushing to main stays allowed during the day, same routine as the night session, until he
+ends the window.
+
 ## 2026-09-29 -- No Stadia or CARTO; special days use OpenTopoMap
 
 Mihkel: "we are not getting Stadia map styles". Keyed providers were removed from the style
@@ -23,8 +29,7 @@ native speaker. (afa8560)
 
 Mihkel: no staging and no time for ceremony; deploy live at night when no students use the
 app, rely on App Platform rollback. Each change: issue, failing test, fix, push, wait for
-ACTIVE, verify the shipped bundle. Applies to night sessions with no live users, not as a
-standing daytime rule.
+ACTIVE, verify the shipped bundle. Extended into the day on 2026-09-29 (see above).
 
 ## 2026-09-28 -- Submit confirmation stays 3 s
 
