@@ -1,4 +1,0 @@
-rules:
-  - rule: "No incident, no ship."
-    ref: ""
-    core: optional

@@ -1,6 +1,0 @@
-# What someone must do. Shape: types/memory-obligations.ts.
-# Not facts: an obligation rots when the COUNTERPARTY ACTS and nobody looked, so it carries
-# a resolution check and an expiry instead of a refutation address.
-# Resolved obligations are deleted; if the resolution mattered it became a fact or a lesson.
-
-obligations: []

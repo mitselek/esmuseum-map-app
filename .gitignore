@@ -26,3 +26,6 @@ docs/CVI/**/Eesti S*.pdf
 
 # Copilot workspace is now part of the knowledge base
 # (previously ignored, now included for documentation)
+
+# Agent home and memory live in a separate private repo (laidoner-home)
+.claude/
