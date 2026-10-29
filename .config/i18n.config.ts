@@ -118,6 +118,7 @@ export default defineI18nConfig(() => ({
         modalSubmitting: 'Saadan vastust...',
         modalSubmitSuccess: 'Vastus saadetud!',
         modalSubmitError: 'Viga saatmisel',
+        filesNotAttached: 'Vastus salvestati, kuid faile ei õnnestunud üles laadida.',
         // LocationPicker translations
         selectedLocation: 'Valitud asukoht',
         changeLocation: 'Muuda',
@@ -293,6 +294,7 @@ export default defineI18nConfig(() => ({
         modalSubmitting: 'Submitting response...',
         modalSubmitSuccess: 'Response submitted!',
         modalSubmitError: 'Submission error',
+        filesNotAttached: 'Your response was saved, but the files could not be uploaded.',
         // LocationPicker translations
         selectedLocation: 'Selected location',
         changeLocation: 'Change',
@@ -463,6 +465,7 @@ export default defineI18nConfig(() => ({
         modalSubmitting: 'Надсилання відповіді...',
         modalSubmitSuccess: 'Відповідь надіслано!',
         modalSubmitError: 'Помилка надсилання',
+        filesNotAttached: 'Відповідь збережено, але файли не вдалося завантажити.',
         // LocationPicker translations
         selectedLocation: 'Вибране місце',
         changeLocation: 'Змінити',
@@ -633,6 +636,7 @@ export default defineI18nConfig(() => ({
         modalSubmitting: 'Iesniedz atbildi...',
         modalSubmitSuccess: 'Atbilde iesniegta!',
         modalSubmitError: 'Iesniegšanas kļūda',
+        filesNotAttached: 'Atbilde saglabāta, bet failus neizdevās augšupielādēt.',
         // LocationPicker translations
         selectedLocation: 'Izvēlētā atrašanās vieta',
         changeLocation: 'Mainīt',

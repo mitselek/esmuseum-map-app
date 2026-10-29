@@ -77,6 +77,7 @@
 import type { EntuTask } from '~~/types/entu'
 import type { TaskLocation } from '~~/types/location'
 import { roundCoordinates } from '~/utils/distance'
+import { runResponseSubmission } from '~/utils/response-submission'
 
 // Types
 interface ResponseFormData {
@@ -129,7 +130,9 @@ interface Emits {
     apiResponse: unknown
     locationReference?: string
     uploadedFiles: string[]
+    filesFailed: boolean
   }): void
+  (e: 'response-failed', data: { message: string }): void
 }
 
 const emit = defineEmits<Emits>()
@@ -218,24 +221,14 @@ const extractResponseId = (response: { id: string, data: unknown }): string => {
 }
 
 /**
- * Upload files to a response entity, returning file entity IDs
+ * Upload files to a response entity. Throws or returns unsuccessful results on
+ * failure; runResponseSubmission turns either into filesFailed.
  */
-const uploadResponseFiles = async (responseId: string): Promise<string[]> => {
-  if (!fileUploadRef.value || !fileUploadRef.value.files.length || !responseId) return []
+const uploadResponseFiles = (responseId: string): Promise<UploadResult[]> => {
+  if (!fileUploadRef.value || !fileUploadRef.value.files.length || !responseId) return Promise.resolve([])
 
   log.debug('F015: Starting file upload process...')
-  try {
-    const uploadResults = await fileUploadRef.value.uploadFiles(responseId)
-    const refs = uploadResults
-      .filter((result) => result.success && result.entityId)
-      .map((result) => result.entityId!)
-    log.info('Files uploaded, entity IDs:', refs)
-    return refs
-  }
-  catch (uploadError) {
-    log.error('File upload failed:', uploadError)
-    return []
-  }
+  return fileUploadRef.value.uploadFiles(responseId)
 }
 
 // Form submission
@@ -263,17 +256,29 @@ const submitResponse = async () => {
       respondentName: respondentName.value || undefined
     }
 
-    const response = await createTaskResponse(requestData)
-    log.info('Response created:', response)
+    const outcome = await runResponseSubmission({
+      create: () => createTaskResponse(requestData),
+      uploadFiles: (response) => uploadResponseFiles(extractResponseId(response))
+    })
 
-    const responseId = extractResponseId(response)
-    const fileReferences = await uploadResponseFiles(responseId)
+    if (outcome.status === 'failed') {
+      // Keep the form as it is so the student can retry
+      log.error('Failed to submit response:', outcome.message)
+      emit('response-failed', { message: outcome.message })
+      return
+    }
+
+    log.info('Response created:', outcome.response)
+    if (outcome.filesFailed) {
+      log.error('File upload failed for response:', extractResponseId(outcome.response))
+    }
 
     emit('response-submitted', {
       responseData: requestData,
-      apiResponse: response,
+      apiResponse: outcome.response,
       locationReference: props.selectedLocation?.reference,
-      uploadedFiles: fileReferences
+      uploadedFiles: outcome.fileReferences,
+      filesFailed: outcome.filesFailed
     })
 
     // Reset form
@@ -282,9 +287,6 @@ const submitResponse = async () => {
     responseForm.value.file = null
     uploadedFiles.value = []
     fileUploadRef.value?.clearFiles()
-  }
-  catch (error) {
-    log.error('Failed to submit response:', error)
   }
   finally {
     submitting.value = false

@@ -58,6 +58,7 @@
           @request-location="handleLocationRequest"
           @load-task-locations="loadTaskLocations"
           @response-submitted="handleResponseSubmitted"
+          @response-failed="handleResponseFailed"
         />
       </div>
     </div>
@@ -78,11 +79,12 @@ import { SUBMISSION_SUCCESS_DISPLAY_MS } from '~/constants/ui'
 import type { TaskLocation } from '~~/types/location'
 import { getLocationIdentifier } from '~/utils/location-sync'
 import { getTaskName } from '~~/utils/entu-helpers'
+import { notifyWarning } from '~/composables/useNotifications'
 import { formatDate } from '~~/utils/date-format'
 
 const log = useClientLogger('TaskDetailPanel')
 const { selectedTask, clearSelection } = useTaskWorkspace()
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const {
   getLocationCoordinates,
   userPosition
@@ -250,7 +252,12 @@ const handleLocationRequest = async () => {
 }
 
 // Handle response submission with optimistic updates
-const handleResponseSubmitted = async (_responseData: unknown): Promise<void> => {
+const handleResponseSubmitted = async (data: { filesFailed: boolean }): Promise<void> => {
+  // The response is saved either way; tell the student the files are missing (#59)
+  if (data.filesFailed) {
+    notifyWarning(t('taskDetail.filesNotAttached'))
+  }
+
   // Show submitting modal
   showSubmissionModal.value = true
   submissionStatus.value = 'submitting'
@@ -285,6 +292,13 @@ const handleResponseSubmitted = async (_responseData: unknown): Promise<void> =>
     submissionStatus.value = 'error'
     submissionError.value = error instanceof Error ? error.message : 'Unknown error occurred'
   }
+}
+
+// Submitting failed before the response was saved: show the error modal (#59)
+const handleResponseFailed = (data: { message: string }): void => {
+  showSubmissionModal.value = true
+  submissionStatus.value = 'error'
+  submissionError.value = data.message
 }
 
 // Handle retry after submission error
