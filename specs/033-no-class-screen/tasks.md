@@ -20,25 +20,25 @@ Order is strict where noted; [P] tasks can run alongside the task before them.
 
 ## Core
 
-- [ ] **T005** `app/utils/class-status.ts`: `isClassMember`, `shouldShowNoClassNotice` (types from
+- [x] **T005** `utils/class-status.ts`: `isClassMember`, `shouldShowNoClassNotice` (types from
       the contract). T001 and T002 green.
-- [ ] **T006** `server/api/onboard/class-status.get.ts`: manager-key token; read the `grupp` type's
+- [x] **T006** `server/api/onboard/class-status.get.ts`: manager-key token; read the `grupp` type's
       `default_parent`; list `grupp` with that parent; read the person; answer with
       `isClassMember`. Logs ids only. T003 green.
-- [ ] **T007** `app/composables/useClassStatus.ts`: module-level `ref<ClassStatus>('unknown')` per
+- [x] **T007** `app/composables/useClassStatus.ts`: module-level `ref<ClassStatus>('unknown')` per
       user id; `ensureClassStatus(userId)` fetches once; `unknown` on any error.
 
 ## UI
 
-- [ ] **T008** `.config/i18n.config.ts`: `tasks.noClassTitle`, `tasks.noClassDescription` in et,
+- [x] **T008** `.config/i18n.config.ts`: `tasks.noClassTitle`, `tasks.noClassDescription` in et,
       en, uk, lv (texts approved by Mihkel).
-- [ ] **T009** `app/components/TaskSidebar.vue`: when the list is empty and not searching, call
+- [x] **T009** `app/components/TaskSidebar.vue`: when the list is empty and not searching, call
       `ensureClassStatus`; render the no-class texts when `shouldShowNoClassNotice` is true,
       otherwise today's texts.
 
 ## Polish
 
-- [ ] **T010** `npm run lint`, `npm run typecheck`, `npm test` green.
+- [x] **T010** `npm run lint`, `npm run typecheck`, `npm test` green.
 - [ ] **T011** quickstart.md scenarios: those a dev run here can reach; the rest listed in the PR
       for a check on a device.
 - [ ] **T012** PR on the forge, body "Closes #61", the unverified scenarios named.

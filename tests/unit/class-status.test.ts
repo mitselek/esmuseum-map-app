@@ -4,8 +4,8 @@
  * all-users grupp parent, which is not a class.
  */
 import { describe, it, expect } from 'vitest'
-import { isClassMember, shouldShowNoClassNotice } from '../../app/utils/class-status'
-import type { NoClassNoticeInput } from '../../app/utils/class-status'
+import { isClassMember, shouldShowNoClassNotice } from '../../utils/class-status'
+import type { NoClassNoticeInput } from '../../utils/class-status'
 
 const classIds = new Set(['class-1', 'class-2'])
 const allUsers = { reference: 'all-users', entity_type: 'grupp' }

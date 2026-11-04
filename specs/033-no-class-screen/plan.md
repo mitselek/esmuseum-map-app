@@ -65,7 +65,7 @@ specs/033-no-class-screen/
 
 ```text
 server/api/onboard/class-status.get.ts      # new: { status: 'in-class' | 'no-class' }
-app/utils/class-status.ts                   # new: pure decision functions
+utils/class-status.ts                       # new: pure decision functions (shared app/server)
 app/composables/useClassStatus.ts           # new: fetch once per user, module-level state
 app/components/TaskSidebar.vue              # empty state: no-class message when decided
 .config/i18n.config.ts                      # tasks.noClassTitle / tasks.noClassDescription x4

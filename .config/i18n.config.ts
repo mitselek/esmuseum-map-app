@@ -50,6 +50,8 @@ export default defineI18nConfig(() => ({
         noTasksMatchSearch: 'Otsingu järgi ülesandeid ei leitud',
         tryDifferentSearch: 'Proovi teistsugust otsingut',
         noTasksDescription: 'Ülesanded ilmuvad siia, kui need on määratud',
+        noClassTitle: 'Sa ei kuulu veel ühtegi klassi',
+        noClassDescription: 'Küsi õpetajalt klassi liitumislinki. Lingi avamisel lisatakse sind klassi ja siia ilmuvad sinu ülesanded.',
         responses: 'vastust',
         group: 'Grupp',
         open: 'Ava →'
@@ -219,6 +221,8 @@ export default defineI18nConfig(() => ({
         noTasksMatchSearch: 'No tasks match your search',
         tryDifferentSearch: 'Try a different search term',
         noTasksDescription: 'Tasks will appear here when they are assigned',
+        noClassTitle: 'You\'re not in a class yet',
+        noClassDescription: 'Ask your teacher for the class link. When you open it, you\'ll be added to the class and your tasks will appear here.',
         responses: 'responses',
         group: 'Group',
         backToList: 'Back to list',
@@ -394,6 +398,8 @@ export default defineI18nConfig(() => ({
         noTasksMatchSearch: 'Жодного завдання не відповідає вашому пошуку',
         tryDifferentSearch: 'Спробуйте інший пошуковий запит',
         noTasksDescription: 'Завдання з\'являться тут після призначення',
+        noClassTitle: 'Ви ще не входите до жодного класу',
+        noClassDescription: 'Попросіть у вчителя посилання на клас. Коли ви його відкриєте, вас буде додано до класу, і тут з\'являться ваші завдання.',
         responses: 'відповідей',
         group: 'Група',
         open: 'Відкрити →'
@@ -565,6 +571,8 @@ export default defineI18nConfig(() => ({
         noTasksMatchSearch: 'Neviens uzdevums neatbilst jūsu meklēšanai',
         tryDifferentSearch: 'Mēģiniet citu meklēšanas terminu',
         noTasksDescription: 'Uzdevumi parādīsies šeit, kad tie tiks piešķirti',
+        noClassTitle: 'Jūs vēl neesat nevienā klasē',
+        noClassDescription: 'Palūdziet skolotājam klases saiti. Kad to atvērsiet, jūs pievienos klasei, un šeit parādīsies jūsu uzdevumi.',
         responses: 'atbildes',
         group: 'Grupa',
         open: 'Atvērt →'

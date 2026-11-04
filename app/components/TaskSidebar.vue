@@ -104,12 +104,22 @@
             />
           </svg>
         </div>
-        <p class="text-sm font-medium text-esm-dark">
-          {{ searchQuery ? $t('tasks.noTasksMatchSearch') : $t('tasks.noTasks') }}
-        </p>
-        <p class="mt-1 text-xs text-gray-500">
-          {{ searchQuery ? $t('tasks.tryDifferentSearch') : $t('tasks.noTasksDescription') }}
-        </p>
+        <template v-if="showNoClassNotice">
+          <p class="text-sm font-medium text-esm-dark">
+            {{ $t('tasks.noClassTitle') }}
+          </p>
+          <p class="mt-1 text-xs text-gray-500">
+            {{ $t('tasks.noClassDescription') }}
+          </p>
+        </template>
+        <template v-else>
+          <p class="text-sm font-medium text-esm-dark">
+            {{ searchQuery ? $t('tasks.noTasksMatchSearch') : $t('tasks.noTasks') }}
+          </p>
+          <p class="mt-1 text-xs text-gray-500">
+            {{ searchQuery ? $t('tasks.tryDifferentSearch') : $t('tasks.noTasksDescription') }}
+          </p>
+        </template>
       </div>
 
       <div
@@ -194,6 +204,7 @@
 import type { EntuTask } from '~~/types/entu'
 import { getTaskName, getTaskDescription, getTaskResponseCount, getTaskDeadline } from '~~/utils/entu-helpers'
 import { formatDate } from '~~/utils/date-format'
+import { shouldShowNoClassNotice } from '~~/utils/class-status'
 
 const log = useClientLogger('TaskSidebar')
 const { locale } = useI18n()
@@ -224,6 +235,28 @@ const taskResponseStatsCache = ref<Map<string, TaskStats>>(new Map())
 
 // Search functionality
 const searchQuery = ref('')
+
+// "Not in a class yet" notice (spec 033, #61): asked only when the list is empty
+const { user } = useEntuAuth()
+const { classStatus, ensureClassStatus } = useClassStatus()
+const isJoinPending = (): boolean => import.meta.client && !!localStorage.getItem('pending_group_id')
+
+const showNoClassNotice = computed(() => shouldShowNoClassNotice({
+  initialized: initialized.value,
+  loading: loading.value,
+  error: error.value,
+  taskCount: tasks.value.length,
+  searchQuery: searchQuery.value.trim(),
+  joinPending: isJoinPending(),
+  classStatus: classStatus.value
+}))
+
+watch([initialized, () => tasks.value.length], ([ready, count]) => {
+  const userId = user.value?._id
+  if (ready && count === 0 && userId && !isJoinPending()) {
+    ensureClassStatus(userId)
+  }
+}, { immediate: true })
 
 // Computed property for filtered tasks (sorted: incomplete first, completed last)
 const filteredTasks = computed(() => {
