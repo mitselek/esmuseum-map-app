@@ -1,7 +1,7 @@
 /**
  * Tests for server/api/onboard/ endpoints
  *
- * Tests check-membership, get-group-info, validate-user, join-group
+ * Tests check-membership, get-group-info, validate-user, join-group, class-status
  * Uses MSW + helpers to mock Entu API and Nuxt runtime
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
@@ -296,6 +296,85 @@ describe('onboard endpoints', () => {
       })
       const result = await handler(event)
       expect(result.success).toBe(false)
+    })
+  })
+
+  describe('class-status', () => {
+    let handler: (event: any) => Promise<any>
+
+    // The classes root is the grupp type's default_parent (spec 033).
+    const gruppType = buildMockEntity('type-grupp', 'entity', {
+      name: [{ string: 'grupp' }],
+      default_parent: [{ reference: 'classes-root' }]
+    })
+    const classA = buildMockGroup('class-a', 'Class A', {
+      _parent: [{ reference: 'classes-root', entity_type: 'grupp' }]
+    })
+    const allUsers = buildMockGroup('all-users', 'Kasutajad', {
+      _parent: [{ reference: 'database', entity_type: 'database' }]
+    })
+    const parents = (...refs: Array<[string, string]>) => ({
+      _parent: refs.map(([reference, entity_type]) => ({ reference, entity_type }))
+    })
+
+    beforeEach(async () => {
+      vi.resetModules()
+      vi.mock('../../../server/utils/logger', () => ({
+        createLogger: () => ({
+          debug: vi.fn(),
+          info: vi.fn(),
+          warn: vi.fn(),
+          error: vi.fn()
+        })
+      }))
+      const mod = await import('../../../server/api/onboard/class-status.get')
+      handler = mod.default as any
+    })
+
+    it('answers in-class for a member of a class', async () => {
+      seedEntities([gruppType, classA, allUsers,
+        buildMockPerson('user-1', parents(['all-users', 'grupp'], ['class-a', 'grupp']))])
+
+      const result = await handler(createMockH3Event({ query: { userId: 'user-1' } }))
+      expect(result).toEqual({ status: 'in-class' })
+    })
+
+    it('answers no-class when the only grupp parent is the all-users group', async () => {
+      seedEntities([gruppType, classA, allUsers,
+        buildMockPerson('user-1', parents(['all-users', 'grupp'], ['persons-menu', 'menu']))])
+
+      const result = await handler(createMockH3Event({ query: { userId: 'user-1' } }))
+      expect(result).toEqual({ status: 'no-class' })
+    })
+
+    it('answers no-class for a person with no parents', async () => {
+      seedEntities([gruppType, classA, buildMockPerson('user-1')])
+
+      const result = await handler(createMockH3Event({ query: { userId: 'user-1' } }))
+      expect(result).toEqual({ status: 'no-class' })
+    })
+
+    it('answers unknown with 400 when userId is missing', async () => {
+      const result = await handler(createMockH3Event({ query: {} }))
+      expect(result.status).toBe('unknown')
+      expect(result.error).toContain('Missing')
+      expect((globalThis as any).setResponseStatus).toHaveBeenCalledWith(expect.anything(), 400)
+    })
+
+    it('answers unknown with 500 when the person cannot be read', async () => {
+      seedEntities([gruppType, classA])
+
+      const result = await handler(createMockH3Event({ query: { userId: 'user-missing' } }))
+      expect(result.status).toBe('unknown')
+      expect((globalThis as any).setResponseStatus).toHaveBeenCalledWith(expect.anything(), 500)
+    })
+
+    it('answers unknown with 500 when the classes root cannot be found', async () => {
+      seedEntities([classA, buildMockPerson('user-1', parents(['class-a', 'grupp']))])
+
+      const result = await handler(createMockH3Event({ query: { userId: 'user-1' } }))
+      expect(result.status).toBe('unknown')
+      expect((globalThis as any).setResponseStatus).toHaveBeenCalledWith(expect.anything(), 500)
     })
   })
 })
